@@ -1,0 +1,9 @@
+# Dockerfile.dev — dev image for hot-reload & editable installs
+FROM python:3.11-slim
+WORKDIR /app
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+RUN apt-get update && apt-get install -y build-essential && rm -rf /var/lib/apt/lists/*
+RUN pip install --upgrade pip
+COPY backend/pyproject.toml backend/ /app/backend/
+RUN pip install -e /app/backend[dev]
+CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
