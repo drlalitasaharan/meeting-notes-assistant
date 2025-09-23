@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from ..db import get_db
+from ...packages.shared.models import Meeting
 
 router = APIRouter(prefix="/meetings", tags=["meetings"])
 
@@ -8,6 +11,8 @@ class MeetingOut(BaseModel):
     title: str
     status: str
     tags: list[str] = []
+    class Config:
+        from_attributes = True
 
 class MeetingsPage(BaseModel):
     items: list[MeetingOut]
@@ -15,25 +20,30 @@ class MeetingsPage(BaseModel):
     limit: int
     total: int
 
-_FAKE = [
-    MeetingOut(id=1, title="Sprint Planning", status="new", tags=["sprint","planning"]),
-    MeetingOut(id=2, title="Design Review",  status="done", tags=["design"]),
-]
-
 @router.get("", response_model=MeetingsPage)
 def list_meetings(
-    query: str | None = Query(default=None),
-    status: str | None = Query(default=None),
-    page: int = Query(1, ge=1),
-    limit: int = Query(20, ge=1, le=100),
+    query: str | None = Query(None),
+    status: str | None = Query(None),
+    tag: str | None    = Query(None),
+    page: int          = Query(1, ge=1),
+    limit: int         = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
 ):
-    rows = _FAKE
+    q = db.query(Meeting)
     if query:
-        q = query.lower()
-        rows = [m for m in rows if q in m.title.lower()]
+        q = q.filter(Meeting.title.ilike(f"%{query.lower()}%"))
     if status:
-        rows = [m for m in rows if m.status == status]
-    total = len(rows)
-    start = (page-1)*limit
-    end = start + limit
-    return MeetingsPage(items=rows[start:end], page=page, limit=limit, total=total)
+        q = q.filter(Meeting.status == status)
+    if tag:
+        q = q.filter(Meeting.tags.ilike(f"%{tag}%"))
+
+    total = q.count()
+    rows = q.order_by(Meeting.created_at.desc()).offset((page-1)*limit).limit(limit).all()
+    items = [MeetingOut(id=m.id, title=m.title, status=m.status, tags=m.tags_list) for m in rows]
+    return MeetingsPage(items=items, page=page, limit=limit, total=total)
+
+@router.post("", response_model=MeetingOut)
+def create_meeting(title: str, tags: str | None = None, db: Session = Depends(get_db)):
+    m = Meeting(title=title, tags=tags or "")
+    db.add(m); db.commit(); db.refresh(m)
+    return MeetingOut(id=m.id, title=m.title, status=m.status, tags=m.tags_list)

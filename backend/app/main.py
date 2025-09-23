@@ -1,8 +1,15 @@
 from fastapi import FastAPI, Depends
 from .deps import require_api_key
 from .routers import meetings, slides, jobs
+from ..packages.shared.models import Base
+from .db import engine
 
 app = FastAPI(title="Meeting Notes Assistant API")
+
+@app.on_event("startup")
+def _create_all():
+    Base.metadata.create_all(bind=engine)
+
 
 @app.get("/healthz")
 def healthz():
