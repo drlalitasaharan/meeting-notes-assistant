@@ -1,0 +1,13 @@
+# runtime deps for API + tests
+fastapi>=0.110
+uvicorn>=0.25
+sqlalchemy>=2.0
+alembic>=1.12
+pydantic>=2.5
+python-multipart>=0.0.9   # file uploads
+requests>=2.31
+httpx>=0.27               # FastAPI test client uses it under the hood
+
+# testing
+pytest>=7.4
+
