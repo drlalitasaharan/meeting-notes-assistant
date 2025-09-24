@@ -2,19 +2,16 @@ name: CI
 
 on:
   push:
-    branches: [ main, feat/**, ci/** ]
+    branches: [ feat/**, main ]
   pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
-    env:
-      API_KEY: dev-secret-123
-      DATABASE_URL: sqlite:///./dev.db
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -26,20 +23,36 @@ jobs:
           python -m pip install -U pip
           pip install -r requirements-test.txt
 
-      - name: Start API (background) and wait for /healthz
+      - name: Start API server
+        env:
+          API_KEY: dev-secret-123
+          DATABASE_URL: sqlite:///./dev.db
         run: |
-          uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 &
+          set -euo pipefail
+          mkdir -p storage
+          uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 & echo $! > uvicorn.pid
+
+          # wait for health
           for i in {1..40}; do
             if curl -fsS http://127.0.0.1:8000/healthz >/dev/null; then
               echo "API is up"
               break
             fi
-            echo "Waiting for API..."
-            sleep 0.5
+            sleep 0.25
           done
 
       - name: Run tests
+        env:
+          API_KEY: dev-secret-123
+          DATABASE_URL: sqlite:///./dev.db
         run: |
-          mkdir -p storage
           pytest -q
+
+      - name: Stop API server
+        if: always()
+        run: |
+          if [ -f uvicorn.pid ]; then
+            kill "$(cat uvicorn.pid)" || true
+            rm -f uvicorn.pid
+          fi
 
