@@ -3,7 +3,7 @@ from typing import Optional, List
 from datetime import datetime
 import time
 
-from fastapi import APIRouter, Query, Response, BackgroundTasks, Depends, HTTPException, status
+from fastapi import APIRouter, Query, Response, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -21,6 +21,7 @@ class JobOut(BaseModel):
     finished_at: datetime | None = None
     error: str | None = None
     logs: str | None = None
+
     class Config:
         from_attributes = True
 
@@ -34,7 +35,8 @@ def list_jobs(db: Session = Depends(get_db)):
 
 def _append_logs(db: Session, job: Job, line: str) -> None:
     job.logs = (job.logs or "") + line
-    db.add(job); db.commit()
+    db.add(job)
+    db.commit()
 
 def _run_job_logic(db: Session, job_id: int) -> None:
     job = db.get(Job, job_id)
@@ -42,7 +44,8 @@ def _run_job_logic(db: Session, job_id: int) -> None:
         return
     job.status = "running"
     job.started_at = datetime.utcnow()
-    db.add(job); db.commit()
+    db.add(job)
+    db.commit()
     try:
         for step in ("fetch slides\n", "extract text\n", "summarize\n"):
             _append_logs(db, job, step)
@@ -56,7 +59,7 @@ def _run_job_logic(db: Session, job_id: int) -> None:
         job.finished_at = datetime.utcnow()
         _append_logs(db, job, f"error: {e}\n")
 
-@router.post("", response_model=JobOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=JobOut)  # default 200 OK (fix for tests)
 def enqueue_job(
     background: BackgroundTasks,
     body: Optional[JobIn] = None,
@@ -70,7 +73,10 @@ def enqueue_job(
         raise HTTPException(status_code=422, detail="Missing 'type' (in JSON body or query)")
 
     job = Job(type=job_type, meeting_id=job_meeting_id, status="queued", logs="queued\n")
-    db.add(job); db.commit(); db.refresh(job)
+    db.add(job)
+    db.commit()
+    db.refresh(job)
+
     background.add_task(_run_job_logic, db, job.id)
     return job
 
@@ -87,3 +93,4 @@ def get_job_logs(job_id: int, db: Session = Depends(get_db)):
     if not job:
         return Response(status_code=404, content="Job not found", media_type="text/plain")
     return Response(content=(job.logs or ""), media_type="text/plain", status_code=200)
+
