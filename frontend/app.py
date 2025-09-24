@@ -55,7 +55,7 @@ items = list_meetings(query, tag)
 # count + clear
 c1, c2 = st.columns([1, 1])
 with c1:
-    st.caption(f"{len(items)} meeting(s) found)")
+    st.caption(f"{len(items)} meeting(s) found")
 with c2:
     if st.button("Clear filters"):
         st.session_state.clear()
