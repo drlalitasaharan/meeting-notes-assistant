@@ -1,109 +1,59 @@
 from __future__ import annotations
-
 from pathlib import Path
 from typing import List
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends, Response
+from fastapi import APIRouter, Depends, UploadFile, File, Response, HTTPException
 from fastapi.responses import FileResponse
-from sqlalchemy.orm import Session
-from zipfile import ZipFile, ZIP_DEFLATED
 
-from ..db import get_db
 from ..deps import require_api_key
-from ...packages.shared.models import Meeting
 
-# All slides endpoints live under /v1 and require API key
-router = APIRouter(
-    prefix="/v1",
-    tags=["slides"],
-    dependencies=[Depends(require_api_key)],
-)
+# IMPORTANT: prefix is just "/meetings".
+# main.py will include this router with prefix="/v1".
+router = APIRouter(prefix="/meetings", tags=["slides"])
 
-STORAGE = Path("storage")
+STORAGE_DIR = Path("storage")
 
 
 def _meeting_dir(mid: int) -> Path:
-    return STORAGE / str(mid)
+    return STORAGE_DIR / f"meeting_{mid}"
 
 
-@router.post("/meetings/{meeting_id}/slides")
+@router.post("/{meeting_id}/slides")
 async def upload_slides(
     meeting_id: int,
     files: List[UploadFile] = File(...),
-    db: Session = Depends(get_db),
+    _: None = Depends(require_api_key),
 ):
-    """
-    Upload one or more files for a meeting. Creates storage/{meeting_id}/ if needed.
-    """
-    m = db.get(Meeting, meeting_id)
-    if not m:
-        raise HTTPException(status_code=404, detail="Meeting not found")
+    dest = _meeting_dir(meeting_id)
+    dest.mkdir(parents=True, exist_ok=True)
+    saved: list[str] = []
 
-    d = _meeting_dir(meeting_id)
-    d.mkdir(parents=True, exist_ok=True)
-
-    saved: List[str] = []
-    for uf in files:
-        # basic filename guard
-        name = Path(uf.filename or "").name
-        if not name:
-            continue
-        dest = d / name
-        with dest.open("wb") as out:
-            while chunk := await uf.read(1024 * 1024):
-                out.write(chunk)
+    for f in files:
+        # guard the filename
+        name = Path(f.filename).name
+        data = await f.read()
+        (dest / name).write_bytes(data)
         saved.append(name)
 
-    return {"meeting_id": meeting_id, "saved": saved}
+    return {"uploaded": saved}
 
 
-@router.get("/meetings/{meeting_id}/slides")
-def list_slides(meeting_id: int):
-    """
-    List uploaded files. Returns 204 if there are no files (acceptable in tests).
-    """
-    d = _meeting_dir(meeting_id)
-    if not d.exists():
+@router.get("/{meeting_id}/slides")
+def list_slides(meeting_id: int, _: None = Depends(require_api_key)):
+    dest = _meeting_dir(meeting_id)
+    if not dest.exists():
         return Response(status_code=204)
-    files = sorted([p.name for p in d.iterdir() if p.is_file() and p.name != "slides.zip"])
+    files = sorted([p.name for p in dest.iterdir() if p.is_file()])
     if not files:
         return Response(status_code=204)
     return {"files": files}
 
 
-@router.get("/meetings/{meeting_id}/slides.zip")
-def download_slides_zip(meeting_id: int):
-    """
-    Bundle all uploaded files for a meeting as a zip and return it.
-    """
-    d = _meeting_dir(meeting_id)
-    if not d.exists():
-        raise HTTPException(status_code=404, detail="No slides uploaded")
-
-    zpath = d / "slides.zip"
-    with ZipFile(zpath, "w", ZIP_DEFLATED) as z:
-        for p in d.iterdir():
-            if p.name == "slides.zip" or not p.is_file():
-                continue
-            z.write(p, arcname=p.name)
-
-    return FileResponse(
-        zpath,
-        media_type="application/zip",
-        filename=f"meeting-{meeting_id}-slides.zip",
-    )
-
-
-@router.get("/meetings/{meeting_id}/slides/{filename}")
-def get_slide_file(meeting_id: int, filename: str):
-    """
-    Download a single uploaded file.
-    """
+@router.get("/{meeting_id}/slides/{filename}")
+def get_slide_file(meeting_id: int, filename: str, _: None = Depends(require_api_key)):
     p = _meeting_dir(meeting_id) / Path(filename).name
     if not p.exists() or not p.is_file():
         raise HTTPException(status_code=404, detail="File not found")
-
-    # naive content type switch for txt/pdf
-    mt = "text/plain" if p.suffix.lower() == ".txt" else "application/pdf"
+    mt = "text/plain" if p.suffix.lower() == ".txt" else "application/octet-stream"
     return FileResponse(p, media_type=mt, filename=p.name)
 
