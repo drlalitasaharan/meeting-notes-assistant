@@ -1,6 +1,52 @@
-.env
-.venv/
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# --- Python / FastAPI ---
 __pycache__/
-.ruff_cache/
-dev.db
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.build/
+dist/
+pip-wheel-metadata/
+.pytype/
+.mypy_cache/
+
+# Virtual envs
+.venv/
+env/
+venv/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+
+# Local app state
 storage/
+dev.db
+
+# Environment files (keep secrets out of git)
+.env
+.env.*
+!.env.example  # allow a checked-in template
+
+# Logs
+*.log
+logs/
+
+# Uvicorn reload cache (rare, but safe)
+.reload
+
+backups/
+backups/
