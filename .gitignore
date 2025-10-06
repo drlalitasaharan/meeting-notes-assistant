@@ -50,3 +50,13 @@ logs/
 
 backups/
 backups/
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+.streamlit/
+frontend/.streamlit/
+*.db
+slides-*.zip
+uvicorn.pid
