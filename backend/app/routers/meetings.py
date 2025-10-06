@@ -1,107 +1,125 @@
-from fastapi import APIRouter, Query, Depends, HTTPException
-from pydantic import BaseModel
+# backend/app/routers/meetings.py
+from __future__ import annotations
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from ..db import get_db
-from ...packages.shared.models import Meeting
+from backend.app.core.logger import get_logger
+from backend.packages.shared.models import Meeting
 
-router = APIRouter(prefix="/meetings", tags=["meetings"])
+from ..deps import get_db, require_api_key
 
-# --------- Schemas ---------
-class MeetingOut(BaseModel):
-    id: int
-    title: str
-    status: str
-    tags: list[str] = []
+log = get_logger(__name__)
 
-    class Config:
-        from_attributes = True
-
-
-class MeetingsPage(BaseModel):
-    items: list[MeetingOut]
-    page: int
-    limit: int
-    total: int
+# NOTE: Keep routers version-agnostic; mount under /v1 in main.py.
+router = APIRouter(
+    prefix="/meetings",
+    tags=["meetings"],
+    dependencies=[Depends(require_api_key)],
+)
 
 
-# --------- List ---------
-@router.get("", response_model=MeetingsPage)
+def _tags_list(value: str | list[str] | None) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [t for t in (value or "").split(",") if t]
+
+
+@router.get("", response_model=dict)
 def list_meetings(
-    query: str | None = Query(None),
-    status: str | None = Query(None),
-    tag: str | None = Query(None),
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
+    query: str | None = Query(None, description="Simple search over title/tags"),
     db: Session = Depends(get_db),
-):
+) -> dict:
     q = db.query(Meeting)
-    if query:
-        q = q.filter(Meeting.title.ilike(f"%{query.lower()}%"))
-    if status:
-        q = q.filter(Meeting.status == status)
-    if tag:
-        q = q.filter(Meeting.tags.ilike(f"%{tag}%"))
 
-    total = q.count()
-    rows = (
-        q.order_by(Meeting.created_at.desc())
-        .offset((page - 1) * limit)
-        .limit(limit)
-        .all()
-    )
+    # Simple search on title/tags if provided (case-insensitive)
+    if query:
+        like = f"%{query}%"
+        q = q.filter(or_(Meeting.title.ilike(like), Meeting.tags.ilike(like)))
+
+    q = q.order_by(Meeting.id.desc())
+    rows = q.offset((page - 1) * limit).limit(limit).all()
+
     items = [
-        MeetingOut(id=m.id, title=m.title, status=m.status, tags=m.tags_list)
+        {
+            "id": m.id,
+            "title": m.title,
+            "tags": _tags_list(m.tags),
+            "status": getattr(m, "status", None),
+        }
         for m in rows
     ]
-    return MeetingsPage(items=items, page=page, limit=limit, total=total)
+
+    # Tests expect: r.json()["items"]
+    return {"items": items}
 
 
-# --------- Create ---------
-@router.post("", response_model=MeetingOut)
+@router.post("", status_code=status.HTTP_200_OK)
 def create_meeting(
-    title: str,
-    tags: str | None = None,
+    title: str = Query(...),
+    tags: str | None = Query(None),
     db: Session = Depends(get_db),
-):
+) -> dict:
     m = Meeting(title=title, tags=tags or "")
     db.add(m)
     db.commit()
     db.refresh(m)
-    return MeetingOut(id=m.id, title=m.title, status=m.status, tags=m.tags_list)
+    log.info("Created meeting", extra={"meeting_id": m.id})
+    return {
+        "id": m.id,
+        "title": m.title,
+        "tags": _tags_list(m.tags),
+        "status": getattr(m, "status", None),
+    }
 
 
-# --------- Update (PATCH) ---------
-ALLOWED_STATUS = {"new", "processing", "done", "failed"}
+@router.get("/{meeting_id}")
+def get_meeting(meeting_id: int, db: Session = Depends(get_db)) -> dict:
+    m = db.get(Meeting, meeting_id)
+    if not m:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    return {
+        "id": m.id,
+        "title": m.title,
+        "tags": _tags_list(m.tags),
+        "status": getattr(m, "status", None),
+    }
 
-@router.patch("/{meeting_id}", response_model=MeetingOut)
+
+@router.patch("/{meeting_id}")
 def update_meeting(
     meeting_id: int,
+    *,
     title: str | None = None,
     status: str | None = None,
     tags: str | None = None,  # comma-separated string
     db: Session = Depends(get_db),
-):
+) -> dict:
     m = db.get(Meeting, meeting_id)
     if not m:
         raise HTTPException(status_code=404, detail="Meeting not found")
 
     if title is not None:
         m.title = title
-
     if status is not None:
-        if status not in ALLOWED_STATUS:
-            raise HTTPException(
-                status_code=422,
-                detail=f"status must be one of {sorted(ALLOWED_STATUS)}",
-            )
         m.status = status
-
     if tags is not None:
         m.tags = tags
 
     db.add(m)
     db.commit()
     db.refresh(m)
-    return MeetingOut(id=m.id, title=m.title, status=m.status, tags=m.tags_list)
+
+    log.info("Patched meeting", extra={"meeting_id": m.id})
+    return {
+        "id": m.id,
+        "title": m.title,
+        "tags": _tags_list(m.tags),
+        "status": getattr(m, "status", None),
+    }
 

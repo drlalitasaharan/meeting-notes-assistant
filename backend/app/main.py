@@ -1,19 +1,41 @@
 # backend/app/main.py
+from __future__ import annotations
 
-from fastapi import FastAPI, Depends
+from contextlib import asynccontextmanager
 
-from .deps import require_api_key
-from .routers import meetings, slides, jobs
+from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware  # CORS
+
 from ..packages.shared.models import Base
 from .db import engine
+from .deps import require_api_key
+from .routers import jobs, meetings, slides
 
-app = FastAPI(title="Meeting Notes Assistant API")
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Initialize application resources.
 
-# Ensure tables/columns exist for fresh SQLite DBs (e.g., CI/dev)
-@app.on_event("startup")
-def on_startup() -> None:
+    - Ensures tables/columns exist for fresh SQLite DBs in CI/dev.
+    """
     Base.metadata.create_all(bind=engine)
+    yield
+
+
+app = FastAPI(title="Meeting Notes Assistant API", lifespan=lifespan)
+
+# --- CORS (permissive; tighten in prod) ---
+# In production, replace ["*"] with explicit origins, e.g.:
+# ["http://localhost:8501", "https://your-frontend.example"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+# -----------------------------------------
 
 
 @app.get("/healthz")
@@ -21,20 +43,11 @@ def healthz():
     return {"ok": True}
 
 
-# Mount versioned API and protect with API key
-app.include_router(
-    meetings.router,
-    prefix="/v1",
-    dependencies=[Depends(require_api_key)],
-)
-app.include_router(
-    slides.router,
-    prefix="/v1",
-    dependencies=[Depends(require_api_key)],
-)
-app.include_router(
-    jobs.router,
-    prefix="/v1",
-    dependencies=[Depends(require_api_key)],
-)
+# Versioned API: routers use local prefixes ("/meetings", "/jobs", etc.).
+# We add "/v1" exactly once here and attach the API-key guard globally.
+v1_dependencies = [Depends(require_api_key)]
+
+app.include_router(meetings.router, prefix="/v1", dependencies=v1_dependencies)
+app.include_router(slides.router,   prefix="/v1", dependencies=v1_dependencies)
+app.include_router(jobs.router,     prefix="/v1", dependencies=v1_dependencies)
 

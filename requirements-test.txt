@@ -8,6 +8,11 @@ python-multipart>=0.0.9   # file uploads
 requests>=2.31
 httpx>=0.27               # FastAPI test client uses it under the hood
 
+ruff>=0.6.9
+mypy>=1.11
+types-requests
+types-setuptools
+
 # testing
 pytest>=7.4
 

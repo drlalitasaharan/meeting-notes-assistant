@@ -1,250 +1,324 @@
 # frontend/streamlit_app.py
+from __future__ import annotations
 
-import os
-import io
 import base64
-import time
-import json
-from typing import Any, Dict, List, Optional
+from contextlib import suppress
+from typing import Any, Iterable
 
 import requests
 import streamlit as st
 
-# -----------------------------------------------------------------------------
-# Config (secrets first, then env, then defaults)
-API = (
-    st.secrets.get("API_BASE")
-    or os.getenv("API_BASE_URL")
-    or "http://127.0.0.1:8000/v1"
-).rstrip("/")
-API_KEY = st.secrets.get("API_KEY") or os.getenv("API_KEY") or "dev-secret-123"
+# ---------------------------
+# Config
+# ---------------------------
+API = st.secrets.get("API_BASE", "http://127.0.0.1:8000/v1")
+API_KEY = st.secrets.get("API_KEY", "dev-secret-123")
 HEADERS = {"X-API-Key": API_KEY}
+TIMEOUT = 30
 
-st.set_page_config(page_title="Meeting Notes Assistant — MVP", layout="wide")
-st.title("📝 Meeting Notes Assistant — MVP Test UI")
-st.caption("Configure API in .streamlit/secrets.toml or environment variables if needed.")
 
-# -----------------------------------------------------------------------------
-# Helpers
-
-def status_chip(s: str) -> str:
-    colors = {"new": "#6b7280", "processing": "#d97706", "done": "#059669", "failed": "#dc2626", "queued": "#2563eb", "running": "#d97706"}
-    return (
-        f"<span style='padding:2px 8px;border-radius:12px;background:{colors.get(s,'#6b7280')};"
-        "color:white;font-size:12px'>"
-        f"{s}</span>"
+# ---------------------------
+# API helpers
+# ---------------------------
+def create_meeting(title: str, tags: str) -> dict[str, Any]:
+    r = requests.post(
+        f"{API}/meetings",
+        params={"title": title, "tags": tags or ""},
+        headers=HEADERS,
+        timeout=TIMEOUT,
     )
+    r.raise_for_status()
+    return r.json()
 
-def embed_pdf(b: bytes, height: int = 450):
-    b64 = base64.b64encode(b).decode()
-    st.components.v1.html(
-        f"""<embed src="data:application/pdf;base64,{b64}" type="application/pdf" width="100%" height="{height}px" />""",
-        height=height + 12,
+
+def patch_meeting(
+    mid: int, *, title: str | None = None, status: str | None = None, tags: str | None = None
+) -> dict[str, Any]:
+    r = requests.patch(
+        f"{API}/meetings/{mid}",
+        params={"title": title, "status": status, "tags": tags},
+        headers=HEADERS,
+        timeout=TIMEOUT,
     )
-
-def list_meetings(query: str = "", tag: str = "", page: int = 1, limit: int = 50):
-    r = requests.get(f"{API}/meetings",
-                     params={"query": query or None, "tag": tag or None, "page": page, "limit": limit},
-                     headers=HEADERS, timeout=30)
     r.raise_for_status()
     return r.json()
 
-def create_meeting(title: str, tags: str):
-    r = requests.post(f"{API}/meetings", params={"title": title, "tags": tags or ""}, headers=HEADERS, timeout=30)
-    r.raise_for_status()
-    return r.json()
 
-def patch_meeting(mid: int, *, title: Optional[str] = None, status: Optional[str] = None, tags: Optional[str] = None):
-    r = requests.patch(f"{API}/meetings/{mid}", params={"title": title, "status": status, "tags": tags}, headers=HEADERS, timeout=30)
-    r.raise_for_status()
-    return r.json()
-
-def list_files(mid: int) -> List[str]:
-    r = requests.get(f"{API}/meetings/{mid}/slides", headers=HEADERS, timeout=30)
+def list_files(mid: int) -> list[str]:
+    r = requests.get(f"{API}/meetings/{mid}/slides", headers=HEADERS, timeout=TIMEOUT)
     if r.status_code == 200:
-        data = r.json()
-        # backend returns {"files": [...]}
-        return data.get("files", data) if isinstance(data, dict) else data
+        js = r.json()
+        if isinstance(js, list):
+            return js
+        if isinstance(js, dict):
+            # support {"items":[{"filename":"a"}, ...]} or {"files":[...]}
+            if "items" in js:
+                return [it.get("filename") for it in js["items"] if "filename" in it]
+            if "files" in js and isinstance(js["files"], list):
+                return [str(x) for x in js["files"]]
     return []
 
-def upload_slides(mid: int, files: List[st.runtime.uploaded_file_manager.UploadedFile]) -> Dict[str, Any]:
+
+def upload_slides(mid: int, files: Iterable[Any]) -> dict[str, Any]:
     tosend = [("files", (f.name, f.getvalue())) for f in files]
-    r = requests.post(f"{API}/meetings/{mid}/slides", headers=HEADERS, files=tosend, timeout=120)
+    r = requests.post(
+        f"{API}/meetings/{mid}/slides",
+        headers=HEADERS,
+        files=tosend,
+        timeout=max(TIMEOUT, 120),
+    )
     r.raise_for_status()
     return r.json()
 
-def download_zip(mid: int) -> Optional[bytes]:
+
+def download_zip(mid: int) -> bytes | None:
     r = requests.get(f"{API}/meetings/{mid}/slides.zip", headers=HEADERS, timeout=60)
-    if r.status_code == 200:
-        return r.content
-    return None
-
-def start_job_process_meeting(mid: int) -> int:
-    r = requests.post(f"{API}/jobs", params={"type": "process_meeting", "meeting_id": mid}, headers=HEADERS, timeout=30)
-    r.raise_for_status()
-    return r.json()["id"]
-
-def get_job(jid: int) -> Dict[str, Any]:
-    r = requests.get(f"{API}/jobs/{jid}", headers=HEADERS, timeout=30)
-    r.raise_for_status()
-    return r.json()
-
-def get_job_logs(jid: int) -> str:
-    r = requests.get(f"{API}/jobs/{jid}/logs", headers=HEADERS, timeout=30)
-    # text/plain
-    return r.text if r.status_code == 200 else ""
+    return r.content if r.status_code == 200 else None
 
 
-# -----------------------------------------------------------------------------
-# New meeting form (top)
-with st.form("new-meeting", clear_on_submit=True):
-    c1, c2 = st.columns([3, 2])
-    title = c1.text_input("Title", placeholder="e.g., Sprint Planning")
-    tags_in = c2.text_input("Tags (comma-separated)", placeholder="sprint, planning")
-    submitted = st.form_submit_button("➕ Create meeting")
-    if submitted:
-        if not title.strip():
-            st.error("Title is required.")
-        else:
-            try:
-                m = create_meeting(title.strip(), tags_in.strip())
-                st.toast("Created ✅")
-                # stash last created meeting id to auto-focus
-                st.session_state["last_created_id"] = m["id"]
-            except Exception as e:
-                st.error(f"Create failed: {e}")
-
-st.divider()
-
-# -----------------------------------------------------------------------------
-# Filters row
-colq, coltag, colbtn = st.columns([3, 2, 1])
-with colq:
-    query = st.text_input("Search meetings", st.session_state.get("query", ""))
-with coltag:
-    tag = st.text_input("Tag filter", st.session_state.get("tag", ""))
-
-with colbtn:
-    if st.button("Clear filters"):
-        st.session_state["query"] = ""
-        st.session_state["tag"] = ""
-        st.experimental_rerun()
-    else:
-        st.session_state["query"] = query
-        st.session_state["tag"] = tag
-
-# Load data
-data = {}
-try:
-    data = list_meetings(query, tag, page=1, limit=50)
-except Exception as e:
-    st.error(f"Failed to load meetings: {e}")
-    data = {"items": [], "page": 1, "limit": 50, "total": 0}
-
-items = data.get("items", [])
-st.caption(f"{len(items)} meeting(s) found")
-
-# -----------------------------------------------------------------------------
-# Meeting list
-for m in items:
-    mid = m["id"]
-    with st.expander(f"#{mid} · {m['title']}"):
-        # status & tags header
-        st.markdown(f"**Status:** {status_chip(m['status'])}", unsafe_allow_html=True)
-        st.write("**Tags:**", ", ".join(m["tags"]) or "—")
-
-        # --- inline edit: status + tags (+ optional title) -------------------
-        ec1, ec2, ec3, ec4 = st.columns([1.2, 2.0, 2.0, 1.0])
-        new_status = ec1.selectbox(
-            "Status",
-            options=["new", "processing", "done", "failed"],
-            index=["new", "processing", "done", "failed"].index(m["status"]),
-            key=f"status-{mid}",
+def fetch_file(mid: int, filename: str) -> requests.Response | None:
+    try:
+        r = requests.get(
+            f"{API}/meetings/{mid}/slides/{filename}",
+            headers=HEADERS,
+            timeout=TIMEOUT,
         )
-        new_tags = ec2.text_input("Tags (comma-separated)", value=",".join(m["tags"]), key=f"tags-{mid}")
-        new_title = ec3.text_input("Title (edit)", value=m["title"], key=f"title-{mid}")
-        if ec4.button("Save", key=f"save-{mid}"):
-            try:
-                _ = patch_meeting(mid, title=new_title, status=new_status, tags=new_tags)
-                st.toast("Saved ✅")
-                st.experimental_rerun()
-            except Exception as e:
-                st.error(f"Save failed: {e}")
+        return r if r.status_code == 200 else None
+    except Exception:
+        return None
 
-        st.markdown("---")
 
-        # --- uploads ---------------------------------------------------------
-        upl = st.file_uploader("Upload slides (PDF/TXT)", type=["pdf", "txt"], accept_multiple_files=True, key=f"upl-{mid}")
-        cols = st.columns(3)
-        if upl and cols[0].button("Upload", key=f"upbtn-{mid}"):
-            try:
-                res = upload_slides(mid, upl)
-                saved = res.get("saved") or res.get("uploaded") or []
-                st.success(f"Uploaded: {', '.join(saved) if saved else '(ok)'}")
-            except Exception as e:
-                st.error(f"Upload failed: {e}")
+def delete_file(mid: int, filename: str) -> bool:
+    r = requests.delete(
+        f"{API}/meetings/{mid}/slides/{filename}",
+        headers=HEADERS,
+        timeout=TIMEOUT,
+    )
+    return r.status_code in (200, 204)
 
-        # start processing job + poll logs
-        if cols[1].button("Process meeting", key=f"proc-{mid}"):
-            try:
-                jid = start_job_process_meeting(mid)
-                st.session_state[f"job-{mid}"] = jid
-                st.toast(f"Job #{jid} started")
-            except Exception as e:
-                st.error(f"Failed to start job: {e}")
 
-        # zip download
-        if cols[2].button("Download slides.zip", key=f"zipbtn-{mid}"):
-            content = download_zip(mid)
-            if content:
-                st.download_button("Save ZIP", data=content, file_name=f"meeting-{mid}-slides.zip", mime="application/zip")
-            else:
-                st.warning("No slides uploaded yet or ZIP not available.")
+def delete_meeting(mid: int) -> bool:
+    r = requests.delete(f"{API}/meetings/{mid}", headers=HEADERS, timeout=TIMEOUT)
+    return r.status_code in (200, 204)
 
-        # live job polling (if any)
-        jid = st.session_state.get(f"job-{mid}")
-        if jid:
-            if hasattr(st, "status"):
-                with st.status(f"Polling job #{jid}…", expanded=False) as s:
-                    logs = ""
-                    for _ in range(30):
-                        try:
-                            jr = get_job(jid)
-                            logs = get_job_logs(jid)
-                            s.update(label=f"Job #{jid}: {jr.get('status','?')}")
-                            if jr.get("status") in ("done", "failed"):
-                                break
-                            time.sleep(0.5)
-                        except Exception as e:
-                            st.error(f"Polling error: {e}")
-                            break
-                    st.code(logs or "(no logs)")
-                    s.update(state="complete")
-            else:
-                st.info(f"Job #{jid} running…")
 
-        # --- preview existing files -----------------------------------------
-        files = []
-        try:
-            files = list_files(mid)
-        except Exception:
-            pass
+# ---------------------------
+# UI helpers
+# ---------------------------
+def _set_active_meeting(mid: int | None) -> None:
+    st.session_state.meeting_id = mid
 
-        if files:
-            st.write("**Files:**", ", ".join(files))
-            for fn in files:
-                try:
-                    r = requests.get(f"{API}/meetings/{mid}/slides/{fn}", headers=HEADERS, timeout=30)
-                    if r.status_code != 200:
-                        continue
-                    if fn.lower().endswith(".txt"):
-                        st.subheader(fn)
-                        st.code(r.text, language="text")
-                    elif fn.lower().endswith(".pdf"):
-                        st.subheader(fn)
-                        embed_pdf(r.content, height=420)
-                except Exception:
-                    continue
+
+def _refresh_files(mid: int) -> None:
+    with suppress(Exception):
+        st.session_state.slides = list_files(mid)
+
+
+def _ensure_session_state() -> None:
+    if "meeting_id" not in st.session_state:
+        st.session_state.meeting_id = None
+    if "slides" not in st.session_state:
+        st.session_state.slides = []
+
+
+# ---------------------------
+# App
+# ---------------------------
+def main() -> None:
+    st.set_page_config(page_title="Meeting Notes Assistant", page_icon="📝", layout="wide")
+    _ensure_session_state()
+
+    st.title("📝 Meeting Notes Assistant")
+
+    # ----- Create a meeting
+    with st.expander("➕ Create a new meeting", expanded=st.session_state.meeting_id is None):
+        with st.form("create-meeting"):
+            c1, c2 = st.columns(2)
+            title = c1.text_input("Title", placeholder="e.g., Sprint Planning")
+            tags_in = c2.text_input("Tags (comma-separated)", placeholder="sprint, planning")
+            submitted = st.form_submit_button("Create meeting", use_container_width=True)
+            if submitted:
+                if not title.strip():
+                    st.error("Title is required.")
+                else:
+                    js = create_meeting(title, tags_in)
+                    new_mid = int(js["id"])
+                    _set_active_meeting(new_mid)
+                    _refresh_files(new_mid)
+                    st.success(f"Created meeting #{new_mid}")
+
+    # ----- Meeting selector / empty state
+    st.header("Manage a meeting")
+
+    csel1, csel2, csel3 = st.columns([2, 1, 1])
+    mid_input = csel1.number_input(
+        "Meeting ID",
+        min_value=1,
+        step=1,
+        value=st.session_state.meeting_id or 1,
+        help="Enter an existing meeting ID or use the section above to create one.",
+    )
+    apply_mid = csel2.button("Activate ID", use_container_width=True)
+    clear_mid = csel3.button("Clear", use_container_width=True)
+
+    if apply_mid:
+        _set_active_meeting(int(mid_input))
+        _refresh_files(int(mid_input))
+
+    if clear_mid:
+        _set_active_meeting(None)
+        st.session_state.slides = []
+
+    if st.session_state.meeting_id is None:
+        # Friendly empty state
+        with st.container(border=True):
+            st.subheader("No active meeting")
+            st.write(
+                "Create a meeting above or enter a Meeting ID, then click **Activate ID**. "
+                "Once a meeting is active, you can upload slides, preview, download, or delete."
+            )
+        st.stop()
+
+    # We have an active meeting
+    mid = int(st.session_state.meeting_id)
+    st.success(f"Active meeting: #{mid}")
+
+    # ----- Actions row
+    ac1, ac2, ac3, ac4 = st.columns([2, 2, 2, 2])
+
+    # Upload
+    with ac1:
+        st.caption("Upload slides")
+        files_u = st.file_uploader(
+            "Choose files",
+            type=["pdf", "png", "jpg", "jpeg"],
+            accept_multiple_files=True,
+            key="slides_uploader",
+        )
+        upload_disabled = not files_u
+        st.button(
+            "⬆️ Upload",
+            disabled=upload_disabled,
+            use_container_width=True,
+            on_click=lambda: _do_upload(mid, files_u),
+        )
+
+    # Process (kept as placeholder if your API has it)
+    with ac2:
+        st.caption("Process pipeline")
+        can_process = len(st.session_state.slides) > 0
+        st.button(
+            "⚙️ Process Meeting",
+            disabled=not can_process,
+            use_container_width=True,
+            on_click=lambda: _do_process(mid),
+        )
+
+    # Download ZIP
+    with ac3:
+        st.caption("Download all slides")
+        st.button(
+            "🗂️ Download ZIP",
+            disabled=len(st.session_state.slides) == 0,
+            use_container_width=True,
+            on_click=lambda: _do_download_zip(mid),
+        )
+
+    # Delete meeting
+    with ac4:
+        st.caption("Danger zone")
+        st.button(
+            "🗑️ Delete Meeting",
+            use_container_width=True,
+            help="Removes this meeting and all its files",
+            on_click=lambda: _do_delete_meeting(mid),
+        )
+
+    st.divider()
+
+    # ----- Slides list
+    st.subheader("Slides")
+    if not st.session_state.slides:
+        st.info("No slides uploaded yet. Upload at least one file to enable processing.")
+    else:
+        for fn in st.session_state.slides:
+            row = st.columns([7, 1, 1])
+            row[0].write(f"📄 **{fn}**")
+
+            # Preview (image types only)
+            if row[1].button("Preview", key=f"prev-{fn}"):
+                resp = fetch_file(mid, fn)
+                if resp is None:
+                    st.warning(f"Preview unavailable for {fn}")
+                else:
+                    ctype = resp.headers.get("content-type", "")
+                    if ctype.startswith(("image/png", "image/jpeg")):
+                        st.image(resp.content, caption=fn, use_container_width=True)
+                    else:
+                        st.info(f"Preview supported only for images. Content-Type: {ctype or 'unknown'}")
+
+            # Delete (per file)
+            if row[2].button("Delete", key=f"del-{fn}"):
+                ok = delete_file(mid, fn)
+                if ok:
+                    st.toast(f"Deleted {fn}")
+                    _refresh_files(mid)
+                else:
+                    st.error(f"Failed to delete {fn}")
+
+    # Keep the list current on initial load
+    if st.session_state.slides == []:
+        _refresh_files(mid)
+
+
+# ---------------------------
+# Action callbacks
+# ---------------------------
+def _do_upload(mid: int, files_u: Iterable[Any]) -> None:
+    try:
+        upload_slides(mid, files_u)
+        st.toast("Upload complete")
+    except Exception as e:
+        st.error(f"Upload failed: {e}")
+    finally:
+        _refresh_files(mid)
+
+
+def _do_process(mid: int) -> None:
+    # Optional: hook up to your /meetings/{id}/process API if present.
+    try:
+        r = requests.post(f"{API}/meetings/{mid}/process", headers=HEADERS, timeout=max(TIMEOUT, 60))
+        if r.ok:
+            st.success("Processing started")
         else:
-            st.caption("No files yet.")
+            st.error(f"Process failed: {r.text}")
+    except Exception as e:
+        st.error(f"Process error: {e}")
+
+
+def _do_download_zip(mid: int) -> None:
+    data = download_zip(mid)
+    if not data:
+        st.warning("No ZIP available.")
+        return
+    b64 = base64.b64encode(data).decode()
+    href = f'<a href="data:application/zip;base64,{b64}" download="slides_{mid}.zip">Download</a>'
+    st.markdown(href, unsafe_allow_html=True)
+
+
+def _do_delete_meeting(mid: int) -> None:
+    if delete_meeting(mid):
+        st.toast(f"Meeting #{mid} deleted")
+        _set_active_meeting(None)
+        st.session_state.slides = []
+        st.rerun()
+    else:
+        st.error("Failed to delete meeting")
+
+
+# ---------------------------
+# Entrypoint
+# ---------------------------
+if __name__ == "__main__":
+    main()
 

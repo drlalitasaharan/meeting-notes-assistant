@@ -1,44 +1,37 @@
 # tests/conftest.py
+from __future__ import annotations
+
 import os
+import sys
+
 import pytest
 from fastapi.testclient import TestClient
 
-# Make sure imports resolve from repo root
-import sys
+# Ensure repo-root imports work (e.g., "backend.*")
 sys.path.insert(0, os.path.abspath("."))
 
-from backend.app.main import app  # uses your real app
-from backend.app.db import SessionLocal
-from backend.packages.shared.models import Meeting, Job, Base
-from backend.app.db import engine
+# Provide a default API key for tests
+os.environ.setdefault("API_KEY", "dev-secret-123")
 
-API_KEY = "dev-secret-123"
-HEADERS = {"X-API-Key": API_KEY}
+from backend.app.core.db import engine
+from backend.app.main import app
+from backend.packages.shared.models import Base
+
 
 @pytest.fixture(scope="session", autouse=True)
-def ensure_tables():
-    # Your app already creates tables on startup, but this keeps CI predictable.
+def _create_schema():
     Base.metadata.create_all(bind=engine)
     yield
-    # Don’t drop tables; keep it simple for local CI runs.
+    # Don't drop tables; keep it simple for local CI runs.
 
-@pytest.fixture(autouse=True)
-def clean_db():
-    # Clean rows between tests to avoid cross-test interference.
-    db = SessionLocal()
-    try:
-        db.query(Job).delete()
-        db.query(Meeting).delete()
-        db.commit()
-        yield
-    finally:
-        db.close()
 
 @pytest.fixture()
 def client():
-    return TestClient(app)
+    with TestClient(app) as c:
+        yield c
+
 
 @pytest.fixture()
 def api_headers():
-    return {"X-API-Key": API_KEY}
+    return {"X-API-Key": os.getenv("API_KEY", "dev-secret-123")}
 

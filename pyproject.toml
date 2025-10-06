@@ -1,0 +1,48 @@
+# Root-level tooling config (ruff/mypy). Runtime deps for the API are in backend/pyproject.toml.
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["backend", "frontend", "scripts", "tests"]
+
+[tool.ruff.lint]
+select = [
+  "E",  # pycodestyle
+  "F",  # pyflakes
+  "I",  # isort
+  "UP", # pyupgrade
+  "B",  # bugbear
+  "SIM",
+  "PIE",
+  "COM",
+  "RUF",
+]
+ignore = [
+  "E501",  # Line length (handled by formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"backend/app/routers/*.py" = ["B008"]  # FastAPI Depends/File in parameters
+"scripts/seed_demo.py" = ["E402"]       # sys.path bootstrap before imports
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+docstring-code-format = true
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+no_implicit_optional = true
+strict_equality = true
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorated_calls = false
+disallow_untyped_defs = false
+ignore_missing_imports = true
+files = ["backend"]
+

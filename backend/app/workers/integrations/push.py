@@ -1,171 +1,102 @@
 # backend/app/workers/integrations/push.py
-"""
-Push integrations for Meeting Notes:
-- Slack: posts a compact text summary
-- Notion: creates a page with summary content
-
-Replaces all print() with structured logging.
-"""
-
 from __future__ import annotations
 
-import json
-from typing import Any, Optional
+from contextlib import suppress
+from typing import Any
 
 import httpx
 
-from app.core.logger import get_logger
 from app.core.db import SessionLocal
+from app.core.logger import get_logger
 from packages.shared.env import settings
-from packages.shared.models import Summary, Meeting
+from packages.shared.models import Meeting, Summary
 
 log = get_logger(__name__)
 
-
-# ----------------------------
-# Helpers
-# ----------------------------
-def _coerce_text(val: Any) -> str:
-    """Turn lists/dicts into compact JSON; pass strings through."""
-    if val is None:
-        return ""
-    if isinstance(val, (list, dict)):
-        try:
-            return json.dumps(val, ensure_ascii=False)
-        except Exception:
-            return str(val)
-    return str(val)
-
-
-def _load_meeting_and_summary(meeting_id: str) -> tuple[Optional[Meeting], Optional[Summary]]:
+def _load_meeting_and_summary(meeting_id: int | str) -> tuple[Meeting | None, Summary | None]:
     with SessionLocal() as db:
+        m = db.query(Meeting).filter_by(id=meeting_id).first()
         s = db.query(Summary).filter_by(meeting_id=meeting_id).first()
-        m = db.get(Meeting, meeting_id)
         return m, s
 
 
-# ----------------------------
-# Slack
-# ----------------------------
-def to_slack(meeting_id: str, channel: str = "#meeting-notes") -> dict:
-    """
-    Post a short message to Slack for the given meeting.
-    Returns a dict with {"ok": bool, "status": int, "body": <text or json>}.
-    """
-    if not settings.SLACK_BOT_TOKEN:
-        log.warning("SLACK_BOT_TOKEN not set; skipping Slack push")
-        return {"ok": False, "status": 0, "body": "missing token"}
+def _build_payload(meeting: Meeting | None, summary: Summary | None) -> dict[str, Any]:
+    """Build a generic JSON payload suitable for webhooks (Slack/Notion/Teams adapters can map it)."""
+    title = getattr(meeting, "title", f"Meeting {getattr(meeting, 'id', 'unknown')}")
+    tags = getattr(meeting, "tags", "")
+    status = getattr(meeting, "status", "")
 
-    m, s = _load_meeting_and_summary(meeting_id)
-    if not (m and s):
-        log.warning("Missing summary or meeting; skipping Slack push", extra={"meeting_id": meeting_id})
-        return {"ok": False, "status": 0, "body": "missing data"}
+    # Prefer structured fields if present on Summary, else fall back to raw_md
+    actions = getattr(summary, "actions", None)
+    risks = getattr(summary, "risks", None)
+    raw_md = getattr(summary, "raw_md", None)
+    synopsis = getattr(summary, "synopsis", None)
 
-    title = m.title or "Meeting"
-    text = (
-        f"*{title}*\n"
-        f"*Highlights:* {_coerce_text(getattr(s, 'highlights', None))}\n"
-        f"*Decisions:* {_coerce_text(getattr(s, 'decisions', None))}\n"
-        f"*Actions:* {_coerce_text(getattr(s, 'actions', None))}"
-    )
+    notion_text = synopsis or (raw_md[:1800] + "…") if raw_md and len(raw_md) > 1800 else raw_md or ""
 
-    headers = {
-        "Authorization": f"Bearer {settings.SLACK_BOT_TOKEN}",
-        "Content-Type": "application/json; charset=utf-8",
+    # Example, Notion-style-ish block for consumers that expect a text block
+    notion_block = {
+        "type": "paragraph",
+        "paragraph": {"rich_text": [{"type": "text", "text": {"content": notion_text}}]},
     }
-    payload = {"channel": channel, "text": text}
 
-    try:
-        r = httpx.post(
-            "https://slack.com/api/chat.postMessage",
-            headers=headers,
-            json=payload,
-            timeout=15,
-        )
-        body = r.text
-        ok = r.is_success and (r.headers.get("content-type", "").startswith("application/json"))
-        # Slack returns JSON {"ok": true/false, ...}; try to reflect that in logs
-        try:
-            parsed = r.json()
-            ok = bool(parsed.get("ok", ok))
-            body = parsed
-        except Exception:
-            pass
-
-        level = log.info if ok else log.warning
-        level("Slack push result", extra={"meeting_id": meeting_id, "status": r.status_code, "ok": ok})
-        return {"ok": ok, "status": r.status_code, "body": body}
-    except Exception:
-        log.exception("Slack push failed", extra={"meeting_id": meeting_id})
-        return {"ok": False, "status": 0, "body": "exception"}
-
-
-# ----------------------------
-# Notion
-# ----------------------------
-def to_notion(meeting_id: str) -> dict:
-    """
-    Create a Notion page in the configured database for the given meeting.
-    Returns a dict with {"ok": bool, "status": int, "body": <text or json>}.
-    """
-    if not (settings.NOTION_TOKEN and settings.NOTION_DB_ID):
-        log.warning("Notion env vars not set; skipping Notion push")
-        return {"ok": False, "status": 0, "body": "missing env"}
-
-    m, s = _load_meeting_and_summary(meeting_id)
-    if not (m and s):
-        log.warning("Missing summary or meeting; skipping Notion push", extra={"meeting_id": meeting_id})
-        return {"ok": False, "status": 0, "body": "missing data"}
-
-    title = m.title or "Meeting"
-    # Prefer raw_md if available; otherwise compose a simple body
-    raw_md = getattr(s, "raw_md", None) or (
-        f"# {title}\n\n"
-        f"**Highlights**\n{_coerce_text(getattr(s, 'highlights', None))}\n\n"
-        f"**Decisions**\n{_coerce_text(getattr(s, 'decisions', None))}\n\n"
-        f"**Actions**\n{_coerce_text(getattr(s, 'actions', None))}\n"
-    )
-    # Notion block text has ~2000 char soft limits; clip conservatively
-    notion_text = str(raw_md)[:1900]
-
-    headers = {
-        "Authorization": f"Bearer {settings.NOTION_TOKEN}",
-        "Notion-Version": "2022-06-28",
-        "Content-Type": "application/json",
-    }
-    page = {
-        "parent": {"database_id": settings.NOTION_DB_ID},
-        "properties": {
-            "Name": {"title": [{"text": {"content": title}}]},
-            "Status": {"select": {"name": "Completed"}},
+    return {
+        "meeting": {
+            "id": getattr(meeting, "id", None),
+            "title": title,
+            "tags": tags,
+            "status": status,
         },
-        "children": [
-            {
-                "object": "block",
-                "type": "paragraph",
-                "paragraph": {"rich_text": [{"type": "text", "text": {"content": notion_text}}]},
-            }
+        "summary": {
+            "synopsis": synopsis,
+            "actions": actions,
+            "risks": risks,
+            "raw_md": raw_md,
+        },
+        "blocks": [
+            notion_block,
         ],
     }
 
-    try:
-        r = httpx.post(
-            "https://api.notion.com/v1/pages",
-            headers=headers,
-            json=page,
-            timeout=20,
-        )
-        body = r.text
-        ok = r.is_success
-        try:
-            body = r.json()
-        except Exception:
-            pass
 
-        level = log.info if ok else log.warning
-        level("Notion push result", extra={"meeting_id": meeting_id, "status": r.status_code, "ok": ok})
-        return {"ok": ok, "status": r.status_code, "body": body}
-    except Exception:
-        log.exception("Notion push failed", extra={"meeting_id": meeting_id})
-        return {"ok": False, "status": 0, "body": "exception"}
+def push_summary(meeting_id: int | str) -> dict[str, Any]:
+    """
+    Push the meeting summary to an external webhook endpoint.
+    Set `PUSH_WEBHOOK_URL` in environment (see packages.shared.env.Settings).
+    """
+    endpoint = getattr(settings, "PUSH_WEBHOOK_URL", None)
+    if not endpoint:
+        msg = "Push disabled: no PUSH_WEBHOOK_URL configured"
+        log.info(msg, extra={"meeting_id": meeting_id})
+        return {"ok": False, "reason": msg}
+
+    meeting, summary = _load_meeting_and_summary(meeting_id)
+    if meeting is None:
+        msg = "Meeting not found"
+        log.warning(msg, extra={"meeting_id": meeting_id})
+        return {"ok": False, "reason": msg}
+
+    payload = _build_payload(meeting, summary)
+
+    with httpx.Client(timeout=30) as client:
+        r = client.post(endpoint, json=payload)
+        ok = r.is_success
+        body: Any = r.text
+        with suppress(Exception):
+            body = r.json()
+
+    level = log.info if ok else log.warning
+    level(
+        "Pushed meeting summary",
+        extra={
+            "meeting_id": meeting_id,
+            "status_code": r.status_code,
+            "ok": ok,
+        },
+    )
+
+    return {"ok": ok, "status": r.status_code, "response": body}
+
+
+__all__ = ["push_summary"]
 
