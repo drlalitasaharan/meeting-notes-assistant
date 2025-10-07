@@ -4,8 +4,9 @@ from __future__ import annotations
 import io
 import os
 import os.path
+from collections.abc import Iterable
 from datetime import timedelta
-from typing import Any, Iterable
+from typing import Any, cast
 
 from minio import Minio
 from minio.error import S3Error
@@ -243,11 +244,12 @@ def presigned_slide_get(meeting_id: str, filename: str, expiry_seconds: int = 36
     """Presigned GET URL for a specific slide file."""
     ensure_bucket()
     key = slide_object_key(meeting_id, filename)
-    return _minio.presigned_get_object(
+    url = _minio.presigned_get_object(
         SLIDES_BUCKET,
         key,
         expires=timedelta(seconds=expiry_seconds),
     )
+    return cast(str, url)
 
 
 def presigned_first_slide_get(meeting_id: str, expiry_seconds: int = 3600) -> str | None:
@@ -260,16 +262,17 @@ def presigned_first_slide_get(meeting_id: str, expiry_seconds: int = 3600) -> st
     for o in _minio.list_objects(SLIDES_BUCKET, prefix=prefix, recursive=True):
         if getattr(o, "is_dir", False):
             continue
-        return _minio.presigned_get_object(
+        url = _minio.presigned_get_object(
             SLIDES_BUCKET,
             o.object_name,
             expires=timedelta(seconds=expiry_seconds),
         )
+        return cast(str, url)
     return None
 
 
 # -------------------------------------------------------------------
-# Delete helpers (NEW)
+# Delete helpers
 # -------------------------------------------------------------------
 def delete_object(bucket: str, object_name: str) -> None:
     """
@@ -282,7 +285,10 @@ def delete_object(bucket: str, object_name: str) -> None:
     except S3Error as e:
         # For idempotency, swallow "NoSuchKey" but re-raise unexpected errors
         if getattr(e, "code", "") not in {"NoSuchKey", "NoSuchBucket"}:
-            log.error("MinIO remove_object failed", extra={"bucket": bucket, "key": object_name, "error": str(e)})
+            log.error(
+                "MinIO remove_object failed",
+                extra={"bucket": bucket, "key": object_name, "error": str(e)},
+            )
             raise
 
 
@@ -299,10 +305,13 @@ def delete_objects(bucket: str, object_names: Iterable[str]) -> list[str]:
         failed.append(getattr(err, "object_name", ""))
         log.error(
             "MinIO remove_objects error",
-            extra={"bucket": bucket, "key": getattr(err, "object_name", ""), "code": getattr(err, "code", ""), "msg": str(err)},
+            extra={
+                "bucket": bucket,
+                "key": getattr(err, "object_name", ""),
+                "code": getattr(err, "code", ""),
+                "msg": str(err),
+            },
         )
-    if not failed:
-        log.info("Deleted objects batch", extra={"bucket": bucket, "count": len(list(object_names))})
     return failed
 
 

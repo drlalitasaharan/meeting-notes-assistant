@@ -1,15 +1,16 @@
 # backend/app/deps.py
 from __future__ import annotations
 
+from typing import Generator
+
 from fastapi import Header, HTTPException, status
 from sqlalchemy.orm import Session
 
 from backend.packages.shared.env import settings
-
 from .core.db import SessionLocal
 
 
-def get_db() -> Session:
+def get_db() -> Generator[Session, None, None]:
     """Yield a SQLAlchemy session and ensure it's closed after the request."""
     db = SessionLocal()
     try:
@@ -18,7 +19,7 @@ def get_db() -> Session:
         db.close()
 
 
-def require_api_key(x_api_key: str | None = Header(default=None)) -> bool:
+def require_api_key(x_api_key: str | None = Header(default=None, alias="X-API-Key")) -> bool:
     """
     Simple header-based API key check.
     Reads the expected key from settings.API_KEY (loaded from .env/env vars).

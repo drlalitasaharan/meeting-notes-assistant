@@ -14,8 +14,8 @@ dependencies = [
 
   # data & db
   "sqlalchemy>=2.0.0",
-  "psycopg[binary]>=3.2",      # ← psycopg v3 driver to match postgresql+psycopg://
-  "alembic>=1.13.1",
+  # Use psycopg2 runtime driver to match DSN postgresql+psycopg2://
+  "psycopg2-binary>=2.9",
 
   # http + storage + uploads
   "httpx>=0.25.0",
@@ -44,4 +44,44 @@ build-backend = "setuptools.build_meta"
 where = ["."]
 include = ["app*", "packages*"]
 exclude = ["alembic*", "tests*"]
+
+# ----------------------------
+# Code quality configuration
+# ----------------------------
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+exclude = [
+  "alembic/",
+  "mna_backend.egg-info/",
+  "tests/",
+]
+
+[tool.ruff.lint]
+extend-select = ["I"]  # import sorting
+
+# If you ever need per-file ignores for backend code, add here.
+# [tool.ruff.lint.per-file-ignores]
+# "app/routers/*.py" = ["SIM*"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+no_implicit_optional = true
+warn_unused_ignores = true
+pretty = true
+exclude = ["alembic/"]
+
+# Narrowly silence dynamic attrs / Any returns in a few modules until fully typed.
+[[tool.mypy.overrides]]
+module = [
+  "backend.app.workers.transcribe.worker",
+  "backend.app.workers.llm.summarize",
+  "backend.app.workers.vision.ocr",
+  "backend.alembic.env",
+  "backend.app.services.minio_client",
+  "backend.packages.shared.minio_client",
+]
+disable_error_code = ["attr-defined", "no-any-return"]
 

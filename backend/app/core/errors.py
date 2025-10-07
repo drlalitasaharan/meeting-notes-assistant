@@ -1,4 +1,6 @@
-# app/core/errors.py
+# backend/app/core/errors.py
+from __future__ import annotations
+
 from typing import Any
 
 from fastapi import HTTPException, Request
@@ -7,7 +9,8 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY, HTTP_500_INTERNAL_SERVER_ERROR
 
-from app.core.logger import get_logger
+# Prefer a relative import within the package to avoid path issues
+from .logger import get_logger
 
 log = get_logger(__name__)
 
@@ -18,16 +21,17 @@ class ApiError(BaseModel):
     details: Any | None = None
 
 
-def error_response(status_code: int, error: str, message: str, details: Any = None) -> JSONResponse:
+def error_response(status_code: int, error: str, message: str, details: Any | None = None) -> JSONResponse:
+    """Return a normalized JSON error payload."""
     payload = ApiError(error=error, message=message, details=details).model_dump()
     return JSONResponse(status_code=status_code, content=payload)
 
 
-async def http_exception_handler(request: Request, exc: HTTPException):
-    # Normalize all HTTPExceptions into {error, message, details}
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    """Normalize FastAPI HTTPException into {error, message, details}."""
     detail = exc.detail
     if isinstance(detail, dict) and "error" in detail and "message" in detail:
-        payload = detail
+        payload: dict[str, Any] = detail
     else:
         payload = {
             "error": getattr(exc, "name", "HTTPError"),
@@ -41,7 +45,8 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(status_code=exc.status_code, content=payload)
 
 
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """Normalize Pydantic validation errors."""
     payload = {
         "error": "ValidationError",
         "message": "Request validation failed",
@@ -51,7 +56,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     return JSONResponse(status_code=HTTP_422_UNPROCESSABLE_ENTITY, content=payload)
 
 
-async def generic_exception_handler(request: Request, exc: Exception):
+async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Catch-all handler for unexpected exceptions."""
     payload = {
         "error": "InternalServerError",
         "message": "An unexpected error occurred",
@@ -59,3 +65,4 @@ async def generic_exception_handler(request: Request, exc: Exception):
     }
     log.error("Unhandled exception", extra={"path": request.url.path}, exc_info=exc)
     return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR, content=payload)
+

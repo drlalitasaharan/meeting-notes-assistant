@@ -1,10 +1,11 @@
 # backend/app/main.py
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI
-from fastapi.middleware.cors import CORSMiddleware  # CORS
+from fastapi.middleware.cors import CORSMiddleware
 
 from ..packages.shared.models import Base
 from .db import engine
@@ -13,7 +14,7 @@ from .routers import jobs, meetings, slides
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """
     Initialize application resources.
 
@@ -23,7 +24,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Meeting Notes Assistant API", lifespan=lifespan)
+app: FastAPI = FastAPI(title="Meeting Notes Assistant API", lifespan=lifespan)
 
 # --- CORS (permissive; tighten in prod) ---
 # In production, replace ["*"] with explicit origins, e.g.:
@@ -38,8 +39,8 @@ app.add_middleware(
 # -----------------------------------------
 
 
-@app.get("/healthz")
-def healthz():
+@app.get("/healthz", include_in_schema=False)
+def healthz() -> dict[str, bool]:
     return {"ok": True}
 
 

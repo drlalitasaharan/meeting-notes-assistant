@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import base64
+import time
+from collections.abc import Iterable
 from contextlib import suppress
-from typing import Any, Iterable
+from typing import Any
 
 import requests
 import streamlit as st
@@ -32,7 +34,7 @@ def create_meeting(title: str, tags: str) -> dict[str, Any]:
 
 
 def patch_meeting(
-    mid: int, *, title: str | None = None, status: str | None = None, tags: str | None = None
+    mid: int, *, title: str | None = None, status: str | None = None, tags: str | None = None,
 ) -> dict[str, Any]:
     r = requests.patch(
         f"{API}/meetings/{mid}",
@@ -131,21 +133,23 @@ def main() -> None:
     st.title("📝 Meeting Notes Assistant")
 
     # ----- Create a meeting
-    with st.expander("➕ Create a new meeting", expanded=st.session_state.meeting_id is None):
-        with st.form("create-meeting"):
-            c1, c2 = st.columns(2)
-            title = c1.text_input("Title", placeholder="e.g., Sprint Planning")
-            tags_in = c2.text_input("Tags (comma-separated)", placeholder="sprint, planning")
-            submitted = st.form_submit_button("Create meeting", use_container_width=True)
-            if submitted:
-                if not title.strip():
-                    st.error("Title is required.")
-                else:
-                    js = create_meeting(title, tags_in)
-                    new_mid = int(js["id"])
-                    _set_active_meeting(new_mid)
-                    _refresh_files(new_mid)
-                    st.success(f"Created meeting #{new_mid}")
+    with st.expander(
+        "Create a new meeting",
+        expanded=st.session_state.meeting_id is None,
+    ), st.form("create-meeting"):
+        c1, c2 = st.columns(2)
+        title = c1.text_input("Title", placeholder="e.g., Sprint Planning")
+        tags_in = c2.text_input("Tags (comma-separated)", placeholder="sprint, planning")
+        submitted = st.form_submit_button("Create meeting", use_container_width=True)
+        if submitted:
+            if not title.strip():
+                st.error("Title is required.")
+            else:
+                js = create_meeting(title, tags_in)
+                new_mid = int(js["id"])
+                _set_active_meeting(new_mid)
+                _refresh_files(new_mid)
+                st.success(f"Created meeting #{new_mid}")
 
     # ----- Meeting selector / empty state
     st.header("Manage a meeting")
@@ -175,7 +179,7 @@ def main() -> None:
             st.subheader("No active meeting")
             st.write(
                 "Create a meeting above or enter a Meeting ID, then click **Activate ID**. "
-                "Once a meeting is active, you can upload slides, preview, download, or delete."
+                "Once a meeting is active, you can upload slides, preview, download, or delete.",
             )
         st.stop()
 
@@ -203,7 +207,7 @@ def main() -> None:
             on_click=lambda: _do_upload(mid, files_u),
         )
 
-    # Process (kept as placeholder if your API has it)
+    # Process via Jobs API
     with ac2:
         st.caption("Process pipeline")
         can_process = len(st.session_state.slides) > 0
@@ -285,13 +289,32 @@ def _do_upload(mid: int, files_u: Iterable[Any]) -> None:
 
 
 def _do_process(mid: int) -> None:
-    # Optional: hook up to your /meetings/{id}/process API if present.
+    """Trigger processing via Jobs API and poll briefly to completion."""
     try:
-        r = requests.post(f"{API}/meetings/{mid}/process", headers=HEADERS, timeout=max(TIMEOUT, 60))
-        if r.ok:
-            st.success("Processing started")
-        else:
-            st.error(f"Process failed: {r.text}")
+        with st.spinner("Starting job..."):
+            # Create job: POST /v1/jobs?type=process&meeting_id=<id>
+            r = requests.post(
+                f"{API}/jobs",
+                params={"type": "process", "meeting_id": mid},
+                headers=HEADERS,
+                timeout=max(TIMEOUT, 60),
+            )
+            r.raise_for_status()
+            job = r.json()
+            jid = int(job.get("id"))
+            st.info(f"Job #{jid} queued")
+
+        # Short poll loop; backend flips queued->done on first read
+        for _ in range(30):
+            jr = requests.get(f"{API}/jobs/{jid}", headers=HEADERS, timeout=TIMEOUT)
+            if jr.ok and jr.headers.get("content-type", "").startswith("application/json"):
+                status = (jr.json() or {}).get("status")
+                if status == "done":
+                    st.success("Processing complete")
+                    return
+            time.sleep(1)
+
+        st.warning("Processing did not complete in time; check Jobs page/logs.")
     except Exception as e:
         st.error(f"Process error: {e}")
 

@@ -1,6 +1,7 @@
 # backend/app/routers/slides.py
 from __future__ import annotations
 
+from contextlib import suppress
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
@@ -113,12 +114,16 @@ def get_slide_file(meeting_id: int, filename: str, db: Session = Depends(get_db)
     if not p.exists() or not p.is_file():
         raise HTTPException(status_code=404, detail="File not found")
 
-    # minimal content-type mapping for tests
+    # minimal content-type mapping for tests & previews
     suffix = p.suffix.lower()
     if suffix == ".txt":
         mt = "text/plain"
     elif suffix == ".pdf":
         mt = "application/pdf"
+    elif suffix in {".png"}:
+        mt = "image/png"
+    elif suffix in {".jpg", ".jpeg"}:
+        mt = "image/jpeg"
     else:
         mt = "application/octet-stream"
 
@@ -149,9 +154,8 @@ def download_slides_zip(meeting_id: int, db: Session = Depends(get_db)) -> FileR
 
 
 # -----------------------------
-# NEW: Delete endpoints
+# Delete endpoints
 # -----------------------------
-
 @router.delete("/{meeting_id}/slides/{filename}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_slide_file(meeting_id: int, filename: str, db: Session = Depends(get_db)) -> Response:
     """
@@ -168,9 +172,15 @@ def delete_slide_file(meeting_id: int, filename: str, db: Session = Depends(get_
     try:
         p.unlink()
         log.info("Deleted slide", extra={"meeting_id": meeting_id, "filename": p.name})
-    except Exception as e:
-        log.exception("Failed to delete slide", extra={"meeting_id": meeting_id, "filename": p.name})
-        raise HTTPException(status_code=500, detail="Failed to delete file") from e
+    except Exception as err:
+        log.exception(
+            "Failed to delete slide",
+            extra={"meeting_id": meeting_id, "filename": p.name},
+        )
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to delete file",
+        ) from err
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -191,17 +201,21 @@ def delete_all_slides(meeting_id: int, db: Session = Depends(get_db)) -> Respons
                 try:
                     p.unlink()
                     log.info("Deleted slide", extra={"meeting_id": meeting_id, "filename": p.name})
-                except Exception:
-                    log.exception("Failed deleting slide", extra={"meeting_id": meeting_id, "filename": p.name})
-                    raise HTTPException(status_code=500, detail=f"Failed to delete {p.name}")
-        # Also remove the zip if it exists (it’s derived; safe to drop)
+                except Exception as err:
+                    log.exception(
+                        "Failed deleting slide",
+                        extra={"meeting_id": meeting_id, "filename": p.name},
+                    )
+                    raise HTTPException(
+                        status_code=500,
+                        detail=f"Failed to delete {p.name}",
+                    ) from err
+
+        # Also remove the zip if it exists (it's derived; safe to drop)
         z = d / "slides.zip"
         if z.exists():
-            try:
+            with suppress(Exception):
                 z.unlink()
-            except Exception:
-                # Not fatal; the zip is derived
-                pass
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 

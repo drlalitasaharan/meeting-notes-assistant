@@ -1,7 +1,7 @@
 import base64
-import time
 import os
-from typing import List, Dict, Any
+import time
+from typing import Any
 
 import requests
 import streamlit as st
@@ -57,6 +57,7 @@ def status_chip(s: str) -> str:
         f"background:{colors.get(s, 'gray')};color:white;font-size:12px'>{s}</span>"
     )
 
+
 def embed_pdf(b: bytes, height: int = 450):
     b64 = base64.b64encode(b).decode()
     st.components.v1.html(
@@ -67,7 +68,8 @@ def embed_pdf(b: bytes, height: int = 450):
         height=height + 12,
     )
 
-def list_meetings(query: str = "", tag: str = "") -> List[Dict[str, Any]]:
+
+def list_meetings(query: str = "", tag: str = "") -> list[dict[str, Any]]:
     r = requests.get(
         f"{API}/meetings",
         params={"query": query or None, "tag": tag or None, "page": 1, "limit": 50},
@@ -78,7 +80,8 @@ def list_meetings(query: str = "", tag: str = "") -> List[Dict[str, Any]]:
     data = r.json()
     return data.get("items", []) if isinstance(data, dict) else []
 
-def list_files(mid: int) -> List[str]:
+
+def list_files(mid: int) -> list[str]:
     """Return filenames for a meeting as a list of strings.
 
     Handles API shapes:
@@ -97,14 +100,11 @@ def list_files(mid: int) -> List[str]:
     except ValueError:
         return []
 
-    # extract the list payload
-    if isinstance(data, dict):
-        payload = data.get("items") or data.get("files") or []
-    else:
-        payload = data
+    # extract the list payload (Ruff SIM108-friendly)
+    payload = (data.get("items") or data.get("files") or []) if isinstance(data, dict) else data
 
     # normalize to list[str]
-    filenames: List[str] = []
+    filenames: list[str] = []
     if isinstance(payload, list):
         for item in payload:
             if isinstance(item, str):
@@ -115,6 +115,7 @@ def list_files(mid: int) -> List[str]:
                     filenames.append(name)
 
     return filenames
+
 
 # --- controls ----------------------------------------------------------
 colq, coltag = st.columns([3, 1])
@@ -136,7 +137,7 @@ with c2:
 
 # --- list --------------------------------------------------------------
 for m in items:
-    with st.expander(f"#{m['id']} · {m['title']}"):
+    with st.expander(f"#{m['id']} - {m['title']}"):
         st.markdown(f"**Status:** {status_chip(m['status'])}", unsafe_allow_html=True)
         st.write("**Tags:**", ", ".join(m.get("tags", [])) or "—")
 
@@ -169,7 +170,7 @@ for m in items:
         if cols[1].button("Process meeting", key=f"proc-{m['id']}"):
             r = requests.post(
                 f"{API}/jobs",
-                params={"type": "process_meeting", "meeting_id": m["id"]},
+                params={"type": "process", "meeting_id": m["id"]},  # current backend expects query params
                 headers=HEADERS,
                 timeout=TIMEOUT,
             )
@@ -197,11 +198,13 @@ for m in items:
         # live job polling (if any)
         jid = st.session_state.get(f"job-{m['id']}")
         if jid:
-            with st.status(f"Polling job #{jid}…", expanded=False) as s:
+            with st.status(f"Polling job #{jid}...", expanded=False) as s:
                 for _ in range(24):
                     jr = requests.get(f"{API}/jobs/{jid}", headers=HEADERS, timeout=TIMEOUT).json()
                     logs_resp = requests.get(
-                        f"{API}/jobs/{jid}/logs", headers=HEADERS, timeout=TIMEOUT
+                        f"{API}/jobs/{jid}/logs",
+                        headers=HEADERS,
+                        timeout=TIMEOUT,
                     )
                     logs = logs_resp.text
                     s.update(label=f"Job #{jid}: {jr['status']}")
