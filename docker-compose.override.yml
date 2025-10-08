@@ -1,0 +1,18 @@
+services:
+  db:
+    volumes:
+      - ./backups:/backups:ro
+
+  pg_backup:
+    image: postgres:16
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGURL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      BACKUP_INTERVAL_SECS: "86400"
+    volumes:
+      - ./ops:/ops:ro
+      - ./backups:/backups
+    entrypoint: ["/bin/bash","-lc","/ops/pg-backup.sh; while true; do sleep ${BACKUP_INTERVAL_SECS:-86400}; /ops/pg-backup.sh; done"]
+    restart: unless-stopped

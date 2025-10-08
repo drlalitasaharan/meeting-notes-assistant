@@ -6,8 +6,8 @@ Initialize database schema.
 - Structured logging (no prints)
 """
 
-from app.core.logger import get_logger
 from app.core.db import engine
+from app.core.logger import get_logger
 from packages.shared.models import Base
 
 log = get_logger(__name__)
@@ -24,4 +24,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

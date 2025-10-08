@@ -5,9 +5,9 @@ Revises: 000000000000
 Create Date: 2025-09-08 23:34:38.250109
 """
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '2031869a6e0a'
@@ -23,7 +23,7 @@ def upgrade() -> None:
     sa.Column('name', sa.String(), nullable=True),
     sa.Column('created_at', sa.TIMESTAMP(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email')
+    sa.UniqueConstraint('email'),
     )
     op.create_table('meetings',
     sa.Column('id', sa.String(), nullable=False),
@@ -34,8 +34,8 @@ def upgrade() -> None:
     sa.Column('storage_key', sa.String(), nullable=True),
     sa.Column('status', sa.String(), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'] ),
+    sa.PrimaryKeyConstraint('id'),
     )
     op.create_table('slides',
     sa.Column('id', sa.String(), nullable=False),
@@ -43,8 +43,8 @@ def upgrade() -> None:
     sa.Column('page', sa.Integer(), nullable=False),
     sa.Column('ocr_text', sa.Text(), nullable=True),
     sa.Column('storage_key', sa.String(), nullable=False),
-    sa.ForeignKeyConstraint(['meeting_id'], ['meetings.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.ForeignKeyConstraint(['meeting_id'], ['meetings.id'] ),
+    sa.PrimaryKeyConstraint('id'),
     )
     op.create_table('summaries',
     sa.Column('id', sa.String(), nullable=False),
@@ -54,8 +54,8 @@ def upgrade() -> None:
     sa.Column('actions', sa.JSON(), nullable=False),
     sa.Column('risks', sa.JSON(), nullable=False),
     sa.Column('raw_md', sa.Text(), nullable=False),
-    sa.ForeignKeyConstraint(['meeting_id'], ['meetings.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.ForeignKeyConstraint(['meeting_id'], ['meetings.id'] ),
+    sa.PrimaryKeyConstraint('id'),
     )
     op.create_table('transcripts',
     sa.Column('id', sa.String(), nullable=False),
@@ -64,8 +64,8 @@ def upgrade() -> None:
     sa.Column('language', sa.String(), nullable=True),
     sa.Column('words', sa.JSON(), nullable=True),
     sa.Column('text', sa.Text(), nullable=False),
-    sa.ForeignKeyConstraint(['meeting_id'], ['meetings.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.ForeignKeyConstraint(['meeting_id'], ['meetings.id'] ),
+    sa.PrimaryKeyConstraint('id'),
     )
     # ### end Alembic commands ###
 

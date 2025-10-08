@@ -1,15 +1,36 @@
-# app/deps.py
-from fastapi import Header, HTTPException, status
+# backend/app/deps.py
+from __future__ import annotations
 
-async def demo_auth_dependency(authorization: str | None = Header(default=None)):
+from typing import Generator
+
+from fastapi import Header, HTTPException, status
+from sqlalchemy.orm import Session
+
+from backend.packages.shared.env import settings
+from .core.db import SessionLocal
+
+
+def get_db() -> Generator[Session, None, None]:
+    """Yield a SQLAlchemy session and ensure it's closed after the request."""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def require_api_key(x_api_key: str | None = Header(default=None, alias="X-API-Key")) -> bool:
     """
-    Phase-1 placeholder: require a header but don't verify it.
-    Switch off by removing the override in main.py.
+    Simple header-based API key check.
+    Reads the expected key from settings.API_KEY (loaded from .env/env vars).
     """
-    if authorization is None or not authorization.strip():
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing Authorization header"
-        )
-    return True
+    if x_api_key == settings.API_KEY:
+        return True
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or missing API key",
+    )
+
+
+__all__ = ["get_db", "require_api_key"]
 

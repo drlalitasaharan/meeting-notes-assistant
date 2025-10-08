@@ -1,38 +1,51 @@
 # frontend/frontend_api.py
+from __future__ import annotations
+
 import os
+from typing import Any
+
 import requests
 import streamlit as st
 
-API_BASE = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
+API_BASE = os.getenv("API_BASE_URL", st.secrets.get("API_BASE", "http://127.0.0.1:8000"))
+API_KEY = st.secrets.get("API_KEY", os.getenv("API_KEY", "dev-secret-123"))
+DEFAULT_HEADERS: dict[str, str] = {"X-API-Key": API_KEY}
 
-def _full(url: str) -> str:
-    if url.startswith("http://") or url.startswith("https://"):
-        return url
-    return API_BASE.rstrip("/") + "/" + url.lstrip("/")
 
-def api_get(path: str, **kwargs):
-    try:
-        r = requests.get(_full(path), timeout=20, **kwargs)
-        if r.status_code >= 400:
-            try:
-                err = r.json()
-            except Exception:
-                err = {"error": "HTTPError", "message": r.text, "details": None}
-            raise RuntimeError(err.get("message", "Request failed"), err)
-        return r.json()
-    except Exception as e:
-        # Extract standardized error if passed via RuntimeError
-        details = None
-        msg = str(e)
-        if isinstance(e, RuntimeError) and len(e.args) > 1 and isinstance(e.args[1], dict):
-            details = e.args[1]
-        _show_error_banner("Request failed", msg, details)
-        return None
+def _full(path: str) -> str:
+    """Return an absolute URL for the API, accepting either absolute or relative paths."""
+    if path.startswith(("http://", "https://")):
+        return path
+    return f"{API_BASE.rstrip('/')}/{path.lstrip('/')}"
 
-def _show_error_banner(title: str, message: str, details: dict | None = None):
-    with st.container(border=True):
-        st.error(f"**{title}** — {message}")
-        if details:
-            with st.expander("Details"):
-                st.json(details, expanded=False)
+
+def get(
+    url: str,
+    *,
+    headers: dict[str, str] | None = None,
+    timeout: int = 30,
+    **kwargs: Any,
+) -> requests.Response:
+    """GET wrapper that injects default headers and timeout."""
+    hdrs = {**DEFAULT_HEADERS, **(headers or {})}
+    return requests.get(_full(url), headers=hdrs, timeout=timeout, **kwargs)
+
+
+def post(
+    url: str,
+    *,
+    headers: dict[str, str] | None = None,
+    timeout: int = 30,
+    **kwargs: Any,
+) -> requests.Response:
+    """POST wrapper that injects default headers and timeout."""
+    hdrs = {**DEFAULT_HEADERS, **(headers or {})}
+    return requests.post(_full(url), headers=hdrs, timeout=timeout, **kwargs)
+
+
+def get_json(url: str, **kwargs: Any) -> Any:
+    """GET and return JSON, raising for HTTP errors."""
+    r = get(url, **kwargs)
+    r.raise_for_status()
+    return r.json()
 

@@ -3,6 +3,7 @@ import sys
 
 LOG_LEVEL = logging.getLevelName("INFO")
 
+
 def configure_logging(level: str | int = LOG_LEVEL) -> None:
     """
     Configure application-wide logging.
@@ -26,4 +27,3 @@ def configure_logging(level: str | int = LOG_LEVEL) -> None:
     logging.getLogger("uvicorn.access").setLevel(logging.INFO)
     logging.getLogger("botocore").setLevel(logging.WARNING)
     logging.getLogger("minio").setLevel(logging.INFO)
-

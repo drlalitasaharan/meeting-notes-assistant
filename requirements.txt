@@ -1,0 +1,6 @@
+# Root aggregator so you can run: pip install -r requirements.txt
+-r backend/requirements.txt
+
+# Optional providers (uncomment if/when you need them, then re-pin backend lockfile):
+# openai>=1.0.0
+# boto3>=1.34.0
