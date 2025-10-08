@@ -1,22 +1,19 @@
-# Meeting Notes Assistant — Hybrid Bare‑Metal + Docker Starter
+# Meeting Notes Assistant
 
-## Quick start (bare‑metal)
+[![Release](https://img.shields.io/github/v/release/drlalitasaharan/meeting-notes-assistant)](https://github.com/drlalitasaharan/meeting-notes-assistant/releases)
+[![CI](https://github.com/drlalitasaharan/meeting-notes-assistant/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/drlalitasaharan/meeting-notes-assistant/actions/workflows/ci.yml)
+[![Lint](https://github.com/drlalitasaharan/meeting-notes-assistant/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/drlalitasaharan/meeting-notes-assistant/actions/workflows/lint.yml)
+
+FastAPI + Streamlit app to create meetings, upload slides, run a processing pipeline (OCR/LLM), and produce notes.  
+Local dev supports both **bare-metal** and **Docker**.
+
+---
+
+## Quick start (bare-metal)
+
 ```bash
 make venv
 cp .env.example .env
-make run-api
-make run-frontend
-```
-API: http://localhost:8000/docs  
-Frontend: http://localhost:8501
+make run-api          # uvicorn backend
+make run-frontend     # Streamlit UI
 
-## Quick start (Docker dev)
-```bash
-cp .env.example .env
-make up
-```
-Stop: `make down`
-
-## Migrations
-- Create: `make migrate`
-- Apply:  `make upgrade`
