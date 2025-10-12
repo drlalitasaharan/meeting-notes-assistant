@@ -1,7 +1,7 @@
 """Add meetings table
 
 Revision ID: 2031
-Revises: None
+Revises: 0002
 Create Date: 2025-10-12
 """
 
