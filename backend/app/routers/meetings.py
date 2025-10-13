@@ -1,9 +1,9 @@
 from typing import Optional
 
-from app.schemas.note import NoteCreate, NoteRead
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from app.schemas.notes import NoteCreate, NoteRead
 from backend.app.db import get_db
 from backend.app.models.meeting import Meeting
 from backend.app.models.note import Note
