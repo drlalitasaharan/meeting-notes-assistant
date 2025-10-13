@@ -13,6 +13,7 @@ from packages.shared.models import Meeting, Summary
 
 log = get_logger(__name__)
 
+
 def _load_meeting_and_summary(meeting_id: int | str) -> tuple[Meeting | None, Summary | None]:
     with SessionLocal() as db:
         m = db.query(Meeting).filter_by(id=meeting_id).first()
@@ -32,7 +33,9 @@ def _build_payload(meeting: Meeting | None, summary: Summary | None) -> dict[str
     raw_md = getattr(summary, "raw_md", None)
     synopsis = getattr(summary, "synopsis", None)
 
-    notion_text = synopsis or (raw_md[:1800] + "…") if raw_md and len(raw_md) > 1800 else raw_md or ""
+    notion_text = (
+        synopsis or (raw_md[:1800] + "…") if raw_md and len(raw_md) > 1800 else raw_md or ""
+    )
 
     # Example, Notion-style-ish block for consumers that expect a text block
     notion_block = {
@@ -99,4 +102,3 @@ def push_summary(meeting_id: int | str) -> dict[str, Any]:
 
 
 __all__ = ["push_summary"]
-

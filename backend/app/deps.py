@@ -1,31 +1,55 @@
 # backend/app/deps.py
 from __future__ import annotations
 
-from typing import Generator
+import os
+from typing import Generator, Optional
 
 from fastapi import Header, HTTPException, status
 from sqlalchemy.orm import Session
 
-from backend.packages.shared.env import settings
-from .core.db import SessionLocal
-
 
 def get_db() -> Generator[Session, None, None]:
-    """Yield a SQLAlchemy session and ensure it's closed after the request."""
-    db = SessionLocal()
+    """
+    Yield a SQLAlchemy session from the *single* canonical factory.
+    Importing inside the function avoids any shadowing by legacy modules.
+    """
+    from app.core.db import SessionLocal as _SessionLocal  # hard-bind to core
+
+    db = _SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
 
-def require_api_key(x_api_key: str | None = Header(default=None, alias="X-API-Key")) -> bool:
+def _expected_key() -> str | None:
     """
-    Simple header-based API key check.
-    Reads the expected key from settings.API_KEY (loaded from .env/env vars).
+    Pull the API key at request time so startup never fails if it's missing.
+    Accept either API_KEY or X_API_KEY.
     """
-    if x_api_key == settings.API_KEY:
+    return os.getenv("API_KEY") or os.getenv("X_API_KEY")
+
+
+async def require_api_key(
+    x_api_key: Optional[str] = Header(
+        default=None,
+        alias="X-API-Key",  # exact header name expected from clients
+        convert_underscores=False,  # do not transform to X-API-Key -> X_API_Key
+    ),
+) -> bool:
+    """
+    Header-based API key guard.
+
+    Dev-friendly behavior:
+      - If no key is configured (no env set), allow requests.
+    Prod behavior:
+      - Set API_KEY (or X_API_KEY) in the environment and require clients to
+        send the same value in the X-API-Key header.
+    """
+    expected = _expected_key()
+    if expected is None or x_api_key == expected:
         return True
+
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or missing API key",
@@ -33,4 +57,3 @@ def require_api_key(x_api_key: str | None = Header(default=None, alias="X-API-Ke
 
 
 __all__ = ["get_db", "require_api_key"]
-

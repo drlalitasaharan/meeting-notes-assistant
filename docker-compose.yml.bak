@@ -1,0 +1,115 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env # compose substitution source (DB_USER, etc.)
+      - ./backend/.env # app/runtime settings
+    environment:
+      # Make "from app..." / "from packages..." imports work
+      PYTHONPATH: /app/backend
+      # DB pieces (also available in container env)
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      # Explicit DSN so Alembic / app use Postgres (not SQLite)
+      DATABASE_URL: "postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}"
+      # For settings & header guard
+      API_KEY: ${API_KEY}
+      X_API_KEY: ${API_KEY}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request,sys; r=urllib.request.urlopen("http://127.0.0.1:8000/healthz", timeout=2); sys.exit(0 if r.getcode()==200 else 1)
+      interval: 2s
+      timeout: 2s
+      retries: 3
+      start_period: 0s
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+      - ./backend/.env
+    environment:
+      PYTHONPATH: /app/backend
+      # DB config (match api)
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DATABASE_URL: "postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}"
+      # Auth
+      API_KEY: ${API_KEY}
+      X_API_KEY: ${API_KEY}
+    working_dir: /app/backend
+    command: python -m app.worker
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      api:
+        condition: service_started
+    restart: unless-stopped
+  frontend:
+    build:
+      context: .
+      dockerfile: infra/docker/frontend.Dockerfile
+    image: meeting-notes-assistant-frontend
+    env_file:
+      - ./frontend/.env
+    environment:
+      STREAMLIT_SERVER_HEADLESS: "true"
+      STREAMLIT_BROWSER_GATHERUSAGESTATS: "false"
+    ports:
+      - "${FRONTEND_PORT:-8501}:8501"
+    volumes:
+      - ./frontend:/app/frontend:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - mna_pg:/var/lib/postgresql/data
+      - ./backups:/backups:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+  pg_backup:
+    image: postgres:16
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGURL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}"
+      BACKUP_INTERVAL_SECS: "86400"
+    volumes:
+      - ./ops:/ops:ro
+      - ./backups:/backups
+    entrypoint: ["/bin/bash", "-lc", "/ops/pg-backup.sh; while true; do sleep ${BACKUP_INTERVAL_SECS:-86400}; /ops/pg-backup.sh; done"]
+    restart: unless-stopped
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+volumes:
+  mna_pg:

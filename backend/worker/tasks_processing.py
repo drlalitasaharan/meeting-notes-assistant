@@ -1,17 +1,16 @@
-import os, glob
+import glob
+import os
 from datetime import datetime
-from typing import Optional
 
-import sqlalchemy as sa
-from sqlalchemy import Table, Column, Integer, Text, DateTime, String, MetaData, create_engine
+from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table, Text, create_engine
 from sqlalchemy.engine import Engine
 
 from app.summarizers import summarize_simple
 
 # Optional OCR imports
 try:
-    from PIL import Image
     import pytesseract
+    from PIL import Image
 except Exception:
     Image = None  # type: ignore
     pytesseract = None  # type: ignore
@@ -21,20 +20,23 @@ engine: Engine = create_engine(DB_URL, future=True)
 
 md = MetaData()
 transcripts = Table(
-    "transcripts", md,
+    "transcripts",
+    md,
     Column("id", Integer, primary_key=True),
     Column("meeting_id", Integer, nullable=False),
     Column("text", Text, nullable=False),
     Column("created_at", DateTime, nullable=False, default=datetime.utcnow),
 )
 summaries = Table(
-    "summaries", md,
+    "summaries",
+    md,
     Column("id", Integer, primary_key=True),
     Column("meeting_id", Integer, nullable=False),
     Column("model", String(60), nullable=False, default="simple"),
     Column("text", Text, nullable=False),
     Column("created_at", DateTime, nullable=False, default=datetime.utcnow),
 )
+
 
 def _find_storage_dir(meeting_id: int) -> str:
     candidates = [
@@ -50,6 +52,7 @@ def _find_storage_dir(meeting_id: int) -> str:
     p = f"/app/backend/storage/{meeting_id}"
     os.makedirs(p, exist_ok=True)
     return p
+
 
 def _gather_text(storage_dir: str) -> str:
     chunks = []
@@ -75,25 +78,21 @@ def _gather_text(storage_dir: str) -> str:
         return "No readable content found."
     return "\n\n".join(chunks)
 
+
 def process_meeting(meeting_id: int) -> dict:
     storage_dir = _find_storage_dir(int(meeting_id))
     text = _gather_text(storage_dir)
 
     with engine.begin() as conn:
         # Insert transcript
-        r = conn.execute(transcripts.insert().values(
-            meeting_id=int(meeting_id),
-            text=text
-        ))
+        r = conn.execute(transcripts.insert().values(meeting_id=int(meeting_id), text=text))
         transcript_id = r.inserted_primary_key[0]
 
         # Create summary (simple)
         summ_text = summarize_simple(text, sentences=3)
-        r2 = conn.execute(summaries.insert().values(
-            meeting_id=int(meeting_id),
-            model="simple",
-            text=summ_text
-        ))
+        r2 = conn.execute(
+            summaries.insert().values(meeting_id=int(meeting_id), model="simple", text=summ_text)
+        )
         summary_id = r2.inserted_primary_key[0]
 
     return {

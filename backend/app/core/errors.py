@@ -21,7 +21,9 @@ class ApiError(BaseModel):
     details: Any | None = None
 
 
-def error_response(status_code: int, error: str, message: str, details: Any | None = None) -> JSONResponse:
+def error_response(
+    status_code: int, error: str, message: str, details: Any | None = None
+) -> JSONResponse:
     """Return a normalized JSON error payload."""
     payload = ApiError(error=error, message=message, details=details).model_dump()
     return JSONResponse(status_code=status_code, content=payload)
@@ -45,7 +47,9 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     return JSONResponse(status_code=exc.status_code, content=payload)
 
 
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
     """Normalize Pydantic validation errors."""
     payload = {
         "error": "ValidationError",
@@ -65,4 +69,3 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
     }
     log.error("Unhandled exception", extra={"path": request.url.path}, exc_info=exc)
     return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR, content=payload)
-

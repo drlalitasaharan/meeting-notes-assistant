@@ -37,8 +37,8 @@ class Settings(BaseSettings):
     MINIO_ENDPOINT: str = "127.0.0.1:9000"
     MINIO_ACCESS_KEY: str = "minioadmin"
     MINIO_SECRET_KEY: str = "minioadmin"
-    MINIO_SECURE: bool = False           # canonical flag
-    MINIO_USE_SSL: bool | None = None    # legacy/alias; if set, it wins
+    MINIO_SECURE: bool = False  # canonical flag
+    MINIO_USE_SSL: bool | None = None  # legacy/alias; if set, it wins
 
     # ------------------------------------------------------------------
     # Legacy S3-style aliases (kept for compatibility with older code)
@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     # Buckets
     # ------------------------------------------------------------------
-    RAW_BUCKET: str = "meeting-raw"        # for meeting audio/video
+    RAW_BUCKET: str = "meeting-raw"  # for meeting audio/video
     SLIDES_BUCKET: str = "meeting-slides"  # for attached slides
 
     # Normalize/derive after parsing
@@ -79,4 +79,3 @@ settings = Settings()
 def get_settings() -> Settings:
     """Convenience accessor for code expecting a callable."""
     return settings
-

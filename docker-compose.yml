@@ -1,73 +1,15 @@
 services:
-  api:
+  backend:
     build:
       context: .
-      dockerfile: Dockerfile
-    env_file: .env
-    environment:
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
-      DATABASE_URL: postgresql+psycopg://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
-      X_API_KEY: ${API_KEY}
+      dockerfile: backend/Dockerfile
     ports:
       - "8000:8000"
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
-
-  frontend:
-    build:
-      context: .
-      dockerfile: infra/docker/frontend.Dockerfile
-    image: meeting-notes-assistant-frontend
-    env_file: .env
     environment:
-      STREAMLIT_SERVER_HEADLESS: "true"
-      STREAMLIT_BROWSER_GATHERUSAGESTATS: "false"
-    ports:
-      - "${FRONTEND_PORT:-8501}:8501"
+      - DATABASE_URL=sqlite:///./dev.db
+      - APP_ENV=dev
     volumes:
-      - ./frontend:/app/frontend:ro
-    depends_on:
-      - api
-    restart: unless-stopped
-
-  db:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-    volumes:
-      - mna_pg:/var/lib/postgresql/data
-      - ./backups:/backups:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    restart: unless-stopped
-
-  pg_backup:
-    image: postgres:16
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      PGURL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
-      BACKUP_INTERVAL_SECS: "86400"
-    volumes:
-      - ./ops:/ops:ro
-      - ./backups:/backups
-    entrypoint:
-      [
-        "/bin/bash",
-        "-lc",
-        "/ops/pg-backup.sh; while true; do sleep ${BACKUP_INTERVAL_SECS:-86400}; /ops/pg-backup.sh; done"
-      ]
-    restart: unless-stopped
-
-volumes:
-  mna_pg:
+      - ./backend:/app/backend
+      - ./storage:/app/storage
+    working_dir: /app/backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
