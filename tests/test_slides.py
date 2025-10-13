@@ -29,11 +29,9 @@ def test_upload_slides_txt(client, api_headers):
         ]
     elif isinstance(body, list):
         names = [
-            it["filename"] if isinstance(it, dict) and "filename" in it else str(it)
-            for it in body
+            it["filename"] if isinstance(it, dict) and "filename" in it else str(it) for it in body
         ]
     else:
         names = []
 
     assert any("hello.txt" in n for n in names)
-

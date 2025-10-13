@@ -1,7 +1,8 @@
 # backend/app/models/notes.py
-from app.models.base import Base  # your project's Base
 from sqlalchemy import DateTime, ForeignKey, Integer, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.models import Base
 
 
 class Transcript(Base):

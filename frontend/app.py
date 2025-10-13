@@ -1,8 +1,9 @@
-import streamlit as st, requests
+import streamlit as st
+import requests
 
 API = st.secrets.get("API_BASE", "http://localhost:8000")
 
-st.title("Meetings – Process & Notes")
+st.title("Meetings - Process & Notes")
 
 mid = st.number_input("Meeting ID", min_value=1, step=1)
 col1, col2, col3 = st.columns(3)

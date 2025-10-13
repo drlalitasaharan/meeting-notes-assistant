@@ -1,0 +1,17 @@
+repos:
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.6.9
+  hooks:
+  - id: ruff
+    args:
+    - --fix
+  - id: ruff-format
+- repo: local
+  hooks:
+  - id: pytest-in-docker
+    name: pytest (backend container)
+    entry: docker compose exec -T backend pytest -q
+    language: system
+    pass_filenames: false
+    stages:
+    - pre-commit

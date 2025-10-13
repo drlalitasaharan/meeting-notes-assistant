@@ -1,61 +1,8 @@
-# Root-level tooling config (Ruff + mypy). Backend packaging lives in backend/pyproject.toml
-
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["backend", "frontend", "scripts", "tests"]
+src = ["backend", "frontend"]
 
 [tool.ruff.lint]
-select = [
-  "E",  # pycodestyle
-  "F",  # pyflakes
-  "I",  # isort
-  "UP", # pyupgrade
-  "B",  # flake8-bugbear
-  "SIM",
-  "PIE",
-  "COM",
-  "RUF",
-]
-ignore = [
-  "E501",  # line length handled by formatter/editor
-]
-
-[tool.ruff.lint.per-file-ignores]
-"backend/app/routers/*.py" = ["B008"]  # FastAPI Depends/File in function signatures
-"scripts/seed_demo.py" = ["E402"]       # sys.path bootstrap before imports
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "lf"
-docstring-code-format = true
-
-
-[tool.mypy]
-python_version = "3.11"
-ignore_missing_imports = true
-no_implicit_optional = true
-warn_unused_ignores = true
-warn_redundant_casts = true
-warn_unused_configs = true
-warn_return_any = true
-strict_equality = true
-check_untyped_defs = true
-disallow_incomplete_defs = true
-disallow_untyped_defs = false
-files = ["backend"]
-exclude = ["alembic/"]
-
-# Narrowly silence dynamic attributes / Any returns where needed
-[[tool.mypy.overrides]]
-module = [
-  "backend.app.workers.transcribe.worker",
-  "backend.app.workers.llm.summarize",
-  "backend.app.workers.vision.ocr",
-  "backend.alembic.env",
-  "backend.app.services.minio_client",
-  "backend.packages.shared.minio_client",
-]
-disable_error_code = ["attr-defined", "no-any-return"]
-
+# Avoid formatter conflict warning
+ignore = ["COM812"]

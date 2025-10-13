@@ -56,4 +56,3 @@ def test_meeting_crud_minimal(client, api_headers):
     # get
     r = client.get(f"/v1/meetings/{mid}", headers=api_headers)
     assert r.status_code == 200
-
