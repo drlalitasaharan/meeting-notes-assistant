@@ -1,0 +1,26 @@
+services:
+  # Add Redis for rq/queue code that might import/connect at startup
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    # Make sure the server binds and is checkable
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    environment:
+      REDIS_URL: "redis://redis:6379"
+      DATABASE_URL: "${DATABASE_URL:-sqlite:///./dev.db}"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 25
