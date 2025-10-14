@@ -1,5 +1,4 @@
 services:
-  # Add Redis for rq/queue code that might import/connect at startup
   redis:
     image: redis:7-alpine
     healthcheck:
@@ -8,17 +7,29 @@ services:
       timeout: 3s
       retries: 20
 
+  # one-shot DB init (SQLite file)
+  dbinit:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: "${DATABASE_URL:-sqlite:///./dev.db}"
+    command: ["python", "-m", "app.ci_init_db"]
+    volumes:
+      - ./backend:/app/backend
+      - ./storage:/app/storage
+
   backend:
-    # Make sure the server binds and is checkable
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-    ports:
-      - "8000:8000"
+    ports: ["8000:8000"]
     environment:
       REDIS_URL: "redis://redis:6379"
       DATABASE_URL: "${DATABASE_URL:-sqlite:///./dev.db}"
     depends_on:
       redis:
         condition: service_healthy
+      dbinit:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/healthz"]
       interval: 5s
