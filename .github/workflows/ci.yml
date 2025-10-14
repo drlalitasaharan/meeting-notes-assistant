@@ -39,17 +39,21 @@ jobs:
       - name: Boot stack
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml up -d --build
 
-      - name: Wait for API (/healthz)
+      - name: Wait for API (healthz or docs)
         run: |
           set -euo pipefail
           for i in {1..60}; do
-            if curl -fsS http://localhost:8000/healthz >/dev/null; then
+            if curl -fsS http://localhost:8000/healthz >/dev/null 2>&1 ||                curl -fsS http://localhost:8000/docs >/dev/null 2>&1; then
               echo "API is up"
               exit 0
             fi
+            echo "[wait] API not up yet; showing ps + last 80 lines of backend logs"
+            docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml ps || true
+            docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs --no-color --timestamps backend | tail -n 80 || true
             sleep 2
           done
           echo "Timed out waiting for API"
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs --no-color --timestamps backend || true
           exit 1
 
       - name: Smoke – process meeting 1
