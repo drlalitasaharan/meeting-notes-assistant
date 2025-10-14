@@ -48,4 +48,3 @@ def get_json(url: str, **kwargs: Any) -> Any:
     r = get(url, **kwargs)
     r.raise_for_status()
     return r.json()
-

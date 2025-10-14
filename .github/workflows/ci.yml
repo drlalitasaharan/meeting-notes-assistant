@@ -1,58 +1,36 @@
 name: CI
-
-on:
-  push:
-    branches: [ feat/**, main ]
-  pull_request:
-
+on: [push, pull_request]
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build images
+        run: docker compose build
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d
+      - name: Wait for API
         run: |
-          python -m pip install -U pip
-          pip install -r requirements-test.txt
-
-      - name: Start API server
-        env:
-          API_KEY: dev-secret-123
-          DATABASE_URL: sqlite:///./dev.db
-        run: |
-          set -euo pipefail
-          mkdir -p storage
-          uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 & echo $! > uvicorn.pid
-
-          # wait for health
-          for i in {1..40}; do
-            if curl -fsS http://127.0.0.1:8000/healthz >/dev/null; then
-              echo "API is up"
-              break
-            fi
-            sleep 0.25
+          for i in {1..60}; do
+            curl -fsS http://localhost:8000/metrics && break
+            sleep 2
           done
-
-      - name: Run tests
-        env:
-          API_KEY: dev-secret-123
-          DATABASE_URL: sqlite:///./dev.db
+      - name: Smoke – process meeting 1
         run: |
-          pytest -q
-
-      - name: Stop API server
-        if: always()
-        run: |
-          if [ -f uvicorn.pid ]; then
-            kill "$(cat uvicorn.pid)" || true
-            rm -f uvicorn.pid
-          fi
-
+          set -e
+          mkdir -p storage/1
+          echo "Test OCR slide" > storage/1/slide.txt
+          convert -size 600x200 xc:white -pointsize 32 -gravity center -annotate 0 "Hello OCR" storage/1/slide.png || true
+          JOB=$(curl -fsS -XPOST http://localhost:8000/v1/meetings/1/process | jq -r .job_id)
+          echo "JOB=$JOB"
+          for i in {1..60}; do
+            S=$(curl -fsS http://localhost:8000/v1/jobs/$JOB | jq -r .status)
+            echo "status=$S"
+            [ "$S" = "finished" ] && break
+            sleep 2
+          done
+          curl -fsS http://localhost:8000/v1/meetings/1/notes

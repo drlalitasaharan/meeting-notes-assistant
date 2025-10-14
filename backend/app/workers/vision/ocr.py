@@ -4,12 +4,12 @@ import tempfile
 
 import boto3
 import pytesseract
-from backend.packages.shared.env import settings
-from backend.packages.shared.models import Slide
 from pdf2image import convert_from_bytes
 
 from app.core.db import SessionLocal
 from app.core.logger import get_logger
+from packages.shared.env import settings
+from packages.shared.models import Slide
 
 log = get_logger(__name__)
 
@@ -52,4 +52,3 @@ def ocr_pdf_bytes(meeting_id: int, pdf_bytes: bytes) -> int:
 
     log.info("OCR complete", extra={"meeting_id": meeting_id, "pages": len(pages)})
     return len(pages)
-

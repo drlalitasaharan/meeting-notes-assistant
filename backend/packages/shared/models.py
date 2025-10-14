@@ -33,4 +33,3 @@ class Job(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)
     logs: Mapped[str | None] = mapped_column(Text, nullable=True)
-

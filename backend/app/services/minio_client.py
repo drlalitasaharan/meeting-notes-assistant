@@ -32,6 +32,7 @@ _minio = Minio(
     secure=MINIO_USE_SSL,
 )
 
+
 # -------------------------------------------------------------------
 # Bucket utilities
 # -------------------------------------------------------------------
@@ -344,4 +345,3 @@ def delete_meeting_slides(meeting_id: str) -> dict[str, int]:
         extra={"meeting_id": meeting_id, "deleted": deleted, "failed": len(failed)},
     )
     return {"deleted": deleted, "failed": len(failed)}
-

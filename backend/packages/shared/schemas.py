@@ -8,4 +8,3 @@ class ErrorResponse(BaseModel):
     error: str = Field(..., description="Short error identifier")
     message: str = Field(..., description="Human-readable message")
     details: Any | None = Field(None, description="Optional extra info")
-

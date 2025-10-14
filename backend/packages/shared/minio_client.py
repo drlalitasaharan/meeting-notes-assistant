@@ -118,4 +118,3 @@ def list_keys(prefix: str, bucket: str, max_keys: int = 1000) -> list[str]:
         if not token:
             break
     return keys
-

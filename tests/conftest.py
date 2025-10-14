@@ -34,4 +34,3 @@ def client():
 @pytest.fixture()
 def api_headers():
     return {"X-API-Key": os.getenv("API_KEY", "dev-secret-123")}
-
