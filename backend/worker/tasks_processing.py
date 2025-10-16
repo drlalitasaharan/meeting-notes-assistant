@@ -12,9 +12,8 @@ try:
     import pytesseract
     from PIL import Image
 except Exception:
-    Image = None  # type: ignore
-    pytesseract = None  # type: ignore
-
+    Image = None
+pytesseract = None
 DB_URL = os.getenv("DATABASE_URL", "sqlite:////app/backend/dev.db")
 engine: Engine = create_engine(DB_URL, future=True)
 

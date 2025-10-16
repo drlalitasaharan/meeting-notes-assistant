@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Optional
 
 from prometheus_client import Counter, Histogram
+from sqlalchemy import asc
 from sqlalchemy.orm import Session
 
 from .core.settings import settings
@@ -62,7 +63,7 @@ def summarize_meeting(meeting_id: int, max_chars: int = 8000) -> str:
             texts = (
                 db.query(Transcript)
                 .filter(Transcript.meeting_id == meeting_id)
-                .order_by(Transcript.created_at.asc())
+                .order_by(asc(Transcript.created_at))
                 .all()
             )
             corpus = "\n\n".join(t.text for t in texts)[:max_chars]
@@ -85,7 +86,8 @@ def summarize_meeting(meeting_id: int, max_chars: int = 8000) -> str:
                     messages=[{"role": "user", "content": prompt}],
                     temperature=0.2,
                 )
-                bullets = resp.choices[0].message.content.strip()
+                content = resp.choices[0].message.content or ""
+                bullets = content.strip()
             else:
                 lines = [ln.strip() for ln in corpus.splitlines() if ln.strip()]
                 bullets = "\n".join(f"- {ln[:160]}" for ln in lines[:8])

@@ -1,9 +1,18 @@
-from sqlalchemy.orm import declarative_base
+from .base import Base
 
-Base = declarative_base()
+# Import concrete models you actually have
+try:
+    from .note import Note  # noqa: F401
+except Exception:
+    pass
+try:
+    from .meeting import Meeting  # noqa: F401
+except Exception:
+    pass
+# If your Summary/Transcript live elsewhere (e.g., notes.py), re-export here:
+try:
+    from .notes import Summary, Transcript  # noqa: F401
+except Exception:
+    pass
 
-# Re-export model classes (after Base is defined)
-from .meeting import Meeting as Meeting  # noqa: E402
-from .note import Note as Note  # noqa: E402
-
-__all__ = ["Base", "Meeting", "Note"]
+__all__ = ["Base", "Note", "Meeting", "Summary", "Transcript"]

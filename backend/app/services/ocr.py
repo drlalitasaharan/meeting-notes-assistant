@@ -209,5 +209,5 @@ def get_notes(
     return NotesResponse(
         meeting_id=meeting_id,
         transcript=(NoteItem(text=t.text, created_at=t.created_at.isoformat()) if t else None),
-        summary=(NoteItem(text=s.text, created_at=s.created_at.isoformat()) if s else None),
+        summary=(NoteItem(text=(s.text or ""), created_at=s.created_at.isoformat()) if s else None),
     )

@@ -1,18 +1,39 @@
+from types import ModuleType
+
 from fastapi import FastAPI, HTTPException
 from rq import Queue
 from rq.job import Job
 
-# NEW router that contains /v1/meetings, /process, /notes, /transcript, /summary
 from app.routers import notes_api
 from worker.redis_client import get_redis
 
+processing_api: ModuleType | None = None
 try:
-    from app.routers import processing_api
+    from app.routers import processing_api as _processing_api
+
+    processing_api = _processing_api
 except Exception as e:
     import logging
 
     logging.error("processing_api import failed: %s", e)
+
+
+# NEW router that contains /v1/meetings, /process, /notes, /transcript, /summary
+
+try:
+    pass
+except Exception as e:
+    import logging
+
+    logging.error("processing_api import failed: %s", e)
+    from typing import Any, cast
+
+    processing_api = cast(Any, None)
+
+    logging.error("processing_api import failed: %s", e)
     processing_api = None
+
+    logging.error("processing_api import failed: %s", e)
 
 app = FastAPI()
 

@@ -6,7 +6,7 @@ from contextlib import suppress
 from typing import IO
 
 import boto3
-from botocore.client import BaseClient
+from mypy_boto3_s3 import S3Client
 
 from packages.shared.env import settings
 
@@ -15,10 +15,10 @@ log = logging.getLogger(__name__)
 RAW_BUCKET = getattr(settings, "S3_BUCKET_RAW", "raw")
 SLIDES_BUCKET = getattr(settings, "S3_BUCKET_SLIDES", "slides")
 
-_s3: BaseClient | None = None
+_s3: S3Client | None = None
 
 
-def _client() -> BaseClient:
+def _client() -> S3Client:
     global _s3
     if _s3 is None:
         _s3 = boto3.client(
@@ -106,7 +106,7 @@ def list_keys(prefix: str, bucket: str, max_keys: int = 1000) -> list[str]:
     while True:
         kwargs = {"Bucket": bucket, "Prefix": prefix, "MaxKeys": max_keys}
         if token:
-            kwargs["ContinuationToken"] = token  # type: ignore[assignment]
+            kwargs["ContinuationToken"] = token
         resp = _client().list_objects_v2(**kwargs)
         for obj in resp.get("Contents", []) or []:
             k = obj.get("Key")

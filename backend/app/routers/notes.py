@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from ..db import get_db
@@ -19,7 +20,7 @@ def get_notes(meeting_id: int, db: Session = Depends(get_db)):
     t = (
         db.query(Transcript)
         .filter(Transcript.meeting_id == meeting_id)
-        .order_by(Transcript.created_at.desc())
+        .order_by(desc(Transcript.created_at))
         .first()
     )
     s = db.query(Summary).filter(Summary.meeting_id == meeting_id).one_or_none()
