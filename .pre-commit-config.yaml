@@ -6,12 +6,27 @@ repos:
         args: [--fix]
       - id: ruff-format
 
-  # Run mypy the same way you do by hand (inside backend/)
-  - repo: local
+  # Use mirrors-mypy so mypy is installed inside the hook's venv
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.2
     hooks:
-      - id: mypy-backend
+      - id: mypy
         name: mypy (backend packages)
-        language: system
-        pass_filenames: false
-        entry: bash -lc 'cd backend && mypy -p app -p worker -p packages -p alembic'
         files: ^backend/
+        args:
+          - --config-file=mypy.ini
+          - --namespace-packages
+          - --explicit-package-bases
+        additional_dependencies:
+          - sqlalchemy>=2.0
+          - mypy-boto3-s3
+          - types-redis
+          - fastapi
+          - pydantic>=2
+          - pydantic-settings
+          - starlette
+          - rq
+          - prometheus-client
+          - boto3
+          - pdf2image
+          - pytesseract
