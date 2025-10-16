@@ -6,17 +6,24 @@ repos:
         args: [--fix]
       - id: ruff-format
 
-  # Use mirrors-mypy so mypy is installed inside the hook's venv
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.11.2
     hooks:
       - id: mypy
         name: mypy (backend packages)
-        files: ^backend/
+        pass_filenames: false
         args:
           - --config-file=mypy.ini
           - --namespace-packages
           - --explicit-package-bases
+          - -p
+          - app
+          - -p
+          - worker
+          - -p
+          - packages
+          - -p
+          - alembic
         additional_dependencies:
           - sqlalchemy>=2.0
           - mypy-boto3-s3
