@@ -82,6 +82,13 @@ jobs:
           curl -fsS http://localhost:8000/v1/meetings/1/notes | jq .
 
       - name: Show container logs (always)
+- name: Archive docker logs (on failure)
+      if: failure()
+      run: |
+        mkdir -p artifacts
+        docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml ps
+        docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs --no-color > artifacts/compose.log
+      
         if: always()
         run: |
           docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml ps
