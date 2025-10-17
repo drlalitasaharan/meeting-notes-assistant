@@ -27,5 +27,5 @@ def get_notes(meeting_id: int, db: Session = Depends(get_db)):
     return NotesOut(
         meeting_id=meeting_id,
         transcript_snippet=(t.text[:800] + "…") if t else None,
-        summary_bullets=s.bullets if s else None,
+        summary_bullets=(getattr(s, "bullets", None) if s else None),
     )

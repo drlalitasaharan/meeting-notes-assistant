@@ -14,16 +14,12 @@ repos:
         pass_filenames: false
         args:
           - --config-file=mypy.ini
-          - --namespace-packages
-          - --explicit-package-bases
           - -p
           - app
           - -p
           - worker
           - -p
           - packages
-          - -p
-          - alembic
         additional_dependencies:
           - sqlalchemy>=2.0
           - mypy-boto3-s3

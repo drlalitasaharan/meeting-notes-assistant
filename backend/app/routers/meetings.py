@@ -3,11 +3,11 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
+from app.core.db import get_db
+from app.models.meeting import Meeting
+from app.models.note import Note
+from app.schemas.meetings import MeetingCreate, MeetingRead, MeetingUpdate
 from app.schemas.notes import NoteCreate, NoteRead
-from backend.app.db import get_db
-from backend.app.models.meeting import Meeting
-from backend.app.models.note import Note
-from backend.app.schemas.meetings import MeetingCreate, MeetingRead, MeetingUpdate
 
 router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
 

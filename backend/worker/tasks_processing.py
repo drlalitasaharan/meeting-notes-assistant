@@ -1,6 +1,7 @@
 import glob
 import os
 from datetime import datetime
+from typing import Any, cast
 
 from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table, Text, create_engine
 from sqlalchemy.engine import Engine
@@ -12,7 +13,9 @@ try:
     import pytesseract
     from PIL import Image
 except Exception:
-    Image = None
+    from typing import Any, cast
+
+    Image = cast(Any, None)
 pytesseract = None
 DB_URL = os.getenv("DATABASE_URL", "sqlite:////app/backend/dev.db")
 engine: Engine = create_engine(DB_URL, future=True)

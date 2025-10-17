@@ -96,7 +96,7 @@ def summarize_meeting(meeting_id: int, max_chars: int = 8000) -> str:
         try:
             existing = db.query(Summary).filter(Summary.meeting_id == meeting_id).one_or_none()
             if existing:
-                existing.bullets = bullets
+                setattr(existing, "bullets", bullets)
                 existing.created_at = datetime.utcnow()
             else:
                 db.add(Summary(meeting_id=meeting_id, bullets=bullets))

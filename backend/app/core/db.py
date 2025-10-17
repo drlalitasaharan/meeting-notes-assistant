@@ -34,3 +34,12 @@ SessionLocal = sessionmaker(
 )
 
 __all__ = ["SessionLocal", "engine"]
+
+
+# Simple FastAPI-style DB dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

@@ -107,7 +107,7 @@ def list_keys(prefix: str, bucket: str, max_keys: int = 1000) -> list[str]:
         kwargs = {"Bucket": bucket, "Prefix": prefix, "MaxKeys": max_keys}
         if token:
             kwargs["ContinuationToken"] = token
-        resp = _client().list_objects_v2(**kwargs)
+        resp = _client().list_objects_v2(**kwargs)  # type: ignore[arg-type]
         for obj in resp.get("Contents", []) or []:
             k = obj.get("Key")
             if k:
