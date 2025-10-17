@@ -24,6 +24,8 @@ jobs:
 
   smoke:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: sqlite:////app/backend/dev.db
     needs: build
     steps:
       - uses: actions/checkout@v4

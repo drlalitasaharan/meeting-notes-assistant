@@ -1,49 +1,13 @@
 services:
-  dbinit:
-    image: meeting-notes-assistant-backend:latest
-    working_dir: /app/backend
-    environment:
-      DATABASE_URL: "sqlite:////app/backend/storage/app.db"
-      PYTHONPATH: "/app/backend"
-    volumes:
-      - ./storage:/app/backend/storage
-    entrypoint: ["/bin/bash","-lc"]
-    command: |
-      set -eu
-      echo "[dbinit] Python: $(python -V)"
-      echo "[dbinit] Using DATABASE_URL=${DATABASE_URL}"
-      test -f alembic.ini || { echo "[dbinit] ERROR: alembic.ini not found"; ls -la; exit 1; }
-      python - <<'PY'
-      import os
-      from alembic.config import Config
-      from alembic import command
-      cfg = Config("alembic.ini")
-      url = os.environ.get("DATABASE_URL")
-      if url:
-          cfg.set_main_option("sqlalchemy.url", url)
-          print("[dbinit] sqlalchemy.url set from env:", url)
-      print("[dbinit] Running Alembic upgrade head…")
-      command.upgrade(cfg, "head")
-      print("[dbinit] Migrations complete")
-      PY
-
   backend:
-    depends_on:
-      dbinit:
-        condition: service_completed_successfully
-    volumes:
-      - ./storage:/app/backend/storage
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: meeting-notes-assistant-backend:ci
 
-  api:
-    depends_on:
-      dbinit:
-        condition: service_completed_successfully
-    volumes:
-      - ./storage:/app/backend/storage
-
-  worker:
-    depends_on:
-      dbinit:
-        condition: service_completed_successfully
-    volumes:
-      - ./storage:/app/backend/storage
+  # run migrations/init against the same locally built image
+  dbinit:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: meeting-notes-assistant-backend:ci
