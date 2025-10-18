@@ -24,6 +24,12 @@ jobs:
     env:
       DATABASE_URL: sqlite:////app/backend/dev.db
     steps:
+      - name: Prepare writable storage
+        run: |-
+          set -euxo pipefail
+          sudo rm -rf storage || true
+          sudo install -d -m 0777 storage/1
+          ls -ld storage storage/1
       - uses: actions/checkout@v4
       - name: Install test tools (jq, ImageMagick, curl)
         run: |
