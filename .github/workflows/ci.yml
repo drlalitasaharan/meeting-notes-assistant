@@ -36,60 +36,67 @@ jobs:
           sudo apt-get install -y jq imagemagick curl
 
       - name: Compose config (debug)
-        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml config
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml config
 
       - name: Boot stack
-        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml up -d --build
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml up -d --build
 
       - name: Wait for API (healthz)
         run: |
           echo "Waiting for backend container..."
-          for i in {1..40}; do
-            if docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend curl -fs http://127.0.0.1:8000/healthz >/dev/null 2>&1; then
+          for i in {1..60}; do
+            if docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend \
+              python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).getcode()==200 else 1)"; then
               echo "✅ API is up!"
               exit 0
             fi
             echo "Waiting... ($i)"
-            sleep 3
+            sleep 2
           done
           echo "❌ API failed to start in time"
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs backend
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml logs backend
           exit 1
+
       - name: Smoke – process meeting 1
         run: |
           set -euo pipefail
+
+          # sample assets (bind-mounted into container via compose)
           mkdir -p storage/1
           echo "Test OCR slide" > storage/1/slide.txt
           convert -size 600x200 xc:white -pointsize 32 -gravity center -annotate 0 "Hello OCR" storage/1/slide.png || true
 
-          JOB=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend \
-                curl -fsS -X POST http://127.0.0.1:8000/v1/meetings/1/process | jq -r .job_id)
+          # submit job (Python inside container) -> prints ONLY job_id
+          JOB=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend \
+            python -c "import json,urllib.request,sys; req=urllib.request.Request('http://127.0.0.1:8000/v1/meetings/1/process', method='POST'); print(json.load(urllib.request.urlopen(req,timeout=10))['job_id'], end='')" )
           echo "JOB=$JOB"
 
+          # poll status until finished
           for i in {1..60}; do
-            S=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend \
-                 curl -fsS http://127.0.0.1:8000/v1/jobs/$JOB | jq -r .status)
+            S=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -e JOB="$JOB" -T backend \
+              python -c "import os,json,urllib.request,sys; job=os.environ.get('JOB'); print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')" )
             echo "status=$S"
             [ "$S" = "finished" ] && break
             sleep 2
           done
 
-          FINAL=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend \
-                  curl -fsS http://127.0.0.1:8000/v1/jobs/$JOB | jq -r .status)
+          FINAL=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -e JOB="$JOB" -T backend \
+            python -c "import os,json,urllib.request,sys; job=os.environ.get('JOB'); print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')" )
           if [ "$FINAL" != "finished" ]; then
             echo "Job did not finish in time (status=$FINAL)"
             exit 1
           fi
 
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend \
-            curl -fsS http://127.0.0.1:8000/v1/meetings/1/notes | jq .
+          # fetch notes JSON (pretty-print via jq on host)
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend \
+            python -c "import sys,urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/v1/meetings/1/notes',timeout=10).read().decode(), end='')" | jq .
 
       - name: Archive docker logs (on failure)
         if: failure()
         run: |
           mkdir -p artifacts
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml ps
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs --no-color > artifacts/compose.log
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml ps
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml logs --no-color > artifacts/compose.log
 
       - name: Upload logs artifact (on failure)
         if: failure()
@@ -101,9 +108,9 @@ jobs:
       - name: Show container logs (always)
         if: always()
         run: |
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml ps
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs --no-color --timestamps || true
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml ps
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml logs --no-color --timestamps || true
 
       - name: Tear down (always)
         if: always()
-        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml down -v
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml down -v
