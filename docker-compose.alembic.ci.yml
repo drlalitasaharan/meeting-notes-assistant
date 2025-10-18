@@ -1,0 +1,10 @@
+services:
+  backend:
+    # Clear any custom entrypoint so we can run a shell
+    entrypoint: []
+    command: >
+      sh -lc "
+      alembic -c backend/alembic.ini upgrade head ||
+      python -m alembic -c backend/alembic.ini upgrade head;
+      exec uvicorn app.main:app --host 0.0.0.0 --port 8000
+      "
