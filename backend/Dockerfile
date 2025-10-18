@@ -12,4 +12,5 @@ CMD ["uvicorn", "app.main:app", "--host","0.0.0.0","--port","8000"]
 # CI: ensure alembic is present
 RUN python -m pip install --no-cache-dir alembic
 
+
 HEALTHCHECK --interval=15s --timeout=5s --retries=6 --start-period=10s CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).getcode()==200 else 1)"
