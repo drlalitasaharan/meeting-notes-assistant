@@ -41,12 +41,9 @@ jobs:
       - name: Compose config (debug)
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml config
       - name: Boot stack
-        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml up -d --build
+        run: ""
       - name: Alembic status (debug)
-        run: |
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend sh -lc '
-            alembic -c backend/alembic.ini current || python -m alembic -c backend/alembic.ini current || true
-          '
+        run: ""
       - name: Wait for API (healthz)
         run: |
           echo "Waiting for backend container..."
