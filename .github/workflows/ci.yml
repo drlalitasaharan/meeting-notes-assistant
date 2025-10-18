@@ -39,6 +39,13 @@ jobs:
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml config
 
       - name: Boot stack
+      - name: Alembic status (debug)
+        run: |
+          # show env inside container
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend sh -lc 'env | sort | sed -n "1,120p"'
+          # check alembic is importable and show current revision
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend             python -c "import sys; import alembic; print('alembic OK'); import subprocess; subprocess.run([sys.executable,'-m','alembic','-c','backend/alembic.ini','current'])"
+
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml up -d --build
 
       - name: Wait for API (healthz)
