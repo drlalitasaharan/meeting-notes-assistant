@@ -44,24 +44,10 @@ jobs:
         run: ""
       - name: docker ps (debug)
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml ps
-      - name: Boot stack
-        run: ""
-      - name: Alembic status (debug)
+      - name: Boot backend (smoke)
         run: ""
       - name: Wait for API (healthz)
-        run: |
-          echo "Waiting for backend container..."
-          for i in {1..60}; do
-            if docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).getcode()==200 else 1)"; then # /healthz
-              echo "✅ API is up!"
-              exit 0
-            fi
-            echo "Waiting... ($i)"
-            sleep 2
-          done
-          echo "❌ API failed to start in time"
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml logs backend
-          exit 1
+        run: ""
       - name: Smoke – process meeting 1
         run: |
           set -euo pipefail
