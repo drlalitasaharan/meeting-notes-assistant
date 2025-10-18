@@ -23,6 +23,7 @@ jobs:
     needs: build
     env:
       DATABASE_URL: sqlite:////app/backend/dev.db
+      REDIS_URL: redis://redis:6379/0
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,15 +40,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jq imagemagick curl
       - name: Compose config (debug)
-        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml config
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml config
       - name: Boot backend (smoke)
         shell: bash
         run: |-
           set -euxo pipefail
           C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
-          $C up -d --build
+          $C up -d --build redis backend worker
           $C ps
           $C logs backend --no-color --tail=120 || true
+          $C logs worker  --no-color --tail=120 || true
       - name: Wait for API (healthz)
         shell: bash
         run: |-
@@ -70,56 +72,48 @@ jobs:
           echo "❌ API failed to start in time"
           $C ps || true
           $C logs backend --no-color --timestamps | tail -n 300 || true
+          $C logs worker  --no-color --timestamps | tail -n 200 || true
           exit 1
       - name: Smoke – process meeting 1
         run: |-
           set -euo pipefail
           C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
 
-          mkdir -p storage/1
-          echo "Test OCR slide" > storage/1/slide.txt
-          convert -size 600x200 xc:white -pointsize 32 -gravity center -annotate 0 "Hello OCR" storage/1/slide.png || true
+          # sanity
+          $C ps
 
+          # submit job
           JOB=$($C exec -T backend python - <<'PY'
-          import json, urllib.request, sys, urllib.error
-          req = urllib.request.Request('http://127.0.0.1:8000/v1/meetings/1/process', method='POST')
-          try:
-              resp = urllib.request.urlopen(req, timeout=10)
-              print(json.load(resp)['job_id'], end='')
-          except urllib.error.HTTPError as e:
-              body = e.read().decode('utf-8', 'replace')
-              print(f"PROCESS_ERROR_STATUS={e.code}", file=sys.stderr)
-              print(body, file=sys.stderr)
-              sys.exit(1)
+          import json,urllib.request
+          req=urllib.request.Request('http://127.0.0.1:8000/v1/meetings/1/process', method='POST')
+          print(json.load(urllib.request.urlopen(req,timeout=10))['job_id'], end='')
           PY
           )
           echo "JOB=$JOB"
 
+          # poll for completion
           for i in {1..60}; do
-            S=$($C exec -e JOB="$JOB" -T backend python - <<'PY'
-          import os,json,urllib.request
-          job=os.environ["JOB"]
-          print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')
+            S=$($C exec -T backend python - <<PY
+          import json,urllib.request; print(json.load(urllib.request.urlopen('http://127.0.0.1:8000/v1/jobs/$JOB',timeout=10))['status'], end='')
           PY
           )
             echo "status=$S"
             [ "$S" = "finished" ] && break
             sleep 2
           done
-
-          FINAL=$($C exec -e JOB="$JOB" -T backend python - <<'PY'
-          import os,json,urllib.request
-          job=os.environ["JOB"]
-          print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')
+          FINAL=$($C exec -T backend python - <<PY
+          import json,urllib.request; print(json.load(urllib.request.urlopen('http://127.0.0.1:8000/v1/jobs/$JOB',timeout=10))['status'], end='')
           PY
           )
           if [ "$FINAL" != "finished" ]; then
             echo "Job did not finish in time (status=$FINAL)"
+            $C logs worker --no-color --timestamps | tail -n 200 || true
             exit 1
           fi
 
+          # fetch notes JSON
           $C exec -T backend python - <<'PY' | jq .
-          import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/v1/meetings/1/notes',timeout=10).read().decode(), end='')
+          import sys,urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/v1/meetings/1/notes',timeout=10).read().decode(), end='')
           PY
         shell: bash
       - name: Archive docker logs (on failure)
