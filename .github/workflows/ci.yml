@@ -39,20 +39,19 @@ jobs:
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml config
 
       - name: Boot stack
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml up -d --build
+
       - name: Alembic status (debug)
         run: |
-          # show env inside container
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend sh -lc 'env | sort | sed -n "1,120p"'
-          # check alembic is importable and show current revision
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend             python -c "import sys; import alembic; print('alembic OK'); import subprocess; subprocess.run([sys.executable,'-m','alembic','-c','backend/alembic.ini','current'])"
-
-        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml up -d --build
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend sh -lc '
+            alembic -c backend/alembic.ini current || python -m alembic -c backend/alembic.ini current || true
+          '
 
       - name: Wait for API (healthz)
         run: |
           echo "Waiting for backend container..."
           for i in {1..60}; do
-            if docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).getcode()==200 else 1)"; then  # /healthz
+            if docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3).getcode()==200 else 1)"; then # /healthz
               echo "✅ API is up!"
               exit 0
             fi
@@ -62,37 +61,38 @@ jobs:
           echo "❌ API failed to start in time"
           docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml logs backend
           exit 1
+
       - name: Smoke – process meeting 1
         run: |
           set -euo pipefail
 
-          # sample assets (bind-mounted into container via compose)
+          # sample assets
           mkdir -p storage/1
           echo "Test OCR slide" > storage/1/slide.txt
           convert -size 600x200 xc:white -pointsize 32 -gravity center -annotate 0 "Hello OCR" storage/1/slide.png || true
 
-          # submit job (Python inside container) -> prints ONLY job_id
+          # submit job (returns job_id)
           JOB=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend \
             python -c "import json,urllib.request,sys; req=urllib.request.Request('http://127.0.0.1:8000/v1/meetings/1/process', method='POST'); print(json.load(urllib.request.urlopen(req,timeout=10))['job_id'], end='')" )
           echo "JOB=$JOB"
 
-          # poll status until finished
+          # poll status
           for i in {1..60}; do
             S=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -e JOB="$JOB" -T backend \
-              python -c "import os,json,urllib.request,sys; job=os.environ.get('JOB'); print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')" )
+              python -c "import os,json,urllib.request; job=os.environ.get('JOB'); print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')" )
             echo "status=$S"
             [ "$S" = "finished" ] && break
             sleep 2
           done
 
           FINAL=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -e JOB="$JOB" -T backend \
-            python -c "import os,json,urllib.request,sys; job=os.environ.get('JOB'); print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')" )
+            python -c "import os,json,urllib.request; job=os.environ.get('JOB'); print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')" )
           if [ "$FINAL" != "finished" ]; then
             echo "Job did not finish in time (status=$FINAL)"
             exit 1
           fi
 
-          # fetch notes JSON (pretty-print via jq on host)
+          # fetch notes JSON
           docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend \
             python -c "import sys,urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/v1/meetings/1/notes',timeout=10).read().decode(), end='')" | jq .
 
