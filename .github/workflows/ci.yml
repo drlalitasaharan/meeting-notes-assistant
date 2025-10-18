@@ -44,15 +44,15 @@ jobs:
         shell: bash
         run: |-
           set -euxo pipefail
-          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml"
-          $C up -d --build backend
+          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
+          $C up -d --build
           $C ps
           $C logs backend --no-color --tail=120 || true
       - name: Wait for API (healthz)
         shell: bash
         run: |-
           set -euxo pipefail
-          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml"
+          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
           for i in {1..60}; do
             if $C exec -T backend python - <<'PY'
           import urllib.request, sys
@@ -72,38 +72,56 @@ jobs:
           $C logs backend --no-color --timestamps | tail -n 300 || true
           exit 1
       - name: Smoke – process meeting 1
-        run: |
+        run: |-
           set -euo pipefail
+          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
 
-          # sample assets
           mkdir -p storage/1
           echo "Test OCR slide" > storage/1/slide.txt
           convert -size 600x200 xc:white -pointsize 32 -gravity center -annotate 0 "Hello OCR" storage/1/slide.png || true
 
-          # submit job (returns job_id)
-          JOB=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend \
-            python -c "import json,urllib.request,sys; req=urllib.request.Request('http://127.0.0.1:8000/v1/meetings/1/process', method='POST'); print(json.load(urllib.request.urlopen(req,timeout=10))['job_id'], end='')" )
+          JOB=$($C exec -T backend python - <<'PY'
+          import json, urllib.request, sys, urllib.error
+          req = urllib.request.Request('http://127.0.0.1:8000/v1/meetings/1/process', method='POST')
+          try:
+              resp = urllib.request.urlopen(req, timeout=10)
+              print(json.load(resp)['job_id'], end='')
+          except urllib.error.HTTPError as e:
+              body = e.read().decode('utf-8', 'replace')
+              print(f"PROCESS_ERROR_STATUS={e.code}", file=sys.stderr)
+              print(body, file=sys.stderr)
+              sys.exit(1)
+          PY
+          )
           echo "JOB=$JOB"
 
-          # poll status
           for i in {1..60}; do
-            S=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -e JOB="$JOB" -T backend \
-              python -c "import os,json,urllib.request; job=os.environ.get('JOB'); print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')" )
+            S=$($C exec -e JOB="$JOB" -T backend python - <<'PY'
+          import os,json,urllib.request
+          job=os.environ["JOB"]
+          print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')
+          PY
+          )
             echo "status=$S"
             [ "$S" = "finished" ] && break
             sleep 2
           done
 
-          FINAL=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -e JOB="$JOB" -T backend \
-            python -c "import os,json,urllib.request; job=os.environ.get('JOB'); print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')" )
+          FINAL=$($C exec -e JOB="$JOB" -T backend python - <<'PY'
+          import os,json,urllib.request
+          job=os.environ["JOB"]
+          print(json.load(urllib.request.urlopen(f'http://127.0.0.1:8000/v1/jobs/{job}',timeout=10))['status'], end='')
+          PY
+          )
           if [ "$FINAL" != "finished" ]; then
             echo "Job did not finish in time (status=$FINAL)"
             exit 1
           fi
 
-          # fetch notes JSON
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml exec -T backend \
-            python -c "import sys,urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/v1/meetings/1/notes',timeout=10).read().decode(), end='')" | jq .
+          $C exec -T backend python - <<'PY' | jq .
+          import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/v1/meetings/1/notes',timeout=10).read().decode(), end='')
+          PY
+        shell: bash
       - name: Archive docker logs (on failure)
         if: failure()
         run: |

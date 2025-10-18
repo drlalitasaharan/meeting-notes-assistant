@@ -1,0 +1,31 @@
+services:
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 1s
+      retries: 30
+
+  # Use the same backend image to run an RQ worker on the default queue
+  worker:
+    image: meeting-notes-assistant-backend:ci
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////app/backend/dev.db}
+    command: >
+      sh -lc "
+        alembic -c backend/alembic.ini upgrade head || true;
+        python -m rq worker -u \$REDIS_URL --with-scheduler default
+      "
+
+  # Add Redis wiring to backend (via overlay)
+  backend:
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
