@@ -24,9 +24,9 @@ jobs:
 
   smoke:
     runs-on: ubuntu-latest
+    needs: build
     env:
       DATABASE_URL: sqlite:////app/backend/dev.db
-    needs: build
     steps:
       - uses: actions/checkout@v4
 
@@ -42,19 +42,28 @@ jobs:
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml up -d --build
 
       - name: Wait for API (healthz)
-  run: |
-    echo "Waiting for backend container..."
-    for i in {1..40}; do
-      if docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend curl -fs http://127.0.0.1:8000/healthz >/dev/null 2>&1; then
-        echo "✅ API is up!"
-        exit 0
-      fi
-      echo "Waiting... ($i)"
-      sleep 3
-    done
-    echo "❌ API failed to start in time"
-    docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs backend
-    exit 1
+        run: |
+          echo "Waiting for backend container..."
+          for i in {1..40}; do
+            if docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend \
+              python - <<'PY'
+import sys, urllib.request
+u = "http://127.0.0.1:8000/healthz"
+try:
+    sys.exit(0 if urllib.request.urlopen(u, timeout=3).getcode()==200 else 1)
+except Exception:
+    sys.exit(1)
+PY
+            then
+              echo "✅ API is up!"
+              exit 0
+            fi
+            echo "Waiting... ($i)"
+            sleep 3
+          done
+          echo "❌ API failed to start in time"
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs backend
+          exit 1
 
       - name: Smoke – process meeting 1
         run: |
@@ -63,32 +72,43 @@ jobs:
           echo "Test OCR slide" > storage/1/slide.txt
           convert -size 600x200 xc:white -pointsize 32 -gravity center -annotate 0 "Hello OCR" storage/1/slide.png || true
 
-          JOB=$(curl -fsS -X POST http://localhost:8000/v1/meetings/1/process | jq -r .job_id)
+          JOB=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend \
+                curl -fsS -X POST http://127.0.0.1:8000/v1/meetings/1/process | jq -r .job_id)
           echo "JOB=$JOB"
 
           for i in {1..60}; do
-            S=$(curl -fsS http://localhost:8000/v1/jobs/$JOB | jq -r .status)
+            S=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend \
+                 curl -fsS http://127.0.0.1:8000/v1/jobs/$JOB | jq -r .status)
             echo "status=$S"
             [ "$S" = "finished" ] && break
             sleep 2
           done
 
-          FINAL=$(curl -fsS http://localhost:8000/v1/jobs/$JOB | jq -r .status)
+          FINAL=$(docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend \
+                  curl -fsS http://127.0.0.1:8000/v1/jobs/$JOB | jq -r .status)
           if [ "$FINAL" != "finished" ]; then
             echo "Job did not finish in time (status=$FINAL)"
             exit 1
           fi
 
-          curl -fsS http://localhost:8000/v1/meetings/1/notes | jq .
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend \
+            curl -fsS http://127.0.0.1:8000/v1/meetings/1/notes | jq .
+
+      - name: Archive docker logs (on failure)
+        if: failure()
+        run: |
+          mkdir -p artifacts
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml ps
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs --no-color > artifacts/compose.log
+
+      - name: Upload logs artifact (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-logs
+          path: artifacts/compose.log
 
       - name: Show container logs (always)
-- name: Archive docker logs (on failure)
-      if: failure()
-      run: |
-        mkdir -p artifacts
-        docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml ps
-        docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs --no-color > artifacts/compose.log
-      
         if: always()
         run: |
           docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml ps
