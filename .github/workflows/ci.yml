@@ -42,29 +42,19 @@ jobs:
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml up -d --build
 
       - name: Wait for API (healthz)
-        run: |
-          echo "Waiting for backend container..."
-          for i in {1..40}; do
-            if docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend \
-              python - <<'PY'
-import sys, urllib.request
-u = "http://127.0.0.1:8000/healthz"
-try:
-    sys.exit(0 if urllib.request.urlopen(u, timeout=3).getcode()==200 else 1)
-except Exception:
-    sys.exit(1)
-PY
-            then
-              echo "✅ API is up!"
-              exit 0
-            fi
-            echo "Waiting... ($i)"
-            sleep 3
-          done
-          echo "❌ API failed to start in time"
-          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs backend
-          exit 1
-
+      run: |
+        echo "Waiting for backend container..."
+        for i in {1..40}; do
+          if docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml exec -T backend curl -fs http://127.0.0.1:8000/healthz >/dev/null 2>&1; then
+            echo "✅ API is up!"
+            exit 0
+          fi
+          echo "Waiting... ($i)"
+          sleep 3
+        done
+        echo "❌ API failed to start in time"
+        docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml logs backend
+        exit 1
       - name: Smoke – process meeting 1
         run: |
           set -euo pipefail
