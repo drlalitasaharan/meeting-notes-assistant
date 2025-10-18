@@ -7,7 +7,6 @@ services:
       timeout: 1s
       retries: 30
 
-  # Use the same backend image to run an RQ worker on the default queue
   worker:
     image: meeting-notes-assistant-backend:ci
     depends_on:
@@ -18,11 +17,13 @@ services:
       DATABASE_URL: ${DATABASE_URL:-sqlite:////app/backend/dev.db}
     command: >
       sh -lc "
-        alembic -c backend/alembic.ini upgrade head || true;
-        python -m rq worker -u \$REDIS_URL --with-scheduler default
+        # WORKDIR is /app/backend; use the correct INI path
+        alembic -c alembic.ini upgrade head || true;
+        # Use the RQ CLI (not python -m)
+        rq worker -u \$REDIS_URL --with-scheduler default
       "
 
-  # Add Redis wiring to backend (via overlay)
+  # Also wire REDIS_URL into the backend
   backend:
     environment:
       REDIS_URL: redis://redis:6379/0
