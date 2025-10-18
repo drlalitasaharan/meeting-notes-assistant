@@ -41,12 +41,10 @@ jobs:
       - name: Compose config (debug)
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml config
       - name: Boot backend (smoke)
-        run: ""
-      - name: docker ps (debug)
-        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml ps
-      - name: Boot backend (smoke)
+        shell: bash
         run: ""
       - name: Wait for API (healthz)
+        shell: bash
         run: ""
       - name: Smoke – process meeting 1
         run: |
