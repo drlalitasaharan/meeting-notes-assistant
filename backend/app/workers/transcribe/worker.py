@@ -3,10 +3,9 @@ from __future__ import annotations
 import argparse
 import sys
 
-from backend.packages.shared.models import Meeting, Transcript
-
 from app.core.db import SessionLocal
 from app.core.logger import get_logger
+from packages.shared.models import Meeting, Transcript
 
 log = get_logger(__name__)
 
@@ -55,4 +54,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

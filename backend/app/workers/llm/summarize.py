@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from backend.app.core.logger import get_logger
-from backend.packages.shared.models import Summary, Transcript
 from sqlalchemy.orm import Session
+
+from app.core.logger import get_logger
+from packages.shared.models import Summary, Transcript
 
 log = get_logger(__name__)
 
@@ -18,10 +19,7 @@ def _mock_summary(text: str) -> dict[str, str]:
 def summarize_meeting(db: Session, meeting_id: int) -> int:
     """Summarize a meeting's transcript into a Summary row. Returns exit code."""
     t: Transcript | None = (
-        db.query(Transcript)
-        .filter_by(meeting_id=meeting_id)
-        .order_by(Transcript.id.desc())
-        .first()
+        db.query(Transcript).filter_by(meeting_id=meeting_id).order_by(Transcript.id.desc()).first()
     )
     if not t or not getattr(t, "text", None):
         log.warning(
@@ -38,4 +36,3 @@ def summarize_meeting(db: Session, meeting_id: int) -> int:
     db.commit()
     log.info("Summary stored", extra={"meeting_id": meeting_id, "summary_id": s.id})
     return 0
-

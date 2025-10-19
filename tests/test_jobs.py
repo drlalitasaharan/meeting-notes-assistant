@@ -22,4 +22,3 @@ def test_enqueue_and_inspect_job(client, api_headers):
 
     logs = client.get(f"/v1/jobs/{jid}/logs", headers=api_headers)
     assert logs.status_code == 200
-

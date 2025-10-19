@@ -1,0 +1,39 @@
+services:
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 1s
+      retries: 30
+  worker:
+    image: meeting-notes-assistant-backend:ci
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////app/backend/dev.db}
+    command: >
+      sh -lc "
+
+        # WORKDIR is /app/backend; use the correct INI path
+        alembic -c alembic.ini upgrade head || true;
+        # Use the RQ CLI (not python -m)
+        rq worker -u \$REDIS_URL --with-scheduler default
+      "
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - rq info -u $REDIS_URL >/dev/null 2>&1
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  # Also wire REDIS_URL into the backend
+  backend:
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy

@@ -36,4 +36,3 @@ def test_jobs_flow():
         logs = c.get(f"{API}/jobs/{jid}/logs", headers=H)
         assert logs.status_code == 200
         assert "done" in logs.text
-

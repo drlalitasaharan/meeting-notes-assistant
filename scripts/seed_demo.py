@@ -1,4 +1,3 @@
-
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -8,10 +7,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from backend.app.core.db import SessionLocal
-from backend.app.core.logger import get_logger
-from backend.app.services import minio_client as slides_minio
-from backend.packages.shared.models import Meeting
+from backend.app.core.db import SessionLocal  # noqa: E402
+from backend.app.core.logger import get_logger  # noqa: E402
+from backend.app.services import minio_client as slides_minio  # noqa: E402
+from backend.packages.shared.models import Meeting  # noqa: E402
 
 log = get_logger(__name__)
 
@@ -82,4 +81,3 @@ def seed() -> None:
 
 if __name__ == "__main__":
     seed()
-

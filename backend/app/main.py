@@ -1,54 +1,70 @@
-# backend/app/main.py
-from __future__ import annotations
+from types import ModuleType
 
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException
+from rq import Queue
+from rq.job import Job
 
-from fastapi import Depends, FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from app.routers import notes_api
+from worker.redis_client import get_redis
 
-from ..packages.shared.models import Base
-from .db import engine
-from .deps import require_api_key
-from .routers import jobs, meetings, slides
+processing_api: ModuleType | None = None
+try:
+    from app.routers import processing_api as _processing_api
 
+    processing_api = _processing_api
+except Exception as e:
+    import logging
 
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    """
-    Initialize application resources.
-
-    - Ensures tables/columns exist for fresh SQLite DBs in CI/dev.
-    """
-    Base.metadata.create_all(bind=engine)
-    yield
+    logging.error("processing_api import failed: %s", e)
 
 
-app: FastAPI = FastAPI(title="Meeting Notes Assistant API", lifespan=lifespan)
+# NEW router that contains /v1/meetings, /process, /notes, /transcript, /summary
 
-# --- CORS (permissive; tighten in prod) ---
-# In production, replace ["*"] with explicit origins, e.g.:
-# ["http://localhost:8501", "https://your-frontend.example"]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-# -----------------------------------------
+try:
+    pass
+except Exception as e:
+    import logging
+
+    logging.error("processing_api import failed: %s", e)
+    from typing import Any, cast
+
+    processing_api = cast(Any, None)
+
+    logging.error("processing_api import failed: %s", e)
+    processing_api = None
+
+    logging.error("processing_api import failed: %s", e)
+
+app = FastAPI()
+
+# include our modern router
+app.include_router(notes_api.router)
 
 
-@app.get("/healthz", include_in_schema=False)
-def healthz() -> dict[str, bool]:
+# small health endpoint (was missing on your last run)
+@app.get("/healthz")
+def healthz():
     return {"ok": True}
 
 
-# Versioned API: routers use local prefixes ("/meetings", "/jobs", etc.).
-# We add "/v1" exactly once here and attach the API-key guard globally.
-v1_dependencies = [Depends(require_api_key)]
+# minimal job status endpoint (so your polling works)
+_rconn = get_redis()
+_q = Queue("default", connection=_rconn)
 
-app.include_router(meetings.router, prefix="/v1", dependencies=v1_dependencies)
-app.include_router(slides.router,   prefix="/v1", dependencies=v1_dependencies)
-app.include_router(jobs.router,     prefix="/v1", dependencies=v1_dependencies)
 
+@app.get("/v1/jobs/{job_id}")
+def job_status(job_id: str):
+    try:
+        j = Job.fetch(job_id, connection=_rconn)
+    except Exception:
+        raise HTTPException(status_code=404, detail="job not found")
+    return {
+        "id": j.id,
+        "func": j.func_name,
+        "status": j.get_status(),
+        "result": j.result,
+    }
+
+
+if processing_api:
+    app.include_router(processing_api.router)

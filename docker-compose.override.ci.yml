@@ -1,0 +1,13 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: meeting-notes-assistant-backend:ci
+
+  # run migrations/init against the same locally built image
+  dbinit:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: meeting-notes-assistant-backend:ci

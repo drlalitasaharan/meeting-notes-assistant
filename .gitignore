@@ -60,3 +60,4 @@ frontend/.streamlit/
 *.db
 slides-*.zip
 uvicorn.pid
+docker-compose.alembic.ci.yml.bak*

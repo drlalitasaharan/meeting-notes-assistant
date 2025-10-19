@@ -1,28 +1,26 @@
-from functools import lru_cache
-
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    DATABASE_URL: str = "sqlite:///./dev.db"
     APP_ENV: str = "dev"
-    API_PORT: int = 8000
 
-    DB_HOST: str = "localhost"
-    DB_PORT: int = 5432
-    DB_USER: str = "mna"
-    DB_PASSWORD: str = "mna"
-    DB_NAME: str = "mna"
+    # Redis / RQ
+    REDIS_URL: str = "redis://redis:6379/0"
+    RQ_QUEUE: str = "default"
 
-    OPENAI_API_KEY: str = ""
+    # LLM
+    OPENAI_API_KEY: str | None = None
+    LLM_MODEL: str = "gpt-4o-mini"
 
-    @property
-    def DATABASE_URL(self) -> str:
-        return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+    # MinIO (optional)
+    MINIO_ENDPOINT: str | None = None
+    MINIO_ACCESS_KEY: str | None = None
+    MINIO_SECRET_KEY: str | None = None
+    MINIO_USE_SSL: bool = False
+    SLIDES_BUCKET: str = "meeting-slides"
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-@lru_cache
-def get_settings() -> Settings:
-    return Settings()
+settings = Settings()

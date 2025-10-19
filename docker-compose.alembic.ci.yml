@@ -1,0 +1,9 @@
+services:
+  backend:
+    environment:
+      APP_ENV: dev
+      DATABASE_URL: ${DATABASE_URL:-sqlite:////app/backend/dev.db}
+    entrypoint: []
+    command: >
+      sh -lc " alembic -c alembic.ini upgrade head || alembic -c alembic.ini upgrade head || python -m alembic -c alembic.ini upgrade head || python -m alembic -c alembic.ini upgrade head; exec uvicorn app.main:app --host 0.0.0.0 --port 8000 "
+

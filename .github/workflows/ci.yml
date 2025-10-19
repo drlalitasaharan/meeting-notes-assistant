@@ -1,58 +1,138 @@
 name: CI
-
 on:
   push:
-    branches: [ feat/**, main ]
   pull_request:
-
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions: read-all
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Docker info
+        run: |
+          docker --version
+          docker compose version
+      - name: Build images
+        run: docker compose build
+  smoke:
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      DATABASE_URL: sqlite:////app/backend/dev.db
+      REDIS_URL: redis://redis:6379/0
+    steps:
+      - uses: actions/checkout@v4
         with:
-          python-version: '3.11'
-
-      - name: Install dependencies
+          clean: true
+      - name: Prepare writable storage
+        run: |-
+          set -euxo pipefail
+          rm -rf storage || true
+          mkdir -p storage/1
+          chmod -R 0777 storage
+          ls -ld storage storage/1
+      - name: Install test tools (jq, ImageMagick, curl)
         run: |
-          python -m pip install -U pip
-          pip install -r requirements-test.txt
-
-      - name: Start API server
-        env:
-          API_KEY: dev-secret-123
-          DATABASE_URL: sqlite:///./dev.db
-        run: |
-          set -euo pipefail
-          mkdir -p storage
-          uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 & echo $! > uvicorn.pid
-
-          # wait for health
-          for i in {1..40}; do
-            if curl -fsS http://127.0.0.1:8000/healthz >/dev/null; then
-              echo "API is up"
-              break
+          sudo apt-get update
+          sudo apt-get install -y jq imagemagick curl
+      - name: Compose config (debug)
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml config
+      - name: Boot backend (smoke)
+        shell: bash
+        run: |-
+          set -euxo pipefail
+          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
+          $C up -d --build redis backend worker
+          $C ps
+          $C logs backend --no-color --tail=120 || true
+          $C logs worker  --no-color --tail=120 || true
+      - name: Wait for API (healthz)
+        shell: bash
+        run: |-
+          set -euxo pipefail
+          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
+          for i in {1..60}; do
+            if $C exec -T backend python - <<'PY'
+          import urllib.request, sys
+          try:
+              sys.exit(0 if urllib.request.urlopen("http://127.0.0.1:8000/healthz", timeout=3).getcode()==200 else 1)
+          except Exception:
+              sys.exit(1)
+          PY
+            then
+              echo "✅ API is up!"
+              exit 0
             fi
-            sleep 0.25
+            echo "Waiting... ($i)"; sleep 2
           done
+          echo "❌ API failed to start in time"
+          $C ps || true
+          $C logs backend --no-color --timestamps | tail -n 300 || true
+          $C logs worker  --no-color --timestamps | tail -n 200 || true
+          exit 1
+      - name: Smoke – process meeting 1
+        run: |-
+          set -euo pipefail
+          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
 
-      - name: Run tests
-        env:
-          API_KEY: dev-secret-123
-          DATABASE_URL: sqlite:///./dev.db
-        run: |
-          pytest -q
+          # sanity
+          $C ps
 
-      - name: Stop API server
-        if: always()
-        run: |
-          if [ -f uvicorn.pid ]; then
-            kill "$(cat uvicorn.pid)" || true
-            rm -f uvicorn.pid
+          # submit job
+          JOB=$($C exec -T backend python - <<'PY'
+          import json,urllib.request
+          req=urllib.request.Request('http://127.0.0.1:8000/v1/meetings/1/process', method='POST')
+          print(json.load(urllib.request.urlopen(req,timeout=10))['job_id'], end='')
+          PY
+          )
+          echo "JOB=$JOB"
+
+          # poll for completion
+          for i in {1..60}; do
+            S=$($C exec -T backend python - <<PY
+          import json,urllib.request; print(json.load(urllib.request.urlopen('http://127.0.0.1:8000/v1/jobs/$JOB',timeout=10))['status'], end='')
+          PY
+          )
+            echo "status=$S"
+            [ "$S" = "finished" ] && break
+            sleep 2
+          done
+          FINAL=$($C exec -T backend python - <<PY
+          import json,urllib.request; print(json.load(urllib.request.urlopen('http://127.0.0.1:8000/v1/jobs/$JOB',timeout=10))['status'], end='')
+          PY
+          )
+          if [ "$FINAL" != "finished" ]; then
+            echo "Job did not finish in time (status=$FINAL)"
+            $C logs worker --no-color --timestamps | tail -n 200 || true
+            exit 1
           fi
 
+          # fetch notes JSON
+          $C exec -T backend python - <<'PY' | jq .
+          import sys,urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/v1/meetings/1/notes',timeout=10).read().decode(), end='')
+          PY
+        shell: bash
+      - name: Archive docker logs (on failure)
+        if: failure()
+        run: |
+          mkdir -p artifacts
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml ps
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml logs --no-color > artifacts/compose.log
+      - name: Upload logs artifact (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-logs
+          path: artifacts/compose.log
+      - name: Show container logs (always)
+        if: always()
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml ps
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml logs --no-color --timestamps || true
+      - name: Tear down (always)
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml down -v

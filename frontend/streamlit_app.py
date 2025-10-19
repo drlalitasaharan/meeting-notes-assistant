@@ -34,7 +34,11 @@ def create_meeting(title: str, tags: str) -> dict[str, Any]:
 
 
 def patch_meeting(
-    mid: int, *, title: str | None = None, status: str | None = None, tags: str | None = None,
+    mid: int,
+    *,
+    title: str | None = None,
+    status: str | None = None,
+    tags: str | None = None,
 ) -> dict[str, Any]:
     r = requests.patch(
         f"{API}/meetings/{mid}",
@@ -133,10 +137,13 @@ def main() -> None:
     st.title("📝 Meeting Notes Assistant")
 
     # ----- Create a meeting
-    with st.expander(
-        "Create a new meeting",
-        expanded=st.session_state.meeting_id is None,
-    ), st.form("create-meeting"):
+    with (
+        st.expander(
+            "Create a new meeting",
+            expanded=st.session_state.meeting_id is None,
+        ),
+        st.form("create-meeting"),
+    ):
         c1, c2 = st.columns(2)
         title = c1.text_input("Title", placeholder="e.g., Sprint Planning")
         tags_in = c2.text_input("Tags (comma-separated)", placeholder="sprint, planning")
@@ -259,7 +266,9 @@ def main() -> None:
                     if ctype.startswith(("image/png", "image/jpeg")):
                         st.image(resp.content, caption=fn, use_container_width=True)
                     else:
-                        st.info(f"Preview supported only for images. Content-Type: {ctype or 'unknown'}")
+                        st.info(
+                            f"Preview supported only for images. Content-Type: {ctype or 'unknown'}"
+                        )
 
             # Delete (per file)
             if row[2].button("Delete", key=f"del-{fn}"):
@@ -344,4 +353,3 @@ def _do_delete_meeting(mid: int) -> None:
 # ---------------------------
 if __name__ == "__main__":
     main()
-

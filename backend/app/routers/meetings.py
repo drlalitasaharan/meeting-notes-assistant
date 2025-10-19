@@ -1,125 +1,104 @@
-# backend/app/routers/meetings.py
-from __future__ import annotations
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import or_
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
-from backend.app.core.logger import get_logger
-from backend.packages.shared.models import Meeting
+from app.core.db import get_db
+from app.models.meeting import Meeting
+from app.models.note import Note
+from app.schemas.meetings import MeetingCreate, MeetingRead, MeetingUpdate
+from app.schemas.notes import NoteCreate, NoteRead
 
-from ..deps import get_db, require_api_key
+router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
 
-log = get_logger(__name__)
 
-# NOTE: Keep routers version-agnostic; mount under /v1 in main.py.
-router = APIRouter(
-    prefix="/meetings",
-    tags=["meetings"],
-    dependencies=[Depends(require_api_key)],
+# Create (supports with/without trailing slash)
+@router.post("", response_model=MeetingRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/", response_model=MeetingRead, status_code=status.HTTP_201_CREATED, include_in_schema=False
 )
+def create_meeting(payload: MeetingCreate, response: Response, db: Session = Depends(get_db)):
+    m = Meeting(title=payload.title, scheduled_at=payload.scheduled_at, agenda=payload.agenda)
+    if payload.status is not None:
+        m.status = payload.status
+    db.add(m)
+    db.commit()
+    db.refresh(m)
+    response.headers["Location"] = f"/v1/meetings/{m.id}"
+    return m
 
 
-def _tags_list(value: str | list[str] | None) -> list[str]:
-    if value is None:
-        return []
-    if isinstance(value, list):
-        return value
-    return [t for t in (value or "").split(",") if t]
-
-
-@router.get("", response_model=dict)
+# List with pagination + optional status filter + sort
+@router.get("", response_model=list[MeetingRead], summary="List Meetings")
 def list_meetings(
-    page: int = Query(1, ge=1),
-    limit: int = Query(20, ge=1, le=100),
-    query: str | None = Query(None, description="Simple search over title/tags"),
+    response: Response,
     db: Session = Depends(get_db),
-) -> dict:
+    limit: int = 20,  # 1..100
+    offset: int = 0,  # >=0
+    status: Optional[str] = None,  # e.g. new, in_progress, done
+    sort: str = "desc",  # "asc" | "desc"
+):
+    limit = min(max(limit, 1), 100)
+    offset = max(offset, 0)
+
     q = db.query(Meeting)
+    if status:
+        q = q.filter(Meeting.status == status)
 
-    # Simple search on title/tags if provided (case-insensitive)
-    if query:
-        like = f"%{query}%"
-        q = q.filter(or_(Meeting.title.ilike(like), Meeting.tags.ilike(like)))
+    total = q.count()
+    order_col = Meeting.id.desc() if sort.lower() == "desc" else Meeting.id.asc()
 
-    q = q.order_by(Meeting.id.desc())
-    rows = q.offset((page - 1) * limit).limit(limit).all()
-
-    items = [
-        {
-            "id": m.id,
-            "title": m.title,
-            "tags": _tags_list(m.tags),
-            "status": getattr(m, "status", None),
-        }
-        for m in rows
-    ]
-
-    # Tests expect: r.json()["items"]
-    return {"items": items}
+    items = q.order_by(order_col).limit(limit).offset(offset).all()
+    response.headers["X-Total-Count"] = str(total)
+    return items
 
 
-@router.post("", status_code=status.HTTP_200_OK)
-def create_meeting(
-    title: str = Query(...),
-    tags: str | None = Query(None),
-    db: Session = Depends(get_db),
-) -> dict:
-    m = Meeting(title=title, tags=tags or "")
+@router.get("/{meeting_id}", response_model=MeetingRead)
+def get_meeting(meeting_id: int, db: Session = Depends(get_db)):
+    m = db.get(Meeting, meeting_id)
+    if not m:
+        raise HTTPException(status_code=404, detail="Not found")
+    return m
+
+
+@router.patch("/{meeting_id}", response_model=MeetingRead)
+def update_meeting(meeting_id: int, payload: MeetingUpdate, db: Session = Depends(get_db)):
+    m = db.get(Meeting, meeting_id)
+    if not m:
+        raise HTTPException(status_code=404, detail="Not found")
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(m, field, value)
     db.add(m)
     db.commit()
     db.refresh(m)
-    log.info("Created meeting", extra={"meeting_id": m.id})
-    return {
-        "id": m.id,
-        "title": m.title,
-        "tags": _tags_list(m.tags),
-        "status": getattr(m, "status", None),
-    }
+    return m
 
 
-@router.get("/{meeting_id}")
-def get_meeting(meeting_id: int, db: Session = Depends(get_db)) -> dict:
+@router.delete("/{meeting_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_meeting(meeting_id: int, db: Session = Depends(get_db)):
     m = db.get(Meeting, meeting_id)
     if not m:
-        raise HTTPException(status_code=404, detail="Meeting not found")
-    return {
-        "id": m.id,
-        "title": m.title,
-        "tags": _tags_list(m.tags),
-        "status": getattr(m, "status", None),
-    }
-
-
-@router.patch("/{meeting_id}")
-def update_meeting(
-    meeting_id: int,
-    *,
-    title: str | None = None,
-    status: str | None = None,
-    tags: str | None = None,  # comma-separated string
-    db: Session = Depends(get_db),
-) -> dict:
-    m = db.get(Meeting, meeting_id)
-    if not m:
-        raise HTTPException(status_code=404, detail="Meeting not found")
-
-    if title is not None:
-        m.title = title
-    if status is not None:
-        m.status = status
-    if tags is not None:
-        m.tags = tags
-
-    db.add(m)
+        raise HTTPException(status_code=404, detail="Not found")
+    db.delete(m)
     db.commit()
-    db.refresh(m)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-    log.info("Patched meeting", extra={"meeting_id": m.id})
-    return {
-        "id": m.id,
-        "title": m.title,
-        "tags": _tags_list(m.tags),
-        "status": getattr(m, "status", None),
-    }
 
+@router.post("/{meeting_id}/notes", response_model=NoteRead, status_code=status.HTTP_201_CREATED)
+def create_note(meeting_id: int, payload: NoteCreate, db: Session = Depends(get_db)):
+    m = db.get(Meeting, meeting_id)
+    if not m:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    n = Note(meeting_id=meeting_id, content=payload.content, author=payload.author)
+    db.add(n)
+    db.commit()
+    db.refresh(n)
+    return n
+
+
+@router.get("/{meeting_id}/notes", response_model=list[NoteRead])
+def list_notes(meeting_id: int, db: Session = Depends(get_db)):
+    m = db.get(Meeting, meeting_id)
+    if not m:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    return db.query(Note).filter(Note.meeting_id == meeting_id).order_by(Note.id.asc()).all()
