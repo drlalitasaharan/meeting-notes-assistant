@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from rq import Queue
 from rq.job import Job
 
-from app.routers import notes_api
+from app.routers import meeting_artifacts, notes_api
 from worker.redis_client import get_redis
 
 processing_api: ModuleType | None = None
@@ -39,6 +39,7 @@ app = FastAPI()
 
 # include our modern router
 app.include_router(notes_api.router)
+app.include_router(meeting_artifacts.router)
 
 
 # small health endpoint (was missing on your last run)

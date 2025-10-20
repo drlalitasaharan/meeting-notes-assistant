@@ -1,72 +1,78 @@
-import os
+from __future__ import annotations
+
+import mimetypes
+from pathlib import Path
+from typing import Final
+from zipfile import ZIP_DEFLATED, ZipFile
 
 from fastapi import APIRouter, HTTPException
-from redis import Redis
-from rq import Queue
-from sqlalchemy import create_engine
-from sqlalchemy import text as sqltext
+from fastapi.responses import FileResponse
+from starlette.background import BackgroundTask
 
-# Reuse the existing redis helper if present; else fallback to simple Redis()
-try:
-    from worker.redis_client import get_redis
+router = APIRouter(prefix="/v1/meetings", tags=["artifacts"])
 
-    rconn: Redis = get_redis()
-except Exception:
-    rconn = Redis(host="redis", port=6379, db=0)
-
-q = Queue("default", connection=rconn)
-
-DB_URL = os.getenv("DATABASE_URL", "sqlite:////app/backend/dev.db")
-engine = create_engine(DB_URL, future=True)
-
-router = APIRouter(prefix="/v1", tags=["meetings-artifacts"])
+STORAGE: Final = Path("storage")
+ALLOWED_SUFFIXES: Final = {".pdf", ".png", ".jpg", ".jpeg", ".txt"}
 
 
-@router.post("/meetings/{meeting_id}/process")
-def process_meeting_endpoint(meeting_id: int):
-    job = q.enqueue("worker.tasks_processing.process_meeting", meeting_id, job_timeout=600)
-    return {"job_id": job.id, "status": job.get_status()}
+def _meeting_dir(mid: int) -> Path:
+    # Prefer .../storage/meetings/{id}, fall back to .../storage/{id}
+    candidates = [
+        STORAGE / "meetings" / str(mid),
+        STORAGE / str(mid),
+    ]
+    for d in candidates:
+        if d.exists():
+            return d
+    # default to the first layout; do not create for download
+    return candidates[0]
 
 
-@router.get("/meetings/{meeting_id}/transcript")
-def get_latest_transcript(meeting_id: int):
-    with engine.connect() as conn:
-        row = (
-            conn.execute(
-                sqltext("""
-                SELECT id, meeting_id, text, created_at
-                FROM transcripts
-                WHERE meeting_id = :m
-                ORDER BY created_at DESC, id DESC
-                LIMIT 1
-            """),
-                {"m": meeting_id},
-            )
-            .mappings()
-            .first()
-        )
-    if not row:
-        raise HTTPException(status_code=404, detail="no transcript")
-    return dict(row)
+def _guess_media_type(p: Path) -> str:
+    s = p.suffix.lower()
+    overrides = {
+        ".txt": "text/plain",
+        ".pdf": "application/pdf",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+    }
+    if s in overrides:
+        return overrides[s]
+    mt, _ = mimetypes.guess_type(p.name)
+    return mt or "application/octet-stream"
 
 
-@router.get("/meetings/{meeting_id}/summary")
-def get_latest_summary(meeting_id: int):
-    with engine.connect() as conn:
-        row = (
-            conn.execute(
-                sqltext("""
-                SELECT id, meeting_id, model, text, created_at
-                FROM summaries
-                WHERE meeting_id = :m
-                ORDER BY created_at DESC, id DESC
-                LIMIT 1
-            """),
-                {"m": meeting_id},
-            )
-            .mappings()
-            .first()
-        )
-    if not row:
-        raise HTTPException(status_code=404, detail="no summary")
-    return dict(row)
+@router.get("/{meeting_id}/artifacts/slides.zip")
+def download_slides_zip(meeting_id: int):
+    from pathlib import Path
+
+    # Resolve where artifacts are stored; prefer 'backend/storage/meetings/<id>'
+    candidates = [
+        Path("backend/storage/meetings") / str(meeting_id),
+        Path("backend/storage") / str(meeting_id),
+        Path("storage/meetings") / str(meeting_id),
+        Path("storage") / str(meeting_id),
+    ]
+    dir_ = next((d for d in candidates if d.exists()), candidates[0])
+
+    if not dir_.exists():
+        raise HTTPException(status_code=404, detail="No artifacts for this meeting")
+
+    files = [
+        p for p in sorted(dir_.iterdir()) if p.is_file() and p.suffix.lower() in ALLOWED_SUFFIXES
+    ]
+    if not files:
+        raise HTTPException(status_code=404, detail="No allowed artifacts for this meeting")
+
+    zpath = dir_ / "slides.zip"
+    with ZipFile(zpath, "w", ZIP_DEFLATED) as zf:
+        for p in files:
+            zf.write(p, arcname=p.name)
+
+    return FileResponse(
+        str(zpath),
+        media_type="application/zip",
+        filename=f"meeting_{meeting_id}_slides.zip",
+        background=BackgroundTask(lambda: zpath.unlink(missing_ok=True)),
+    )
