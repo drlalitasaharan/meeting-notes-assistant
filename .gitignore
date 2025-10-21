@@ -61,3 +61,4 @@ frontend/.streamlit/
 slides-*.zip
 uvicorn.pid
 docker-compose.alembic.ci.yml.bak*
+docker-compose.local.yml
