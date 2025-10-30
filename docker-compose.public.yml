@@ -1,0 +1,4 @@
+services:
+  backend:
+    environment:
+      - S3_PUBLIC_ENDPOINT=${S3_PUBLIC_ENDPOINT}

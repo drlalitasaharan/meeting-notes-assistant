@@ -1,0 +1,9 @@
+services:
+  minio:
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: meeting-notes-assistant_default
+      traefik.http.routers.minio.rule: Host(`minio.mna.local`)
+      traefik.http.routers.minio.entrypoints: websecure
+      traefik.http.routers.minio.tls: "true"
+      traefik.http.routers.minio.middlewares: hsts@file

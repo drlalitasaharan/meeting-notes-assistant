@@ -7,7 +7,7 @@ cp .env.example .env
 make run-api
 make run-frontend
 ```
-API: http://localhost:8000/docs  
+API: http://localhost:8000/docs
 Frontend: http://localhost:8501
 
 ## Quick start (Docker dev)
