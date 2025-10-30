@@ -67,3 +67,4 @@ docker-compose.local.yml
 *.bak*
 /certs/
 /dynamic/tls.yml
+*.bak*
