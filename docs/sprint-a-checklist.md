@@ -4,5 +4,5 @@
 - [ ] Basic telemetry (duration, tokens)
 - [ ] Frontend: progress, status chip, downloads (TXT/MD/JSON)
 
-**Branch:** feat/phase2-sprintA  
+**Branch:** feat/phase2-sprintA
 **Owner:** @drlalitasaharan

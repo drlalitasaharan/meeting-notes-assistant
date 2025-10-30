@@ -1,11 +1,16 @@
+import importlib
+import os
 from types import ModuleType
 
-from fastapi import FastAPI, HTTPException
-from rq import Queue
-from rq.job import Job
+from fastapi import FastAPI
 
-from app.routers import meeting_artifacts, notes_api
-from worker.redis_client import get_redis
+from app.routers.health import router as health_router
+from app.routers.openapi_force import router as openapi_router
+from app.routers.rq_jobs import router as rq_router
+
+if not os.getenv("SKIP_NOTES_API"):
+    from app.routers import notes_api
+from app.routers import meeting_artifacts
 
 processing_api: ModuleType | None = None
 try:
@@ -36,36 +41,40 @@ except Exception as e:
     logging.error("processing_api import failed: %s", e)
 
 app = FastAPI()
+# --- auto-include routers if present ---
+
+
+def _try_include(modpath: str, attr: str = "router"):
+    try:
+        mod = importlib.import_module(modpath)
+        app.include_router(getattr(mod, attr))
+    except Exception:
+        pass  # module/attr missing is fine in dev
+
+
+for mod in [
+    "app.routers.openapi_force",
+    "app.routers.health",
+    "app.routers.rq_jobs",
+    "app.routers.jobs",
+    "app.routers.meetings",
+    "app.routers.slides",
+    "app.routers.metrics",
+    "app.routers.dev",
+]:
+    _try_include(mod)
+# --- end auto-include ---
+
+app.include_router(health_router)
+app.include_router(openapi_router)
+app.include_router(rq_router)
 
 # include our modern router
-app.include_router(notes_api.router)
+if os.getenv("SKIP_NOTES_API", "0").lower() not in ("1", "true", "yes"):
+    from app.routers import notes_api
+
+    app.include_router(notes_api.router)
 app.include_router(meeting_artifacts.router)
 
 
 # small health endpoint (was missing on your last run)
-@app.get("/healthz")
-def healthz():
-    return {"ok": True}
-
-
-# minimal job status endpoint (so your polling works)
-_rconn = get_redis()
-_q = Queue("default", connection=_rconn)
-
-
-@app.get("/v1/jobs/{job_id}")
-def job_status(job_id: str):
-    try:
-        j = Job.fetch(job_id, connection=_rconn)
-    except Exception:
-        raise HTTPException(status_code=404, detail="job not found")
-    return {
-        "id": j.id,
-        "func": j.func_name,
-        "status": j.get_status(),
-        "result": j.result,
-    }
-
-
-if processing_api:
-    app.include_router(processing_api.router)

@@ -1,0 +1,31 @@
+services:
+  rq:
+    image: meeting-notes-assistant-backend
+    working_dir: /app
+    depends_on:
+      redis:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    env_file:
+      - .env.dev
+    environment:
+      RQ_REDIS_URL: ${RQ_REDIS_URL:-redis://redis:6379/0}
+      RQ_QUEUE: ${RQ_QUEUE:-default}
+      S3_PUBLIC_ENDPOINT: https://minio.mna.local
+      PYTHONPATH: /app/backend:/app
+    volumes:
+      - ./backend:/app/backend
+      - ./storage:/app/storage
+    command: [rq, worker, -u, '${RQ_REDIS_URL:-redis://redis:6379/0}', '${RQ_QUEUE:-default}']
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - exit 0
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 5s

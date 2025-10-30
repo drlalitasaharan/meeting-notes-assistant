@@ -15,4 +15,3 @@ types-setuptools
 
 # testing
 pytest>=7.4
-

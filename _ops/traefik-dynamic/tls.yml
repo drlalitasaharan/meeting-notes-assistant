@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /certs/api-bundle.pem
+      keyFile: /certs/api-bundle-key.pem

@@ -3,5 +3,5 @@
 - [ ] Async queue: retries / backoff / idempotency
 - [ ] Status endpoints (per job + aggregate)
 - [ ] Frontend: progress UI, status chip, downloads (TXT/MD/JSON)
-**Branch:** feat/phase2-sprintB  
+**Branch:** feat/phase2-sprintB
 **Owner:** @drlalitasaharan

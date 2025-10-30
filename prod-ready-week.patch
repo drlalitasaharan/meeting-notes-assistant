@@ -1,0 +1,705 @@
+diff --git a/backend/app/services/storage.py b/backend/app/services/storage.py
+new file mode 100644
+index 0000000..8b9a7b3
+--- /dev/null
++++ b/backend/app/services/storage.py
+@@ -0,0 +1,142 @@
++from __future__ import annotations
++
++import os
++import time
++from pathlib import Path
++from typing import BinaryIO, Protocol, Optional
++
++import boto3
++from botocore.client import Config
++
++
++class Storage(Protocol):
++    def put(self, key: str, body: BinaryIO, content_type: str) -> None: ...
++    def presign_get(self, key: str, ttl: int = 3600) -> str: ...
++    def exists(self, key: str) -> bool: ...
++
++
++class FSStorage:
++    """DEV-ONLY filesystem storage."""
++    def __init__(self, base_dir: str = "storage"):
++        self.base = Path(base_dir)
++        self.base.mkdir(parents=True, exist_ok=True)
++
++    def _path(self, key: str) -> Path:
++        return self.base / key
++
++    def put(self, key: str, body: BinaryIO, content_type: str) -> None:
++        p = self._path(key)
++        p.parent.mkdir(parents=True, exist_ok=True)
++        with open(p, "wb") as f:
++            f.write(body.read())
++
++    def presign_get(self, key: str, ttl: int = 3600) -> str:
++        return f"http://localhost:8000/v1/dev/object/{key}?token=dev&t={int(time.time())+ttl}"
++
++    def exists(self, key: str) -> bool:
++        return self._path(key).exists()
++
++
++class S3Storage:
++    def __init__(
++        self,
++        bucket: str,
++        endpoint: Optional[str],
++        region: str = "us-east-1",
++        access_key: Optional[str] = None,
++        secret_key: Optional[str] = None,
++        secure: bool = True,
++    ):
++        self.bucket = bucket
++        session = boto3.session.Session(
++            aws_access_key_id=access_key,
++            aws_secret_access_key=secret_key,
++            region_name=region,
++        )
++        self.client = session.client(
++            "s3",
++            endpoint_url=endpoint,
++            config=Config(s3={"addressing_style": "path"}),
++            use_ssl=secure,
++            verify=secure,
++        )
++
++    def put(self, key: str, body: BinaryIO, content_type: str) -> None:
++        self.client.upload_fileobj(
++            Fileobj=body,
++            Bucket=self.bucket,
++            Key=key,
++            ExtraArgs={"ContentType": content_type},
++        )
++
++    def presign_get(self, key: str, ttl: int = 3600) -> str:
++        return self.client.generate_presigned_url(
++            "get_object", Params={"Bucket": self.bucket, "Key": key}, ExpiresIn=ttl
++        )
++
++    def exists(self, key: str) -> bool:
++        try:
++            self.client.head_object(Bucket=self.bucket, Key=key)
++            return True
++        except Exception:
++            return False
++
++
++def choose_storage():
++    env = os.getenv("ENV", "dev").lower()
++    force_obj = os.getenv("FORCE_OBJECT_STORAGE", "0") == "1"
++    backend = os.getenv("STORAGE_BACKEND", "s3").lower()
++
++    if env != "prod" and backend == "fs" and not force_obj:
++        return FSStorage(base_dir=os.getenv("FS_STORAGE_DIR", "storage"))
++
++    return S3Storage(
++        bucket=os.environ["OBJECT_BUCKET"],
++        endpoint=os.getenv("S3_ENDPOINT"),
++        region=os.getenv("S3_REGION", "us-east-1"),
++        access_key=os.getenv("S3_ACCESS_KEY"),
++        secret_key=os.getenv("S3_SECRET_KEY"),
++        secure=os.getenv("S3_SECURE", "true").lower() == "true",
++    )
+diff --git a/backend/app/models/job.py b/backend/app/models/job.py
+new file mode 100644
+index 0000000..f93a2b0
+--- /dev/null
++++ b/backend/app/models/job.py
+@@ -0,0 +1,46 @@
++from __future__ import annotations
++import enum
++from sqlalchemy import (
++    Column, String, Integer, DateTime, Text, Enum, Index, func
++)
++from sqlalchemy.orm import declarative_base
++
++Base = declarative_base()
++
++
++class JobStatus(str, enum.Enum):
++    queued = "queued"
++    running = "running"
++    succeeded = "succeeded"
++    failed = "failed"
++
++
++class Job(Base):
++    __tablename__ = "jobs"
++
++    id = Column(String(36), primary_key=True)  # UUID
++    job_type = Column(String(64), nullable=False)
++    input_hash = Column(String(64), nullable=False)  # sha256
++    status = Column(Enum(JobStatus), nullable=False, default=JobStatus.queued)
++    retries = Column(Integer, nullable=False, default=0)
++    max_retries = Column(Integer, nullable=False, default=3)
++    created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
++    updated_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
++    started_at = Column(DateTime(timezone=True), nullable=True)
++    ended_at = Column(DateTime(timezone=True), nullable=True)
++    artifact_key = Column(String(512), nullable=True)
++    rq_job_id = Column(String(64), nullable=True)
++    error = Column(Text, nullable=True)
++    trace_id = Column(String(64), nullable=True)
++
++    __table_args__ = (
++        Index("ix_jobs_status", "status"),
++        Index("ix_jobs_created_at", "created_at"),
++        Index("uq_jobs_type_inputhash", "job_type", "input_hash", unique=True),
++    )
+diff --git a/backend/alembic/versions/2031_add_jobs_table.py b/backend/alembic/versions/2031_add_jobs_table.py
+new file mode 100644
+index 0000000..a7b1d0b
+--- /dev/null
++++ b/backend/alembic/versions/2031_add_jobs_table.py
+@@ -0,0 +1,53 @@
++"""add jobs table
++
++Revision ID: 2031_add_jobs_table
++Revises: 2031869a6e0a
++Create Date: 2025-10-21
++"""
++from alembic import op
++import sqlalchemy as sa
++
++# revision identifiers, used by Alembic.
++revision = "2031_add_jobs_table"
++down_revision = "2031869a6e0a"
++branch_labels = None
++depends_on = None
++
++
++def upgrade():
++    job_status = sa.Enum("queued", "running", "succeeded", "failed", name="jobstatus")
++    job_status.create(op.get_bind(), checkfirst=True)
++
++    op.create_table(
++        "jobs",
++        sa.Column("id", sa.String(length=36), primary_key=True),
++        sa.Column("job_type", sa.String(length=64), nullable=False),
++        sa.Column("input_hash", sa.String(length=64), nullable=False),
++        sa.Column("status", job_status, nullable=False, server_default="queued"),
++        sa.Column("retries", sa.Integer(), nullable=False, server_default="0"),
++        sa.Column("max_retries", sa.Integer(), nullable=False, server_default="3"),
++        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("CURRENT_TIMESTAMP"), nullable=False),
++        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.text("CURRENT_TIMESTAMP"), nullable=False),
++        sa.Column("started_at", sa.DateTime(timezone=True)),
++        sa.Column("ended_at", sa.DateTime(timezone=True)),
++        sa.Column("artifact_key", sa.String(length=512)),
++        sa.Column("rq_job_id", sa.String(length=64)),
++        sa.Column("error", sa.Text()),
++        sa.Column("trace_id", sa.String(length=64)),
++    )
++    op.create_index("ix_jobs_status", "jobs", ["status"])
++    op.create_index("ix_jobs_created_at", "jobs", ["created_at"])
++    op.create_unique_constraint("uq_jobs_type_inputhash", "jobs", ["job_type", "input_hash"])
++
++
++def downgrade():
++    op.drop_constraint("uq_jobs_type_inputhash", "jobs", type_="unique")
++    op.drop_index("ix_jobs_created_at", table_name="jobs")
++    op.drop_index("ix_jobs_status", table_name="jobs")
++    op.drop_table("jobs")
++    sa.Enum(name="jobstatus").drop(op.get_bind(), checkfirst=True)
+diff --git a/backend/app/db.py b/backend/app/db.py
+index e69de29..a8b0c44 100644
+--- a/backend/app/db.py
++++ b/backend/app/db.py
+@@ -1,0 +1,48 @@
++import os
++from contextlib import contextmanager
++
++from sqlalchemy import create_engine, event
++from sqlalchemy.orm import sessionmaker
++
++DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./dev.db")
++connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
++engine = create_engine(DATABASE_URL, future=True, echo=False, connect_args=connect_args)
++SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
++
++def get_db():
++    db = SessionLocal()
++    try:
++        yield db
++    finally:
++        db.close()
++
++@contextmanager
++def session_scope():
++    s = SessionLocal()
++    try:
++        yield s
++        s.commit()
++    except Exception:
++        s.rollback()
++        raise
++    finally:
++        s.close()
++
++if DATABASE_URL.startswith("sqlite"):
++    @event.listens_for(engine, "connect")
++    def _set_sqlite_pragma(dbapi_conn, _):
++        cur = dbapi_conn.cursor()
++        cur.execute("PRAGMA foreign_keys=ON;")
++        cur.close()
+diff --git a/backend/app/routers/jobs.py b/backend/app/routers/jobs.py
+new file mode 100644
+index 0000000..51c1f36
+--- /dev/null
++++ b/backend/app/routers/jobs.py
+@@ -0,0 +1,104 @@
++from __future__ import annotations
++
++import hashlib
++import json
++import os
++import uuid
++from typing import Any, Optional
++
++from fastapi import APIRouter, Depends, HTTPException
++from pydantic import BaseModel, Field
++from redis import Redis
++from rq import Queue
++
++from ..db import get_db
++from ..models.job import Job, JobStatus
++from ..services.storage import choose_storage
++
++router = APIRouter(prefix="/v1", tags=["jobs"])
++
++VERSION = "1"  # bump to invalidate old idempotency keys
++
++
++class EnqueueReq(BaseModel):
++    type: str = Field(..., alias="type")
++    payload: Optional[dict[str, Any]] = None
++
++
++class JobOut(BaseModel):
++    id: str
++    status: JobStatus
++    artifact_url: Optional[str] = None
++
++
++def _redis() -> Redis:
++    return Redis.from_url(os.environ.get("REDIS_URL", "redis://localhost:6379/0"))
++
++
++def _queue() -> Queue:
++    return Queue("default", connection=_redis())
++
++
++def _hash(job_type: str, payload: Optional[dict]) -> str:
++    normalized = json.dumps(payload or {}, sort_keys=True, separators=(",", ":"))
++    return hashlib.sha256(f"{job_type}|{normalized}|v{VERSION}".encode()).hexdigest()
++
++
++@router.post("/jobs", response_model=JobOut)
++def enqueue_job(req: EnqueueReq, db=Depends(get_db)):
++    input_hash = _hash(req.type, req.payload)
++    existing = db.query(Job).filter(Job.job_type == req.type, Job.input_hash == input_hash).one_or_none()
++    if existing:
++        art = choose_storage().presign_get(existing.artifact_key) if existing.artifact_key else None
++        return JobOut(id=existing.id, status=existing.status, artifact_url=art)
++
++    jid = str(uuid.uuid4())
++    job = Job(id=jid, job_type=req.type, input_hash=input_hash, status=JobStatus.queued)
++    db.add(job)
++    db.commit()
++
++    rq_job = _queue().enqueue(
++        "worker.tasks.demo_job" if req.type == "demo" else "worker.tasks.generic_job",
++        kwargs={"job_id": jid, "job_type": req.type, "payload": req.payload or {}},
++        job_timeout=600,
++        failure_ttl=7 * 24 * 3600,
++        retry_strategy={"max": 3, "interval": [5, 15, 30]},
++        description=f"{req.type}:{jid}",
++    )
++    job.rq_job_id = rq_job.id
++    db.add(job)
++    db.commit()
++
++    return JobOut(id=jid, status=JobStatus.queued, artifact_url=None)
++
++
++@router.get("/jobs/{job_id}", response_model=JobOut)
++def get_job(job_id: str, db=Depends(get_db)):
++    job = db.query(Job).get(job_id)
++    if not job:
++        raise HTTPException(status_code=404, detail="job not found")
++    art = choose_storage().presign_get(job.artifact_key) if job.artifact_key else None
++    return JobOut(id=job.id, status=job.status, artifact_url=art)
+diff --git a/backend/app/routers/dev_files.py b/backend/app/routers/dev_files.py
+new file mode 100644
+index 0000000..a2e2b40
+--- /dev/null
++++ b/backend/app/routers/dev_files.py
+@@ -0,0 +1,29 @@
++from __future__ import annotations
++import os
++from pathlib import Path
++from fastapi import APIRouter, HTTPException, Query
++from fastapi.responses import FileResponse
++
++router = APIRouter(prefix="/v1/dev", tags=["dev"])
++
++BASE = Path(os.getenv("FS_STORAGE_DIR", "storage")).resolve()
++
++@router.get("/object/{path:path}")
++def dev_object(path: str, token: str = Query(...)):
++    if token != "dev":
++        raise HTTPException(status_code=403, detail="forbidden")
++    p = (BASE / path).resolve()
++    if not str(p).startswith(str(BASE)) or not p.exists():
++        raise HTTPException(status_code=404, detail="not found")
++    return FileResponse(str(p))
+diff --git a/backend/app/obs/metrics.py b/backend/app/obs/metrics.py
+new file mode 100644
+index 0000000..fa62f9c
+--- /dev/null
++++ b/backend/app/obs/metrics.py
+@@ -0,0 +1,18 @@
++from __future__ import annotations
++from prometheus_client import Counter, Gauge, Histogram
++
++HTTP_REQUESTS = Counter(
++    "http_requests_total", "HTTP requests", ["path", "method", "status"]
++)
++
++JOB_COUNT = Gauge(
++    "job_count_by_status", "Jobs by status (type/status)", ["type", "status"]
++)
++
++JOB_DURATION = Histogram(
++    "job_duration_seconds", "Job durations (by type)", ["type"],
++    buckets=(0.1, 0.5, 1, 2, 5, 10, 30, 60, 120, 300, 600)
++)
+diff --git a/backend/app/main.py b/backend/app/main.py
+index 8a1b2fb..4b2a1c3 100644
+--- a/backend/app/main.py
++++ b/backend/app/main.py
+@@ -1,3 +1,46 @@
+-from fastapi import FastAPI
+-app = FastAPI()
++from fastapi import FastAPI, Request, Response
++from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
++from sqlalchemy import func
++from .obs.metrics import HTTP_REQUESTS, JOB_COUNT, JOB_DURATION
++from .db import get_db
++from .models.job import Job, JobStatus
++
++app = FastAPI()
++
++# Health
++@app.get("/healthz")
++def healthz():
++    return {"ok": True}
++
++# Routers
++try:
++    from .routers.jobs import router as jobs_router
++    from .routers.dev_files import router as dev_files_router
++    app.include_router(jobs_router)
++    app.include_router(dev_files_router)
++except Exception:
++    # Allow boot even if files missing during partial apply
++    pass
++
++# HTTP metrics middleware
++@app.middleware("http")
++async def http_metrics(request: Request, call_next):
++    response: Response
++    try:
++        response = await call_next(request)
++        return response
++    finally:
++        try:
++            HTTP_REQUESTS.labels(
++                path=request.url.path, method=request.method, status=str(getattr(response, "status_code", 0))
++            ).inc()
++        except Exception:
++            pass
++
++@app.get("/metrics")
++def metrics(db=next(get_db())):
++    rows = db.query(Job.job_type, Job.status, func.count()).group_by(Job.job_type, Job.status).all()
++    for job_type, status, cnt in rows:
++        JOB_COUNT.labels(job_type, status.value if isinstance(status, JobStatus) else status).set(cnt)
++    data = generate_latest()
++    return Response(content=data, media_type=CONTENT_TYPE_LATEST)
+diff --git a/worker/requirements.txt b/worker/requirements.txt
+new file mode 100644
+index 0000000..e5b3f2e
+--- /dev/null
++++ b/worker/requirements.txt
+@@ -0,0 +1,6 @@
++rq==1.16.2
++redis==5.0.8
++SQLAlchemy==2.0.36
++psycopg2-binary==2.9.9
++boto3==1.34.162
++prometheus-client==0.20.0
+diff --git a/worker/tasks.py b/worker/tasks.py
+new file mode 100644
+index 0000000..5a1e5cc
+--- /dev/null
++++ b/worker/tasks.py
+@@ -0,0 +1,66 @@
++from __future__ import annotations
++import io
++import json
++import time
++from datetime import datetime, timezone
++
++from sqlalchemy.orm import Session
++
++from backend.app.db import session_scope
++from backend.app.models.job import Job, JobStatus
++from backend.app.services.storage import choose_storage
++
++
++def demo_job(job_id: str, job_type: str, payload: dict):
++    _run_job(job_id, job_type, payload, work_seconds=1.0)
++
++
++def generic_job(job_id: str, job_type: str, payload: dict):
++    _run_job(job_id, job_type, payload, work_seconds=2.0)
++
++
++def _run_job(job_id: str, job_type: str, payload: dict, work_seconds: float):
++    storage = choose_storage()
++    started = datetime.now(timezone.utc)
++    with session_scope() as db:  # type: Session
++        job = db.get(Job, job_id)
++        if not job:
++            return
++        job.status = JobStatus.running
++        job.started_at = started
++        db.add(job)
++
++    try:
++        time.sleep(work_seconds)
++        artifact_key = f"jobs/{job_id}/result.json"
++        data = {"job_id": job_id, "type": job_type, "payload": payload, "ts": started.isoformat()}
++        body = io.BytesIO(json.dumps(data, separators=(",", ":")).encode())
++        storage.put(artifact_key, body, content_type="application/json")
++
++        ended = datetime.now(timezone.utc)
++        with session_scope() as db:
++            job = db.get(Job, job_id)
++            job.status = JobStatus.succeeded
++            job.ended_at = ended
++            job.artifact_key = artifact_key
++            db.add(job)
++    except Exception as e:
++        ended = datetime.now(timezone.utc)
++        with session_scope() as db:
++            job = db.get(Job, job_id)
++            job.status = JobStatus.failed
++            job.ended_at = ended
++            job.error = str(e)
++            db.add(job)
++        raise
+diff --git a/worker/worker.py b/worker/worker.py
+new file mode 100644
+index 0000000..f6a0a0b
+--- /dev/null
++++ b/worker/worker.py
+@@ -0,0 +1,26 @@
++from __future__ import annotations
++import os
++import sys
++from rq import Worker, Queue, Connection
++from redis import Redis
++
++ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
++if ROOT not in sys.path:
++    sys.path.insert(0, ROOT)
++
++listen_queues = ["default", "failed"]
++
++def main():
++    redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
++    conn = Redis.from_url(redis_url)
++    with Connection(conn):
++        worker = Worker(list(map(Queue, listen_queues)))
++        worker.work(with_scheduler=True)
++
++if __name__ == "__main__":
++    main()
+diff --git a/worker/Dockerfile b/worker/Dockerfile
+new file mode 100644
+index 0000000..8b8a0f0
+--- /dev/null
++++ b/worker/Dockerfile
+@@ -0,0 +1,24 @@
++FROM python:3.11-slim
++
++WORKDIR /app
++
++RUN apt-get update && apt-get install -y --no-install-recommends \
++    build-essential curl ca-certificates && rm -rf /var/lib/apt/lists/*
++
++COPY backend /app/backend
++COPY worker/requirements.txt /app/worker/requirements.txt
++RUN pip install --no-cache-dir -r /app/worker/requirements.txt
++
++COPY worker /app/worker
++
++ENV PYTHONUNBUFFERED=1
++CMD ["python", "-m", "worker.worker"]
+diff --git a/docker-compose.prodready.yml b/docker-compose.prodready.yml
+new file mode 100644
+index 0000000..e9cb3d1
+--- /dev/null
++++ b/docker-compose.prodready.yml
+@@ -0,0 +1,78 @@
++services:
++  redis:
++    image: redis:7-alpine
++    ports: ["6379:6379"]
++    healthcheck:
++      test: ["CMD", "redis-cli", "ping"]
++      interval: 5s
++      timeout: 3s
++      retries: 20
++
++  minio:
++    image: minio/minio:RELEASE.2024-10-02T17-50-41Z
++    environment:
++      MINIO_ROOT_USER: miniouser
++      MINIO_ROOT_PASSWORD: miniopass
++    command: server /data --console-address ":9001"
++    ports:
++      - "9000:9000"
++      - "9001:9001"
++    healthcheck:
++      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
++      interval: 5s
++      timeout: 3s
++      retries: 30
++
++  api:
++    environment:
++      - ENV=${ENV:-dev}
++      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
++      - STORAGE_BACKEND=${STORAGE_BACKEND:-s3}
++      - S3_ENDPOINT=${S3_ENDPOINT:-http://minio:9000}
++      - S3_ACCESS_KEY=${S3_ACCESS_KEY:-miniouser}
++      - S3_SECRET_KEY=${S3_SECRET_KEY:-miniopass}
++      - S3_REGION=${S3_REGION:-us-east-1}
++      - S3_SECURE=${S3_SECURE:-false}
++      - OBJECT_BUCKET=${OBJECT_BUCKET:-mna-artifacts}
++    depends_on:
++      redis:
++        condition: service_healthy
++      minio:
++        condition: service_healthy
++    healthcheck:
++      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
++      interval: 5s
++      timeout: 3s
++      retries: 50
++
++  worker:
++    build:
++      context: .
++      dockerfile: worker/Dockerfile
++    environment:
++      - ENV=${ENV:-dev}
++      - DATABASE_URL=${DATABASE_URL}
++      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
++      - STORAGE_BACKEND=${STORAGE_BACKEND:-s3}
++      - S3_ENDPOINT=${S3_ENDPOINT:-http://minio:9000}
++      - S3_ACCESS_KEY=${S3_ACCESS_KEY:-miniouser}
++      - S3_SECRET_KEY=${S3_SECRET_KEY:-miniopass}
++      - S3_REGION=${S3_REGION:-us-east-1}
++      - S3_SECURE=${S3_SECURE:-false}
++      - OBJECT_BUCKET=${OBJECT_BUCKET:-mna-artifacts}
++    depends_on:
++      api:
++        condition: service_healthy
++      redis:
++        condition: service_healthy
++      minio:
++        condition: service_healthy
++    healthcheck:
++      test: ["CMD", "python", "-c", "import redis; import os; redis.Redis.from_url(os.getenv('REDIS_URL','redis://redis:6379/0')).ping()"]
++      interval: 10s
++      timeout: 5s
++      retries: 50
+diff --git a/.github/workflows/smoke.yml b/.github/workflows/smoke.yml
+new file mode 100644
+index 0000000..b4d7b8a
+--- /dev/null
++++ b/.github/workflows/smoke.yml
+@@ -0,0 +1,67 @@
++name: Smoke
++
++on:
++  pull_request:
++    branches: [ main ]
++  workflow_dispatch:
++
++jobs:
++  smoke:
++    runs-on: ubuntu-latest
++
++    steps:
++      - uses: actions/checkout@v4
++
++      - name: Install tools
++        run: |
++          sudo apt-get update
++          sudo apt-get install -y jq httpie
++
++      - name: Docker Build
++        run: docker compose build
++
++      - name: Up stack
++        run: docker compose -f docker-compose.yml -f docker-compose.prodready.yml up -d redis minio api worker
++
++      - name: Wait for API
++        run: |
++          for i in {1..60}; do
++            curl -fsS http://localhost:8000/healthz && break || sleep 5
++          done
++
++      - name: Enqueue demo job
++        id: enqueue
++        run: |
++          JOB_ID=$(curl -fsS -H 'Content-Type: application/json' \
++            -d '{"type":"demo"}' http://localhost:8000/v1/jobs | jq -r .id)
++          echo "job_id=$JOB_ID" >> $GITHUB_OUTPUT
++
++      - name: Poll job
++        run: |
++          for i in {1..60}; do
++            ST=$(curl -fsS http://localhost:8000/v1/jobs/${{ steps.enqueue.outputs.job_id }} | jq -r .status)
++            echo "$i: $ST"
++            test "$ST" = "succeeded" && exit 0
++            sleep 2
++          done
++          echo "Job did not succeed in time" >&2
++          exit 1
++
++      - name: Validate artifact
++        run: |
++          ART=$(curl -fsS http://localhost:8000/v1/jobs/${{ steps.enqueue.outputs.job_id }} | jq -r .artifact_url)
++          curl -fsS "$ART" -o /tmp/out && test -s /tmp/out
+diff --git a/backend/requirements.txt b/backend/requirements.txt
+index 3fd2b8d..b8a792e 100644
+--- a/backend/requirements.txt
++++ b/backend/requirements.txt
+@@ -1,3 +1,9 @@
+ fastapi
+ uvicorn
+ SQLAlchemy
++redis==5.0.8
++rq==1.16.2
++boto3==1.34.162
++prometheus-client==0.20.0
++structlog==24.4.0

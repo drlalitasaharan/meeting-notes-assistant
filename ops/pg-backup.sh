@@ -16,4 +16,3 @@ if [ -n "${TO_DELETE}" ]; then
 fi
 
 echo "Wrote: $OUT"
-

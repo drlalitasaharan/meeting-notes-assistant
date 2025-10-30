@@ -1,0 +1,8 @@
+services:
+  backend:
+    env_file:
+      - .env.dev
+    environment:
+      RQ_REDIS_URL: ${RQ_REDIS_URL:-redis://redis:6379/0}
+      RQ_QUEUE: ${RQ_QUEUE:-default}
+      PYTHONPATH: /app/backend:/app

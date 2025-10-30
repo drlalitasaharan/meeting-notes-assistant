@@ -1,0 +1,7 @@
+# traefik/dynamic/tls.yml
+tls:
+  stores:
+    default: {}
+  certificates:
+    - certFile: /etc/traefik/certs/mna.local.pem
+      keyFile:  /etc/traefik/certs/mna.local-key.pem

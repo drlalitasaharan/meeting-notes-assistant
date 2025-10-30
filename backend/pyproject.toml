@@ -84,4 +84,3 @@ module = [
   "backend.packages.shared.minio_client",
 ]
 disable_error_code = ["attr-defined", "no-any-return"]
-

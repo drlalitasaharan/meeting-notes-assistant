@@ -1,13 +1,49 @@
+import importlib
+import inspect
 import json
-import math
+import pkgutil
+import time
+
+import app.jobs as jobs_pkg
+from app.storage import choose_storage
+
+# Hoist functions from app.jobs.*
+for mi in pkgutil.walk_packages(jobs_pkg.__path__, jobs_pkg.__name__ + "."):
+    mod = importlib.import_module(mi.name)
+    for name, obj in vars(mod).items():
+        if inspect.isfunction(obj):
+            globals()[name] = obj
 
 
-def fsum_args(*args):
-    # CLI passes strings; convert to float
-    return math.fsum(float(a) for a in args)
+def _put_json(storage, key, data):
+    body = json.dumps(data, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    # Try common storage methods
+    for name in ("write", "put", "upload", "save"):
+        if hasattr(storage, name):
+            try:
+                getattr(storage, name)(key, body)
+                break
+            except Exception:
+                pass
+    else:
+        # Fallback: boto3-style client if exposed
+        try:
+            client = getattr(storage, "client", None)
+            bucket = getattr(storage, "bucket", None) or getattr(storage, "bucket_name", None)
+            if client and bucket:
+                client.put_object(Bucket=bucket, Key=key, Body=body, ContentType="application/json")
+        except Exception:
+            pass
+    try:
+        return storage.sign_url(key)
+    except Exception:
+        return key
 
 
-def fsum_json(payload: str):
-    # pass a JSON list as ONE string arg
-    arr = json.loads(payload)
-    return float(math.fsum(arr))
+def demo_job(payload=None, job_id=None, **kwargs):
+    """Accepts API kwarg 'job_id' and returns a signed URL to a JSON artifact."""
+    storage = choose_storage()
+    ts = int(time.time())
+    key = f"jobs/demo-{job_id or ts}.json"
+    doc = {"ok": True, "ts": ts, "job_id": job_id, "payload": payload}
+    return _put_json(storage, key, doc)

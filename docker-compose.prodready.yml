@@ -1,0 +1,96 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-meetings}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-meetings}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-miniouser}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-miniopass}
+    ports:
+      - "9000:9000" # S3 API
+      - "9001:9001" # MinIO console (optional)
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      ENV: ${ENV:-dev}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://postgres:postgres@db:5432/meetings}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-s3}
+      S3_ENDPOINT: ${S3_ENDPOINT:-http://minio:9000}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-miniouser}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-miniopass}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_SECURE: ${S3_SECURE:-false}
+      OBJECT_BUCKET: ${OBJECT_BUCKET:-mna-artifacts}
+      PYTHONPATH: /app/backend
+      SKIP_NOTES_API: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 50
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    environment:
+      ENV: ${ENV:-dev}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://postgres:postgres@db:5432/meetings}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-s3}
+      S3_ENDPOINT: ${S3_ENDPOINT:-http://minio:9000}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-miniouser}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-miniopass}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_SECURE: ${S3_SECURE:-false}
+      OBJECT_BUCKET: ${OBJECT_BUCKET:-mna-artifacts}
+      PYTHONPATH: /app/worker:/app/backend:/app
+      SKIP_NOTES_API: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app/backend
+      - ./worker:/app/worker
+volumes:
+  pgdata:
+  minio-data:
