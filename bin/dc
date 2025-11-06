@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(git -C "${PWD}" rev-parse --show-toplevel 2>/dev/null || pwd)"
+exec docker compose \
+  -f docker-compose.yml \
+  -f docker-compose.prodready.yml \
+  -f docker-compose.public.yml \
+  -f docker-compose.rq.yml \
+  -f docker-compose.traefik.yml \
+  --env-file .env.dev "$@"

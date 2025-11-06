@@ -1,39 +1,78 @@
 name: Smoke
 on:
-  pull_request: { branches: [ main ] }
-  workflow_dispatch:
+  push:
+    branches: [ main, feat/**, fix/** ]
+  pull_request:
+
 jobs:
   smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
     steps:
       - uses: actions/checkout@v4
-      - name: Install tools
+
+      - name: Tooling
         run: |
-          sudo apt-get update
-          sudo apt-get install -y jq httpie
-      - name: Docker Build
-        run: docker compose build
-      - name: Up stack
-        run: docker compose -f docker-compose.yml -f docker-compose.prodready.yml up -d redis minio api worker
-      - name: Wait for API
+          sudo apt-get update -y
+          sudo apt-get install -y jq
+          docker version
+          docker compose version
+
+      - name: Build images
         run: |
-          for i in {1..60}; do curl -fsS http://localhost:8000/healthz && break || sleep 5; done
-      - name: Enqueue demo job
-        id: enqueue
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.rq.yml \
+            -f docker-compose.ci.yml \
+            build
+
+      - name: Up minimal stack
         run: |
-          JOB_ID=$(curl -fsS -H 'Content-Type: application/json' -d '{"type":"demo"}' http://localhost:8000/v1/jobs | jq -r .id)
-          echo "job_id=$JOB_ID" >> $GITHUB_OUTPUT
-      - name: Poll job
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.rq.yml \
+            -f docker-compose.ci.yml \
+            up -d db redis minio backend worker
+          docker compose ps
+
+      - name: Wait for API (healthz inside container)
         run: |
-          for i in {1..60}; do
-            ST=$(curl -fsS http://localhost:8000/v1/jobs/${{ steps.enqueue.outputs.job_id }} | jq -r .status)
-            echo "$i: $ST"
-            test "$ST" = "succeeded" && exit 0
+          set -e
+          for i in $(seq 1 60); do
+            if docker compose -f docker-compose.yml -f docker-compose.rq.yml -f docker-compose.ci.yml \
+              exec -T backend curl -fsS http://127.0.0.1:8000/healthz | grep -q '"status":"ok"'; then
+              echo "API is healthy"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "API never became healthy" >&2
+          exit 1
+
+      - name: Enqueue + verify demo job
+        run: |
+          set -e
+          JID=$(docker compose -f docker-compose.yml -f docker-compose.rq.yml -f docker-compose.ci.yml \
+            exec -T backend \
+            curl -fsS -H 'content-type: application/json' \
+            -d '{"type":"demo","payload":{"from":"ci"}}' \
+            http://127.0.0.1:8000/v1/jobs | jq -r .id)
+          echo "Enqueued job: $JID"
+
+          for i in $(seq 1 30); do
+            STATUS=$(docker compose -f docker-compose.yml -f docker-compose.rq.yml -f docker-compose.ci.yml \
+              exec -T backend \
+              curl -fsS http://127.0.0.1:8000/v1/jobs/$JID | jq -r .status)
+            echo "status=$STATUS"
+            [ "$STATUS" = "succeeded" ] && exit 0
             sleep 2
           done
           echo "Job did not succeed in time" >&2
           exit 1
-      - name: Validate artifact
+
+      - name: Logs on failure
+        if: failure()
         run: |
-          ART=$(curl -fsS http://localhost:8000/v1/jobs/${{ steps.enqueue.outputs.job_id }} | jq -r .artifact_url)
-          curl -fsS "$ART" -o /tmp/out && test -s /tmp/out
+          docker compose -f docker-compose.yml -f docker-compose.rq.yml -f docker-compose.ci.yml \
+            logs --no-color --tail=200 backend worker

@@ -1,0 +1,11 @@
+services:
+  backend:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=meeting-notes-assistant_default"
+      - "traefik.http.routers.app.rule=Host(`api.mna.local`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls=true"
+      - "traefik.http.routers.app.middlewares=hsts-preload@file"
+      - "traefik.http.routers.app.service=app"
+      - "traefik.http.services.app.loadbalancer.server.port=8000"

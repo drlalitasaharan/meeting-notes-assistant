@@ -1,0 +1,13 @@
+http:
+  middlewares:
+    hsts-preload:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+    # alias used by older labels, safe to keep
+    hsts:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true

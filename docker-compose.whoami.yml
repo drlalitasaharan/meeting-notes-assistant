@@ -1,0 +1,13 @@
+services:
+  whoami:
+    image: traefik/whoami:latest
+    networks:
+      - default
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=meeting-notes-assistant_default
+      - traefik.http.routers.who.rule=Host(`whoami.mna.local`)
+      - traefik.http.routers.who.entrypoints=websecure
+      - traefik.http.routers.who.tls=true
+      - traefik.http.routers.who.service=who
+      - traefik.http.services.who.loadbalancer.server.port=80

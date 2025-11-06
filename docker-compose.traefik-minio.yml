@@ -1,0 +1,21 @@
+services:
+  minio:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=meeting-notes-assistant_default"
+
+      # API router (port 9000)
+      - "traefik.http.routers.minio.rule=Host(`minio.mna.local`)"
+      - "traefik.http.routers.minio.entrypoints=websecure"
+      - "traefik.http.routers.minio.tls=true"
+      - "traefik.http.routers.minio.middlewares=hsts-preload@file"
+      - "traefik.http.routers.minio.service=minio"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+
+      # Console router (port 9001)
+      - "traefik.http.routers.minio-console.rule=Host(`console.minio.mna.local`)"
+      - "traefik.http.routers.minio-console.entrypoints=websecure"
+      - "traefik.http.routers.minio-console.tls=true"
+      - "traefik.http.routers.minio-console.middlewares=hsts-preload@file"
+      - "traefik.http.routers.minio-console.service=minio-console"
+      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"

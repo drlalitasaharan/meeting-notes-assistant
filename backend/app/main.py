@@ -78,3 +78,8 @@ app.include_router(meeting_artifacts.router)
 
 
 # small health endpoint (was missing on your last run)
+
+
+@app.get("/healthz")
+def healthz():
+    return {"status": "ok"}
