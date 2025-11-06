@@ -10,7 +10,7 @@ from alembic import op
 import sqlalchemy as sa
 
 revision = "2032"
-down_revision = "2031"
+down_revision = '2031_add_jobs_table'
 branch_labels = None
 depends_on = None
 
