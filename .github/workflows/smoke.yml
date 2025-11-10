@@ -39,6 +39,14 @@ jobs:
           docker compose logs backend
           exit 1
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Install MinIO client (mc)
+        run: |
+          sudo curl -sSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc
+          sudo chmod +x /usr/local/bin/mc
+          mc --version
       - name: Ensure MinIO bucket (dev)
         env:
           MINIO_USER: miniouser
