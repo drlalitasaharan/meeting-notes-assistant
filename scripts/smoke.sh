@@ -14,6 +14,13 @@ PUBLIC_BASE="${PUBLIC_BASE:-${S3_PUBLIC_ENDPOINT:-http://127.0.0.1:9000}}"
 need() { command -v "$1" >/dev/null || { echo "Missing dependency: $1" >&2; exit 2; }; }
 need curl; need jq; need mc
 
+echo "== wait for API =="
+for i in {1..240}; do
+  if curl -fsS "$MNA_API/healthz" >/dev/null; then echo "API ready"; break; fi
+  sleep 0.5
+  [ $i -eq 240 ] && { echo "API not ready after 120s"; exit 1; }
+done
+
 echo "== /healthz =="
 curl -sS "$MNA_API/healthz" | jq .
 
