@@ -3,7 +3,9 @@ import os
 from types import ModuleType
 
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
+from app.api import api as api_router
 from app.routers.health import router as health_router
 from app.routers.openapi_force import router as openapi_router
 from app.routers.rq_jobs import router as rq_router
@@ -83,3 +85,8 @@ app.include_router(meeting_artifacts.router)
 @app.get("/healthz")
 def healthz():
     return {"status": "ok"}
+
+
+# Mount versioned API once
+app.include_router(api_router)
+Instrumentator().instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)

@@ -1,3 +1,4 @@
+# ruff: noqa: I001
 """Add meetings table
 
 Revision ID: 2031
@@ -10,7 +11,9 @@ import sqlalchemy as sa
 
 # --- Alembic identifiers ---
 revision = "2031"
-down_revision = "0002"          # If you need it in your chain, set this to the prior rev (e.g., "0000" or "0001")
+down_revision = (
+    "0002"  # If you need it in your chain, set this to the prior rev (e.g., "0000" or "0001")
+)
 branch_labels = None
 depends_on = None
 
@@ -27,9 +30,21 @@ def upgrade():
             sa.Column("title", sa.String(length=200), nullable=False),
             sa.Column("scheduled_at", sa.DateTime(), nullable=True),
             sa.Column("agenda", sa.Text(), nullable=True),
-            sa.Column("status", sa.String(length=20), nullable=False, server_default=sa.text("'new'")),
-            sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.text("CURRENT_TIMESTAMP")),
-            sa.Column("updated_at", sa.DateTime(), nullable=False, server_default=sa.text("CURRENT_TIMESTAMP")),
+            sa.Column(
+                "status", sa.String(length=20), nullable=False, server_default=sa.text("'new'")
+            ),
+            sa.Column(
+                "created_at",
+                sa.DateTime(),
+                nullable=False,
+                server_default=sa.text("CURRENT_TIMESTAMP"),
+            ),
+            sa.Column(
+                "updated_at",
+                sa.DateTime(),
+                nullable=False,
+                server_default=sa.text("CURRENT_TIMESTAMP"),
+            ),
         )
         # Optional explicit index (SQLite often indexes PK automatically; keep if you had it originally)
         op.create_index("ix_meetings_id", "meetings", ["id"])

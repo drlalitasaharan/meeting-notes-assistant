@@ -25,13 +25,13 @@ if config.config_file_name:
 # Let Alembic see our metadata
 target_metadata = Base.metadata
 
+
 def get_db_url() -> str:
     # Priority: explicit var for Alembic -> generic DATABASE_URL -> dev sqlite
     return (
-        os.getenv("ALEMBIC_DB_URL")
-        or os.getenv("DATABASE_URL")
-        or "sqlite:////app/backend/dev.db"
+        os.getenv("ALEMBIC_DB_URL") or os.getenv("DATABASE_URL") or "sqlite:////app/backend/dev.db"
     )
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
@@ -44,6 +44,7 @@ def run_migrations_offline() -> None:
     )
     with context.begin_transaction():
         context.run_migrations()
+
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
@@ -64,6 +65,7 @@ def run_migrations_online() -> None:
         )
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()
