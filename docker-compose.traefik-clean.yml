@@ -1,0 +1,17 @@
+services:
+  backend:
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: "meeting-notes-assistant_default"
+
+      traefik.http.services.mna.loadbalancer.server.port: "8000"
+      traefik.http.services.mna.loadbalancer.passHostHeader: "true"
+
+      traefik.http.routers.mnaweb.rule: Host(`api.mna.local`)
+      traefik.http.routers.mnaweb.entrypoints: web
+      traefik.http.routers.mnaweb.service: mna
+
+      traefik.http.routers.mnas.rule: Host(`api.mna.local`)
+      traefik.http.routers.mnas.entrypoints: websecure
+      traefik.http.routers.mnas.tls: "true"
+      traefik.http.routers.mnas.service: mna

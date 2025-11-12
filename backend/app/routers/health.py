@@ -1,15 +1,17 @@
 # app/routers/health.py
-import os
 
 from fastapi import APIRouter
 
 router = APIRouter(tags=["health"])
 
 
-@router.get("/healthz")
+@router.get("/healthz", operation_id="healthz")
 def healthz():
-    return {
-        "status": "ok",
-        "service": os.getenv("APP_NAME", "meeting-notes-assistant"),
-        "version": os.getenv("APP_VERSION", "0.1.0"),
-    }
+    return {"status": "ok", "service": "meeting-notes-assistant", "version": "0.1.0"}
+
+
+@router.head("/healthz", include_in_schema=False)
+def healthz_head():
+    from fastapi import Response
+
+    return Response(status_code=200)

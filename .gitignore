@@ -62,3 +62,8 @@ slides-*.zip
 uvicorn.pid
 docker-compose.alembic.ci.yml.bak*
 docker-compose.local.yml
+
+# backups
+*.bak*
+/certs/
+/dynamic/tls.yml

@@ -1,0 +1,13 @@
+http:
+  middlewares:
+    hsts:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+    rl:
+      rateLimit:
+        average: 10
+        burst: 20
+        period: 1s
+    gzip:
+      compress: {}

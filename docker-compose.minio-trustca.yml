@@ -1,0 +1,6 @@
+services:
+  minio:
+    volumes:
+      - ./certs/rootCA.pem:/usr/local/share/ca-certificates/mkcert-rootCA.crt:ro
+    environment:
+      - SSL_CERT_FILE=/usr/local/share/ca-certificates/mkcert-rootCA.crt

@@ -1,43 +1,71 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-API="${API_BASE_URL:-http://127.0.0.1:8000/v1}"
+# --- Config (override via env) ---
+MNA_API="${MNA_API:-http://127.0.0.1:8000}"
+TEXT="${TEXT:-hello from smoke}"
+DELAY="${DELAY:-0.2}"
+
+# MinIO / mc settings (dev)
+MC_ALIAS="${MC_ALIAS:-local}"
+BUCKET="${BUCKET:-mna-dev}"
+PUBLIC_BASE="${PUBLIC_BASE:-${S3_PUBLIC_ENDPOINT:-http://127.0.0.1:9000}}"
+
+need() { command -v "$1" >/dev/null || { echo "Missing dependency: $1" >&2; exit 2; }; }
+need curl; need jq; need mc
+
+echo "== wait for API =="
+for i in {1..240}; do
+  if curl -fsS "$MNA_API/healthz" >/dev/null; then echo "API ready"; break; fi
+  sleep 0.5
+  [ $i -eq 240 ] && { echo "API not ready after 120s"; exit 1; }
+done
 
 echo "== /healthz =="
-curl -sS http://127.0.0.1:8000/healthz | jq .
+curl -sS "$MNA_API/healthz" | jq .
 
-echo "== start meeting =="
-CREATE_RES=$(curl -sS -X POST "$API/meetings/start" -H "Content-Type: application/json" -d '{"name":"Smoke Test"}')
-echo "$CREATE_RES" | jq .
-MID=$(jq -r '.meetingId' <<<"$CREATE_RES")
-PUT_URL=$(jq -r '.uploadUrl' <<<"$CREATE_RES")
+echo "== create meeting (POST /v1/meetings) =="
+MEETING_JSON="$(curl -sS -X POST "$MNA_API/v1/meetings" \
+  -H 'content-type: application/json' \
+  -d '{"title":"smoke test meeting"}')"
+echo "$MEETING_JSON" | jq .
+MEETING_ID="$(echo "$MEETING_JSON" | jq -r '.id')"
 
-[[ "$PUT_URL" == *"X-Amz-Algorithm=AWS4-HMAC-SHA256"* ]] || { echo "Missing SigV4 params"; exit 1; }
+echo "== submit job (POST /v1/jobs) =="
+curl -sS -X POST "$MNA_API/v1/jobs" \
+  -H 'content-type: application/json' \
+  -d "{\"type\":\"demo\",\"payload\":{\"text\":\"$TEXT\",\"delay\":$DELAY}}" \
+  -o /tmp/resp.json -w '\nHTTP %{http_code}\n'
+cat /tmp/resp.json
 
-echo "== upload raw to MinIO (presigned PUT) =="
-echo "hello audio" > /tmp/audio.bin
-curl -sS -f --upload-file /tmp/audio.bin "$PUT_URL" > /dev/null
-echo "PUT OK"
+JOB_ID="$(jq -r '.job_id // .id // empty' /tmp/resp.json)"
+[ -n "$JOB_ID" ] || { echo "No job id returned"; exit 1; }
+echo "JOB_ID=$JOB_ID"
 
-echo "== list meetings =="
-curl -sS "$API/meetings" | jq .
+echo "== poll job status =="
+for i in {1..80}; do
+  curl -sS "$MNA_API/v1/jobs/$JOB_ID" -o /tmp/job.json
+  STATUS="$(jq -r '.status' /tmp/job.json)"
+  echo "$STATUS"
+  [[ "$STATUS" =~ ^(finished|succeeded|failed)$ ]] && break
+  sleep 0.5
+done
+echo "Final:" && jq . /tmp/job.json
 
-echo "== attach slides =="
-echo "slide text" > /tmp/slide1.txt
-curl -sS -X POST "$API/meetings/$MID/attach-slides" -F "file=@/tmp/slide1.txt" | jq .
+# Create & upload a tiny artifact to MinIO using mc (public-read bucket)
+echo "== upload artifact to MinIO via mc =="
+ART="/tmp/smoke-${JOB_ID}.txt"
+echo "artifact for job $JOB_ID (meeting $MEETING_ID) at $(date -u +%FT%TZ)" > "$ART"
 
-echo "== list slides (presigned GET) =="
-SLIDES=$(curl -sS "$API/meetings/$MID/slides")
-echo "$SLIDES" | jq .
-DL=$(jq -r '.[0].url' <<<"$SLIDES")
-[[ -n "$DL" && "$DL" != "null" ]] || { echo "No presigned GET url"; exit 1; }
+# Ensure bucket exists (idempotent) and is public for download
+mc mb "${MC_ALIAS}/${BUCKET}" >/dev/null 2>&1 || true
+mc anonymous set download "${MC_ALIAS}/${BUCKET}" >/dev/null 2>&1 || true
 
-echo "== GET presigned download headers =="
-curl -sS -D - -o /dev/null "$DL" | grep -i '^Content-Type:' || true
+KEY="smoke/${JOB_ID}.txt"
+mc cp "$ART" "${MC_ALIAS}/${BUCKET}/${KEY}" >/dev/null
 
-echo "== process meeting =="
-curl -sS -X POST "$API/meetings/$MID/process" | jq .
+URL="${PUBLIC_BASE%/}/${BUCKET}/${KEY}"
+echo "Artifact URL: $URL"
 
-echo "== get meeting =="
-curl -sS "$API/meetings/$MID" | jq .
-echo "Smoke OK ✅ (MID=$MID)"
+echo "== metrics head =="
+curl -sS "$MNA_API/metrics" | sed -n '1,40p'

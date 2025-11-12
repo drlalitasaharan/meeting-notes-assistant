@@ -1,0 +1,23 @@
+services:
+  backend:
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=meeting-notes-assistant_default
+      - traefik.http.routers.api.rule=Host(`api.mna.local`)
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.tls=true
+      - traefik.http.routers.api.middlewares=hsts@file,rl@file
+      - traefik.http.services.api.loadbalancer.passHostHeader=true
+      - traefik.http.services.api.loadbalancer.server.port=8000
+
+  # Explicitly keep everything else off Traefik (adjust if you want MinIO public)
+  worker:
+    labels: [ "traefik.enable=false" ]
+  rq:
+    labels: [ "traefik.enable=false" ]
+  db:
+    labels: [ "traefik.enable=false" ]
+  redis:
+    labels: [ "traefik.enable=false" ]
+  minio:
+    labels: [ "traefik.enable=false" ]

@@ -1,0 +1,84 @@
+services:
+  traefik:
+    image: traefik:v3.1
+    restart: unless-stopped
+    ports: ['80:80', '443:443', '8080:8080'] # 8080 dashboard
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false # turn OFF auto-exposure
+      - --providers.file.directory=/dynamic
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --api.dashboard=true
+      - --log.level=DEBUG
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.file.directory=/etc/traefik/dynamic
+      - --providers.file.watch=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --api.dashboard=true
+      - --api.insecure=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./_ops/traefik-dynamic:/dynamic:ro
+      - ./_ops/certs:/certs:ro
+      - ./traefik/certs:/etc/traefik/certs:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik/certs:/etc/traefik/certs:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik/certs:/etc/traefik/certs:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik/certs:/etc/traefik/certs:ro
+      - ./traefik/dynamic:/etc/traefik/dynamic:ro
+    networks:
+      - default
+    cap_add:
+      - NET_BIND_SERVICE
+      - NET_Bind_SERVICE
+      - NET_BIND_SERVICE
+    user: 0:0
+  backend:
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: meeting-notes-assistant_default
+  db:
+    labels:
+      - "traefik.enable=false"
+  redis:
+    labels:
+      - "traefik.enable=false"
+  minio:
+    labels:
+      - "traefik.enable=false"

@@ -1,0 +1,20 @@
+services:
+  backend:
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=meeting-notes-assistant_default
+
+      # Service (rename to avoid 'api' conflicts)
+      - traefik.http.services.mna.loadbalancer.server.port=8000
+      - traefik.http.services.mna.loadbalancer.passHostHeader=true
+
+      # HTTP router (port 80) — simplest possible
+      - traefik.http.routers.mnaweb.rule=Host(`api.mna.local`)
+      - traefik.http.routers.mnaweb.entrypoints=web
+      - traefik.http.routers.mnaweb.service=mna
+
+      # HTTPS router (port 443) — no middlewares yet
+      - traefik.http.routers.mnas.rule=Host(`api.mna.local`)
+      - traefik.http.routers.mnas.entrypoints=websecure
+      - traefik.http.routers.mnas.tls=true
+      - traefik.http.routers.mnas.service=mna

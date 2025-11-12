@@ -86,4 +86,3 @@ services:
 volumes:
   mna_pg:
   mna_minio:
-

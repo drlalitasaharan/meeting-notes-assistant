@@ -1,0 +1,86 @@
+name: Smoke
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools (jq + mc)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq curl
+          curl -sSL https://dl.min.io/client/mc/release/linux-amd64/mc -o mc
+          chmod +x mc
+          sudo mv mc /usr/local/bin/mc
+          mc --version
+
+      - name: Compose up (db, redis, minio, backend, worker)
+        run: |
+          docker compose -f docker-compose.yml \
+                         -f docker-compose.worker.yml \
+                         -f docker-compose.minio.yml \
+                         up -d --build db redis minio backend worker
+
+      - name: Wait for API health
+        run: |
+          for i in {1..120}; do
+            curl -fsS http://127.0.0.1:8000/healthz >/dev/null && { echo "API ready"; exit 0; }
+            sleep 1
+          done
+          echo "API did not become healthy"
+          docker compose ps
+          docker compose logs backend
+          exit 1
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Install MinIO client (mc)
+        run: |
+          sudo curl -sSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc
+          sudo chmod +x /usr/local/bin/mc
+          mc --version
+      - name: Ensure MinIO bucket (dev)
+        env:
+          MINIO_USER: miniouser
+          MINIO_PASS: miniopass
+        run: |
+          mc alias set local http://127.0.0.1:9000 "$MINIO_USER" "$MINIO_PASS"
+          mc mb local/mna-dev || true
+          mc anonymous set download local/mna-dev
+
+      - name: Run smoke
+        env:
+          MNA_API: http://127.0.0.1:8000
+          S3_PUBLIC_ENDPOINT: http://127.0.0.1:9000
+          TEXT: "hello from CI"
+          DELAY: "0.2"
+        run: bash scripts/smoke.sh
+
+      - name: Logs on failure
+        if: failure()
+        run: |
+          docker compose logs --no-color backend worker | tail -n 500 || true
+
+      - name: Compose down
+        if: always()
+        run: docker compose down -v
+
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r backend/requirements.txt ruff pytest
+      - run: ruff format --check .
+      - run: ruff check .
+      - run: pytest -q || pytest -q -q
