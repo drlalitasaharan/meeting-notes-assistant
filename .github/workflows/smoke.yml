@@ -76,6 +76,7 @@ jobs:
       - run: pytest -q || pytest -q -q
     env:
       PYTHONPATH: ${{ github.workspace }}
+      DATABASE_URL: sqlite:///./dev.db
 concurrency:
   group: smoke-${{ github.ref }}
   cancel-in-progress: true
