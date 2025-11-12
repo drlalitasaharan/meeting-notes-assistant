@@ -74,6 +74,8 @@ jobs:
       - run: ruff format --check .
       - run: ruff check .
       - run: pytest -q || pytest -q -q
+    env:
+      PYTHONPATH: ${{ github.workspace }}
 concurrency:
   group: smoke-${{ github.ref }}
   cancel-in-progress: true
