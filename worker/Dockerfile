@@ -2,15 +2,22 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential curl ca-certificates && rm -rf /var/lib/apt/lists/*
-
-COPY backend /app/backend
+# Copy requirements first (for better caching)
 COPY backend/requirements.txt /app/backend/requirements.txt
 COPY worker/requirements.txt /app/worker/requirements.txt
-RUN pip install --no-cache-dir -r /app/backend/requirements.txt && pip install --no-cache-dir -r /app/worker/requirements.txt
 
+# Install deps (BuildKit cache friendly)
+RUN --mount=type=cache,target=/root/.cache/pip     pip install -r /app/backend/requirements.txt &&     pip install -r /app/worker/requirements.txt
+
+# Copy source
+COPY backend /app/backend
 COPY worker /app/worker
 
-ENV PYTHONUNBUFFERED=1
-CMD ["python", "-m", "worker.worker"]
+# Healthcheck script
+COPY worker/healthcheck.py /usr/local/bin/worker-redis-healthcheck.py
+
+# Healthcheck: verify Redis is reachable
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=5   CMD ["python","/usr/local/bin/worker-redis-healthcheck.py"]
+
+# Launch the RQ worker module
+CMD ["python","-m","worker.worker"]
