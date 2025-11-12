@@ -2,16 +2,14 @@ name: Smoke
 on:
   pull_request:
   push:
-    branches: [ main ]
-
+    branches: [main]
+  workflow_dispatch: {}
 jobs:
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Install tools (jq + mc)
         run: |
           sudo apt-get update -y
@@ -20,14 +18,12 @@ jobs:
           chmod +x mc
           sudo mv mc /usr/local/bin/mc
           mc --version
-
       - name: Compose up (db, redis, minio, backend, worker)
         run: |
           docker compose -f docker-compose.yml \
                          -f docker-compose.worker.yml \
                          -f docker-compose.minio.yml \
                          up -d --build db redis minio backend worker
-
       - name: Wait for API health
         run: |
           for i in {1..120}; do
@@ -38,10 +34,8 @@ jobs:
           docker compose ps
           docker compose logs backend
           exit 1
-
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
-
       - name: Install MinIO client (mc)
         run: |
           sudo curl -sSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc
@@ -55,7 +49,6 @@ jobs:
           mc alias set local http://127.0.0.1:9000 "$MINIO_USER" "$MINIO_PASS"
           mc mb local/mna-dev || true
           mc anonymous set download local/mna-dev
-
       - name: Run smoke
         env:
           MNA_API: http://127.0.0.1:8000
@@ -63,16 +56,13 @@ jobs:
           TEXT: "hello from CI"
           DELAY: "0.2"
         run: bash scripts/smoke.sh
-
       - name: Logs on failure
         if: failure()
         run: |
           docker compose logs --no-color backend worker | tail -n 500 || true
-
       - name: Compose down
         if: always()
         run: docker compose down -v
-
   lint-test:
     runs-on: ubuntu-latest
     steps:
@@ -84,3 +74,6 @@ jobs:
       - run: ruff format --check .
       - run: ruff check .
       - run: pytest -q || pytest -q -q
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
