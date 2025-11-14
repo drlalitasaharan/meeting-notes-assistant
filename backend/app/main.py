@@ -9,6 +9,11 @@ def _health_payload() -> dict[str, str]:
     return {"status": "ok"}
 
 
+# ---------------------------------------------------------------------------
+# Primary health endpoints
+# ---------------------------------------------------------------------------
+
+
 @app.api_route("/healthz", methods=["GET", "HEAD", "POST"], include_in_schema=False)
 def healthz() -> dict[str, str]:
     """Primary health endpoint (local/dev/CI)."""
@@ -47,19 +52,20 @@ app.include_router(meetings.router)
 app.include_router(slides.router)
 app.include_router(jobs.router)
 
+
 # ---------------------------------------------------------------------------
 # Defensive catch-all for health checks
 # ---------------------------------------------------------------------------
 
 _HEALTH_PATHS = {
-    "healthz",
     "health",
-    "api/healthz",
+    "healthz",
     "api/health",
-    "v1/healthz",
+    "api/healthz",
     "v1/health",
-    "api/v1/healthz",
+    "v1/healthz",
     "api/v1/health",
+    "api/v1/healthz",
 }
 
 
@@ -72,7 +78,20 @@ def health_alias_catch_all(full_path: str) -> dict[str, str]:
     """
     Fallback handler so CI or infra hitting slightly different health URLs
     still get a 2xx JSON payload, while non-health paths still 404.
+
+    Normalises leading/trailing slashes so that /healthz/, /api/healthz/, etc.
+    behave like their slash-less variants and also accepts any URL whose final
+    segment looks like "health" or "healthz".
     """
-    if full_path in _HEALTH_PATHS:
+    normalized = full_path.strip("/")
+
+    # Exact matches like "healthz", "api/healthz", "api/v1/healthz", ...
+    if normalized in _HEALTH_PATHS:
         return _health_payload()
+
+    # Also accept things like "/foo/healthz" or "/foo/bar/health"
+    segments = [segment for segment in normalized.split("/") if segment]
+    if segments and segments[-1].lower() in {"health", "healthz"}:
+        return _health_payload()
+
     raise HTTPException(status_code=404, detail="Not Found")
