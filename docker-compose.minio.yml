@@ -1,0 +1,6 @@
+services:
+  minio:
+    # Overlay for CI smoke; base definition lives in docker-compose.yml
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123

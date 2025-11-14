@@ -1,3 +1,4 @@
+
 services:
   backend:
     build:
@@ -25,14 +26,11 @@ services:
       - "9001:9001"
     volumes:
       - minio_data:/data
-    labels:
-      traefik.enable: "true"
-      traefik.docker.network: meeting-notes-assistant_default
-      traefik.http.routers.minio.rule: Host(`minio.mna.local`)
-      traefik.http.routers.minio.entrypoints: websecure
-      traefik.http.routers.minio.tls: "true"
-      traefik.http.middlewares.hsts.headers.stsSeconds: "31536000"
-      traefik.http.routers.minio.middlewares: hsts
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
 
 volumes:
   minio_data:
