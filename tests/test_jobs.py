@@ -2,7 +2,7 @@ def test_enqueue_and_inspect_job(client, api_headers):
     # Need a meeting to reference
     r = client.post(
         "/v1/meetings",
-        params={"title": "Test Sync", "tags": "qa,smoke"},
+        json={"title": "Test Sync", "tags": "qa,smoke"},
         headers=api_headers,
     )
     assert r.status_code == 200
@@ -12,7 +12,7 @@ def test_enqueue_and_inspect_job(client, api_headers):
     r = client.post(
         "/v1/jobs",
         headers=api_headers,
-        params={"type": "process_meeting", "meeting_id": mid},
+        json={"type": "process_meeting", "meeting_id": mid},
     )
     assert r.status_code == 200
     jid = r.json()["id"]

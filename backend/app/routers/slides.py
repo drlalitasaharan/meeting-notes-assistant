@@ -51,3 +51,14 @@ def download_slides_zip(meeting_id: int):
             if p.is_file():
                 zf.write(p, arcname=p.name)
     return FileResponse(str(zpath), filename=f"meeting_{meeting_id}_slides.zip")
+
+
+@router.get("/{meeting_id}/slides")
+def list_slides(meeting_id: int):
+    d = _meeting_dir(meeting_id)
+    if not d.exists():
+        # No slides yet for this meeting
+        return {"items": [], "count": 0}
+    files = sorted([p.name for p in d.iterdir() if p.is_file()])
+    items = [{"filename": name} for name in files]
+    return {"items": items, "count": len(items)}
