@@ -9,19 +9,27 @@ def _health_payload() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/healthz", include_in_schema=False)
+@app.api_route("/healthz", methods=["GET", "HEAD", "POST"], include_in_schema=False)
 def healthz() -> dict[str, str]:
     """Primary health endpoint (local/dev/CI)."""
     return _health_payload()
 
 
-@app.get("/api/healthz", include_in_schema=False)
+@app.api_route(
+    "/api/healthz",
+    methods=["GET", "HEAD", "POST"],
+    include_in_schema=False,
+)
 def api_healthz() -> dict[str, str]:
     """Alias for CI or reverse proxies that expect /api/healthz."""
     return _health_payload()
 
 
-@app.get("/v1/healthz", include_in_schema=False)
+@app.api_route(
+    "/v1/healthz",
+    methods=["GET", "HEAD", "POST"],
+    include_in_schema=False,
+)
 def v1_healthz() -> dict[str, str]:
     """Alias for clients that expect versioned health URLs."""
     return _health_payload()
@@ -55,11 +63,15 @@ _HEALTH_PATHS = {
 }
 
 
-@app.get("/{full_path:path}", include_in_schema=False)
+@app.api_route(
+    "/{full_path:path}",
+    methods=["GET", "HEAD", "POST"],
+    include_in_schema=False,
+)
 def health_alias_catch_all(full_path: str) -> dict[str, str]:
     """
     Fallback handler so CI or infra hitting slightly different health URLs
-    still get a 200 JSON payload.
+    still get a 2xx JSON payload, while non-health paths still 404.
     """
     if full_path in _HEALTH_PATHS:
         return _health_payload()
