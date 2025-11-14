@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from app.routers import jobs, meetings, slides
 
@@ -11,7 +11,7 @@ def _health_payload() -> dict[str, str]:
 
 @app.get("/healthz", include_in_schema=False)
 def healthz() -> dict[str, str]:
-    """Primary health endpoint."""
+    """Primary health endpoint (local/dev/CI)."""
     return _health_payload()
 
 
@@ -38,3 +38,29 @@ def root() -> dict[str, str]:
 app.include_router(meetings.router)
 app.include_router(slides.router)
 app.include_router(jobs.router)
+
+# ---------------------------------------------------------------------------
+# Defensive catch-all for health checks
+# ---------------------------------------------------------------------------
+
+_HEALTH_PATHS = {
+    "healthz",
+    "health",
+    "api/healthz",
+    "api/health",
+    "v1/healthz",
+    "v1/health",
+    "api/v1/healthz",
+    "api/v1/health",
+}
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+def health_alias_catch_all(full_path: str) -> dict[str, str]:
+    """
+    Fallback handler so CI or infra hitting slightly different health URLs
+    still get a 200 JSON payload.
+    """
+    if full_path in _HEALTH_PATHS:
+        return _health_payload()
+    raise HTTPException(status_code=404, detail="Not Found")
