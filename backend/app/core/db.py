@@ -4,7 +4,12 @@ from __future__ import annotations
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from packages.shared.env import get_settings  # use function, not a cached singleton
+try:
+    # When running in the full monorepo / production image
+    from packages.shared.env import get_settings  # type: ignore[import]
+except ImportError:  # pragma: no cover - fallback for CI/dev
+    # When running just the backend (like in this repo/CI), use local settings
+    from app.core.settings import get_settings
 
 
 def _build_engine():
