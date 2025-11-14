@@ -13,7 +13,18 @@ services:
       - ./storage:/app/storage
     working_dir: /app/backend
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
   minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
     labels:
       traefik.enable: "true"
       traefik.docker.network: meeting-notes-assistant_default
@@ -21,4 +32,4 @@ services:
       traefik.http.routers.minio.entrypoints: websecure
       traefik.http.routers.minio.tls: "true"
       traefik.http.middlewares.hsts.headers.stsSeconds: "31536000"
-      traefik.http.routers.minio.middlewares: hsts
+      traefik.http.route
