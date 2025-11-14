@@ -1,0 +1,16 @@
+services:
+  worker:
+    # Reuse the backend image/build so all deps are available
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      - APP_ENV=dev
+      - DATABASE_URL=sqlite:///./dev.db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - backend
+      - redis
+    # For CI smoke we mostly just need the container to stay up
+    # (we're not asserting real job processing here).
+    command: sleep 3600
