@@ -65,10 +65,19 @@ jobs:
         run: |
           set -euxo pipefail
           C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
-          $C up -d --build redis backend worker
+          $C up -d --build db redis backend worker
           $C ps
           $C logs backend --no-color --tail=120 || true
           $C logs worker  --no-color --tail=120 || true
+
+      # 🔹 NEW: make sure Postgres schema is fully migrated, just like you
+      # did manually on your Mac. This is safe to run multiple times.
+      - name: Run DB migrations (Alembic, idempotent)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
+          $C exec -T backend sh -lc 'cd /app/backend && alembic upgrade heads'
 
       - name: Wait for API (healthz)
         shell: bash
@@ -101,7 +110,7 @@ jobs:
           $C logs worker  --no-color --timestamps | tail -n 200 || true
           exit 1
 
-      - name: Smoke – meeting + job + notes flow
+      - name: Smoke – meeting + job flow
         shell: bash
         run: |
           set -euo pipefail
@@ -268,20 +277,8 @@ jobs:
         if: failure()
         run: |
           mkdir -p artifacts
-          docker compose \
-            -f docker-compose.yml \
-            -f docker-compose.ci.yml \
-            -f docker-compose.override.ci.yml \
-            -f docker-compose.alembic.ci.yml \
-            -f docker-compose.redis.ci.yml \
-            ps
-          docker compose \
-            -f docker-compose.yml \
-            -f docker-compose.ci.yml \
-            -f docker-compose.override.ci.yml \
-            -f docker-compose.alembic.ci.yml \
-            -f docker-compose.redis.ci.yml \
-            logs --no-color > artifacts/compose.log
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml ps
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml logs --no-color > artifacts/compose.log
 
       - name: Upload logs artifact (on failure)
         if: failure()
@@ -293,28 +290,10 @@ jobs:
       - name: Show container logs (always)
         if: always()
         run: |
-          docker compose \
-            -f docker-compose.yml \
-            -f docker-compose.ci.yml \
-            -f docker-compose.override.ci.yml \
-            -f docker-compose.alembic.ci.yml \
-            -f docker-compose.redis.ci.yml \
-            ps
-          docker compose \
-            -f docker-compose.yml \
-            -f docker-compose.ci.yml \
-            -f docker-compose.override.ci.yml \
-            -f docker-compose.alembic.ci.yml \
-            -f docker-compose.redis.ci.yml \
-            logs --no-color --timestamps || true
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml ps
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml logs --no-color --timestamps || true
 
       - name: Tear down (always)
         if: always()
         run: |
-          docker compose \
-            -f docker-compose.yml \
-            -f docker-compose.ci.yml \
-            -f docker-compose.override.ci.yml \
-            -f docker-compose.alembic.ci.yml \
-            -f docker-compose.redis.ci.yml \
-            down -v
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml down -v
