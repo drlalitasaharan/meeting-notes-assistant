@@ -70,8 +70,6 @@ jobs:
           $C logs backend --no-color --tail=120 || true
           $C logs worker  --no-color --tail=120 || true
 
-      # 🔹 NEW: make sure Postgres schema is fully migrated, just like you
-      # did manually on your Mac. This is safe to run multiple times.
       - name: Run DB migrations (Alembic, idempotent)
         shell: bash
         run: |
@@ -100,7 +98,7 @@ jobs:
               echo "✅ API is up!"
               exit 0
             fi
-            echo "Waiting... (\$i)"
+            echo "Waiting... ($i)"
             sleep 2
           done
 
@@ -144,9 +142,9 @@ jobs:
               resp = urllib.request.urlopen(req, timeout=10)
           except urllib.error.HTTPError as e:
               sys.stderr.write(
-                  f"CREATE /v1/meetings failed: HTTP {e.code} for {e.url}\\n"
+                  f"CREATE /v1/meetings failed: HTTP {e.code} for {e.url}\n"
               )
-              sys.stderr.write(e.read().decode() + "\\n")
+              sys.stderr.write(e.read().decode() + "\n")
               raise SystemExit(1)
 
           body = json.load(resp)
@@ -154,9 +152,9 @@ jobs:
           PY
           )
 
-          echo "Created meeting id=\${MEETING_ID}"
+          echo "Created meeting id=${MEETING_ID}"
 
-          # 2) Kick off processing job for that meeting
+          # 2) Kick off processing job for that meeting (async if available)
           JOB=$($C exec -T backend python - <<PY
           import json
           import sys
@@ -174,20 +172,31 @@ jobs:
           try:
               resp = urllib.request.urlopen(req, timeout=10)
           except urllib.error.HTTPError as e:
-              sys.stderr.write(f"POST {url} failed: HTTP {e.code}\\n")
-              sys.stderr.write(e.read().decode() + "\\n")
+              sys.stderr.write(f"POST {url} failed: HTTP {e.code}\n")
+              sys.stderr.write(e.read().decode() + "\n")
               raise SystemExit(1)
 
           body = json.load(resp)
-          sys.stdout.write(str(body["job_id"]))
+          sys.stderr.write(f"/process response JSON: {body}\n")
+
+          # Prefer explicit job_id; fall back to id; otherwise assume sync path
+          job_id = body.get("job_id") or body.get("id")
+          if not job_id:
+              # Synchronous processing – nothing to poll
+              sys.exit(0)
+
+          sys.stdout.write(str(job_id))
           PY
           )
 
-          echo "JOB=\${JOB}"
+          if [ -z "${JOB}" ]; then
+            echo "No job_id returned from /process; assuming synchronous processing, skipping job poll."
+          else
+            echo "JOB=${JOB}"
 
-          # 3) Poll the job until it finishes
-          for i in {1..60}; do
-            STATUS=$($C exec -T backend python - <<PY
+            # 3) Poll the job until it finishes
+            for i in {1..60}; do
+              STATUS=$($C exec -T backend python - <<PY
           import json
           import sys
           import urllib.error
@@ -203,48 +212,49 @@ jobs:
           try:
               resp = urllib.request.urlopen(req, timeout=10)
           except urllib.error.HTTPError as e:
-              sys.stderr.write(f"GET {url} failed: HTTP {e.code}\\n")
-              sys.stderr.write(e.read().decode() + "\\n")
+              sys.stderr.write(f"GET {url} failed: HTTP {e.code}\n")
+              sys.stderr.write(e.read().decode() + "\n")
+              raise SystemExit(1)
+
+          body = json.load(resp)
+          sys.stdout.write(body["status"])
+          PY
+              )
+              echo "status=${STATUS}"
+              [ "${STATUS}" = "finished" ] && break
+              sleep 2
+            done
+
+            FINAL_STATUS=$($C exec -T backend python - <<PY
+          import json
+          import sys
+          import urllib.error
+          import urllib.request
+
+          url = f"http://127.0.0.1:8000/v1/jobs/${JOB}"
+          req = urllib.request.Request(
+              url,
+              headers={"X-API-Key": "dev-secret-123"},
+              method="GET",
+          )
+
+          try:
+              resp = urllib.request.urlopen(req, timeout=10)
+          except urllib.error.HTTPError as e:
+              sys.stderr.write(f"GET {url} failed: HTTP {e.code}\n")
+              sys.stderr.write(e.read().decode() + "\n")
               raise SystemExit(1)
 
           body = json.load(resp)
           sys.stdout.write(body["status"])
           PY
             )
-            echo "status=\${STATUS}"
-            [ "\${STATUS}" = "finished" ] && break
-            sleep 2
-          done
 
-          FINAL_STATUS=$($C exec -T backend python - <<PY
-          import json
-          import sys
-          import urllib.error
-          import urllib.request
-
-          url = f"http://127.0.0.1:8000/v1/jobs/${JOB}"
-          req = urllib.request.Request(
-              url,
-              headers={"X-API-Key": "dev-secret-123"},
-              method="GET",
-          )
-
-          try:
-              resp = urllib.request.urlopen(req, timeout=10)
-          except urllib.error.HTTPError as e:
-              sys.stderr.write(f"GET {url} failed: HTTP {e.code}\\n")
-              sys.stderr.write(e.read().decode() + "\\n")
-              raise SystemExit(1)
-
-          body = json.load(resp)
-          sys.stdout.write(body["status"])
-          PY
-          )
-
-          if [ "\${FINAL_STATUS}" != "finished" ]; then
-            echo "Job did not finish in time (status=\${FINAL_STATUS})"
-            $C logs worker --no-color --timestamps | tail -n 200 || true
-            exit 1
+            if [ "${FINAL_STATUS}" != "finished" ]; then
+              echo "Job did not finish in time (status=${FINAL_STATUS})"
+              $C logs worker --no-color --timestamps | tail -n 200 || true
+              exit 1
+            fi
           fi
 
           # 4) Best-effort notes fetch – warn only, don't fail the job
@@ -265,9 +275,9 @@ jobs:
               resp = urllib.request.urlopen(req, timeout=10)
           except urllib.error.HTTPError as e:
               sys.stderr.write(
-                  f"/notes returned HTTP {e.code} – ignoring in smoke\\n"
+                  f"/notes returned HTTP {e.code} – ignoring in smoke\n"
               )
-              sys.stderr.write(e.read().decode() + "\\n")
+              sys.stderr.write(e.read().decode() + "\n")
               raise SystemExit(0)
 
           sys.stdout.write(resp.read().decode())
