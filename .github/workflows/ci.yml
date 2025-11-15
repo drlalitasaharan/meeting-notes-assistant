@@ -6,6 +6,7 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 permissions: read-all
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -90,41 +91,67 @@ jobs:
           set -euo pipefail
           C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
 
-          # sanity
+          # Sanity
           $C ps
 
-          # submit job
-          JOB=$($C exec -T backend python - <<'PY'
+          # 1) Create a meeting via API (mirrors pytest tests)
+          MEETING_ID=$($C exec -T backend python - <<'PY'
           import json
-          import sys
           import urllib.request
 
+          payload = json.dumps(
+              {"title": "CI Smoke Meeting", "tags": "ci,smoke"}
+          ).encode()
+
           req = urllib.request.Request(
-              "http://127.0.0.1:8000/v1/meetings/1/process",
+              "http://127.0.0.1:8000/v1/meetings",
+              data=payload,
+              headers={
+                  "Content-Type": "application/json",
+                  "X-API-Key": "dev-secret-123",
+              },
               method="POST",
           )
-          body = json.load(urllib.request.urlopen(req, timeout=10))
-          job_id = body.get("job_id") or body.get("id")
-          if not job_id:
-              raise SystemExit(f"Missing job id in response: {body!r}")
-          print(job_id, end="")
+          resp = json.load(urllib.request.urlopen(req, timeout=10))
+          print(resp["id"], end="")
           PY
           )
-          echo "JOB=$JOB"
+          echo "Created meeting id=${MEETING_ID}"
 
-          # poll for completion
+          # 2) Kick off processing job for that meeting
+          JOB=$($C exec -T backend python - <<PY
+          import json
+          import urllib.request
+
+          url = f"http://127.0.0.1:8000/v1/meetings/${MEETING_ID}/process"
+          req = urllib.request.Request(
+              url,
+              data=b"",
+              headers={"X-API-Key": "dev-secret-123"},
+              method="POST",
+          )
+          resp = json.load(urllib.request.urlopen(req, timeout=10))
+          jid = resp.get("job_id")
+          if not jid:
+              raise SystemExit(f"Missing job_id in response: {resp!r}")
+          print(jid, end="")
+          PY
+          )
+          echo "JOB=${JOB}"
+
+          # 3) Poll the job until it finishes
           for i in {1..60}; do
             S=$($C exec -T backend python - <<PY
-          import json, urllib.request
-          print(
-              json.load(
-                  urllib.request.urlopen(
-                      "http://127.0.0.1:8000/v1/jobs/$JOB",
-                      timeout=10,
-                  )
-              )["status"],
-              end="",
+          import json
+          import urllib.request
+
+          url = f"http://127.0.0.1:8000/v1/jobs/${JOB}"
+          req = urllib.request.Request(
+              url,
+              headers={"X-API-Key": "dev-secret-123"},
+              method="GET",
           )
+          print(json.load(urllib.request.urlopen(req, timeout=10))["status"], end="")
           PY
           )
             echo "status=$S"
@@ -133,37 +160,35 @@ jobs:
           done
 
           FINAL=$($C exec -T backend python - <<PY
-          import json, urllib.request
-          print(
-              json.load(
-                  urllib.request.urlopen(
-                      "http://127.0.0.1:8000/v1/jobs/$JOB",
-                      timeout=10,
-                  )
-              )["status"],
-              end="",
+          import json
+          import urllib.request
+
+          url = f"http://127.0.0.1:8000/v1/jobs/${JOB}"
+          req = urllib.request.Request(
+              url,
+              headers={"X-API-Key": "dev-secret-123"},
+              method="GET",
           )
+          print(json.load(urllib.request.urlopen(req, timeout=10))["status"], end="")
           PY
           )
+
           if [ "$FINAL" != "finished" ]; then
             echo "Job did not finish in time (status=$FINAL)"
             $C logs worker --no-color --timestamps | tail -n 200 || true
             exit 1
           fi
 
-          # fetch notes JSON
-          $C exec -T backend python - <<'PY' | jq .
+          # 4) Fetch notes JSON (final assertion)
+          $C exec -T backend python - <<PY | jq .
           import urllib.request
 
-          print(
-              urllib.request.urlopen(
-                  "http://127.0.0.1:8000/v1/meetings/1/notes",
-                  timeout=10,
-              )
-              .read()
-              .decode(),
-              end="",
+          url = f"http://127.0.0.1:8000/v1/meetings/${MEETING_ID}/notes"
+          req = urllib.request.Request(
+              url,
+              headers={"X-API-Key": "dev-secret-123"},
           )
+          print(urllib.request.urlopen(req, timeout=10).read().decode(), end="")
           PY
 
       - name: Archive docker logs (on failure)
