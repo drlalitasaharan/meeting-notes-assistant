@@ -193,13 +193,26 @@ jobs:
             exit 1
           fi
 
-          # 4) Fetch notes JSON (best-effort; don't fail CI on 500)
-          if ! $C exec -T backend curl -sS \
-              -H "X-API-Key: dev-secret-123" \
-              "http://127.0.0.1:8000/v1/meetings/${MEETING_ID}/notes" \
-              | jq .; then
-            echo "WARN: /notes endpoint failed or returned non-JSON; continuing anyway." >&2
-          fi
+          # 4) Fetch notes JSON (best-effort; do NOT fail CI on 500)
+          $C exec -T backend python - <<PY || echo "WARN: /notes fetch failed; continuing"
+          import sys
+          import urllib.error
+          import urllib.request
+
+          url = f"http://127.0.0.1:8000/v1/meetings/${MEETING_ID}/notes"
+          req = urllib.request.Request(
+              url,
+              headers={"X-API-Key": "dev-secret-123"},
+              method="GET",
+          )
+          try:
+              resp = urllib.request.urlopen(req, timeout=10)
+              print(resp.read().decode(), end="")
+          except urllib.error.HTTPError as exc:
+              print(f"WARN: /notes returned HTTP {exc.code}", file=sys.stderr)
+          except Exception as exc:
+              print(f"WARN: /notes failed: {exc}", file=sys.stderr)
+          PY
 
       - name: Archive docker logs (on failure)
         if: failure()
