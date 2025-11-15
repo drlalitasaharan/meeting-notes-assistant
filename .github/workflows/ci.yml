@@ -105,7 +105,7 @@ jobs:
           # Sanity
           $C ps
 
-          # 1) Create a meeting via API (same as pytest flow)
+          # 1) Create a meeting via API
           MEETING_ID=$($C exec -T backend python - <<'PY'
           import json
           import urllib.request
@@ -130,7 +130,7 @@ jobs:
           )
           echo "Created meeting id=${MEETING_ID}"
 
-          # 2) Kick off processing job for that meeting
+          # 2) Kick off processing job
           JOB=$($C exec -T backend python - <<PY
           import json
           import urllib.request
@@ -149,7 +149,7 @@ jobs:
           )
           echo "JOB=${JOB}"
 
-          # 3) Poll the job until it finishes
+          # 3) Poll job until finished
           for i in {1..60}; do
             STATUS=$($C exec -T backend python - <<PY
           import json
@@ -192,27 +192,6 @@ jobs:
             $C logs worker --no-color --timestamps | tail -n 200 || true
             exit 1
           fi
-
-          # 4) Fetch notes JSON (best-effort; do NOT fail CI on 500)
-          $C exec -T backend python - <<PY || echo "WARN: /notes fetch failed; continuing"
-          import sys
-          import urllib.error
-          import urllib.request
-
-          url = f"http://127.0.0.1:8000/v1/meetings/${MEETING_ID}/notes"
-          req = urllib.request.Request(
-              url,
-              headers={"X-API-Key": "dev-secret-123"},
-              method="GET",
-          )
-          try:
-              resp = urllib.request.urlopen(req, timeout=10)
-              print(resp.read().decode(), end="")
-          except urllib.error.HTTPError as exc:
-              print(f"WARN: /notes returned HTTP {exc.code}", file=sys.stderr)
-          except Exception as exc:
-              print(f"WARN: /notes failed: {exc}", file=sys.stderr)
-          PY
 
       - name: Archive docker logs (on failure)
         if: failure()
