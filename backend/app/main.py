@@ -1,23 +1,26 @@
 from fastapi import FastAPI
 
+from app.api import health as health_api
 from app.routers import jobs, meetings, slides
 
 app = FastAPI(title="Meeting Notes Assistant")
 
 
 def _health_payload() -> dict[str, str]:
+    """Simple health payload used by legacy endpoints."""
     return {"status": "ok"}
 
 
 # ---------------------------------------------------------------------------
 # Primary health endpoints (explicit URLs)
+# All of these delegate to the shared health router in app.api.health
 # ---------------------------------------------------------------------------
 
 
 @app.api_route("/healthz", methods=["GET", "HEAD", "POST"], include_in_schema=False)
-def healthz() -> dict[str, str]:
+def healthz() -> dict:
     """Primary health endpoint (local/dev/CI)."""
-    return _health_payload()
+    return health_api.healthz()
 
 
 @app.api_route(
@@ -25,9 +28,9 @@ def healthz() -> dict[str, str]:
     methods=["GET", "HEAD", "POST"],
     include_in_schema=False,
 )
-def api_healthz() -> dict[str, str]:
+def api_healthz() -> dict:
     """Alias for CI or reverse proxies that expect /api/healthz."""
-    return _health_payload()
+    return health_api.healthz()
 
 
 @app.api_route(
@@ -35,9 +38,9 @@ def api_healthz() -> dict[str, str]:
     methods=["GET", "HEAD", "POST"],
     include_in_schema=False,
 )
-def v1_healthz() -> dict[str, str]:
+def v1_healthz() -> dict:
     """Alias for clients that expect versioned health URLs."""
-    return _health_payload()
+    return health_api.healthz()
 
 
 @app.get("/", include_in_schema=False)
