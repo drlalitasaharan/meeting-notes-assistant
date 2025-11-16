@@ -1,0 +1,75 @@
+name: Smoke
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools (jq + mc)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq curl
+          curl -sSL https://dl.min.io/client/mc/release/linux-amd64/mc -o mc
+          chmod +x mc
+          sudo mv mc /usr/local/bin/mc
+
+      - name: Build & start services (backend + worker + deps)
+        run: |
+          set -euo pipefail
+
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.prodready.yml \
+            up -d --build backend worker redis db minio
+
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.prodready.yml \
+            ps
+
+      - name: Wait for API (healthz)
+        run: |
+          set -euo pipefail
+
+          echo "Waiting for backend health endpoint..."
+
+          for i in {1..60}; do
+            status=$(curl -sS -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/healthz || true)
+            if [ "$status" = "200" ]; then
+              echo "API is healthy (status 200)."
+              echo "Response:"
+              curl -sS http://127.0.0.1:8000/healthz || true
+              exit 0
+            fi
+            echo "[$i/60] API not ready yet (status=$status). Sleeping 5s..."
+            sleep 5
+          done
+
+          echo "API failed to become healthy in time, dumping logs..."
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.prodready.yml \
+            logs backend || true
+          exit 1
+
+      - name: Tear down stack
+        if: always()
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.prodready.yml \
+            down -v
