@@ -62,12 +62,36 @@ def choose_storage():
 
 
 def health_check() -> dict:
-    """Lightweight storage health stub.
+    """Check readiness of the configured storage backend.
 
-    This intentionally does not perform real network I/O yet, so it is safe
-    to call in dev/CI even when S3/MinIO is not available.
+    For S3/MinIO backends we perform a cheap operation against the API.
+    For local/dummy backends we report "skipped" so /healthz still returns a
+    structured check.
     """
-    return {
-        "status": "skipped",
-        "detail": "storage health check not implemented yet",
-    }
+    backend = os.getenv("STORAGE_BACKEND", "").lower()
+    # Avoid blowing up tests / local dev when using a non-S3 backend.
+    if backend not in {"s3", "minio", "s3-minio"}:
+        return {"status": "skipped"}
+
+    try:
+        storage = choose_storage()
+        client = getattr(storage, "client", None) or getattr(storage, "_client", None)
+        if client is None:
+            return {
+                "status": "skipped",
+                "detail": "storage backend has no client attached",
+            }
+
+        # MinIO and boto3 S3 both expose list_buckets(), which is a cheap API ping.
+        list_buckets = getattr(client, "list_buckets", None)
+        if list_buckets is None:
+            return {
+                "status": "skipped",
+                "detail": "storage client has no list_buckets() method",
+            }
+
+        list_buckets()
+        return {"status": "ok"}
+    except Exception as exc:  # noqa: BLE001
+        # Last-resort catch-all so /healthz never 500s because of storage.
+        return {"status": "error", "detail": f"storage health failed: {exc}"}

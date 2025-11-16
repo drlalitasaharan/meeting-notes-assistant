@@ -2,71 +2,87 @@ name: Smoke
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-
-concurrency:
-  group: smoke-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [main]
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+
+    env:
+      # Match your prodready Docker stack:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db/meetings
+      REDIS_URL: redis://redis:6379/0
+      S3_PUBLIC_ENDPOINT: http://minio:9000
+      STORAGE_BACKEND: s3
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Install tools (jq + mc)
+      - name: Set up Python for host scripts
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build and start Docker stack
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y jq curl
-          curl -sSL https://dl.min.io/client/mc/release/linux-amd64/mc -o mc
-          chmod +x mc
-          sudo mv mc /usr/local/bin/mc
-
-      - name: Build & start services (backend + worker + deps)
-        run: |
-          set -euo pipefail
-
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.prodready.yml \
-            up -d --build backend worker redis db minio
-
-          docker compose \
-            -f docker-compose.yml \
-            -f docker-compose.prodready.yml \
-            ps
+            up -d --build db redis minio backend
 
       - name: Wait for API (healthz)
         run: |
-          set -euo pipefail
-
-          echo "Waiting for backend health endpoint..."
-
-          for i in {1..60}; do
-            status=$(curl -sS -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/healthz || true)
+          set -e
+          for i in $(seq 1 30); do
+            status=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/healthz || true)
             if [ "$status" = "200" ]; then
-              echo "API is healthy (status 200)."
-              echo "Response:"
-              curl -sS http://127.0.0.1:8000/healthz || true
+              echo "API is up (healthz 200)"
               exit 0
             fi
-            echo "[$i/60] API not ready yet (status=$status). Sleeping 5s..."
-            sleep 5
+            echo "Waiting for API... attempt $i/30 (status=$status)"
+            sleep 2
           done
-
-          echo "API failed to become healthy in time, dumping logs..."
+          echo "API failed to become ready"
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.prodready.yml \
             logs backend || true
           exit 1
 
-      - name: Tear down stack
+      - name: Check /healthz checks for db/storage
+        run: |
+          python - << 'PY'
+          import json, sys, urllib.request
+
+          resp = urllib.request.urlopen("http://127.0.0.1:8000/healthz")
+          data = json.load(resp)
+          print(json.dumps(data, indent=2))
+
+          checks = data.get("checks", {})
+          # Only treat db + storage as critical; allow redis to be "skipped"
+          critical = {
+              name: info
+              for name, info in checks.items()
+              if name in ("db", "storage") and info.get("status") == "error"
+          }
+
+          if critical:
+              print("Found failing critical checks in /healthz:", json.dumps(critical, indent=2))
+              sys.exit(1)
+          PY
+
+      - name: Dump logs on failure
+        if: failure()
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.prodready.yml \
+            logs || true
+
+      - name: Tear down Docker stack
         if: always()
         run: |
           docker compose \
