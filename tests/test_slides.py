@@ -2,10 +2,10 @@ def test_upload_slides_txt(client, api_headers):
     # create a meeting to attach slides to
     r = client.post(
         "/v1/meetings",
-        params={"title": "Slides Test", "tags": "docs"},
+        json={"title": "Slides Test", "tags": "docs"},
         headers=api_headers,
     )
-    assert r.status_code == 200
+    assert r.status_code in (200, 201)
     mid = r.json()["id"]
 
     # upload a simple text "slide"

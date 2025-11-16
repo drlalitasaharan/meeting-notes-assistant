@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
@@ -13,14 +13,17 @@ router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
 
 
 # Create (supports with/without trailing slash)
-@router.post("", response_model=MeetingRead, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=MeetingRead, status_code=status.HTTP_200_OK)
 @router.post(
-    "/", response_model=MeetingRead, status_code=status.HTTP_201_CREATED, include_in_schema=False
+    "/", response_model=MeetingRead, status_code=status.HTTP_200_OK, include_in_schema=False
 )
 def create_meeting(payload: MeetingCreate, response: Response, db: Session = Depends(get_db)):
     m = Meeting(title=payload.title, scheduled_at=payload.scheduled_at, agenda=payload.agenda)
-    if payload.status is not None:
+    # Ensure new meetings always have a status; default to "new"
+    if getattr(payload, "status", None):
         m.status = payload.status
+    else:
+        m.status = "new"
     db.add(m)
     db.commit()
     db.refresh(m)
@@ -29,7 +32,7 @@ def create_meeting(payload: MeetingCreate, response: Response, db: Session = Dep
 
 
 # List with pagination + optional status filter + sort
-@router.get("", response_model=list[MeetingRead], summary="List Meetings")
+@router.get("", response_model=dict[str, Any], summary="List Meetings")
 def list_meetings(
     response: Response,
     db: Session = Depends(get_db),
@@ -48,9 +51,10 @@ def list_meetings(
     total = q.count()
     order_col = Meeting.id.desc() if sort.lower() == "desc" else Meeting.id.asc()
 
-    items = q.order_by(order_col).limit(limit).offset(offset).all()
+    items_orm = q.order_by(order_col).limit(limit).offset(offset).all()
+    items = [MeetingRead.model_validate(m).model_dump() for m in items_orm]
     response.headers["X-Total-Count"] = str(total)
-    return items
+    return {"items": items, "total": total}
 
 
 @router.get("/{meeting_id}", response_model=MeetingRead)

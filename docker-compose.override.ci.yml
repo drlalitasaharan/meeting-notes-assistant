@@ -1,13 +1,16 @@
 services:
-  backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    image: meeting-notes-assistant-backend:ci
+  db:
+    environment:
+      POSTGRES_DB: meetings
+      POSTGRES_USER: mna
+      POSTGRES_PASSWORD: mna_local_pw
 
-  # run migrations/init against the same locally built image
-  dbinit:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    image: meeting-notes-assistant-backend:ci
+  backend:
+    environment:
+      DATABASE_URL: postgresql+psycopg2://mna:mna_local_pw@db/meetings
+      REDIS_URL: redis://redis:6379/0
+
+  worker:
+    environment:
+      DATABASE_URL: postgresql+psycopg2://mna:mna_local_pw@db/meetings
+      REDIS_URL: redis://redis:6379/0

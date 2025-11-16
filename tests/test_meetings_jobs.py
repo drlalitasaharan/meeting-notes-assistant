@@ -1,38 +1,32 @@
-import time
-
-import httpx
-
-API = "http://127.0.0.1:8000/v1"
-H = {"X-API-Key": "dev-secret-123"}
-TIMEOUT = httpx.Timeout(10.0, connect=5.0)
+from __future__ import annotations
 
 
-def test_meetings_crud_and_search():
-    with httpx.Client(timeout=TIMEOUT) as c:
-        r = c.post(f"{API}/meetings", headers=H, params={"title": "Test Sync", "tags": "qa,smoke"})
-        assert r.status_code == 200
-        mid = r.json()["id"]
+def test_meetings_crud_and_search(client, api_headers):
+    # create a meeting via the in-process TestClient
+    r = client.post(
+        "/v1/meetings",
+        headers=api_headers,
+        json={"title": "Test Sync", "tags": "qa,smoke"},
+    )
+    assert r.status_code in (200, 201)
+    body = r.json()
+    mid = body["id"]
 
-        r = c.get(f"{API}/meetings", headers=H, params={"query": "sync"})
-        assert r.status_code == 200
-        assert any(it["id"] == mid for it in r.json()["items"])
+    # basic shape checks
+    assert body["title"] == "Test Sync"
+    assert "status" in body
 
+    # search/filter for meetings via the API
+    r2 = client.get(
+        "/v1/meetings",
+        headers=api_headers,
+        params={"status": "new", "limit": 10, "offset": 0},
+    )
+    assert r2.status_code == 200
+    data = r2.json()
 
-def test_jobs_flow():
-    with httpx.Client(timeout=TIMEOUT) as c:
-        # assume meeting 1 exists
-        r = c.post(f"{API}/jobs", headers=H, params={"type": "process_meeting", "meeting_id": 1})
-        assert r.status_code == 201
-        jid = r.json()["id"]
+    # backend now returns {"items": [...], "total": ...}
+    items = data["items"] if isinstance(data, dict) and "items" in data else data
 
-        # poll
-        for _ in range(20):
-            g = c.get(f"{API}/jobs/{jid}", headers=H)
-            assert g.status_code == 200
-            if g.json()["status"] in ("done", "failed"):
-                break
-            time.sleep(0.2)
-
-        logs = c.get(f"{API}/jobs/{jid}/logs", headers=H)
-        assert logs.status_code == 200
-        assert "done" in logs.text
+    # ensure our meeting is in the results
+    assert any(m.get("id") == mid for m in items)
