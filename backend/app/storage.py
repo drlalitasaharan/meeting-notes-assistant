@@ -59,3 +59,15 @@ def choose_storage():
     if backend == "s3":
         return S3Storage()
     raise RuntimeError(f"Unsupported STORAGE_BACKEND={backend!r}")
+
+
+def health_check() -> dict:
+    """Lightweight storage health stub.
+
+    This intentionally does not perform real network I/O yet, so it is safe
+    to call in dev/CI even when S3/MinIO is not available.
+    """
+    return {
+        "status": "skipped",
+        "detail": "storage health check not implemented yet",
+    }
