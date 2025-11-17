@@ -4,7 +4,11 @@ set -euo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Run a small storage smoke via the backend container by checking /healthz.storage
-"$DIR/bin/dc" exec -T backend python - <<'PY'
+docker compose \
+  -f "$DIR/docker-compose.yml" \
+  -f "$DIR/docker-compose.prodready.yml" \
+  -f "$DIR/docker-compose.postgres.yml" \
+  exec -T backend python - <<'PY'
 import json
 import sys
 import urllib.request
