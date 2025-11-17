@@ -76,6 +76,14 @@ jobs:
               sys.exit(1)
           PY
 
+      - name: Run Alembic migrations on Postgres
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.prodready.yml \
+            -f docker-compose.postgres.yml \
+            exec -T backend alembic upgrade heads
+
       - name: DB smoke – trivial query via Alembic models
         run: |
           docker compose \
