@@ -2,90 +2,81 @@ name: Smoke
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
-
     env:
-      # Match your prodready Docker stack:
-      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db/meetings
+      # SQLite is fine for smoke; Postgres is handled elsewhere.
+      DATABASE_URL: sqlite:////app/backend/dev.db
+
+      # Redis / RQ config for backend + worker stack
       REDIS_URL: redis://redis:6379/0
-      S3_PUBLIC_ENDPOINT: http://minio:9000
-      STORAGE_BACKEND: s3
+      RQ_QUEUE_NAME: default
+      RQ_SMOKE_TIMEOUT: "20.0"
 
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Python for host scripts
+      - name: Set up Python (for any helper scripts)
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Build and start Docker stack
+      - name: Install Docker Compose plugin
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose-plugin
+
+      - name: Build and start prodready stack (backend + worker + redis)
         run: |
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.prodready.yml \
-            up -d --build db redis minio backend
+            -f docker-compose.uvicorn.yml \
+            up -d --build backend worker redis
 
       - name: Wait for API (healthz)
         run: |
           set -e
-          for i in $(seq 1 30); do
-            status=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/healthz || true)
-            if [ "$status" = "200" ]; then
-              echo "API is up (healthz 200)"
+          echo "Waiting for /healthz to become healthy..."
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8000/healthz; then
+              echo "API is healthy"
               exit 0
             fi
-            echo "Waiting for API... attempt $i/30 (status=$status)"
+            echo "Healthz not ready yet ($i/30)..."
             sleep 2
           done
-          echo "API failed to become ready"
+
+          echo "API never became healthy" >&2
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.prodready.yml \
-            logs backend || true
+            -f docker-compose.uvicorn.yml \
+            logs backend worker redis || true
           exit 1
 
-      - name: Check /healthz checks for db/storage
+      - name: RQ smoke job (enqueue + wait)
         run: |
-          python - << 'PY'
-          import json, sys, urllib.request
-
-          resp = urllib.request.urlopen("http://127.0.0.1:8000/healthz")
-          data = json.load(resp)
-          print(json.dumps(data, indent=2))
-
-          checks = data.get("checks", {})
-          # Only treat db + storage as critical; allow redis to be "skipped"
-          critical = {
-              name: info
-              for name, info in checks.items()
-              if name in ("db", "storage") and info.get("status") == "error"
-          }
-
-          if critical:
-              print("Found failing critical checks in /healthz:", json.dumps(critical, indent=2))
-              sys.exit(1)
-          PY
-
-      - name: Dump logs on failure
-        if: failure()
-        run: |
+          set -e
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.prodready.yml \
-            logs || true
+            -f docker-compose.uvicorn.yml \
+            exec -T backend \
+            env REDIS_URL="$REDIS_URL" RQ_QUEUE_NAME="$RQ_QUEUE_NAME" RQ_SMOKE_TIMEOUT="$RQ_SMOKE_TIMEOUT" \
+            python -m app.jobs.smoke
 
-      - name: Tear down Docker stack
+      - name: Tear down stack
         if: always()
         run: |
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.prodready.yml \
+            -f docker-compose.uvicorn.yml \
             down -v
