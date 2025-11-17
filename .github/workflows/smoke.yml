@@ -22,7 +22,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Python (for any helper scripts)
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -40,10 +40,10 @@ jobs:
             -f docker-compose.uvicorn.yml \
             up -d --build backend worker redis
 
-      - name: Wait for API (healthz)
+      - name: Wait for API (/healthz)
         run: |
           set -e
-          echo "Waiting for /healthz to become healthy..."
+          echo "Waiting for /healthz to respond with 200..."
           for i in {1..30}; do
             if curl -fsS http://127.0.0.1:8000/healthz; then
               echo "API is healthy"
