@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run DB smoke inside backend container using the same compose overlay as bin/dc
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+"$DIR/bin/dc" exec -T backend python - <<'PY'
+from sqlalchemy import text
+from app.db import SessionLocal
+
+def db_smoke():
+    with SessionLocal() as session:
+        # 1) Simple connectivity test
+        one = session.execute(text("SELECT 1")).scalar_one()
+        assert one == 1, f"Expected 1, got {one}"
+
+        # 2) Confirm tables exist in the public schema
+        tables = session.execute(
+            text("""
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_schema = 'public'
+            """)
+        ).scalars().all()
+
+    assert tables, "No tables found in public schema; did migrations run?"
+
+    print("✅ DB smoke passed: SELECT 1 and public tables =", tables)
+
+if __name__ == "__main__":
+    db_smoke()
+PY
