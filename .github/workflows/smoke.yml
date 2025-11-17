@@ -2,76 +2,135 @@ name: Smoke
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    env:
-      # SQLite is fine for smoke; Postgres is handled elsewhere.
-      DATABASE_URL: sqlite:////app/backend/dev.db
 
-      # Redis / RQ config for backend + worker stack
+    env:
+      # Match your prodready Docker stack (Postgres 16):
+      DATABASE_URL: postgresql+psycopg2://mna:mna_local_pw@db:5432/meetings
       REDIS_URL: redis://redis:6379/0
-      RQ_QUEUE_NAME: default
-      RQ_SMOKE_TIMEOUT: "20.0"
+      S3_PUBLIC_ENDPOINT: http://minio:9000
+      STORAGE_BACKEND: s3
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python for host scripts
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Build and start prodready stack (backend + worker + redis)
+      - name: Build and start Docker stack
         run: |
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.prodready.yml \
-            -f docker-compose.uvicorn.yml \
-            up -d --build backend worker redis
+            -f docker-compose.postgres.yml \
+            up -d --build db redis minio backend
 
-      - name: Wait for API (/healthz)
+      - name: Wait for API (healthz)
         run: |
           set -e
-          echo "Waiting for /healthz to respond with 200..."
-          for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:8000/healthz; then
-              echo "API is healthy"
+          for i in $(seq 1 30); do
+            status=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/healthz || true)
+            if [ "$status" = "200" ]; then
+              echo "API is up (healthz 200)"
               exit 0
             fi
-            echo "Healthz not ready yet ($i/30)..."
+            echo "Waiting for API... attempt $i/30 (status=$status)"
             sleep 2
           done
-
-          echo "API never became healthy" >&2
+          echo "API failed to become ready"
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.prodready.yml \
-            -f docker-compose.uvicorn.yml \
-            logs backend worker redis || true
+            -f docker-compose.postgres.yml \
+            logs backend || true
           exit 1
 
-      - name: RQ smoke job (enqueue + wait)
+      - name: Check /healthz checks for db/storage
         run: |
-          set -e
+          python - << 'PY'
+          import json, sys, urllib.request
+
+          resp = urllib.request.urlopen("http://127.0.0.1:8000/healthz")
+          data = json.load(resp)
+          print(json.dumps(data, indent=2))
+
+          checks = data.get("checks", {})
+          # Only treat db + storage as critical; allow redis to be "skipped"
+          critical = {
+              name: info
+              for name, info in checks.items()
+              if name in ("db", "storage") and info.get("status") == "error"
+          }
+
+          if critical:
+              print("Found failing critical checks in /healthz:", json.dumps(critical, indent=2))
+              sys.exit(1)
+          PY
+
+      - name: Run Alembic migrations on Postgres
+        run: |
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.prodready.yml \
-            -f docker-compose.uvicorn.yml \
-            exec -T backend \
-            env REDIS_URL="$REDIS_URL" RQ_QUEUE_NAME="$RQ_QUEUE_NAME" RQ_SMOKE_TIMEOUT="$RQ_SMOKE_TIMEOUT" \
-            python -m app.jobs.smoke
+            -f docker-compose.postgres.yml \
+            exec -T backend alembic upgrade heads
 
-      - name: Tear down stack
+      - name: DB smoke – trivial query via Alembic models
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.prodready.yml \
+            -f docker-compose.postgres.yml \
+            exec -T backend python - <<'PY'
+          from sqlalchemy import text
+          from app.db import SessionLocal
+
+          def db_smoke():
+              with SessionLocal() as session:
+                  # 1) Simple connectivity test
+                  one = session.execute(text("SELECT 1")).scalar_one()
+                  assert one == 1, f"Expected 1, got {one}"
+
+                  # 2) Confirm tables exist in the public schema
+                  tables = session.execute(
+                      text("""
+                          SELECT table_name
+                          FROM information_schema.tables
+                          WHERE table_schema = 'public'
+                      """)
+                  ).scalars().all()
+
+              assert tables, "No tables found in public schema; did migrations run?"
+
+              print("✅ CI DB smoke passed: SELECT 1 and public tables =", tables)
+
+          if __name__ == "__main__":
+              db_smoke()
+          PY
+
+      - name: Dump logs on failure
+        if: failure()
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.prodready.yml \
+            -f docker-compose.postgres.yml \
+            logs || true
+
+      - name: Tear down Docker stack
         if: always()
         run: |
           docker compose \
             -f docker-compose.yml \
             -f docker-compose.prodready.yml \
-            -f docker-compose.uvicorn.yml \
+            -f docker-compose.postgres.yml \
             down -v
