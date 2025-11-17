@@ -117,6 +117,11 @@ jobs:
               db_smoke()
           PY
 
+      - name: Storage smoke – MinIO read/write/delete
+        run: |
+          chmod +x bin/storage-smoke
+          ./bin/storage-smoke
+
       - name: Dump logs on failure
         if: failure()
         run: |

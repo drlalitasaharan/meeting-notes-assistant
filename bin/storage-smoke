@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Run a small storage smoke via the backend container by checking /healthz.storage
+docker compose \
+  -f "$DIR/docker-compose.yml" \
+  -f "$DIR/docker-compose.prodready.yml" \
+  -f "$DIR/docker-compose.postgres.yml" \
+  exec -T backend python - <<'PY'
+import json
+import sys
+import urllib.request
+
+url = "http://127.0.0.1:8000/healthz"
+print(f"Hitting {url} from inside backend container...")
+resp = urllib.request.urlopen(url)
+data = json.load(resp)
+print(json.dumps(data, indent=2))
+
+checks = data.get("checks", {})
+storage = checks.get("storage") or {}
+
+status = storage.get("status")
+if status not in ("ok", "healthy"):
+    print("❌ Storage check failed in /healthz.storage:", json.dumps(storage, indent=2))
+    sys.exit(1)
+
+print("✅ Storage smoke passed: /healthz.storage is", status)
+PY
