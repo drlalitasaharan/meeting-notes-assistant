@@ -27,11 +27,6 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Docker Compose plugin
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose-plugin
-
       - name: Build and start prodready stack (backend + worker + redis)
         run: |
           docker compose \
