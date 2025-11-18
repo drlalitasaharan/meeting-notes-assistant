@@ -31,3 +31,46 @@ Example response:
     "worker_queue_len": 0
   }
 }
+
+### Optional: Grafana dashboards (jobs + worker)
+
+If you have Prometheus and Loki wired up, you can create a small “Jobs & Worker Observability” dashboard with 3–4 panels built on:
+
+- **Prometheus metrics**: `mna_jobs_enqueued_total`, `mna_jobs_completed_total`, `mna_jobs_failed_total`
+- **Labels** (typical): `job_name`, `queue`
+- **Loki labels**: `service`, `job_id`, `job_name`, `queue`, `level`, `route`, etc.
+
+#### Suggested dashboard: “Jobs & Worker Observability”
+
+**Template variables**
+
+These make it easier to slice by job / queue:
+
+- **`$job_name`**
+  - Data source: Prometheus
+  - Query:
+    ```promql
+    label_values(mna_jobs_enqueued_total, job_name)
+    ```
+
+- **`$queue`**
+  - Data source: Prometheus
+  - Query:
+    ```promql
+    label_values(mna_jobs_enqueued_total, queue)
+    ```
+
+You can mark both as “All” by default.
+
+---
+
+#### Panel 1 – Job throughput by type (5m rate)
+
+- **Goal:** “Are jobs flowing through the system? Which job types are busiest?”
+- **Type:** Time series
+- **Data source:** Prometheus
+- **Query (per job_name):**
+  ```promql
+  sum by (job_name) (
+    rate(mna_jobs_enqueued_total{queue=~"$queue"}[5m])
+  )
