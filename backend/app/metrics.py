@@ -81,6 +81,7 @@ HTTP_LATENCY = Summary(
     "Latencies for HTTP requests.",
 )
 
+# Job metrics (you can pass labels like queue / job_name / service / status)
 JOBS_ENQUEUED = Counter(
     "jobs_enqueued_total",
     "Total jobs enqueued.",

@@ -115,8 +115,8 @@ async def metrics_prometheus() -> str:
     """
     Prometheus-style metrics endpoint.
 
-    Existing JSON /metrics behavior (if any) is left untouched. This
-    endpoint exposes text-format metrics for scraping and debugging.
+    Existing JSON /metrics behavior (via the catch-all) is left untouched.
+    This endpoint exposes text-format metrics for scraping and debugging.
     """
     return render_all_metrics_prometheus()
 
