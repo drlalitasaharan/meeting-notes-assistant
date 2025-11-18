@@ -6,6 +6,7 @@ from rq import Queue
 from sqlalchemy import MetaData, Table, create_engine, desc, insert, select
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.jobs.enqueue_with_metrics import enqueue_with_metrics
 from worker.redis_client import get_redis
 
 router = APIRouter()
@@ -174,7 +175,7 @@ def enqueue_process_meeting(meeting_id: int) -> dict:
             status_code=503, detail=f"queue init failed: {e.__class__.__name__}: {e}"
         )
     try:
-        job = q.enqueue("worker.tasks_processing.process_meeting", meeting_id)
+        job = enqueue_with_metrics(q, "worker.tasks_processing.process_meeting", meeting_id)
         return {"job_id": job.id, "status": job.get_status()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"enqueue failed: {e.__class__.__name__}: {e}")

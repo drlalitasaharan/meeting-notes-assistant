@@ -7,6 +7,7 @@ import time
 import redis
 from rq import Queue
 
+from app.jobs.enqueue_with_metrics import enqueue_with_metrics
 from app.jobs.smoke_tasks import tiny_job
 
 REDIS_URL = os.getenv("REDIS_URL", "")
@@ -23,7 +24,13 @@ def main() -> int:
     conn = redis.from_url(REDIS_URL)
     q = Queue(QUEUE_NAME, connection=conn)
 
-    job = q.enqueue(tiny_job, 21, job_timeout=SMOKE_TIMEOUT_SECS)
+    job = enqueue_with_metrics(
+        q,
+        tiny_job,
+        21,
+        service="smoke",
+        job_timeout=SMOKE_TIMEOUT_SECS,
+    )
     print(f"Enqueued RQ smoke job {job.id} on queue={QUEUE_NAME}")
 
     deadline = time.time() + SMOKE_TIMEOUT_SECS
