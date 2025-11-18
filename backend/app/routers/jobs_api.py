@@ -11,6 +11,7 @@ from rq.registry import (
     StartedJobRegistry,
 )
 
+from app.jobs.enqueue_with_metrics import enqueue_with_metrics
 from app.jobs.queue import get_queue, get_redis
 
 router = APIRouter(prefix="/v1", tags=["jobs"])
@@ -27,7 +28,11 @@ def create_job(body: JobCreate):
         raise HTTPException(status_code=400, detail="unsupported type")
     app_job_id = str(uuid4())
     q = get_queue()
-    job = q.enqueue("worker.tasks.demo_job", kwargs={"job_id": app_job_id, "payload": body.payload})
+    job = enqueue_with_metrics(
+        q,
+        "worker.tasks.demo_job",
+        kwargs={"job_id": app_job_id, "payload": body.payload},
+    )
     job.meta = job.meta or {}
     job.meta["app_job_id"] = app_job_id
     job.save_meta()

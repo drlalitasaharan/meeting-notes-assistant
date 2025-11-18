@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.core.jobs_schema_patch import patch_jobs_table
 from app.db import get_db
+from app.jobs.enqueue_with_metrics import enqueue_with_metrics
 from app.jobs.queue import get_redis
 from app.models.job import Job, JobStatus
 from app.services.storage import choose_storage
@@ -68,7 +69,8 @@ def enqueue_job(req: EnqueueReq, db: Session = Depends(get_db)) -> JobOut:
 
     # Best-effort enqueue: in tests/dev without Redis, swallow queue errors
     try:
-        rq_job = _queue().enqueue(
+        rq_job = enqueue_with_metrics(
+            _queue(),
             "worker.tasks.demo_job" if req.type == "demo" else "worker.tasks.generic_job",
             kwargs={"job_id": jid, "job_type": req.type, "payload": req.payload or {}},
             job_timeout=600,
