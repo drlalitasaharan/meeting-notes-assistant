@@ -105,3 +105,40 @@ def client():
 @pytest.fixture()
 def api_headers():
     return {"X-API-Key": os.getenv("API_KEY", "dev-secret-123")}
+
+
+# --- Golden-flow: ensure meeting_notes table exists for test DB ---------
+from sqlalchemy import text  # type: ignore  # noqa: E402
+
+
+def _ensure_meeting_notes_table() -> None:
+    """Create meeting_notes table in the test SQLite DB if missing.
+
+    We do this directly with SQL to keep tests independent from Alembic.
+    """
+    insp = inspect(engine)
+    tables = insp.get_table_names()
+    if "meeting_notes" in tables:
+        return
+
+    print("[pytest] Creating meeting_notes table for tests")
+    create_sql = text(
+        """
+        CREATE TABLE meeting_notes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            meeting_id VARCHAR NOT NULL,
+            raw_transcript TEXT,
+            summary TEXT,
+            key_points TEXT,
+            action_items TEXT,
+            model_version VARCHAR,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    with engine.begin() as conn:
+        conn.execute(create_sql)
+
+
+# Call immediately so it's in place before tests that insert notes
+_ensure_meeting_notes_table()

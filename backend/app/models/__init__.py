@@ -1,18 +1,21 @@
-from .base import Base
+from __future__ import annotations
 
-# Import concrete models you actually have
-try:
-    from .note import Note  # noqa: F401
-except Exception:
-    pass
-try:
-    from .meeting import Meeting  # noqa: F401
-except Exception:
-    pass
-# If your Summary/Transcript live elsewhere (e.g., notes.py), re-export here:
-try:
-    from .notes import Summary, Transcript  # noqa: F401
-except Exception:
+from typing import Any
+
+from sqlalchemy.orm import DeclarativeBase
+
+
+class Base(DeclarativeBase):
+    """Base class for all ORM models."""
+
     pass
 
-__all__ = ["Base", "Note", "Meeting", "Summary", "Transcript"]
+
+# Import ORM models so that their tables are registered on Base.metadata.
+# This ensures Base.metadata.create_all() sees jobs, meetings, meeting_notes, etc.
+from app.models import job as _job  # noqa: F401,E402
+from app.models import meeting as _meeting  # noqa: F401,E402
+from app.models import meeting_notes as _meeting_notes  # noqa: F401,E402
+
+Transcript = Any  # type: ignore[misc]
+Summary = Any  # type: ignore[misc]
