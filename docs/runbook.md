@@ -71,4 +71,51 @@ Example (local):
 ```bash
 curl -s http://127.0.0.1:8000/healthz | jq .
 
-heredoc>
+## MP4 → Transcript → AI Notes → Markdown
+
+This is the main “golden flow” for Meeting Notes Assistant: take a meeting recording (MP4), turn it into a transcript, generate AI-powered notes, and expose the output as both JSON and downloadable markdown.
+
+### High-level flow
+
+1. **Create a meeting**
+   - Client calls `POST /v1/meetings` with a title and optional tags.
+   - Backend creates a `meetings` row in Postgres.
+
+2. **Upload MP4**
+   - Client calls `POST /v1/meetings/{id}/upload` with the MP4 file.
+   - Backend stores the raw media via `_save_raw_media_stub` in dev/tests (in prod this is swapped to real object storage).
+   - Backend enqueues an RQ job `process_meeting(meeting_id=...)` and returns a JSON envelope including the `job_id`.
+
+3. **Background processing (RQ worker)**
+   - The RQ worker listens on the same Redis queue as the API.
+   - For each job, `process_meeting(meeting_id=...)`:
+     - Fetches the meeting + media location.
+     - Runs ASR to generate a **transcript**.
+     - Runs the AI notes pipeline to produce structured **AI notes**.
+     - Persists notes in the `meeting_notes` table and renders a **markdown** version.
+
+4. **Read AI notes / markdown**
+   - `GET /v1/meetings/{id}/notes/ai` returns the structured AI notes as JSON.
+   - `GET /v1/meetings/{id}/notes.md` returns the markdown version (for download, previews, etc.).
+
+### Endpoints involved
+
+- `POST /v1/meetings` – create a meeting.
+- `POST /v1/meetings/{id}/upload` – upload MP4, enqueue processing job.
+- `GET /v1/meetings/{id}/notes/ai` – fetch AI notes (JSON).
+- `GET /v1/meetings/{id}/notes.md` – fetch AI notes (markdown).
+
+The main background job is:
+
+- `process_meeting(meeting_id: int)` in `app.jobs.meetings`, which is invoked asynchronously via RQ (and can still be called directly in tests).
+
+### How to try this locally
+
+Assuming you have Redis, Postgres, the API, and the worker running (via Docker Compose or your usual dev setup):
+
+1. **Create a meeting**
+
+   ```bash
+   http POST :8000/v1/meetings \
+     title="Demo planning sync" \
+     tags="demo,notes"
