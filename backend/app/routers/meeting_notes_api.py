@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFil
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
+from app.jobs.meetings import enqueue_process_meeting
 from app.models.meeting import Meeting
 from app.models.meeting_notes import MeetingNotes
 
@@ -48,7 +49,8 @@ async def upload_meeting_media(
     Upload raw media for a meeting.
 
     In tests, _save_raw_media_stub is monkeypatched to write to tmp_path.
-    In prod, you'll later swap this to real object storage + enqueue RQ.
+    In prod, you'll later swap this to real object storage; the RQ job
+    is enqueued via enqueue_process_meeting.
     """
     meeting = db.get(Meeting, meeting_id)
     if meeting is None:
@@ -69,7 +71,15 @@ async def upload_meeting_media(
 
     db.commit()
 
-    return {"status": "ok", "meeting_id": meeting_id}
+    # Enqueue background processing via RQ
+    job = enqueue_process_meeting(meeting_id=meeting_id)
+
+    # Keep status="ok" for existing tests, but also return job_id
+    return {
+        "status": "ok",
+        "meeting_id": meeting_id,
+        "job_id": job.id,
+    }
 
 
 # ---------------------------------------------------------------------------
