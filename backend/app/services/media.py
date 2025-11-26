@@ -29,21 +29,27 @@ def list_slide_files(db: Session, meeting_id: int) -> list[Path]:
     Return filesystem Paths for all slide artifacts associated with this meeting.
 
     Assumptions (adjust if your schema differs):
-      - MeetingArtifact model exists under app.models (or similar).
-      - It has:
+      - If a MeetingArtifact model exists under app.models:
           - meeting_id: foreign key to meetings.id
           - kind (or artifact_type) set to "slide" for slide uploads
           - storage_path: full path on disk / object storage mount
+
+    If no MeetingArtifact model is present yet (e.g. before that migration lands),
+    this helper returns an empty list so callers gracefully behave as
+    "no slides attached".
     """
-    # If models isn't already imported at the top of this module,
-    # add: `from app import models` near the existing imports.
+    MeetingArtifact = getattr(models, "MeetingArtifact", None)
+    if MeetingArtifact is None:
+        # Schema does not yet define MeetingArtifact; treat as "no slides".
+        return []
+
     artifacts = (
-        db.query(models.MeetingArtifact)
+        db.query(MeetingArtifact)
         .filter(
-            models.MeetingArtifact.meeting_id == meeting_id,
-            models.MeetingArtifact.kind == "slide",
+            MeetingArtifact.meeting_id == meeting_id,
+            MeetingArtifact.kind == "slide",
         )
         .all()
     )
 
-    return [Path(a.storage_path) for a in artifacts if getattr(a, "storage_path", None)]
+    return [Path(getattr(a, "storage_path")) for a in artifacts if getattr(a, "storage_path", None)]

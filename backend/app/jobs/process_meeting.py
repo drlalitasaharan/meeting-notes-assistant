@@ -11,6 +11,7 @@ from app.models.meeting import Meeting
 from app.models.meeting_notes import MeetingNotes
 from app.services.media import load_audio_for_meeting
 from app.services.notes import generate_meeting_notes
+from app.services.ocr import extract_slide_text_for_meeting
 from app.services.transcription import transcribe_audio
 
 log = logging.getLogger(__name__)
@@ -61,6 +62,19 @@ def process_meeting(meeting_id: str) -> None:
         # 4) Transcription
         log.info("process_meeting: transcribing audio", extra=log_extra)
         transcript = transcribe_audio(audio_bytes)
+
+        # 4a) Optional slide OCR to enrich transcript
+        log.info("process_meeting: running slide OCR", extra=log_extra)
+        slide_text = extract_slide_text_for_meeting(
+            db=db,
+            meeting_id=meeting.id,
+        )
+
+        if slide_text:
+            # Ensure transcript is a mutable dict
+            if not isinstance(transcript, dict):
+                transcript = dict(transcript)  # type: ignore[arg-type]
+            transcript["slide_text"] = slide_text  # type: ignore[index]
 
         # 5) LLM summarization
         log.info("process_meeting: generating notes", extra=log_extra)
