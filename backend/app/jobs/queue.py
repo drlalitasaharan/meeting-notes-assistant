@@ -15,3 +15,7 @@ def get_redis() -> Redis:
 def get_queue(name: str | None = None) -> Queue:
     qname = name or "default"
     return Queue(qname, connection=get_redis())
+
+
+# Default RQ queue used by jobs that import `queue`
+queue = get_queue("default")
