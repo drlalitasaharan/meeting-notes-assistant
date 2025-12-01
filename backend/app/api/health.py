@@ -13,7 +13,8 @@ except Exception:  # noqa: BLE001
     text = None  # type: ignore
 
 try:
-    from app.queue import get_redis  # type: ignore
+    # Queue helpers live under app.jobs.queue
+    from app.jobs.queue import get_redis  # type: ignore
 except Exception:  # noqa: BLE001
     get_redis = None  # type: ignore
 

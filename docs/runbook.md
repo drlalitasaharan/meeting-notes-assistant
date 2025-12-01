@@ -119,3 +119,50 @@ Assuming you have Redis, Postgres, the API, and the worker running (via Docker C
    http POST :8000/v1/meetings \
      title="Demo planning sync" \
      tags="demo,notes"
+
+## RQ worker smoke test (Real MVP path)
+
+1. Start dev stack:
+
+```bash
+./bin/dc down
+./bin/dc up -d --build db redis backend worker
+Health check:
+http :8000/healthz
+# Expect db: ok, redis: ok, storage: ok, status: ok
+Create meeting and upload demo.mp4:
+export API_KEY=dev-secret-123
+
+http POST :8000/v1/meetings X-API-Key:\$API_KEY   title="Queue wire MVP RQ smoke"   tags:='["queue","mvp"]'   | tee /tmp/mna-meeting.json
+
+MEETING_ID=\$(jq -r '.id' /tmp/mna-meeting.json)
+
+http -f POST :8000/v1/meetings/\$MEETING_ID/upload   X-API-Key:\$API_KEY   file@demo.mp4
+Enqueue process_meeting from backend container:
+./bin/dc exec -T backend python - << 'PY'
+from app.jobs.meetings import enqueue_process_meeting
+
+MEETING_ID = int("\${MEETING_ID}")
+print('Enqueuing process_meeting for meeting', MEETING_ID)
+job = enqueue_process_meeting(meeting_id=MEETING_ID)
+print('Job id:', getattr(job, 'id', None))
+PY
+Watch worker and verify meeting_notes in DB:
+# Worker logs
+./bin/dc logs -f worker
+# Queue depth (should go back to 0)
+./bin/dc exec redis redis-cli llen rq:queue:default
+# Inspect latest meeting_notes rows
+./bin/dc exec -T backend python - << 'PY'
+from sqlalchemy import text
+from app.db import SessionLocal
+
+with SessionLocal() as session:
+    rows = session.execute(
+        text('SELECT id, meeting_id, summary FROM meeting_notes ORDER BY id DESC LIMIT 5')
+    ).all()
+
+print('Last meeting_notes rows:')
+for r in rows:
+    print(r)
+PY
