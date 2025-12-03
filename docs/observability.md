@@ -74,3 +74,11 @@ You can mark both as “All” by default.
   sum by (job_name) (
     rate(mna_jobs_enqueued_total{queue=~"$queue"}[5m])
   )
+
+### Checking metrics locally
+
+To confirm that the API is exposing Prometheus metrics, run:
+
+curl -f http://localhost:8000/metrics-prom | head
+
+You should see Prometheus-style text output (starting with '# HELP' / '# TYPE') and counters like 'http_requests_total' and histograms like 'http_request_duration_seconds'. In production, Prometheus should scrape the backend at '/metrics-prom' (for example 'http://backend:8000/metrics-prom' on the Docker network, or 'https://notes.example.com/metrics-prom' via your reverse proxy).
