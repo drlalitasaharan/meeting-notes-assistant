@@ -17,3 +17,14 @@ Automate meeting note-taking: ingest audio/video + slides, transcribe, summarize
 - ≥90% explicit action items captured with owners
 - Slides OCR searchable
 - Slack/Notion push succeeds
+
+## feat/prod-ready-100pc (merged 2025-12-03)
+
+- Locked in `/metrics-prom` as the Prometheus metrics endpoint and documented how to curl it.
+- Added `docs/production-deploy.md` with a concrete Docker Compose deployment recipe and first-boot smoke tests.
+- Added `docs/backups.md` with a Postgres + MinIO backup/restore runbook tailored to `DB_USER=mna`, `DB_NAME=meetings`.
+- Added `docs/security.md` with a pragmatic security and hardening checklist.
+- Confirmed local health + metrics:
+  - `curl -f http://localhost:8000/healthz`
+  - `curl -s http://localhost:8000/metrics-prom | head`
+- Took a real logical backup of the `meetings` database using `pg_dump` and checked the `.sql` file into `backups/postgres/`.
