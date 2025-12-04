@@ -1,0 +1,79 @@
+groups:
+  - name: mna-api-alerts
+    rules:
+      - alert: Api5xxRateHigh
+        expr: >
+          sum(rate(http_requests_total{service="api",status=~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total{service="api"}[5m]))
+          > 0.05
+          and
+          sum(rate(http_requests_total{service="api"}[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          summary: High rate of 5xx responses on the API
+          description: |
+            More than 5% of API responses have been 5xx for over 5 minutes.
+            Check /healthz, recent deploys, and application/worker logs.
+          runbook_url: https://github.com/drlalitasaharan/meeting-notes-assistant/blob/main/docs/observability.md#api-errors-and-latency
+
+      - alert: ApiLatencyHigh
+        expr: >
+          histogram_quantile(
+            0.95,
+            sum by (le) (rate(http_request_duration_seconds_bucket{service="api"}[5m]))
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          summary: High API latency (P95 > 1s)
+          description: |
+            API 95th percentile latency is above 1s for 5 minutes.
+            Check for database hotspots, external dependencies, or spikes in traffic.
+          runbook_url: https://github.com/drlalitasaharan/meeting-notes-assistant/blob/main/docs/observability.md#api-errors-and-latency
+
+  - name: mna-rq-alerts
+    rules:
+      - alert: RQWorkerDown
+        expr: up{job="worker"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: worker
+        annotations:
+          summary: RQ worker target is down
+          description: |
+            Prometheus reports the RQ worker as down for more than 5 minutes.
+            Jobs will not be processed until the worker is back up.
+          runbook_url: https://github.com/drlalitasaharan/meeting-notes-assistant/blob/main/docs/observability.md#worker-down
+
+      - alert: RQJobFailuresHigh
+        expr: sum by (queue) (rate(mna_jobs_failed_total[5m])) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          service: worker
+        annotations:
+          summary: High rate of failed RQ jobs
+          description: |
+            RQ job failures are above 0.1 failures/second for at least one queue
+            over 10 minutes. Inspect job logs (job_name, queue) and recent deploys.
+          runbook_url: https://github.com/drlalitasaharan/meeting-notes-assistant/blob/main/docs/observability.md#rq-job-failures-and-backlog
+
+      - alert: RQQueueBacklogHigh
+        expr: sum by (queue) (mna_jobs_queue_depth) > 100
+        for: 10m
+        labels:
+          severity: warning
+          service: worker
+        annotations:
+          summary: RQ queue backlog is high
+          description: |
+            At least one RQ queue has more than 100 jobs queued for over 10 minutes.
+            Check worker capacity, job duration, and recent deploys.
+          runbook_url: https://github.com/drlalitasaharan/meeting-notes-assistant/blob/main/docs/observability.md#rq-job-failures-and-backlog
