@@ -28,3 +28,16 @@ Automate meeting note-taking: ingest audio/video + slides, transcribe, summarize
   - `curl -f http://localhost:8000/healthz`
   - `curl -s http://localhost:8000/metrics-prom | head`
 - Took a real logical backup of the `meetings` database using `pg_dump` and checked the `.sql` file into `backups/postgres/`.
+
+## `feat/obs-golden-flow-dashboard` (merged 2025-12-04)
+  - Added Grafana “MNA – Golden Flow” dashboard JSON (`docs/grafana/mna-golden-flow.json`)
+    to visualize the Real MVP path (HTTP traffic, latency, RQ job throughput, queue depth,
+    backlog proxy, and service health).
+  - Added `docs/grafana.md` with import instructions and panel-by-panel guidance for
+    debugging “Real MVP is slow”, “jobs are stuck”, and “lots of 5xx errors”.
+  - Added Prometheus alert rules (`prometheus/alerts.yml`) and local Prometheus config
+    (`prometheus/prometheus.yml` + `docker-compose.prometheus.yml`), validated via
+    `promtool check rules` inside the container.
+  - Extended `docs/observability.md` with an “Alerts and runbooks” section documenting
+    where rules live and first-response steps for API errors/latency, RQ job failures/backlog,
+    and worker down situations.
