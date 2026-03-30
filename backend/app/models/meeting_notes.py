@@ -10,7 +10,7 @@ class MeetingNotes(Base):
 
     id = Column(Integer, primary_key=True)
     meeting_id = Column(
-        String,
+        Integer,
         ForeignKey("meetings.id", ondelete="CASCADE"),
         nullable=False,
     )
