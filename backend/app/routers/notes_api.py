@@ -1,7 +1,7 @@
 # backend/app/routers/notes_api.py
 import logging
 import os
-from typing import Optional
+from typing import Optional, cast
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -131,7 +131,10 @@ def create_note(meeting_id: int, payload: NoteIn):
                 author=payload.author,
             )
         )
-        new_id = res.inserted_primary_key[0]
+        inserted_pk = cast(tuple[object, ...] | None, res.inserted_primary_key)
+        if not inserted_pk or inserted_pk[0] is None:
+            raise HTTPException(status_code=500, detail="failed to create note")
+        new_id = inserted_pk[0]
         row = (
             conn.execute(
                 select(
