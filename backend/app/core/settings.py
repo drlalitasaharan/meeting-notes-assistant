@@ -9,9 +9,15 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://redis:6379/0"
     RQ_QUEUE: str = "default"
 
+    # Notes strategy
+    NOTES_STRATEGY: str = "local_summary"
+    NOTES_FALLBACK_STRATEGY: str = "local_summary"
+
     # LLM
     OPENAI_API_KEY: str | None = None
     LLM_MODEL: str = "gpt-4o-mini"
+    LLM_PROVIDER: str | None = None
+    OPENAI_MODEL: str = "gpt-4.1-mini"
 
     # MinIO (optional)
     MINIO_ENDPOINT: str | None = None
@@ -20,7 +26,14 @@ class Settings(BaseSettings):
     MINIO_USE_SSL: bool = False
     SLIDES_BUCKET: str = "meeting-slides"
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore",
+    )
 
 
 settings = Settings()
+
+
+def get_settings() -> Settings:
+    return settings
