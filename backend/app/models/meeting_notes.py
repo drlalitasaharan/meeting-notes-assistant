@@ -17,8 +17,16 @@ class MeetingNotes(Base):
 
     raw_transcript = Column(JSON, nullable=True)
     summary = Column(Text, nullable=True)
+    summary_slots = Column(JSON, nullable=True)
+
     key_points = Column(JSON, nullable=True)
+
     action_items = Column(JSON, nullable=True)
+    action_item_objects = Column(JSON, nullable=True)
+
+    decisions = Column(JSON, nullable=True)
+    decision_objects = Column(JSON, nullable=True)
+
     model_version = Column(String, nullable=True)
     created_at = Column(
         DateTime(timezone=True),
