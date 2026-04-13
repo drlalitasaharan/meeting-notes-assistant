@@ -68,3 +68,18 @@ docker-compose.local.yml
 /certs/
 /dynamic/tls.yml
 *.bak*
+
+# macOS
+.DS_Store
+
+# local media and scratch benchmark artifacts
+demo_media/
+test_outputs/meeting*.md
+test_outputs/meeting*.json
+test_outputs/meeting_*_README.txt
+
+# local benchmark drafts / templates
+docs/benchmarks/meetingMEETING_ID_HERE_scorecard.md
+
+# local old scratch files
+backend/app/services/transcription_old.py
