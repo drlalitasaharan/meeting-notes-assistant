@@ -17,6 +17,9 @@ class Meeting(Base):
     scheduled_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     agenda: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
+    raw_media_path: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    last_error: Mapped[Optional[str]] = mapped_column(String(250), nullable=True)
+
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="new", server_default="new"
     )

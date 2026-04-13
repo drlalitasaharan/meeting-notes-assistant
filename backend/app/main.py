@@ -132,6 +132,11 @@ app.include_router(slides.router)
 app.include_router(jobs.router)
 
 
+# Golden-flow: register meeting notes/upload router
+import app.routers.meeting_notes_api as meeting_notes_api  # noqa: E402
+
+app.include_router(meeting_notes_api.router)
+
 # ---------------------------------------------------------------------------
 # Last-resort catch-all for health checks
 # ---------------------------------------------------------------------------
@@ -151,9 +156,3 @@ def health_alias_catch_all(full_path: str) -> dict[str, str]:
     behaviour for existing endpoints is preserved.
     """
     return _health_payload()
-
-
-# Golden-flow: register meeting notes/upload router
-import app.routers.meeting_notes_api as meeting_notes_api  # noqa: E402
-
-app.include_router(meeting_notes_api.router)
