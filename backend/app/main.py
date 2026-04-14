@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 
 from app.api import health as health_api
@@ -127,6 +128,19 @@ async def metrics_prometheus() -> str:
 
 # Routers already declare their own prefixes (e.g. /v1/meetings),
 # so we include them without an extra prefix here.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(meetings.router)
 app.include_router(slides.router)
 app.include_router(jobs.router)
