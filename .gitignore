@@ -83,3 +83,9 @@ docs/benchmarks/meetingMEETING_ID_HERE_scorecard.md
 
 # local old scratch files
 backend/app/services/transcription_old.py
+frontend/node_modules/
+frontend/.next/
+
+# frontend generated files
+frontend/.next/
+frontend/node_modules/
