@@ -24,6 +24,6 @@ def enqueue_process_meeting(meeting_id: int):
         process_meeting,
         meeting_id=meeting_id,
         description=f"process_meeting[{meeting_id}]",
-        job_timeout="30m",
+        job_timeout="90m",
     )
     return job
