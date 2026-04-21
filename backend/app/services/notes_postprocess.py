@@ -1022,3 +1022,22 @@ def postprocess_notes_v3(sentences: list[str], meeting_id: int = 0) -> MeetingNo
         decisions=decisions,
         action_items=action_items,
     )
+
+
+def normalize_canonical_notes(notes: dict[str, object]) -> dict[str, object]:
+    """Backward-compatible canonical notes normalizer.
+
+    Used by the canonical pipeline / process_meeting path.
+    Falls back safely to clean_notes when available.
+    """
+    if not isinstance(notes, dict):
+        return {}
+
+    try:
+        result = clean_notes(notes)
+        if isinstance(result, dict):
+            return result
+    except Exception:
+        pass
+
+    return notes
