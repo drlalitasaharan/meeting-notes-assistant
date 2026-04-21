@@ -1,0 +1,69 @@
+{
+  "meeting_id": 81,
+  "status": "DONE",
+  "summary": "The main purpose of today's meeting is to review where we are with the Meeting Notes Assistant demo, confirm the pilot outreach plan, discuss a few open issues, and align on next steps for this week. Key outcomes: the first pilot audience will be consultants, agencies, founders, and small teams; the live demo will use a short and clean file, while capability testing will use a separate 10 minute audio sample.",
+  "summary_slots": {
+    "purpose": "The main purpose of today's meeting is to review where we are with the Meeting Notes Assistant demo, confirm the pilot outreach plan, discuss a few open issues, and align on next steps for this week",
+    "outcome": "Key outcomes: the first pilot audience will be consultants, agencies, founders, and small teams; the live demo will use a short and clean file, while capability testing will use a separate 10 minute audio sample",
+    "risks": [
+      "We already saw that if a meeting gets processed before a raw media path is attached, the worker throws an error saying the meeting has no raw media path, that means our clean test process should always be, first make sure the audio file exists, then create a fresh meeting then upload the file, and only then let the worker process that new meeting, reusing older failed meetings is likely to cause confusion."
+    ],
+    "next_steps": [
+      "Create the clean 10 minute audio test and run it through the product.",
+      "Prepare the short live demo file.",
+      "Keep one backup processed meeting ready."
+    ]
+  },
+  "key_points": [
+    "Lalita will create the clean 10 minute audio test and run it through the product.",
+    "Lalita will prepare the short live demo file.",
+    "Lalita will keep one backup processed meeting ready.",
+    "We already saw that if a meeting gets processed before a raw media path is attached, the worker throws an error saying the meeting has no raw media path, that means our clean test process should always be, first make sure the audio file exists, then create a fresh meeting then upload the file, and only then let the worker process that new meeting, reusing older failed meetings is likely to cause confusion."
+  ],
+  "decisions": [
+    "The first pilot audience will be consultants, agencies, founders, and small teams.",
+    "The live demo will use a short and clean file, while capability testing will use a separate 10 minute audio sample."
+  ],
+  "decision_objects": [
+    {
+      "text": "The first pilot audience will be consultants, agencies, founders, and small teams.",
+      "confidence": 0.7
+    },
+    {
+      "text": "The live demo will use a short and clean file, while capability testing will use a separate 10 minute audio sample.",
+      "confidence": 0.7
+    }
+  ],
+  "action_items": [
+    "Create the clean 10 minute audio test and run it through the product.",
+    "Prepare the short live demo file.",
+    "Keep one backup processed meeting ready."
+  ],
+  "action_item_objects": [
+    {
+      "owner": "Lalita",
+      "task": "create the clean 10 minute audio test and run it through the product",
+      "due_date": "today",
+      "status": "open",
+      "priority": "medium",
+      "confidence": 0.85
+    },
+    {
+      "owner": "Lalita",
+      "task": "prepare the short live demo file",
+      "due_date": null,
+      "status": "open",
+      "priority": "medium",
+      "confidence": 0.75
+    },
+    {
+      "owner": "Lalita",
+      "task": "keep one backup processed meeting ready",
+      "due_date": null,
+      "status": "open",
+      "priority": "medium",
+      "confidence": 0.75
+    }
+  ],
+  "model_version": "local-summary-v3"
+}
