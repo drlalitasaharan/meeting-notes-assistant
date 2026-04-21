@@ -1,0 +1,1 @@
+{"meeting_id":86,"status":"DONE","summary":"The uploaded audio does not strongly resemble a structured business meeting. Returning limited notes for safety.","summary_slots":{"purpose":"","outcome":"","risks":[],"next_steps":[]},"key_points":[],"decisions":[],"decision_objects":[],"action_items":[],"action_item_objects":[],"model_version":"local-summary-v3"}

@@ -12,11 +12,13 @@ from app.core.settings import settings
 from app.db import SessionLocal
 from app.models.meeting import Meeting
 from app.models.meeting_notes import MeetingNotes
+from app.services.action_cleanup_pass import apply_deterministic_action_cleanup
 from app.services.action_item_postprocess import clean_action_items
 from app.services.media import load_audio_for_meeting
 from app.services.note_strategies.factory import get_notes_strategy
 from app.services.notes import generate_meeting_notes
-from app.services.notes_postprocess import clean_notes
+from app.services.notes_postprocess import normalize_canonical_notes
+from app.services.notes_quality_pass import apply_focused_30min_quality_pass
 from app.services.ocr import extract_slide_text_for_meeting
 from app.services.transcription import get_transcriber
 
@@ -120,7 +122,8 @@ def process_meeting(meeting_id: str) -> None:
             transcript_text = transcription.text
             notes_result = get_notes_strategy().generate(transcript_text, slide_text or "")
             notes_dict = notes_result.to_api_dict()
-            notes_dict = clean_notes(notes_dict)
+            notes_dict = normalize_canonical_notes(notes_dict)
+            notes_dict = apply_focused_30min_quality_pass(notes_dict, transcript_text)
 
         cleaned_action_items = clean_action_items(notes_dict.get("action_items") or [])
         action_item_objects = notes_dict.get("action_item_objects") or []
@@ -142,6 +145,11 @@ def process_meeting(meeting_id: str) -> None:
 
             cleaned_action_items = clean_action_items(rebuilt)
 
+        cleaned_action_items, action_item_objects = apply_deterministic_action_cleanup(
+            cleaned_action_items,
+            action_item_objects,
+        )
+
         summary_text = str(notes_dict.get("summary") or "")
         summary_slots = notes_dict.get("summary_slots") or None
         key_points = notes_dict.get("key_points") or []
@@ -149,16 +157,28 @@ def process_meeting(meeting_id: str) -> None:
         decision_objects = notes_dict.get("decision_objects") or []
 
         # 6) Persist MeetingNotes row
+        normalized_notes = normalize_canonical_notes(
+            {
+                "summary": summary_text,
+                "key_points": key_points,
+                "action_items": cleaned_action_items,
+                "summary_slots": summary_slots,
+                "decisions": decisions,
+                "action_item_objects": action_item_objects,
+                "decision_objects": decision_objects,
+            }
+        )
+
         notes_row = MeetingNotes(
             meeting_id=meeting.id,
             raw_transcript=raw_transcript_payload,
-            summary=summary_text,
-            summary_slots=summary_slots,
-            key_points=key_points,
-            action_items=cleaned_action_items,
-            action_item_objects=action_item_objects,
-            decisions=decisions,
-            decision_objects=decision_objects,
+            summary=normalized_notes["summary"],
+            summary_slots=normalized_notes["summary_slots"],
+            key_points=normalized_notes["key_points"],
+            action_items=normalized_notes["action_items"],
+            action_item_objects=normalized_notes["action_item_objects"],
+            decisions=normalized_notes["decisions"],
+            decision_objects=normalized_notes["decision_objects"],
             model_version=notes_dict.get("model_version"),
         )
         db.add(notes_row)
