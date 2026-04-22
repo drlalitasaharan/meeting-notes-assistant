@@ -1,13 +1,7 @@
-# Next-steps precision pass scope — 2026-04-22
+# Next steps precision pass scope — 2026-04-22
 
 ## Goal
-Improve Meeting 81 by cleaning transcript-style leakage in next_steps only.
-
-## Why this pass exists
-Previous slot-source fixes were too broad:
-- they reduced some oversized content
-- but they also removed valid purpose/outcome content
-- the 30-minute benchmark regressed
+Improve Meeting 81 precision by tightening next_steps extraction only.
 
 ## In scope
 Inside local_summary.py only:
