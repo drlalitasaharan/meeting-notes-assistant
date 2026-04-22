@@ -15,6 +15,7 @@ from app.models.meeting_notes import MeetingNotes
 from app.services.action_cleanup_pass import apply_deterministic_action_cleanup
 from app.services.action_item_postprocess import clean_action_items
 from app.services.media import load_audio_for_meeting
+from app.services.meeting_confidence_guardrail import apply_meeting_confidence_guardrail
 from app.services.note_strategies.factory import get_notes_strategy
 from app.services.notes import generate_meeting_notes
 from app.services.notes_postprocess import normalize_canonical_notes
@@ -124,6 +125,7 @@ def process_meeting(meeting_id: str) -> None:
             notes_dict = notes_result.to_api_dict()
             notes_dict = normalize_canonical_notes(notes_dict)
             notes_dict = apply_focused_30min_quality_pass(notes_dict, transcript_text)
+            notes_dict = apply_meeting_confidence_guardrail(notes_dict, transcript_text)
 
         cleaned_action_items = clean_action_items(notes_dict.get("action_items") or [])
         action_item_objects = notes_dict.get("action_item_objects") or []
