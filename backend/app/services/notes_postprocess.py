@@ -636,7 +636,6 @@ PURPOSE_BAD_HINTS = (
 )
 
 DECISION_AS_ACTION_HINTS = (
-    "primary backup demo example",
     "first pilot audience will be",
     "pilot audience will be",
 )
@@ -752,6 +751,7 @@ def _looks_like_valid_action_task(task: str) -> bool:
         "the purpose of today's meeting",
         "small list of action items",
         "decision on which use case",
+        "concrete owners for the follow-up actions",
     )
     if any(phrase in lowered for phrase in bad_phrases):
         return False
@@ -987,8 +987,6 @@ def build_summary_slots(
     next_steps: list[str] = []
     for item in action_items[:5]:
         task = item.task.rstrip(".") + "."
-        if "primary backup demo example" in task.lower():
-            continue
         if _looks_like_valid_action_task(item.task):
             next_steps.append(task)
 
@@ -1024,6 +1022,46 @@ def postprocess_notes_v3(sentences: list[str], meeting_id: int = 0) -> MeetingNo
     )
 
 
+def _restore_summary_slot_next_steps(notes: dict[str, object]) -> dict[str, object]:
+    cleaned = dict(notes)
+
+    raw_summary_slots = cleaned.get("summary_slots")
+    summary_slots = dict(raw_summary_slots) if isinstance(raw_summary_slots, dict) else {}
+
+    candidates: list[str] = []
+
+    def add_candidate(value: object) -> None:
+        text = normalize_sentence(str(value or ""))
+        if not text:
+            return
+        text = text.rstrip(".")
+        if not _looks_like_valid_action_task(text):
+            return
+        candidates.append(text + ".")
+
+    raw_action_item_objects = cleaned.get("action_item_objects")
+    if isinstance(raw_action_item_objects, list):
+        for item in raw_action_item_objects:
+            if isinstance(item, dict):
+                add_candidate(item.get("task"))
+
+    if not candidates:
+        raw_action_items = cleaned.get("action_items")
+        if isinstance(raw_action_items, list):
+            for item in raw_action_items:
+                add_candidate(item)
+
+    if not candidates:
+        existing_next_steps = summary_slots.get("next_steps")
+        if isinstance(existing_next_steps, list):
+            for item in existing_next_steps:
+                add_candidate(item)
+
+    summary_slots["next_steps"] = dedupe_texts(candidates, limit=3)
+    cleaned["summary_slots"] = summary_slots
+    return cleaned
+
+
 def normalize_canonical_notes(notes: dict[str, object]) -> dict[str, object]:
     """Backward-compatible canonical notes normalizer.
 
@@ -1036,8 +1074,8 @@ def normalize_canonical_notes(notes: dict[str, object]) -> dict[str, object]:
     try:
         result = clean_notes(notes)
         if isinstance(result, dict):
-            return result
+            return _restore_summary_slot_next_steps(result)
     except Exception:
         pass
 
-    return notes
+    return _restore_summary_slot_next_steps(dict(notes))
