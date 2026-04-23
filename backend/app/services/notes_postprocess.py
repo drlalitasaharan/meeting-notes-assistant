@@ -751,6 +751,7 @@ def _looks_like_valid_action_task(task: str) -> bool:
         "the purpose of today's meeting",
         "small list of action items",
         "decision on which use case",
+        "concrete owners for the follow-up actions",
     )
     if any(phrase in lowered for phrase in bad_phrases):
         return False
