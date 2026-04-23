@@ -987,8 +987,6 @@ def build_summary_slots(
     next_steps: list[str] = []
     for item in action_items[:5]:
         task = item.task.rstrip(".") + "."
-        if "primary backup demo example" in task.lower():
-            continue
         if _looks_like_valid_action_task(item.task):
             next_steps.append(task)
 
