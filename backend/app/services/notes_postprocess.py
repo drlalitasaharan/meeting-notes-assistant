@@ -636,7 +636,6 @@ PURPOSE_BAD_HINTS = (
 )
 
 DECISION_AS_ACTION_HINTS = (
-    "primary backup demo example",
     "first pilot audience will be",
     "pilot audience will be",
 )
