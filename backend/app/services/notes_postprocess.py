@@ -1038,22 +1038,22 @@ def _restore_summary_slot_next_steps(notes: dict[str, object]) -> dict[str, obje
             return
         candidates.append(text + ".")
 
-    existing_next_steps = summary_slots.get("next_steps")
-    if isinstance(existing_next_steps, list):
-        for item in existing_next_steps:
-            add_candidate(item)
-
-    if not candidates:
-        raw_action_item_objects = cleaned.get("action_item_objects")
-        if isinstance(raw_action_item_objects, list):
-            for item in raw_action_item_objects:
-                if isinstance(item, dict):
-                    add_candidate(item.get("task"))
+    raw_action_item_objects = cleaned.get("action_item_objects")
+    if isinstance(raw_action_item_objects, list):
+        for item in raw_action_item_objects:
+            if isinstance(item, dict):
+                add_candidate(item.get("task"))
 
     if not candidates:
         raw_action_items = cleaned.get("action_items")
         if isinstance(raw_action_items, list):
             for item in raw_action_items:
+                add_candidate(item)
+
+    if not candidates:
+        existing_next_steps = summary_slots.get("next_steps")
+        if isinstance(existing_next_steps, list):
+            for item in existing_next_steps:
                 add_candidate(item)
 
     summary_slots["next_steps"] = dedupe_texts(candidates, limit=3)
