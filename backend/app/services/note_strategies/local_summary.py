@@ -656,6 +656,122 @@ def _clean_sentence_text(text: str) -> str:
     return cleaned
 
 
+_NEXT_STEP_ACTION_PREFIXES = (
+    "prepare",
+    "finalize",
+    "keep",
+    "create",
+    "send",
+    "share",
+    "review",
+    "confirm",
+    "draft",
+    "update",
+    "schedule",
+    "test",
+    "validate",
+    "package",
+    "record",
+    "process",
+    "upload",
+    "publish",
+    "follow up",
+    "align",
+    "document",
+)
+
+_NEXT_STEP_BAD_PREFIXES = (
+    "i think",
+    "i agree",
+    "we should also",
+    "if ",
+    "because ",
+    "and ",
+    "but ",
+    "so ",
+    "another thing",
+    "yeah ",
+    "okay ",
+    "right ",
+    "well ",
+)
+
+_NEXT_STEP_BAD_ENDINGS = {
+    "and",
+    "or",
+    "because",
+    "so",
+    "also",
+}
+
+
+def _normalize_next_step_text(text: str) -> str:
+    text = re.sub(r"^\s*[-*•]+\s*", "", str(text).strip())
+    text = re.sub(r"\s+", " ", text)
+    return text.strip(" ,;:-")
+
+
+def _looks_like_speaker_style_text(text: str) -> bool:
+    lower = text.lower()
+    if re.match(r"^\s*speaker(\s+\w+)?\b", lower):
+        return True
+    if re.match(r"^\s*[A-Z][a-z]+:\s*", text):
+        return True
+    return False
+
+
+def _looks_action_oriented(text: str) -> bool:
+    lower = text.lower()
+    return any(lower.startswith(prefix) for prefix in _NEXT_STEP_ACTION_PREFIXES)
+
+
+def _is_valid_next_step(text: str) -> bool:
+    lower = text.lower().strip()
+    if not lower:
+        return False
+    if _looks_like_speaker_style_text(text):
+        return False
+    if any(lower.startswith(prefix) for prefix in _NEXT_STEP_BAD_PREFIXES):
+        return False
+    if "..." in text:
+        return False
+
+    words = lower.split()
+    if len(words) < 4 or len(words) > 18:
+        return False
+    if words[-1] in _NEXT_STEP_BAD_ENDINGS:
+        return False
+    if not _looks_action_oriented(text):
+        return False
+    return True
+
+
+def _build_next_steps_from_action_items(
+    action_items: list[ActionItem], limit: int = 3
+) -> list[str]:
+    results: list[str] = []
+    seen: set[str] = set()
+
+    for item in action_items:
+        task = _normalize_next_step_text(_clean_sentence_text(item.task))
+        if not _is_valid_next_step(task):
+            continue
+
+        key = re.sub(r"[^a-z0-9]+", " ", task.lower()).strip()
+        if key in seen:
+            continue
+        seen.add(key)
+
+        task = task.rstrip(".")
+        task = task[:1].upper() + task[1:]
+        results.append(task + ".")
+
+        if len(results) >= limit:
+            break
+
+    return results
+
+
 def _summary_slots_to_text(summary_slots: dict[str, object] | None) -> str:
     if not summary_slots:
         return ""
@@ -933,10 +1049,7 @@ class LocalSummaryStrategy(NotesStrategy):
             "purpose": purpose,
             "outcome": outcome,
             "risks": risks,
-            "next_steps": [
-                _clean_sentence_text(item.task).rstrip(".").capitalize() + "."
-                for item in action_items[:4]
-            ],
+            "next_steps": _build_next_steps_from_action_items(action_items, limit=3),
         }
 
         summary = _summary_slots_to_text(summary_slots)
