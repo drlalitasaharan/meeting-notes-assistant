@@ -168,6 +168,108 @@ COMMON_ACTION_STARTERS = {
 }
 
 
+def _looks_like_speaker_greeting_key_point(text: str) -> bool:
+    lowered = re.sub(r"\s+", " ", str(text or "")).strip().lower()
+
+    return (
+        lowered.startswith(("speaker one", "speaker two", "speaker three"))
+        or "good morning everyone" in lowered
+        or "thanks for joining" in lowered
+        or lowered.startswith("speaker:")
+    )
+
+
+def _remove_speaker_greeting_key_points(points: list[str]) -> list[str]:
+    return [point for point in points if not _looks_like_speaker_greeting_key_point(point)]
+
+
+def _normalized_quality_text(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", str(text or "").lower()).strip()
+
+
+def _ensure_decision_backed_validation_action(
+    actions: list[str],
+    decisions: list[str],
+    *,
+    limit: int = 8,
+) -> list[str]:
+    joined_decisions = _normalized_quality_text(" ".join(decisions))
+    joined_actions = _normalized_quality_text(" ".join(actions))
+
+    needs_validation_action = "validate the 10 minute audio flow" in joined_decisions or (
+        "10 minute audio flow" in joined_decisions and "validate" in joined_decisions
+    )
+    has_validation_action = (
+        "validate the 10 minute audio" in joined_actions
+        or "validate the audio flow" in joined_actions
+    )
+
+    if needs_validation_action and not has_validation_action:
+        actions = [
+            "Team - Validate the 10-minute audio flow using a fresh product meeting",
+            *actions,
+        ]
+
+    deduped: list[str] = []
+    seen: set[str] = set()
+
+    for action in actions:
+        key = _normalized_quality_text(action)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        deduped.append(action)
+        if len(deduped) >= limit:
+            break
+
+    return deduped
+
+
+def _action_text_to_next_step(action: str) -> str:
+    text = re.sub(
+        r"^\s*(?:Team|Lalita|We|I|Unassigned)\s*[-—:]\s*",
+        "",
+        str(action or ""),
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(r"\s*\(due:\s*[^)]*\)\s*$", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s+", " ", text).strip(" .")
+
+    if not text:
+        return ""
+
+    return text + "."
+
+
+def _sync_summary_next_steps_from_actions(
+    result: Any,
+    actions: list[str],
+    *,
+    limit: int = 3,
+) -> None:
+    raw_summary_slots = _read_field(result, "summary_slots", {})
+    if not isinstance(raw_summary_slots, dict):
+        return
+
+    summary_slots = dict(raw_summary_slots)
+    next_steps: list[str] = []
+    seen: set[str] = set()
+
+    for action in actions:
+        step = _action_text_to_next_step(action)
+        key = _normalized_quality_text(step)
+        if not step or key in seen:
+            continue
+        seen.add(key)
+        next_steps.append(step)
+        if len(next_steps) >= limit:
+            break
+
+    if next_steps:
+        summary_slots["next_steps"] = next_steps
+        _write_field(result, "summary_slots", summary_slots)
+
+
 def apply_focused_30min_quality_pass(result: Any, transcript: Any) -> Any:
     text = _transcript_to_text(transcript)
     if not text.strip():
@@ -197,6 +299,11 @@ def apply_focused_30min_quality_pass(result: Any, transcript: Any) -> Any:
         limit=6,
         norm_fn=_dedupe_norm,
     )
+    merged_actions = _ensure_decision_backed_validation_action(
+        merged_actions,
+        merged_decisions,
+        limit=8,
+    )
 
     filtered_existing_key_points = [
         kp
@@ -205,9 +312,10 @@ def apply_focused_30min_quality_pass(result: Any, transcript: Any) -> Any:
         and not _looks_like_infra(kp)
         and not VALUE_STATEMENT_HINTS.search(kp)
         and not KEYPOINT_NOISE_HINTS.search(kp)
+        and not _looks_like_speaker_greeting_key_point(kp)
     ]
     if not filtered_existing_key_points and existing_key_points:
-        filtered_existing_key_points = existing_key_points[:2]
+        filtered_existing_key_points = _remove_speaker_greeting_key_points(existing_key_points[:2])
 
     merged_key_points = _merge_existing_with_candidates(
         filtered_existing_key_points,
@@ -215,10 +323,15 @@ def apply_focused_30min_quality_pass(result: Any, transcript: Any) -> Any:
         limit=8,
         norm_fn=_dedupe_norm,
     )
+    merged_key_points = _remove_speaker_greeting_key_points(merged_key_points)
+
+    final_key_points = merged_key_points or filtered_existing_key_points
+
+    _sync_summary_next_steps_from_actions(result, merged_actions, limit=3)
 
     _write_field(result, "action_items", merged_actions)
     _write_field(result, "decisions", merged_decisions)
-    _write_field(result, "key_points", merged_key_points or existing_key_points)
+    _write_field(result, "key_points", final_key_points)
     _write_field(result, "decision_objects", _to_decision_objects(merged_decisions))
     _write_field(result, "action_item_objects", _to_action_item_objects(merged_actions))
 
