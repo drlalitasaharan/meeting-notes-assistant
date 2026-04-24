@@ -1036,6 +1036,165 @@ def _looks_like_publishable_action_task(task: str) -> bool:
     return False
 
 
+_DECISION_MARKER_RE = re.compile(
+    r"\bdecision\s+(?:one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s*,?\s*",
+    re.IGNORECASE,
+)
+
+
+def _looks_like_transcript_chunk(text: str, max_chars: int = 260) -> bool:
+    cleaned = re.sub(r"\s+", " ", text or "").strip()
+    lowered = cleaned.lower()
+
+    if len(cleaned) > max_chars:
+        return True
+
+    if lowered.count("speaker one") + lowered.count("speaker two") >= 1:
+        return True
+
+    if lowered.count("decision one") + lowered.count("decision two") >= 1:
+        return True
+
+    if cleaned.count(",") > 7:
+        return True
+
+    if cleaned.count(";") > 3:
+        return True
+
+    return False
+
+
+def _publishable_slot_text(text: str, max_chars: int = 240) -> str:
+    cleaned = _clean_sentence_text(str(text or "")).strip().rstrip(".")
+
+    if not cleaned:
+        return ""
+
+    lowered = cleaned.lower()
+
+    if _looks_like_transcript_chunk(cleaned, max_chars=max_chars):
+        return ""
+
+    if lowered.startswith(("speaker one", "speaker two", "key outcomes: speaker")):
+        return ""
+
+    if len(cleaned.split()) < 5:
+        return ""
+
+    return cleaned
+
+
+def _clean_decision_fragment(text: str) -> str:
+    cleaned = _clean_sentence_text(str(text or ""))
+    cleaned = _DECISION_MARKER_RE.sub("", cleaned)
+    cleaned = re.sub(r"\bspeaker\s+(one|two|three)\b.*$", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip(" ,.;:-")
+
+    if cleaned and cleaned[-1] not in ".!?":
+        cleaned += "."
+
+    return cleaned
+
+
+def _looks_like_publishable_decision(text: str) -> bool:
+    cleaned = _clean_decision_fragment(text)
+    lowered = cleaned.lower()
+
+    if not cleaned:
+        return False
+
+    if _looks_like_transcript_chunk(cleaned, max_chars=230):
+        return False
+
+    if lowered.startswith(
+        (
+            "speaker one",
+            "speaker two",
+            "key outcomes",
+            "the main purpose",
+            "the meeting focused",
+            "thanks everyone",
+        )
+    ):
+        return False
+
+    if len(cleaned.split()) < 6:
+        return False
+
+    return True
+
+
+def _extract_embedded_decisions(text: str) -> list[str]:
+    source = re.sub(r"\s+", " ", str(text or "")).strip()
+    matches = list(_DECISION_MARKER_RE.finditer(source))
+    decisions: list[str] = []
+
+    for index, match in enumerate(matches):
+        start = match.end()
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(source)
+        fragment = source[start:end]
+        fragment = re.split(r"\bspeaker\s+(?:one|two|three)\b", fragment, flags=re.IGNORECASE)[0]
+        cleaned = _clean_decision_fragment(fragment)
+
+        if _looks_like_publishable_decision(cleaned):
+            decisions.append(cleaned)
+
+    return decisions
+
+
+def _prepare_publishable_decisions(
+    raw_decisions: list[str],
+    records: list[tuple[str, SourceType]],
+    limit: int = 5,
+) -> list[str]:
+    candidates: list[str] = []
+
+    for decision in raw_decisions:
+        candidates.extend(_extract_embedded_decisions(decision))
+        candidates.append(_clean_decision_fragment(decision))
+
+    for sentence, _source in records:
+        if _DECISION_MARKER_RE.search(sentence):
+            candidates.extend(_extract_embedded_decisions(sentence))
+
+    cleaned: list[str] = []
+    seen: set[str] = set()
+
+    for candidate in candidates:
+        if not _looks_like_publishable_decision(candidate):
+            continue
+
+        key = _canonical_text(candidate)
+        if not key or key in seen:
+            continue
+
+        seen.add(key)
+        cleaned.append(candidate)
+
+        if len(cleaned) >= limit:
+            break
+
+    return cleaned
+
+
+def _prepare_publishable_risks(risks: list[str], limit: int = 3) -> list[str]:
+    cleaned: list[str] = []
+    seen: set[str] = set()
+
+    for risk in risks:
+        item = _publishable_slot_text(risk, max_chars=260)
+        key = _canonical_text(item)
+        if not item or key in seen:
+            continue
+        seen.add(key)
+        cleaned.append(item)
+
+        if len(cleaned) >= limit:
+            break
+
+    return cleaned
+
+
 class LocalSummaryStrategy(NotesStrategy):
     def generate(self, transcript_text: str, slide_text: str = "") -> NotesResult:
         transcript_text = normalize_known_names(normalize_text(transcript_text))
@@ -1092,20 +1251,33 @@ class LocalSummaryStrategy(NotesStrategy):
         action_items = merge_action_items(filtered_heuristic_actions, filtered_v3_actions, limit=8)
 
         processed_decisions = [item.text for item in processed_v3.decisions]
-        decisions = _merge_text_items(processed_decisions, extract_decisions(records), limit=5)
+        raw_decisions = _merge_text_items(processed_decisions, extract_decisions(records), limit=8)
+        decisions = _prepare_publishable_decisions(raw_decisions, records, limit=5)
 
         existing_risks = [
             str(item).strip() for item in list(processed_v3.summary.risks) if str(item).strip()
         ]
-        risks = _merge_text_items(existing_risks, extract_risks(records), limit=3)
+        raw_risks = _merge_text_items(existing_risks, extract_risks(records), limit=5)
+        risks = _prepare_publishable_risks(raw_risks, limit=3)
 
         raw_summary_slots = processed_v3.summary.model_dump()
         purpose = _build_purpose(
             records, selected_points, decisions, str(raw_summary_slots.get("purpose") or "")
         )
+        purpose = _publishable_slot_text(purpose, max_chars=220)
+        if not purpose:
+            purpose = _publishable_slot_text(
+                _build_purpose(records, selected_points, decisions, ""), max_chars=220
+            )
+
         outcome = _build_outcome(
             decisions, key_points, purpose, str(raw_summary_slots.get("outcome") or "")
         )
+        outcome = _publishable_slot_text(outcome, max_chars=260)
+        if not outcome:
+            outcome = _publishable_slot_text(
+                _build_outcome(decisions, key_points, purpose, ""), max_chars=260
+            )
 
         summary_slots = {
             **raw_summary_slots,
@@ -1119,22 +1291,9 @@ class LocalSummaryStrategy(NotesStrategy):
         if not summary:
             summary = make_summary(key_points, max_points=4)
 
-        decision_objects: list[dict[str, object]] = []
-        seen_decisions: set[str] = set()
-
-        for item in list(processed_v3.decisions):
-            key = _canonical_text(item.text)
-            if not key or key in seen_decisions:
-                continue
-            seen_decisions.add(key)
-            decision_objects.append(item.model_dump())
-
-        for text in decisions:
-            key = _canonical_text(text)
-            if not key or key in seen_decisions:
-                continue
-            seen_decisions.add(key)
-            decision_objects.append({"text": text, "confidence": 0.7})
+        decision_objects: list[dict[str, object]] = [
+            {"text": text, "confidence": 0.7} for text in decisions[:5]
+        ]
 
         action_item_objects = [
             {
