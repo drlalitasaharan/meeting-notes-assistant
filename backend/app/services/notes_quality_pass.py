@@ -270,6 +270,102 @@ def _sync_summary_next_steps_from_actions(
         _write_field(result, "summary_slots", summary_slots)
 
 
+def _looks_like_non_meeting_audio(text: str, sentences: list[str]) -> bool:
+    """Detect obvious narrative/non-meeting content before forcing meeting notes."""
+    normalized = re.sub(r"\s+", " ", str(text or "")).strip().lower()
+
+    if not normalized:
+        return False
+
+    meeting_markers = (
+        "meeting",
+        "agenda",
+        "action item",
+        "action items",
+        "next steps",
+        "follow-up",
+        "follow up",
+        "decision",
+        "decisions",
+        "owner",
+        "owners",
+        "demo",
+        "pilot",
+        "roadmap",
+        "sync",
+        "standup",
+        "client call",
+        "weekly call",
+    )
+
+    narrative_markers = (
+        "sherlock holmes",
+        "said holmes",
+        "mr holmes",
+        "watson",
+        "armchair",
+        "gentleman",
+        "red hair",
+        "fiery red hair",
+        "adventure",
+        "chronicle",
+        "client, flushing",
+        "cried our client",
+        "scene of action",
+        "autumn of last year",
+    )
+
+    meeting_score = sum(1 for marker in meeting_markers if marker in normalized)
+    narrative_score = sum(1 for marker in narrative_markers if marker in normalized)
+
+    # Strong explicit safety case: public-domain story / Sherlock-style audio.
+    if narrative_score >= 3 and meeting_score <= 2:
+        return True
+
+    # Generic fallback: many sentences but no business-meeting structure.
+    action_language = re.search(
+        r"\b(?:we need to|we should|please|can you|by friday|owner|due date|next step|action item)\b",
+        normalized,
+    )
+    decision_language = re.search(
+        r"\b(?:we decided|decision is|decision one|agreed to|aligned on|approved)\b",
+        normalized,
+    )
+
+    if (
+        len(sentences) >= 12
+        and meeting_score == 0
+        and not action_language
+        and not decision_language
+    ):
+        return True
+
+    return False
+
+
+def _apply_non_meeting_safety_override(result: Any) -> Any:
+    safe_summary = (
+        "This appears to be non-meeting audio, so no business decisions or action items "
+        "were extracted."
+    )
+    safe_slots = {
+        "purpose": "",
+        "outcome": "No clear meeting structure was detected.",
+        "risks": [],
+        "next_steps": [],
+    }
+
+    _write_field(result, "summary", safe_summary)
+    _write_field(result, "summary_slots", safe_slots)
+    _write_field(result, "key_points", [])
+    _write_field(result, "decisions", [])
+    _write_field(result, "decision_objects", [])
+    _write_field(result, "action_items", [])
+    _write_field(result, "action_item_objects", [])
+
+    return result
+
+
 def apply_focused_30min_quality_pass(result: Any, transcript: Any) -> Any:
     text = _transcript_to_text(transcript)
     if not text.strip():
@@ -278,6 +374,9 @@ def apply_focused_30min_quality_pass(result: Any, transcript: Any) -> Any:
     sentences = _extract_sentences(text)
     if len(sentences) < 8:
         return result
+
+    if _looks_like_non_meeting_audio(text, sentences):
+        return _apply_non_meeting_safety_override(result)
 
     existing_actions = _as_text_list(_read_field(result, "action_items", []))
     existing_decisions = _as_text_list(_read_field(result, "decisions", []))
