@@ -1,0 +1,13 @@
+Good morning everyone, thanks for joining the Meeting Notes Assistant quality review.
+
+Today we need to decide whether the Meeting 81 output is publishable for the pilot demo. The decision is yes: Meeting 81 is acceptable as the real-meeting quality baseline after the final cleanup pass.
+
+The outcome is that we will keep Meeting 81 as the benchmark for rich meeting notes and use it to validate summaries, decisions, and action items.
+
+Next step: validate the Meeting 81 publishable output before demo.
+
+Action item: Lalita should validate the Meeting 81 publishable output before demo.
+
+We should also make sure the notes do not include greeting noise or malformed transcript fragments. The phrase verify the duration, third is not a real task and should not appear in the final action items.
+
+Another decision: Meeting 86 should remain the non-meeting safety baseline.
