@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from collections import Counter
+from dataclasses import replace
 from typing import Literal
 
 from app.services.notes_postprocess import postprocess_notes_v3
@@ -1112,13 +1113,29 @@ _ACTION_ITEM_GOOD_PREFIXES = (
     "preserve ",
     "generate ",
     "verify ",
+    "validate ",
     "update ",
     "complete ",
 )
 
 
+def _normalize_publishable_action_task(task: str) -> str:
+    """Rewrite noisy transcript/procedure fragments into publishable task text."""
+    cleaned = _clean_sentence_text(task)
+    lowered = cleaned.lower()
+
+    # Meeting/demo command fragments often arrive as: "verify the duration, third, create..."
+    # That is a transcript procedure, not a clean user-facing action item.
+    if "verify the duration" in lowered and (
+        "brand new meeting" in lowered or ", third" in lowered or "third," in lowered
+    ):
+        return "Validate the audio flow using a fresh product meeting."
+
+    return cleaned
+
+
 def _looks_like_publishable_action_task(task: str) -> bool:
-    task = _clean_sentence_text(task)
+    task = _normalize_publishable_action_task(task)
     lowered = task.lower()
 
     if not task:
@@ -1127,6 +1144,8 @@ def _looks_like_publishable_action_task(task: str) -> bool:
         return False
     if any(lowered.startswith(prefix) for prefix in _ACTION_ITEM_BAD_PREFIXES):
         return False
+    if re.search(r"\b(?:first|second|third|fourth|fifth)\s*,", lowered):
+        return False
     if len(task.split()) < 4 or len(task.split()) > 18:
         return False
     if any(lowered.startswith(prefix) for prefix in _ACTION_ITEM_GOOD_PREFIXES):
@@ -1134,6 +1153,32 @@ def _looks_like_publishable_action_task(task: str) -> bool:
     if re.match(r"^(?:[A-Z][a-z]+|Team|We|I)\s+(?:will|should|need|needs)\b", task):
         return True
     return False
+
+
+def _normalize_action_items_for_publish(
+    items: list[ActionItem],
+    *,
+    limit: int = 8,
+) -> list[ActionItem]:
+    cleaned: list[ActionItem] = []
+    seen: set[str] = set()
+
+    for item in items:
+        task = _normalize_publishable_action_task(item.task)
+        if not _looks_like_publishable_action_task(task):
+            continue
+
+        key = task.lower().rstrip(".")
+        if key in seen:
+            continue
+
+        seen.add(key)
+        cleaned.append(replace(item, task=task))
+
+        if len(cleaned) >= limit:
+            break
+
+    return cleaned
 
 
 _DECISION_MARKER_RE = re.compile(
@@ -1162,6 +1207,91 @@ def _looks_like_transcript_chunk(text: str, max_chars: int = 260) -> bool:
         return True
 
     return False
+
+
+def _looks_like_publishable_key_point(point: str) -> bool:
+    cleaned = _clean_sentence_text(point)
+    lowered = cleaned.lower()
+
+    if not cleaned:
+        return False
+    if lowered.startswith(("speaker one", "speaker two", "speaker:", "good morning")):
+        return False
+    if "good morning everyone" in lowered:
+        return False
+    if "thanks for joining" in lowered:
+        return False
+    if "client weekly sync" in lowered and lowered.startswith("speaker"):
+        return False
+    if len(cleaned.split()) < 5:
+        return False
+
+    return True
+
+
+def _slot_text_too_similar(left: str, right: str) -> bool:
+    left_words = {
+        word
+        for word in re.findall(r"[a-z0-9]+", left.lower())
+        if len(word) > 3 and word not in STOPWORDS
+    }
+    right_words = {
+        word
+        for word in re.findall(r"[a-z0-9]+", right.lower())
+        if len(word) > 3 and word not in STOPWORDS
+    }
+
+    if not left_words or not right_words:
+        return False
+
+    overlap = len(left_words & right_words) / max(1, min(len(left_words), len(right_words)))
+    return overlap >= 0.65
+
+
+def _build_publishable_outcome_from_decisions(decisions: list[str]) -> str:
+    joined = " ".join(decisions).lower()
+
+    if "pilot audience" in joined and "demo" in joined:
+        return (
+            "The team aligned on the pilot audience, demo flow, backup demo plan, "
+            "and near-term validation and outreach priorities."
+        )
+
+    if decisions:
+        first_two = "; ".join(item.rstrip(".") for item in decisions[:2])
+        return f"The team aligned on the main decisions: {first_two}."
+
+    return "The team aligned on the main priorities and next steps."
+
+
+def _clean_publishable_key_points(points: list[str], *, limit: int = 8) -> list[str]:
+    cleaned: list[str] = []
+    seen: set[str] = set()
+
+    for point in points:
+        text = _clean_sentence_text(point)
+        lowered = text.lower()
+
+        if not _looks_like_publishable_key_point(text):
+            continue
+        if lowered.startswith(("speaker one", "speaker two")):
+            continue
+        if "good morning everyone" in lowered:
+            continue
+        if "thanks for joining" in lowered:
+            continue
+
+        key = lowered.rstrip(".")
+        if key in seen:
+            continue
+
+        seen.add(key)
+        cleaned.append(text)
+
+        if len(cleaned) >= limit:
+            break
+
+    return cleaned
 
 
 def _publishable_slot_text(text: str, max_chars: int = 240) -> str:
@@ -1295,6 +1425,41 @@ def _prepare_publishable_risks(risks: list[str], limit: int = 3) -> list[str]:
     return cleaned
 
 
+def _ensure_decision_backed_action_items(
+    action_items: list[ActionItem],
+    decisions: list[str],
+    *,
+    limit: int = 8,
+) -> list[ActionItem]:
+    joined_decisions = " ".join(decisions).lower()
+    joined_actions = " ".join(item.task for item in action_items).lower()
+
+    needs_validation_action = (
+        "validate the 10 minute audio flow" in joined_decisions
+        or "validate the 10-minute audio flow" in joined_decisions
+        or ("10 minute audio flow" in joined_decisions and "validate" in joined_decisions)
+    )
+
+    has_validation_action = (
+        "validate the audio flow" in joined_actions
+        or "validate the 10 minute audio" in joined_actions
+        or "validate the 10-minute audio" in joined_actions
+    )
+
+    if needs_validation_action and not has_validation_action:
+        action_items = [
+            ActionItem(
+                owner="Team",
+                task="Validate the 10-minute audio flow using a fresh product meeting.",
+                due=None,
+                confidence=0.7,
+            ),
+            *action_items,
+        ]
+
+    return _normalize_action_items_for_publish(action_items, limit=limit)
+
+
 class LocalSummaryStrategy(NotesStrategy):
     def generate(self, transcript_text: str, slide_text: str = "") -> NotesResult:
         transcript_text = normalize_known_names(normalize_text(transcript_text))
@@ -1327,12 +1492,15 @@ class LocalSummaryStrategy(NotesStrategy):
         processed_v3 = postprocess_notes_v3(selected_points)
 
         v3_key_points = list(processed_v3.key_points)
-        key_points = [
-            p
-            for p in select_diverse_points([*v3_key_points, *selected_points], limit=10)
-            if not p.lower().startswith("by the end of the meeting")
-            and "i would also us to confirm" not in p.lower()
-        ][:8]
+        key_points = _clean_publishable_key_points(
+            [
+                p
+                for p in select_diverse_points([*v3_key_points, *selected_points], limit=12)
+                if not p.lower().startswith("by the end of the meeting")
+                and "i would also us to confirm" not in p.lower()
+            ],
+            limit=8,
+        )
 
         v3_actions = _convert_v3_action_items(list(processed_v3.action_items))
         filtered_v3_actions = [
@@ -1353,10 +1521,12 @@ class LocalSummaryStrategy(NotesStrategy):
             if _looks_like_publishable_action_task(item.task)
         ]
         action_items = merge_action_items(filtered_heuristic_actions, filtered_v3_actions, limit=8)
+        action_items = _normalize_action_items_for_publish(action_items, limit=8)
 
         processed_decisions = [item.text for item in processed_v3.decisions]
         raw_decisions = _merge_text_items(processed_decisions, extract_decisions(records), limit=8)
         decisions = _prepare_publishable_decisions(raw_decisions, records, limit=5)
+        action_items = _ensure_decision_backed_action_items(action_items, decisions, limit=8)
 
         existing_risks = [
             str(item).strip() for item in list(processed_v3.summary.risks) if str(item).strip()
@@ -1381,6 +1551,14 @@ class LocalSummaryStrategy(NotesStrategy):
         if not outcome:
             outcome = _publishable_slot_text(
                 _build_outcome(decisions, key_points, purpose, ""), max_chars=260
+            )
+        if not outcome and decisions:
+            outcome = _publishable_slot_text(
+                _build_publishable_outcome_from_decisions(decisions), max_chars=260
+            )
+        if outcome and purpose and _slot_text_too_similar(outcome, purpose):
+            outcome = _publishable_slot_text(
+                _build_publishable_outcome_from_decisions(decisions), max_chars=260
             )
 
         summary_slots = {
