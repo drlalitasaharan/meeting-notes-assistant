@@ -555,6 +555,106 @@ def extract_action_items(records: list[tuple[str, SourceType]]) -> list[ActionIt
     return deduped[:8]
 
 
+_COMPOUND_ACTION_SPLIT_RE = re.compile(
+    r"\s+and\s+(?=(?:keep|prepare|create|update|review|finalize|begin|send|collect|upload|monitor|preserve|generate|verify|complete)\b)",
+    re.IGNORECASE,
+)
+
+
+def _split_compound_action_task(task: str) -> list[str]:
+    cleaned = re.sub(r"\s+", " ", str(task or "")).strip(" .")
+    if not cleaned:
+        return []
+
+    return [
+        part.strip(" .") for part in _COMPOUND_ACTION_SPLIT_RE.split(cleaned) if part.strip(" .")
+    ]
+
+
+def _make_action_item(
+    owner: str | None,
+    task: str,
+    source_sentence: str,
+    confidence: float = 0.82,
+) -> ActionItem | None:
+    cleaned_task = _clean_sentence_text(task)
+    if not _looks_like_publishable_action_task(cleaned_task):
+        return None
+
+    return ActionItem(
+        owner=owner,
+        task=cleaned_task,
+        due=extract_due(source_sentence),
+        confidence=confidence,
+    )
+
+
+def extract_final_section_action_items(
+    records: list[tuple[str, SourceType]],
+) -> list[ActionItem]:
+    items: list[ActionItem] = []
+
+    for sentence, source in records:
+        if source != "transcript":
+            continue
+
+        cleaned_sentence = re.sub(r"\s+", " ", sentence).strip()
+        lowered = cleaned_sentence.lower()
+
+        owner_match = re.search(
+            r"\b(?P<owner>[A-Z][a-z]+)\s+will\s+(?:also\s+)?(?P<task>.+)$",
+            cleaned_sentence,
+        )
+        if owner_match:
+            owner = owner_match.group("owner")
+            raw_task = owner_match.group("task")
+            for task in _split_compound_action_task(raw_task):
+                item = _make_action_item(owner, task, cleaned_sentence)
+                if item:
+                    items.append(item)
+
+        if "demo command runbook will be updated" in lowered:
+            item = _make_action_item(
+                None,
+                "Update the demo command runbook after the successful test",
+                cleaned_sentence,
+            )
+            if item:
+                items.append(item)
+
+        if "landing page and outreach message will be reviewed and finalized" in lowered:
+            item = _make_action_item(
+                None,
+                "Review and finalize the landing page and outreach message",
+                cleaned_sentence,
+            )
+            if item:
+                items.append(item)
+
+        next_step_match = re.search(
+            r"\bnext step is to (?P<task>.+)$",
+            cleaned_sentence,
+            flags=re.IGNORECASE,
+        )
+        if next_step_match:
+            task = next_step_match.group("task")
+            item = _make_action_item(None, task, cleaned_sentence)
+            if item:
+                items.append(item)
+
+    deduped: list[ActionItem] = []
+    seen: set[str] = set()
+
+    for item in items:
+        key = _canonical_action_task(item.task)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+
+    return deduped[:8]
+
+
 def extract_decisions(records: list[tuple[str, SourceType]]) -> list[str]:
     decisions: list[str] = []
     for sentence, _source in records:
@@ -1240,8 +1340,12 @@ class LocalSummaryStrategy(NotesStrategy):
         ]
         heuristic_actions = extract_action_items(records)
         final_actions = extract_action_items(extract_final_action_records(records))
+        final_section_actions = extract_final_section_action_items(records)
+        prioritized_final_actions = merge_action_items(
+            final_section_actions, final_actions, limit=8
+        )
         prioritized_heuristic_actions = merge_action_items(
-            final_actions, heuristic_actions, limit=8
+            prioritized_final_actions, heuristic_actions, limit=8
         )
         filtered_heuristic_actions = [
             item
