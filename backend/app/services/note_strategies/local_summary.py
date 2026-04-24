@@ -983,6 +983,59 @@ def extract_risks(records: list[tuple[str, SourceType]]) -> list[str]:
     return dedupe_points(risks)[:3]
 
 
+_ACTION_ITEM_BAD_PHRASES = (
+    "concrete owners for the follow-up actions",
+    "action item clean up in the current version",
+)
+
+_ACTION_ITEM_BAD_PREFIXES = (
+    "since last week",
+    "we also confirmed",
+    "the main purpose",
+    "the meeting aligned",
+    "key outcomes",
+    "speaker one",
+    "speaker two",
+)
+
+_ACTION_ITEM_GOOD_PREFIXES = (
+    "create ",
+    "prepare ",
+    "keep ",
+    "review ",
+    "finalize ",
+    "begin ",
+    "send ",
+    "collect ",
+    "upload ",
+    "monitor ",
+    "preserve ",
+    "generate ",
+    "verify ",
+    "update ",
+    "complete ",
+)
+
+
+def _looks_like_publishable_action_task(task: str) -> bool:
+    task = _clean_sentence_text(task)
+    lowered = task.lower()
+
+    if not task:
+        return False
+    if any(phrase in lowered for phrase in _ACTION_ITEM_BAD_PHRASES):
+        return False
+    if any(lowered.startswith(prefix) for prefix in _ACTION_ITEM_BAD_PREFIXES):
+        return False
+    if len(task.split()) < 4 or len(task.split()) > 18:
+        return False
+    if any(lowered.startswith(prefix) for prefix in _ACTION_ITEM_GOOD_PREFIXES):
+        return True
+    if re.match(r"^(?:[A-Z][a-z]+|Team|We|I)\s+(?:will|should|need|needs)\b", task):
+        return True
+    return False
+
+
 class LocalSummaryStrategy(NotesStrategy):
     def generate(self, transcript_text: str, slide_text: str = "") -> NotesResult:
         transcript_text = normalize_known_names(normalize_text(transcript_text))
@@ -1023,10 +1076,20 @@ class LocalSummaryStrategy(NotesStrategy):
         ][:8]
 
         v3_actions = _convert_v3_action_items(list(processed_v3.action_items))
+        filtered_v3_actions = [
+            item for item in v3_actions if _looks_like_publishable_action_task(item.task)
+        ]
         heuristic_actions = extract_action_items(records)
         final_actions = extract_action_items(extract_final_action_records(records))
-        merged_heuristic_actions = merge_action_items(heuristic_actions, final_actions, limit=8)
-        action_items = merge_action_items(v3_actions, merged_heuristic_actions, limit=8)
+        prioritized_heuristic_actions = merge_action_items(
+            final_actions, heuristic_actions, limit=8
+        )
+        filtered_heuristic_actions = [
+            item
+            for item in prioritized_heuristic_actions
+            if _looks_like_publishable_action_task(item.task)
+        ]
+        action_items = merge_action_items(filtered_heuristic_actions, filtered_v3_actions, limit=8)
 
         processed_decisions = [item.text for item in processed_v3.decisions]
         decisions = _merge_text_items(processed_decisions, extract_decisions(records), limit=5)

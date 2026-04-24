@@ -22,6 +22,17 @@ BACKUP_DEMO_HINTS = re.compile(
 )
 
 
+NON_ACTION_HINTS = re.compile(
+    r"\b("
+    r"concrete owners for the follow-up actions|"
+    r"owners for the follow-up actions|"
+    r"clear decision on the target audience|"
+    r"finalized plan for the demo flow"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
 def apply_deterministic_action_cleanup(
     action_items: list[str] | None,
     action_item_objects: list[dict[str, Any]] | None = None,
@@ -64,6 +75,10 @@ def _canonicalize_action_text(text: str) -> str:
 
     # Drop strategy / targeting statements that are not concrete follow-up tasks.
     if STRATEGY_ACTION_HINTS.search(text):
+        return ""
+
+    # Drop agenda/summary fragments that mention actions but are not themselves tasks.
+    if NON_ACTION_HINTS.search(text):
         return ""
 
     # Canonicalize backup-demo variants into one strong action.
