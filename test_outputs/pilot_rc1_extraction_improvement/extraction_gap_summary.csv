@@ -1,0 +1,6 @@
+case,job_status,summary_len,purpose_len,outcome_len,key_points,decisions,actions,needs_decision_fix,needs_action_fix
+01_client_weekly_sync,succeeded,87,87,0,1,0,0,yes,yes
+02_product_planning,succeeded,250,191,57,3,0,0,yes,yes
+03_sales_discovery,succeeded,150,91,57,6,0,6,yes,no
+04_engineering_standup,succeeded,156,156,0,1,0,0,yes,yes
+05_executive_decision_review,succeeded,191,191,0,1,0,0,yes,yes
