@@ -1,0 +1,43 @@
+name: Prodready Compose Config
+
+on:
+  pull_request:
+    paths:
+      - "docker-compose.prodready.yml"
+      - ".github/workflows/prodready-compose-config.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "docker-compose.prodready.yml"
+      - ".github/workflows/prodready-compose-config.yml"
+
+jobs:
+  validate-prodready-compose:
+    name: Validate prodready Docker Compose config
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Render prodready compose config
+        run: |
+          docker compose -f docker-compose.prodready.yml config >/tmp/mna_prodready_config.yml
+
+      - name: Assert prodready defaults are safe
+        run: |
+          grep -q "image: postgres:16-alpine" /tmp/mna_prodready_config.yml
+          grep -q "POSTGRES_USER: mna" /tmp/mna_prodready_config.yml
+          grep -q "POSTGRES_PASSWORD: mna_local_pw" /tmp/mna_prodready_config.yml
+          grep -q "postgresql+psycopg2://mna:mna_local_pw@db:5432/meetings" /tmp/mna_prodready_config.yml
+          grep -q "data=json.load" /tmp/mna_prodready_config.yml
+          grep -q "status') == 'ok'" /tmp/mna_prodready_config.yml
+
+      - name: Reject old unsafe backend healthcheck and DB defaults
+        run: |
+          ! grep -q 'postgres:15-alpine' docker-compose.prodready.yml
+          ! grep -q 'postgres:postgres@db:5432/meetings' docker-compose.prodready.yml
+          ! grep -q 'POSTGRES_USER:-postgres' docker-compose.prodready.yml
+          ! grep -q 'POSTGRES_PASSWORD:-postgres' docker-compose.prodready.yml
+          ! grep -q 'curl", "-f", "http://localhost:8000/healthz' docker-compose.prodready.yml
