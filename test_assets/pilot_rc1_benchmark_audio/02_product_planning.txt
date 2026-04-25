@@ -1,0 +1,8 @@
+Meeting type: Product planning meeting.
+Speaker 1: The purpose of this meeting is to prioritize the next product improvement for the Meeting Notes Assistant.
+Speaker 2: We reviewed three options: improve action recall, improve decision extraction, or expand benchmark coverage.
+Speaker 1: Decision: benchmark coverage is the highest priority because it protects the pilot workflow across realistic meeting types.
+Speaker 2: The main risk is that one demo file may look strong while other meeting formats perform differently.
+Speaker 1: Action item for Lalita: create a five-scenario benchmark pack.
+Speaker 2: Action item for product: define minimum quality thresholds for summary, decisions, and action items.
+Speaker 1: The outcome is a stronger evidence baseline for Pilot RC1.

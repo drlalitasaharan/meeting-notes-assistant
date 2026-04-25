@@ -1,0 +1,8 @@
+Meeting type: Sales discovery call.
+Speaker 1: The purpose of this call is to understand the client’s current meeting documentation workflow.
+Speaker 2: We currently spend thirty minutes after each client meeting writing notes manually.
+Speaker 1: The main pain points are missed action items, inconsistent summaries, and slow follow-up emails.
+Speaker 2: Decision: we will test the Meeting Notes Assistant with two internal recordings before inviting the broader team.
+Speaker 1: Action item for the client: send one sample meeting recording by Wednesday.
+Speaker 2: Action item for Lalita: share the pilot onboarding instructions and expected output format.
+Speaker 1: The outcome is that the client is interested in a small controlled pilot.

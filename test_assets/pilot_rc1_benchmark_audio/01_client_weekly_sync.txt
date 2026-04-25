@@ -1,0 +1,8 @@
+Meeting type: Client weekly sync.
+Speaker 1: The purpose of today’s meeting is to review pilot progress, confirm blockers, and agree next steps.
+Speaker 2: The upload workflow worked in the last rehearsal, and the notes export was successful.
+Speaker 1: The key risk is making sure the demo remains stable during client review.
+Speaker 2: Decision: we will use the current Pilot RC1 workflow for the first controlled client demo.
+Speaker 1: Action item for Lalita: prepare the demo checklist before Friday.
+Speaker 2: Action item for engineering: monitor backend health and job completion during rehearsal.
+Speaker 1: The outcome is that we are ready to continue with pilot outreach after one more benchmark pass.

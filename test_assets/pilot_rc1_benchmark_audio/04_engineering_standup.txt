@@ -1,0 +1,8 @@
+Meeting type: Engineering standup.
+Speaker 1: The purpose of today’s standup is to confirm engineering progress and unblock the release candidate.
+Speaker 2: Yesterday I validated the health endpoint, Redis connection, and markdown export.
+Speaker 3: I found one issue where pre-commit modified a JSON file and the commit needed to be re-staged.
+Speaker 1: Decision: we will keep the pre-commit workflow because it protects quality and formatting.
+Speaker 2: Action item for engineering: add a short troubleshooting note for failed pre-commit attempts.
+Speaker 3: Action item for Lalita: run the quality gate after every release candidate branch.
+Speaker 1: The outcome is that the team has a clean process for regression-safe pilot releases.

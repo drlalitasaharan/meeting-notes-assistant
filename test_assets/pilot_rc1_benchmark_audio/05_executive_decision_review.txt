@@ -1,0 +1,8 @@
+Meeting type: Executive decision review.
+Speaker 1: The purpose of this review is to decide whether Pilot RC1 is ready for controlled outreach.
+Speaker 2: The release documentation is complete, the live rehearsal passed, and the quality gate scored one hundred out of one hundred.
+Speaker 1: The remaining risk is broader reliability across multiple realistic meeting scenarios.
+Speaker 2: Decision: we will not start broad outreach until the benchmark audio coverage pack is completed.
+Speaker 1: Action item for Lalita: prepare a summary report comparing all benchmark scenarios.
+Speaker 2: Action item for the product workflow: keep the benchmark outputs under test outputs for future comparison.
+Speaker 1: The outcome is approval to proceed with benchmark coverage before customer-facing expansion.
