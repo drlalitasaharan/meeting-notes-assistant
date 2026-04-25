@@ -1,0 +1,91 @@
+name: Prodready Healthz Smoke Test
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - "worker/**"
+      - "docker-compose.prodready.yml"
+      - ".github/workflows/prodready-healthz-smoke-test.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - "worker/**"
+      - "docker-compose.prodready.yml"
+      - ".github/workflows/prodready-healthz-smoke-test.yml"
+
+jobs:
+  prodready-healthz-smoke-test:
+    name: Start prodready stack and verify healthz
+    runs-on: ubuntu-latest
+
+    env:
+      POSTGRES_USER: mna
+      POSTGRES_PASSWORD: mna_local_pw
+      POSTGRES_DB: meetings
+      DATABASE_URL: postgresql+psycopg2://mna:mna_local_pw@db:5432/meetings
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Render prodready compose config
+        run: |
+          docker compose -f docker-compose.prodready.yml config >/tmp/mna_prodready_config.yml
+
+      - name: Start prodready dependencies
+        run: |
+          docker compose -f docker-compose.prodready.yml up -d --force-recreate db redis minio
+
+      - name: Start prodready backend
+        run: |
+          docker compose -f docker-compose.prodready.yml up -d --build --force-recreate backend
+
+      - name: Wait for backend Docker health
+        run: |
+          BACKEND_CONTAINER="$(docker compose -f docker-compose.prodready.yml ps -q backend)"
+
+          if [ -z "$BACKEND_CONTAINER" ]; then
+            echo "Backend container not found"
+            docker compose -f docker-compose.prodready.yml ps -a
+            exit 1
+          fi
+
+          STATUS=""
+          for i in $(seq 1 40); do
+            STATUS="$(docker inspect "$BACKEND_CONTAINER" --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}no-healthcheck{{end}}')"
+            echo "Attempt $i: $STATUS"
+
+            if [ "$STATUS" = "healthy" ]; then
+              exit 0
+            fi
+
+            sleep 2
+          done
+
+          echo "Backend did not become healthy"
+          docker compose -f docker-compose.prodready.yml ps -a
+          docker compose -f docker-compose.prodready.yml logs --tail=160 backend
+          docker inspect "$BACKEND_CONTAINER" --format '{{json .State.Health}}'
+          exit 1
+
+      - name: Verify strict healthz JSON
+        run: |
+          docker compose -f docker-compose.prodready.yml exec -T backend python -c "import json, urllib.request; data=json.load(urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3)); print(json.dumps(data, indent=2)); raise SystemExit(0 if data.get('status') == 'ok' and data.get('checks', {}).get('db', {}).get('status') == 'ok' and data.get('checks', {}).get('redis', {}).get('status') == 'ok' and data.get('checks', {}).get('storage', {}).get('status') == 'ok' else 1)"
+
+      - name: Show final compose status
+        if: always()
+        run: |
+          docker compose -f docker-compose.prodready.yml ps -a
+
+      - name: Show backend logs on failure
+        if: failure()
+        run: |
+          docker compose -f docker-compose.prodready.yml logs --tail=200 backend
+
+      - name: Stop prodready stack
+        if: always()
+        run: |
+          docker compose -f docker-compose.prodready.yml down -v --remove-orphans
