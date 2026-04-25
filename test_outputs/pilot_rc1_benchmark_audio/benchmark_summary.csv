@@ -1,0 +1,6 @@
+case,meeting_id,job_id,status,summary_len,key_points,decisions,actions,purpose_len,outcome_len,score
+01_client_weekly_sync,185,b9993ae6-d272-41a2-b1b6-9485eb85ac6b,succeeded,87,1,0,0,87,0,55
+02_product_planning,186,5afaf8e8-9b6e-4a84-a88a-c2bb18607baa,succeeded,250,3,0,0,191,57,70
+03_sales_discovery,187,549803cd-a0f9-49d3-97a4-4f4c8760462c,succeeded,150,6,0,6,91,57,85
+04_engineering_standup,188,ef5fea30-6c1c-42a0-8dc5-92206b2df8b6,succeeded,156,1,0,0,156,0,55
+05_executive_decision_review,189,afa3e265-f4d9-4906-9322-de46f7c0da58,succeeded,191,1,0,0,191,0,55

@@ -89,3 +89,5 @@ frontend/.next/
 # frontend generated files
 frontend/.next/
 frontend/node_modules/
+test_assets/pilot_rc1_benchmark_audio/*.aiff
+test_assets/pilot_rc1_benchmark_audio/*.m4a
