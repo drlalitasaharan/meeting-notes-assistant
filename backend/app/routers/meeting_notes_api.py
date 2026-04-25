@@ -1,6 +1,7 @@
 # mypy: ignore-errors
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any, List
 
@@ -131,6 +132,26 @@ def get_meeting_notes(
     }
 
 
+def _clean_publishable_markdown_text(text: str) -> str:
+    """Apply final lightweight cleanup before markdown export."""
+    if not text:
+        return text
+
+    cleaned = text
+
+    replacements = {
+        "I'd us to": "I'd like us to",
+        "I’d us to": "I’d like us to",
+    }
+    for old, new in replacements.items():
+        cleaned = cleaned.replace(old, new)
+
+    # Remove accidental spaces before punctuation in publishable notes.
+    cleaned = re.sub(r"[ \t]+([,.;:!?])", r"\1", cleaned)
+
+    return cleaned
+
+
 @router.get("/{meeting_id}/notes.md")
 def download_meeting_notes_markdown(
     meeting_id: int,
@@ -222,7 +243,7 @@ def download_meeting_notes_markdown(
         lines.append("- (none)")
     lines.append("")
 
-    md = "\n".join(lines)
+    md = _clean_publishable_markdown_text("\n".join(lines))
     filename = f"meeting_{meeting_id}_notes.md"
 
     headers = {
