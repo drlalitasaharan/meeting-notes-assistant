@@ -1,0 +1,12 @@
+
+backend/storage/uploads/
+backend/storage/artifacts/
+backend/storage/tmp/
+test_outputs/
+.venv/
+frontend/node_modules/
+*.wav
+*.mp3
+*.m4a
+*.mp4
+*.mov
