@@ -58,4 +58,4 @@ The structured fallback now captures decisions and actions reliably, but some ge
 
 ## Status
 
-Planned.
+Validated.
