@@ -363,6 +363,7 @@ def _apply_non_meeting_safety_override(result: Any) -> Any:
     _write_field(result, "action_items", [])
     _write_field(result, "action_item_objects", [])
 
+    result = _pilot_rc1_precision_cleanup_result(result)
     return result
 
 
@@ -445,6 +446,7 @@ def apply_focused_30min_quality_pass(result: Any, transcript: Any) -> Any:
     _write_field(result, "action_item_objects", _to_action_item_objects(merged_actions))
 
     result = _apply_pilot_rc1_structured_signal_fallback(result, sentences)
+    result = _pilot_rc1_precision_cleanup_result(result)
     return result
 
 
@@ -1128,6 +1130,7 @@ def _apply_pilot_rc1_structured_signal_fallback(
         _pilot_rc1_write_field(result, "action_item_objects", actions[:7])
         _sync_summary_next_steps_from_actions(result, merged_action_items, limit=3)
 
+    result = _pilot_rc1_precision_cleanup_result(result)
     return result
 
 
@@ -1520,4 +1523,302 @@ def _pilot_rc1_compact_sync_outcome_from_decisions(
     _pilot_rc1_write_field(result, "summary_slots", updated_slots)
 
 
-# END Pilot RC1 compact structured signal helpers
+# Pilot RC1 precision cleanup helpers
+
+_PILOT_RC1_GENERIC_OWNERS = {
+    "team",
+    "product",
+    "engineering",
+    "leadership",
+    "operations",
+    "sales",
+    "client",
+    "qa",
+}
+
+
+def _pilot_rc1_precision_norm(value: str) -> str:
+    value = re.sub(r"[^a-z0-9]+", " ", str(value or "").lower())
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def _pilot_rc1_precision_task_key(value: str) -> str:
+    value = str(value or "")
+
+    value = re.sub(
+        r"\bthe meeting aligned on the main priorities and next steps\b.*$",
+        "",
+        value,
+        flags=re.IGNORECASE,
+    )
+    value = re.sub(
+        r"\boutcome is a .*?$",
+        "",
+        value,
+        flags=re.IGNORECASE,
+    )
+    value = re.sub(
+        r"^\s*[A-Za-z][A-Za-z\s]{0,40}\s*[:\-]\s*",
+        "",
+        value,
+    )
+    value = re.sub(
+        r"\b(before|by)\s+(friday|monday|tuesday|wednesday|thursday)\b",
+        "",
+        value,
+        flags=re.IGNORECASE,
+    )
+
+    return _pilot_rc1_precision_norm(value)
+
+
+def _pilot_rc1_precision_is_generic_owner(owner: str | None) -> bool:
+    return _pilot_rc1_precision_norm(owner or "") in _PILOT_RC1_GENERIC_OWNERS
+
+
+def _pilot_rc1_precision_decision_key(value: str) -> str:
+    key = _pilot_rc1_precision_norm(value)
+
+    key = re.sub(r"\bdecision\s+(one|two|three|four|\d+)\b", "", key)
+    key = re.sub(r"\bfinal\s+decision\b", "", key)
+    key = re.sub(
+        r"^(we\s+will|we\s+are\s+going\s+to|that\s+we\s+will|is\s+that\s+we\s+will)\s+", "", key
+    )
+    key = re.sub(r"^(use|keep|prioritize|test|approve)\s+", r"\1 ", key)
+    key = re.sub(r"\bthe meeting aligned on the main priorities and next steps\b.*$", "", key)
+    key = re.sub(r"\boutcome is\b.*$", "", key)
+
+    return re.sub(r"\s+", " ", key).strip()
+
+
+def _pilot_rc1_precision_is_near_duplicate(new_key: str, seen_keys: set[str]) -> bool:
+    if not new_key:
+        return True
+
+    for existing in seen_keys:
+        if new_key == existing:
+            return True
+        if len(new_key) >= 24 and new_key in existing:
+            return True
+        if len(existing) >= 24 and existing in new_key:
+            return True
+
+        new_tokens = set(new_key.split())
+        existing_tokens = set(existing.split())
+        if len(new_tokens) >= 5 and len(existing_tokens) >= 5:
+            overlap = len(new_tokens & existing_tokens) / max(len(new_tokens), len(existing_tokens))
+            if overlap >= 0.78:
+                return True
+
+    return False
+
+
+def _pilot_rc1_precision_dedupe_decisions(decisions: list[str], *, limit: int = 5) -> list[str]:
+    deduped: list[str] = []
+    seen: set[str] = set()
+
+    for decision in decisions:
+        clean = re.sub(r"\s+", " ", str(decision or "")).strip(" ,.;:-")
+        if not clean:
+            continue
+
+        clean = re.sub(
+            r"\s+The meeting aligned on the main priorities and next steps\.?$",
+            "",
+            clean,
+            flags=re.IGNORECASE,
+        ).strip(" ,.;:-")
+
+        key = _pilot_rc1_precision_decision_key(clean)
+
+        if _pilot_rc1_precision_is_near_duplicate(key, seen):
+            continue
+
+        seen.add(key)
+        deduped.append(clean)
+
+        if len(deduped) >= limit:
+            break
+
+    return deduped
+
+
+def _pilot_rc1_precision_split_embedded_owner(
+    owner: str | None,
+    task: str,
+    text: str,
+) -> tuple[str | None, str]:
+    task = re.sub(r"\s+", " ", str(task or "")).strip(" ,.;:-")
+    text = re.sub(r"\s+", " ", str(text or "")).strip(" ,.;:-")
+
+    candidate = task or text
+    if ":" not in candidate:
+        return owner, task
+
+    possible_owner, possible_task = candidate.split(":", 1)
+    possible_owner = possible_owner.strip()
+    possible_task = possible_task.strip()
+
+    if not possible_owner or not possible_task:
+        return owner, task
+
+    if len(possible_owner.split()) > 4:
+        return owner, task
+
+    if _pilot_rc1_precision_is_generic_owner(owner) or not owner:
+        return possible_owner, possible_task
+
+    return owner, task
+
+
+def _pilot_rc1_precision_clean_task_text(task: str) -> str:
+    task = re.sub(r"\s+", " ", str(task or "")).strip(" ,.;:-")
+
+    task = re.sub(
+        r"\s+The meeting aligned on the main priorities and next steps\.?$",
+        "",
+        task,
+        flags=re.IGNORECASE,
+    )
+    task = re.sub(
+        r",?\s*outcome is .*?$",
+        "",
+        task,
+        flags=re.IGNORECASE,
+    )
+
+    task = task.strip(" ,.;:-")
+
+    summary_like_patterns = (
+        "the meeting focused on",
+        "meeting focused on",
+        "reviewing current meeting notes assistant progress",
+        "refining pilot outreach and positioning",
+    )
+
+    normalized_task = task.lower().strip()
+    normalized_task = normalized_task.removeprefix("s ").strip()
+
+    if any(pattern in normalized_task for pattern in summary_like_patterns):
+        return ""
+
+    if task.lower() in {"fix the", "fix the."}:
+        return ""
+
+    return task
+
+
+def _pilot_rc1_precision_dedupe_actions(
+    action_objects: list[dict[str, Any]],
+    *,
+    limit: int = 7,
+) -> list[dict[str, Any]]:
+    by_task: dict[str, dict[str, Any]] = {}
+
+    for item in action_objects:
+        if not isinstance(item, dict):
+            continue
+
+        owner = str(item.get("owner") or "").strip() or None
+        task = re.sub(r"\s+", " ", str(item.get("task") or "").strip(" ,.;:-"))
+        text = re.sub(r"\s+", " ", str(item.get("text") or "").strip(" ,.;:-"))
+
+        if not task and text:
+            task = re.sub(r"^\s*[A-Za-z][A-Za-z\s]{0,40}\s*[:\-]\s*", "", text).strip()
+
+        owner, task = _pilot_rc1_precision_split_embedded_owner(owner, task, text)
+        task = _pilot_rc1_precision_clean_task_text(task)
+
+        if not task:
+            continue
+
+        owner = owner or "Team"
+        task_key = _pilot_rc1_precision_task_key(task)
+        if not task_key:
+            continue
+
+        clean_item = {
+            "text": f"{owner}: {task}",
+            "owner": owner,
+            "task": task,
+            "due_date": item.get("due_date"),
+            "status": item.get("status") or "open",
+            "priority": item.get("priority") or "medium",
+            "confidence": item.get("confidence") or 0.86,
+        }
+
+        existing = by_task.get(task_key)
+        if existing is None:
+            by_task[task_key] = clean_item
+            continue
+
+        existing_owner = existing.get("owner")
+        if _pilot_rc1_precision_is_generic_owner(
+            existing_owner
+        ) and not _pilot_rc1_precision_is_generic_owner(owner):
+            by_task[task_key] = clean_item
+
+    return list(by_task.values())[:limit]
+
+
+def _pilot_rc1_precision_object_to_dict(item: Any) -> dict[str, Any]:
+    if isinstance(item, dict):
+        return dict(item)
+
+    if hasattr(item, "model_dump"):
+        dumped = item.model_dump()
+        if isinstance(dumped, dict):
+            return dumped
+
+    if hasattr(item, "dict"):
+        dumped = item.dict()
+        if isinstance(dumped, dict):
+            return dumped
+
+    data: dict[str, Any] = {}
+    for key in ("text", "owner", "task", "due_date", "status", "priority", "confidence"):
+        if hasattr(item, key):
+            data[key] = getattr(item, key)
+
+    return data
+
+
+def _pilot_rc1_precision_cleanup_result(result: Any) -> Any:
+    decisions = _as_text_list(_read_field(result, "decisions", []))
+    if decisions:
+        cleaned_decisions = _pilot_rc1_precision_dedupe_decisions(decisions)
+        _pilot_rc1_write_field(result, "decisions", cleaned_decisions)
+        _pilot_rc1_write_field(
+            result,
+            "decision_objects",
+            [{"text": item, "confidence": 0.86} for item in cleaned_decisions],
+        )
+
+    raw_action_objects = _read_field(result, "action_item_objects", [])
+    action_objects: list[dict[str, Any]] = []
+
+    if isinstance(raw_action_objects, list):
+        action_objects = [
+            _pilot_rc1_precision_object_to_dict(item)
+            for item in raw_action_objects
+            if _pilot_rc1_precision_object_to_dict(item)
+        ]
+
+    if not action_objects:
+        action_texts = _as_text_list(_read_field(result, "action_items", []))
+        action_objects = _to_action_item_objects(action_texts)
+
+    if action_objects:
+        cleaned_actions = _pilot_rc1_precision_dedupe_actions(action_objects)
+        _pilot_rc1_write_field(result, "action_item_objects", cleaned_actions)
+        _pilot_rc1_write_field(
+            result,
+            "action_items",
+            [
+                f"{str(item.get('owner') or 'Team').strip()}: {str(item.get('task') or '').strip()}"
+                for item in cleaned_actions
+                if item.get("task")
+            ],
+        )
+
+    return result

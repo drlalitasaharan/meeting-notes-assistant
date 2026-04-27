@@ -18,7 +18,10 @@ from app.services.media import load_audio_for_meeting
 from app.services.note_strategies.factory import get_notes_strategy
 from app.services.notes import generate_meeting_notes
 from app.services.notes_postprocess import normalize_canonical_notes
-from app.services.notes_quality_pass import apply_focused_30min_quality_pass
+from app.services.notes_quality_pass import (
+    _pilot_rc1_precision_cleanup_result,
+    apply_focused_30min_quality_pass,
+)
 from app.services.ocr import extract_slide_text_for_meeting
 from app.services.transcription import get_transcriber
 
@@ -155,6 +158,22 @@ def process_meeting(meeting_id: str) -> None:
         key_points = notes_dict.get("key_points") or []
         decisions = notes_dict.get("decisions") or []
         decision_objects = notes_dict.get("decision_objects") or []
+
+        precision_payload: dict[str, Any] = {
+            "summary": summary_text,
+            "summary_slots": summary_slots,
+            "key_points": key_points,
+            "action_items": cleaned_action_items,
+            "action_item_objects": action_item_objects,
+            "decisions": decisions,
+            "decision_objects": decision_objects,
+        }
+        precision_payload = _pilot_rc1_precision_cleanup_result(precision_payload)
+
+        cleaned_action_items = precision_payload.get("action_items") or []
+        action_item_objects = precision_payload.get("action_item_objects") or []
+        decisions = precision_payload.get("decisions") or []
+        decision_objects = precision_payload.get("decision_objects") or []
 
         # 6) Persist MeetingNotes row
         normalized_notes = normalize_canonical_notes(
