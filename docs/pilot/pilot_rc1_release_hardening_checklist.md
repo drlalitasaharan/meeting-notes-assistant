@@ -48,4 +48,4 @@ Recent completed quality work:
 
 ## Status
 
-Planned.
+Final demo-output polish in progress.
