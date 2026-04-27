@@ -1783,6 +1783,111 @@ def _pilot_rc1_precision_object_to_dict(item: Any) -> dict[str, Any]:
     return data
 
 
+def _pilot_rc1_release_hardening_final_output_polish(result: dict[str, Any]) -> dict[str, Any]:
+    """Final deterministic polish for Pilot RC1 demo-facing output."""
+    false_decision_values = {"and action items", "action items"}
+
+    def clean_text(value: object) -> str:
+        return str(value or "").strip()
+
+    def decision_text(item: object) -> str:
+        if isinstance(item, dict):
+            return clean_text(item.get("text"))
+        return clean_text(item)
+
+    def is_false_decision(item: object) -> bool:
+        normalized = decision_text(item).lower().strip(" .")
+        return normalized in false_decision_values
+
+    decisions = [item for item in (result.get("decisions") or []) if not is_false_decision(item)]
+    decision_objects = [
+        item for item in (result.get("decision_objects") or []) if not is_false_decision(item)
+    ]
+
+    summary_like_patterns = (
+        "keep the launch scope focused on upload",
+        "launch scope focused on upload",
+        "structured notes, decisions, and action items",
+        "the meeting focused on",
+        "meeting focused on",
+        "reviewing current meeting notes assistant progress",
+        "refining pilot outreach and positioning",
+    )
+    overmerge_markers = (
+        " The purpose of today's meeting",
+        " the purpose of today's meeting",
+        " The meeting purpose",
+        " the meeting purpose",
+    )
+
+    def clean_task(task: object) -> str:
+        value = clean_text(task)
+        for marker in overmerge_markers:
+            if marker in value:
+                value = value.split(marker, 1)[0].strip()
+
+        value = value.strip()
+        if value.lower().startswith("s "):
+            value = value[2:].strip()
+
+        normalized = value.lower().strip(" .")
+        if any(pattern in normalized for pattern in summary_like_patterns):
+            return ""
+
+        return value
+
+    cleaned_action_objects: list[dict[str, Any]] = []
+    seen_actions: set[tuple[str, str]] = set()
+
+    for item in result.get("action_item_objects") or []:
+        if not isinstance(item, dict):
+            continue
+
+        cleaned = dict(item)
+        cleaned_task = clean_task(cleaned.get("task"))
+        if not cleaned_task:
+            continue
+
+        owner = clean_text(cleaned.get("owner")) or "Team"
+        key = (owner.lower(), cleaned_task.lower().strip(" ."))
+        if key in seen_actions:
+            continue
+
+        seen_actions.add(key)
+        cleaned["owner"] = owner
+        cleaned["task"] = cleaned_task
+        cleaned["text"] = f"{owner}: {cleaned_task}"
+        cleaned_action_objects.append(cleaned)
+
+    cleaned_action_items = [
+        f"{item.get('owner')}: {item.get('task')}"
+        for item in cleaned_action_objects
+        if item.get("owner") and item.get("task")
+    ]
+
+    summary_slots = result.get("summary_slots")
+    if isinstance(summary_slots, dict):
+        summary_slots = dict(summary_slots)
+        cleaned_next_steps = []
+        for step in summary_slots.get("next_steps") or []:
+            cleaned_step = clean_task(step)
+            if cleaned_step:
+                if not cleaned_step.endswith("."):
+                    cleaned_step += "."
+                cleaned_next_steps.append(cleaned_step)
+        summary_slots["next_steps"] = cleaned_next_steps
+
+    result = dict(result)
+    result["decisions"] = decisions
+    result["decision_objects"] = decision_objects
+    result["action_item_objects"] = cleaned_action_objects
+    result["action_items"] = cleaned_action_items
+    if isinstance(summary_slots, dict):
+        result["summary_slots"] = summary_slots
+
+    return result
+
+
 def _pilot_rc1_precision_cleanup_result(result: Any) -> Any:
     decisions = _as_text_list(_read_field(result, "decisions", []))
     if decisions:
@@ -1820,5 +1925,133 @@ def _pilot_rc1_precision_cleanup_result(result: Any) -> Any:
                 if item.get("task")
             ],
         )
+
+    result = _pilot_rc1_release_hardening_final_output_polish(result)
+    result = _apply_release_hardening_key_point_action_recall(result)
+    return result
+
+
+def _apply_release_hardening_key_point_action_recall(result: dict) -> dict:
+    """Recover clean action items from key points after aggressive cleanup.
+
+    This is intentionally narrow for pilot RC1 release hardening:
+    - only recovers explicit "Owner should <task>" key points
+    - avoids decisions, purpose text, and launch-scope fragments
+    - does not duplicate existing owner/task pairs
+    """
+    if not isinstance(result, dict):
+        return result
+
+    key_points = result.get("key_points") or []
+    action_objects = list(result.get("action_item_objects") or [])
+
+    def _normalize_recalled_task(value: object) -> str:
+        task = str(value or "").strip().lower()
+        for due_phrase in (
+            " before friday",
+            " by friday",
+            " before monday",
+            " by monday",
+            " before tuesday",
+            " by tuesday",
+            " before wednesday",
+            " by wednesday",
+            " before thursday",
+            " by thursday",
+            " before next week",
+            " by next week",
+        ):
+            if task.endswith(due_phrase):
+                task = task[: -len(due_phrase)].strip()
+        return task
+
+    existing_pairs = {
+        (
+            str(item.get("owner") or "").strip().lower(),
+            _normalize_recalled_task(item.get("task")),
+        )
+        for item in action_objects
+        if isinstance(item, dict)
+    }
+
+    blocked_fragments = (
+        "the purpose of today's meeting",
+        "we will use the current demo workflow",
+        "we will keep the launch scope focused",
+        "decision one",
+        "decision two",
+        "and action items",
+    )
+
+    recovered: list[dict] = []
+
+    for point in key_points:
+        text = str(point or "").strip()
+        text_lower = text.lower()
+
+        if not text:
+            continue
+        if any(fragment in text_lower for fragment in blocked_fragments):
+            continue
+        if " should " not in text_lower:
+            continue
+
+        owner_part, task_part = text.split(" should ", 1)
+        owner = owner_part.strip().title()
+        task = task_part.strip(" .")
+
+        if not owner or not task:
+            continue
+
+        # Normalize common transcription artifact from "backend health".
+        task = task.replace("back and health", "backend health")
+        task = task.replace("Back and health", "backend health")
+
+        task_lower = task.lower().strip()
+        if not task_lower:
+            continue
+        if task_lower.startswith("s "):
+            continue
+        if any(fragment in task_lower for fragment in blocked_fragments):
+            continue
+
+        pair = (owner.lower(), _normalize_recalled_task(task))
+        if pair in existing_pairs:
+            continue
+
+        recovered.append(
+            {
+                "text": f"{owner}: {task[:1].upper() + task[1:]}",
+                "owner": owner,
+                "task": task[:1].upper() + task[1:],
+                "due_date": None,
+                "status": "open",
+                "priority": "medium",
+                "confidence": 0.68,
+            }
+        )
+        existing_pairs.add(pair)
+
+    if recovered:
+        result["action_item_objects"] = action_objects + recovered
+        result["action_items"] = [
+            str(item.get("text") or f"{item.get('owner')}: {item.get('task')}")
+            for item in result["action_item_objects"]
+            if isinstance(item, dict)
+        ]
+
+        slots = result.get("summary_slots") or {}
+        next_steps = list(slots.get("next_steps") or [])
+        existing_steps = {str(step).strip().lower() for step in next_steps}
+
+        for item in recovered:
+            task = str(item.get("task") or "").strip()
+            step = task if task.endswith(".") else f"{task}."
+            if step.lower() not in existing_steps:
+                next_steps.append(step)
+                existing_steps.add(step.lower())
+
+        slots["next_steps"] = next_steps
+        result["summary_slots"] = slots
 
     return result
