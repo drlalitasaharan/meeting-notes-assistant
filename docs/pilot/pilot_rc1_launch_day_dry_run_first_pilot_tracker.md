@@ -154,3 +154,37 @@ Required evidence:
 ## Final recommendation
 
 Proceed to first-user pilots only after one clean launch-day dry run passes and the go/no-go checklist is marked GO.
+
+## Launch-day dry-run verification result
+
+Status: GO / PASS
+
+Pilot RC1 passed the launch-day dry run and is ready to proceed to controlled first-user pilots.
+
+Verification result:
+
+- Quality gate score: 100/100
+- Threshold: 85/100
+- Final status: PASS
+- Meeting ID: 281
+- Job ID: bf22ed56-080d-4e90-89ff-c455953183b6
+- Audio file: backend/storage/uploads/meeting_115.m4a
+- Final job status: succeeded
+- Backend health: ok
+- Database health: healthy
+- Redis health: healthy
+- Storage health: healthy
+- Worker status: running and consuming jobs
+- Dry-run evidence archive: ../mna_pilot_rc1_launch_day_dry_run_20260428_160018.tar.gz
+
+Go/no-go decision:
+
+GO for controlled first-user pilots using the locked Pilot RC1 baseline.
+
+Operating constraint:
+
+Continue using the conservative launch-safe claim:
+
+Best for short, structured business meetings.
+
+Human review remains recommended before sharing generated notes externally.
