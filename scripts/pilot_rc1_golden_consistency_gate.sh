@@ -2,11 +2,15 @@
 set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:8000}"
+MAX_POLL_ATTEMPTS="${MAX_POLL_ATTEMPTS:-240}"
+POLL_SLEEP_SECONDS="${POLL_SLEEP_SECONDS:-2}"
 OUT_DIR="test_outputs/pilot_rc1_golden_consistency_gate_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$OUT_DIR"
 
 echo "Pilot RC1 Golden Consistency Gate"
 echo "Base URL: $BASE_URL"
+echo "Max poll attempts: $MAX_POLL_ATTEMPTS"
+echo "Poll sleep seconds: $POLL_SLEEP_SECONDS"
 echo "Output directory: $OUT_DIR"
 echo
 
@@ -72,7 +76,7 @@ for SAMPLE in "${SAMPLE_FILES[@]}"; do
   echo "Poll job"
   JOB_STATUS="unknown"
 
-  for i in $(seq 1 120); do
+  for i in $(seq 1 "$MAX_POLL_ATTEMPTS"); do
     JOB_RESP="$(curl -fsS "$BASE_URL/v1/jobs/$JOB_ID")"
     echo "$JOB_RESP" > "$SAMPLE_OUT/job_latest.json"
 
@@ -83,7 +87,7 @@ for SAMPLE in "${SAMPLE_FILES[@]}"; do
       break
     fi
 
-    sleep 2
+    sleep "$POLL_SLEEP_SECONDS"
   done
 
   if [ "$JOB_STATUS" != "succeeded" ]; then
