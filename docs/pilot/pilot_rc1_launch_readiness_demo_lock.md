@@ -110,3 +110,35 @@ Designed for short, structured business meetings, with human review recommended 
 Status: Pending launch-readiness verification
 
 Final launch-readiness decision should be recorded after regression checks, Pilot RC1 quality gate, demo output review, markdown review, JSON review, and evidence archive creation.
+
+## Launch-readiness verification result
+
+Status: PASS
+
+Pilot RC1 passed the launch-readiness quality gate for controlled public demo usage.
+
+Verification result:
+
+- Quality gate score: 100/100
+- Threshold: 85/100
+- Final status: PASS
+- Meeting ID: 280
+- Job ID: 10262856-7ec3-4b60-8046-f0e0c9a9ecd9
+- Audio file: backend/storage/uploads/meeting_115.m4a
+- Final job status: succeeded
+
+Runtime note:
+
+An earlier quality-gate attempt stayed queued because the local worker was not consuming jobs. After the worker/runtime issue was resolved, the job moved from queued to running to succeeded.
+
+Known verification note:
+
+Full-backend mypy still has existing typing debt across the repository. This branch does not change backend product code, so that typing cleanup should be handled separately.
+
+Final launch decision:
+
+Pilot RC1 is ready for controlled public-demo use with the conservative claim:
+
+Best for short, structured business meetings.
+
+Human review is still recommended before externally sharing generated notes.
