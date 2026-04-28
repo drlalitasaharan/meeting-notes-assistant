@@ -48,3 +48,48 @@ Recommended follow-up:
 - increase golden gate polling timeout for long safety samples
 - keep Meeting 86 in the golden gate because it protects trust and hallucination safety
 - avoid committing raw test_outputs artifacts unless explicitly needed
+
+---
+
+## Hardened validation run
+
+After adding polling timeout hardening and worker preflight protection, the Pilot RC1 golden consistency gate was rerun successfully.
+
+Latest hardened output directory:
+
+test_outputs/pilot_rc1_golden_consistency_gate_20260428_221515
+
+Archived evidence:
+
+../mna_pilot_rc1_hardened_golden_consistency_gate_20260428_221515.tar.gz
+
+## Hardened validation result
+
+Overall average score: **95.5 / 100**
+
+Passing samples: **4 / 4**
+
+| Sample | Status | Score | Actions | Decisions | Markdown | Safety Signal |
+|---|---:|---:|---:|---:|---:|---:|
+| client_weekly_sync_10min_m4a | PASS | 97 | 6 | 4 | True | False |
+| meeting_30min_script_wav | PASS | 100 | 6 | 5 | True | False |
+| meeting_81_m4a | PASS | 97 | 6 | 4 | True | False |
+| meeting_86_mp3 | PASS | 88 | 0 | 0 | True | True |
+
+## Hardened gate confirmation
+
+This validation confirms:
+
+- the worker preflight fails fast when the worker is not running
+- the gate prints clear remediation steps instead of silently waiting on queued jobs
+- the full benchmark still passes after worker preflight hardening
+- the longer polling timeout supports slower safety samples
+- Meeting 86 continues to protect against fake decisions and fake action items
+
+## Updated launch-readiness interpretation
+
+Pilot RC1 is now approximately **92-95 / 100** ready for controlled pilot demos.
+
+The strongest supported external claim remains:
+
+Best for short, structured business meetings.
