@@ -7,6 +7,35 @@ POLL_SLEEP_SECONDS="${POLL_SLEEP_SECONDS:-2}"
 OUT_DIR="test_outputs/pilot_rc1_golden_consistency_gate_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$OUT_DIR"
 
+require_worker_preflight() {
+  if [ "${SKIP_WORKER_PREFLIGHT:-0}" = "1" ]; then
+    echo "Worker preflight skipped because SKIP_WORKER_PREFLIGHT=1"
+    return 0
+  fi
+
+  if [ ! -x "./bin/dc" ]; then
+    echo "Worker preflight skipped because ./bin/dc is not available."
+    return 0
+  fi
+
+  if ! ./bin/dc exec -T worker python -c 'print("worker-preflight-ok")' >/dev/null 2>&1; then
+    echo "FAIL: worker preflight failed."
+    echo
+    echo "The backend may be healthy, but queued jobs will not process unless the worker is running."
+    echo
+    echo "Run:"
+    echo "  ./bin/dc up -d --force-recreate worker"
+    echo "  ./bin/dc logs --tail=120 worker"
+    echo
+    echo "Then rerun:"
+    echo "  ./scripts/pilot_rc1_golden_consistency_gate.sh"
+    exit 1
+  fi
+
+  echo "Worker preflight passed."
+}
+
+
 echo "Pilot RC1 Golden Consistency Gate"
 echo "Base URL: $BASE_URL"
 echo "Max poll attempts: $MAX_POLL_ATTEMPTS"
@@ -19,7 +48,12 @@ curl -fsS "$BASE_URL/healthz" | tee "$OUT_DIR/healthz.json"
 echo
 echo
 
-declare -a SAMPLE_FILES=(
+declare -a echo
+echo "2) Worker preflight"
+require_worker_preflight
+echo
+
+SAMPLE_FILES=(
   "demo_media/client_weekly_sync_10min.m4a"
   "demo_media/meeting_30min_script.wav"
   "backend/storage/uploads/meeting_81.m4a"
