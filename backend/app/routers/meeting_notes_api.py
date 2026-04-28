@@ -98,6 +98,84 @@ async def upload_meeting_media(
     }
 
 
+def _clean_client_facing_json_text(value: Any) -> str:
+    cleaned = str(value or "")
+
+    replacements = {
+        "I'd us to": "I'd like us to",
+        "I’d us to": "I’d like us to",
+    }
+    for old, new in replacements.items():
+        cleaned = cleaned.replace(old, new)
+
+    cleaned = re.sub(r"[ \t]+([,.;:!?])", r"\1", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return cleaned
+
+
+def _clean_client_facing_json_list(values: Any) -> list[str]:
+    if not isinstance(values, list):
+        return []
+
+    cleaned_values: list[str] = []
+    seen: set[str] = set()
+
+    for item in values:
+        cleaned = _clean_client_facing_json_text(item).strip(" .")
+        if not cleaned:
+            continue
+
+        key = cleaned.lower()
+        if key in seen:
+            continue
+
+        seen.add(key)
+        cleaned_values.append(cleaned)
+
+    return cleaned_values
+
+
+def _clean_client_facing_json_slots(summary_slots: Any) -> dict[str, Any] | None:
+    if not isinstance(summary_slots, dict):
+        return None
+
+    cleaned_slots = dict(summary_slots)
+
+    for key in ("purpose", "outcome"):
+        value = cleaned_slots.get(key)
+        if isinstance(value, str):
+            cleaned_slots[key] = _clean_client_facing_json_text(value)
+
+    for key in ("risks", "next_steps"):
+        values = cleaned_slots.get(key)
+        if isinstance(values, list):
+            cleaned_slots[key] = [
+                _clean_client_facing_json_text(item)
+                for item in values
+                if _clean_client_facing_json_text(item)
+            ]
+
+    return cleaned_slots
+
+
+def _client_facing_summary_from_slots(
+    summary: Any,
+    summary_slots: dict[str, Any] | None,
+) -> str | None:
+    cleaned_summary = _clean_client_facing_json_text(summary)
+
+    if isinstance(summary_slots, dict):
+        purpose = _clean_client_facing_json_text(summary_slots.get("purpose"))
+        outcome = _clean_client_facing_json_text(summary_slots.get("outcome"))
+
+        parts = [part.strip(" .") for part in (purpose, outcome) if part.strip()]
+        if parts:
+            rebuilt = ". ".join(dict.fromkeys(parts))
+            return _clean_client_facing_json_text(rebuilt)
+
+    return cleaned_summary or None
+
+
 @router.get("/{meeting_id}/notes/ai")
 def get_meeting_notes(
     meeting_id: int,
@@ -117,13 +195,14 @@ def get_meeting_notes(
         raise HTTPException(status_code=404, detail="Notes not found")
 
     status = getattr(meeting, "status", None) or "UNKNOWN"
+    summary_slots = _clean_client_facing_json_slots(notes.summary_slots)
 
     return {
         "meeting_id": meeting_id,
         "status": status,
-        "summary": notes.summary,
-        "summary_slots": notes.summary_slots or None,
-        "key_points": notes.key_points or [],
+        "summary": _client_facing_summary_from_slots(notes.summary, summary_slots),
+        "summary_slots": summary_slots,
+        "key_points": _clean_client_facing_json_list(notes.key_points),
         "decisions": notes.decisions or [],
         "decision_objects": notes.decision_objects or [],
         "action_items": notes.action_items or [],

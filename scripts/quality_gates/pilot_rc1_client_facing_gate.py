@@ -31,20 +31,53 @@ def evaluate(path: Path) -> int:
     bad_actions: list[Any] = []
     bad_next_steps: list[Any] = []
     bad_key_points: list[Any] = []
+    bad_summary_fields: list[str] = []
     duplicate_actions: list[Any] = []
 
     seen_actions: set[str] = set()
     has_weekly_priority_action = False
 
+    _slots_for_summary_check = data.get("summary_slots") or {}
+    for field_name, field_value in (
+        ("summary", data.get("summary")),
+        ("purpose", _slots_for_summary_check.get("purpose")),
+        ("outcome", _slots_for_summary_check.get("outcome")),
+    ):
+        field_text = _norm(field_value).lower()
+        if "i'd us" in field_text or "i’d us" in field_text:
+            bad_summary_fields.append(f"{field_name}: {field_value}")
+
     for item in decisions:
         text = _norm(item.get("text")).lower()
         if text in {"and action items", "action items"} or text.startswith("and action"):
             bad_decisions.append(item)
+        if (
+            "target audience" in text
+            and "finalized plan for the demo flow" in text
+            and (
+                "concrete owners for the follow-up actions" in text
+                or "concrete owners for the follow up actions" in text
+            )
+        ):
+            bad_decisions.append(item)
 
     for item in actions:
         owner = _norm(item.get("owner"))
+        owner_lower = owner.lower()
         task = _norm(item.get("task"))
         task_lower = task.lower()
+
+        if owner_lower.startswith("i also think") or owner_lower.startswith("i think"):
+            bad_actions.append(item)
+
+        if "be careful with what we claim publicly" in task_lower:
+            bad_actions.append(item)
+
+        if "for example, the product does handle short files well" in task_lower:
+            bad_actions.append(item)
+
+        if len(task_lower) > 220:
+            bad_actions.append(item)
 
         if "weekly priorities" in task_lower or "priority" in task_lower:
             has_weekly_priority_action = True
@@ -72,8 +105,16 @@ def evaluate(path: Path) -> int:
         point_lower = _norm(point).lower()
         if "control.reach" in point_lower or "s keep" in point_lower:
             bad_key_points.append(point)
+        if "i'd us" in point_lower or "i’d us" in point_lower:
+            bad_key_points.append(point)
+        if "be careful with what we claim publicly" in point_lower:
+            bad_key_points.append(point)
+        if "for example, the product does handle short files well" in point_lower:
+            bad_key_points.append(point)
 
     score = 100
+    if bad_summary_fields:
+        score -= 25
 
     if len(decisions) < 3:
         score -= 15
@@ -108,6 +149,7 @@ def evaluate(path: Path) -> int:
     print(f"bad_actions: {bad_actions}")
     print(f"bad_next_steps: {bad_next_steps}")
     print(f"bad_key_points: {bad_key_points}")
+    print(f"bad_summary_fields: {bad_summary_fields}")
     print(f"duplicate_actions: {duplicate_actions}")
     print()
 
@@ -121,6 +163,7 @@ def evaluate(path: Path) -> int:
         and not bad_actions
         and not bad_next_steps
         and not bad_key_points
+        and not bad_summary_fields
         and not duplicate_actions
     )
 

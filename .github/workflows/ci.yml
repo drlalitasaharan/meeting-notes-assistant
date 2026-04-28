@@ -60,22 +60,30 @@ jobs:
             -f docker-compose.redis.ci.yml \
             config
 
-      - name: Boot backend (smoke)
+      - name: Start smoke dependencies
         shell: bash
         run: |
           set -euxo pipefail
           C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
-          $C up -d --build db redis backend worker
+          $C up -d --build db redis
+          $C ps
+
+      - name: Run DB migrations (Alembic, single writer)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
+          $C run --rm --no-deps backend sh -lc 'cd /app/backend && alembic upgrade heads'
+
+      - name: Boot backend and worker (smoke)
+        shell: bash
+        run: |
+          set -euxo pipefail
+          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
+          $C up -d backend worker
           $C ps
           $C logs backend --no-color --tail=120 || true
           $C logs worker  --no-color --tail=120 || true
-
-      - name: Run DB migrations (Alembic, idempotent)
-        shell: bash
-        run: |
-          set -euxo pipefail
-          C="docker compose -f docker-compose.yml -f docker-compose.ci.yml -f docker-compose.override.ci.yml -f docker-compose.alembic.ci.yml -f docker-compose.redis.ci.yml"
-          $C exec -T backend sh -lc 'cd /app/backend && alembic upgrade heads'
 
       - name: Wait for API (healthz)
         shell: bash
