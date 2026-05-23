@@ -732,6 +732,22 @@ def _apply_non_meeting_safety_override(result: Any) -> Any:
     return result
 
 
+def _long_meeting_next_step_limit(text: str) -> int:
+    """Return next-step limit based on meeting length proxy."""
+    word_count = len((text or "").split())
+
+    if word_count >= 15000:
+        return 8
+
+    if word_count >= 7500:
+        return 6
+
+    if word_count >= 3500:
+        return 5
+
+    return 3
+
+
 def apply_focused_30min_quality_pass(result: Any, transcript: Any) -> Any:
     text = _transcript_to_text(transcript)
     if not text.strip():
@@ -802,7 +818,9 @@ def apply_focused_30min_quality_pass(result: Any, transcript: Any) -> Any:
 
     final_key_points = merged_key_points or filtered_existing_key_points
 
-    _sync_summary_next_steps_from_actions(result, merged_actions, limit=3)
+    _sync_summary_next_steps_from_actions(
+        result, merged_actions, limit=_long_meeting_next_step_limit(text)
+    )
 
     _write_field(result, "action_items", merged_actions)
     _write_field(result, "decisions", merged_decisions)
