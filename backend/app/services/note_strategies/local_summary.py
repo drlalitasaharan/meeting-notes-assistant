@@ -1460,6 +1460,32 @@ def _ensure_decision_backed_action_items(
     return _normalize_action_items_for_publish(action_items, limit=limit)
 
 
+def _action_limits_for_transcript(transcript_text: str) -> tuple[int, int]:
+    """Return action and next-step limits based on meeting length proxy.
+
+    Short meetings stay concise.
+    Longer meetings need more action capacity so valid tasks are not dropped.
+
+    Approximate tiers:
+    - < 3,500 words: short structured meeting
+    - 3,500+ words: around 30 minutes
+    - 7,500+ words: around 60 minutes
+    - 15,000+ words: around 2 hours
+    """
+    word_count = len((transcript_text or "").split())
+
+    if word_count >= 15000:
+        return 20, 8
+
+    if word_count >= 7500:
+        return 15, 6
+
+    if word_count >= 3500:
+        return 12, 5
+
+    return 8, 3
+
+
 class LocalSummaryStrategy(NotesStrategy):
     def generate(self, transcript_text: str, slide_text: str = "") -> NotesResult:
         transcript_text = normalize_known_names(normalize_text(transcript_text))
@@ -1475,6 +1501,7 @@ class LocalSummaryStrategy(NotesStrategy):
             )
 
         records = build_sentence_records(transcript_text, slide_text)
+        action_limit, next_step_limit = _action_limits_for_transcript(transcript_text)
         chunks = chunk_records(records, max_chars=1800)
 
         candidate_points: list[str] = []
@@ -1510,23 +1537,27 @@ class LocalSummaryStrategy(NotesStrategy):
         final_actions = extract_action_items(extract_final_action_records(records))
         final_section_actions = extract_final_section_action_items(records)
         prioritized_final_actions = merge_action_items(
-            final_section_actions, final_actions, limit=8
+            final_section_actions, final_actions, limit=action_limit
         )
         prioritized_heuristic_actions = merge_action_items(
-            prioritized_final_actions, heuristic_actions, limit=8
+            prioritized_final_actions, heuristic_actions, limit=action_limit
         )
         filtered_heuristic_actions = [
             item
             for item in prioritized_heuristic_actions
             if _looks_like_publishable_action_task(item.task)
         ]
-        action_items = merge_action_items(filtered_heuristic_actions, filtered_v3_actions, limit=8)
-        action_items = _normalize_action_items_for_publish(action_items, limit=8)
+        action_items = merge_action_items(
+            filtered_heuristic_actions, filtered_v3_actions, limit=action_limit
+        )
+        action_items = _normalize_action_items_for_publish(action_items, limit=action_limit)
 
         processed_decisions = [item.text for item in processed_v3.decisions]
         raw_decisions = _merge_text_items(processed_decisions, extract_decisions(records), limit=8)
         decisions = _prepare_publishable_decisions(raw_decisions, records, limit=5)
-        action_items = _ensure_decision_backed_action_items(action_items, decisions, limit=8)
+        action_items = _ensure_decision_backed_action_items(
+            action_items, decisions, limit=action_limit
+        )
 
         existing_risks = [
             str(item).strip() for item in list(processed_v3.summary.risks) if str(item).strip()
@@ -1566,7 +1597,7 @@ class LocalSummaryStrategy(NotesStrategy):
             "purpose": purpose,
             "outcome": outcome,
             "risks": risks,
-            "next_steps": _build_next_steps_from_action_items(action_items, limit=3),
+            "next_steps": _build_next_steps_from_action_items(action_items, limit=next_step_limit),
         }
 
         summary = _summary_slots_to_text(summary_slots)
