@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   smoke:
     runs-on: ubuntu-latest
@@ -132,7 +136,7 @@ jobs:
             logs || true
 
       - name: Tear down Docker stack
-        if: always()
+        if: ${{ always() && hashFiles('docker-compose.yml') != '' }}
         run: |
           docker compose \
             -f docker-compose.yml \
