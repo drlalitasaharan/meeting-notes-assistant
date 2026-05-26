@@ -1,12 +1,5 @@
-from app.services.notes_pipeline.adapter import (
-    build_legacy_notes_markdown,
-    build_legacy_notes_payload,
-)
-from app.services.notes_pipeline.orchestrator import build_canonical_notes, build_markdown
+"""Notes pipeline package.
 
-__all__ = [
-    "build_canonical_notes",
-    "build_markdown",
-    "build_legacy_notes_payload",
-    "build_legacy_notes_markdown",
-]
+Keep package imports lightweight. Import concrete functions from their modules
+instead of eagerly importing adapter/orchestrator at package import time.
+"""

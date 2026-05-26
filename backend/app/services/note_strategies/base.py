@@ -4,6 +4,30 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Optional
 
 
+def _action_item_to_legacy_string(item: object) -> str:
+    """Return stable legacy action text for ActionItem-like objects."""
+    if hasattr(item, "to_legacy_string"):
+        try:
+            return str(item.to_legacy_string())
+        except TypeError:
+            pass
+
+    if isinstance(item, dict):
+        owner = str(item.get("owner") or "Team").strip() or "Team"
+        task = str(item.get("task") or item.get("text") or "").strip()
+    else:
+        owner = str(getattr(item, "owner", None) or "Team").strip() or "Team"
+        task = str(getattr(item, "task", None) or getattr(item, "text", None) or item).strip()
+
+    if not task:
+        return owner
+
+    if task.lower().startswith(owner.lower() + ":"):
+        task = task.split(":", 1)[1].strip()
+
+    return f"{owner} - {task}"
+
+
 @dataclass
 class ActionItem:
     owner: Optional[str]
@@ -41,7 +65,19 @@ class NotesResult:
     decision_objects: List[Dict[str, Any]] = field(default_factory=list)
 
     def to_api_dict(self) -> dict:
-        legacy_action_items = [item.to_legacy_string() for item in self.action_items]
+        legacy_action_items = [_action_item_to_legacy_string(item) for item in self.action_items]
+
+        if not legacy_action_items and self.action_item_objects:
+            for item in self.action_item_objects:
+                owner = str(item.get("owner") or "").strip()
+                task = str(item.get("task") or item.get("text") or "").strip()
+                if not task:
+                    continue
+
+                if owner and not task.lower().startswith(owner.lower()):
+                    legacy_action_items.append(f"{owner} — {task}")
+                else:
+                    legacy_action_items.append(task)
 
         return {
             "summary": self.summary,

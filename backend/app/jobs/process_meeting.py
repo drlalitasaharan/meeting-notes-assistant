@@ -23,6 +23,7 @@ from app.services.notes_quality_pass import (
     apply_focused_30min_quality_pass,
 )
 from app.services.ocr import extract_slide_text_for_meeting
+from app.services.persisted_action_contract import _finalize_persisted_action_contract
 from app.services.transcription import get_transcriber
 
 log = logging.getLogger(__name__)
@@ -174,6 +175,20 @@ def process_meeting(meeting_id: str) -> None:
         action_item_objects = precision_payload.get("action_item_objects") or []
         decisions = precision_payload.get("decisions") or []
         decision_objects = precision_payload.get("decision_objects") or []
+
+        cleaned_action_items, action_item_objects, summary_slots = (
+            _finalize_persisted_action_contract(
+                cleaned_action_items=cleaned_action_items,
+                action_item_objects=action_item_objects,
+                summary_slots=summary_slots,
+                raw_transcript_text=(
+                    locals().get("transcript_text")
+                    or locals().get("transcript")
+                    or locals().get("raw_transcript")
+                    or ""
+                ),
+            )
+        )
 
         # 6) Persist MeetingNotes row
         normalized_notes = normalize_canonical_notes(
