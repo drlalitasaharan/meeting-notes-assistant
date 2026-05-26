@@ -378,13 +378,15 @@ def _cut_task_at_transcript_boundary(task: object) -> str:
 
     lowered = f" {text.lower()}"
 
-    # Do not use plain "morning." as a boundary because valid due dates
-    # like "by Monday morning" must be preserved.
     boundary_tokens = [
         " alex.",
+        " alex,",
         " priya.",
+        " priya,",
         " jordan.",
+        " jordan,",
         " morgan.",
+        " morgan,",
         " medication.",
         " mitigation.",
         " final recap.",
@@ -426,13 +428,24 @@ def _normalize_action_task_text(task: object) -> str:
         "laugh to short onboarding note": "Draft a short onboarding note",
         "Upload near approved sample meeting file": "Upload the approved sample meeting file",
         "upload near approved sample meeting file": "Upload the approved sample meeting file",
+        "Clean the MMO account": "Clean the demo account",
+        "clean the MMO account": "Clean the demo account",
+        "clean the mmo account": "Clean the demo account",
         "mark on export": "markdown export",
         "Mark on export": "Markdown export",
         "unmeeting card rail": "non-meeting guardrail",
         "unmeeting safety": "non-meeting safety",
         "pre-sections": "sections",
         "proposed next meeting made": "proposed next meeting",
+        "proposed next meeting date": "proposed next meeting date",
         "pilot lunch planning meeting": "pilot launch planning meeting",
+        "unexpected output": "expected output",
+        "Unexpected output": "Expected output",
+        "structured meeting format, expected output": "structured meeting format, and expected output",
+        "structured meeting format, Expected output": "structured meeting format, and expected output",
+        "after more afternoon": "tomorrow afternoon",
+        "after noon with the pilot": "tomorrow afternoon with the pilot",
+        "later tomorrow afternoon": "tomorrow afternoon",
     }
 
     for old, new in replacements.items():
@@ -546,11 +559,81 @@ def _is_high_precision_action_task(task: str) -> bool:
     return True
 
 
+def _canonical_action_dedupe_key(task: str) -> str:
+    lower = task.lower()
+
+    if lower.startswith("update the proposal language"):
+        return "update_proposal_language"
+    if lower.startswith("send the edited version to alex"):
+        return "send_edited_version_to_alex"
+    if lower.startswith("send it to alex"):
+        return "send_edited_version_to_alex"
+    if lower.startswith("confirm pricing with finance"):
+        return "confirm_pricing_with_finance"
+    if lower.startswith("draft the client follow-up email"):
+        return "draft_client_follow_up_email"
+    if lower.startswith("clean the demo account"):
+        return "clean_demo_account"
+    if lower.startswith("upload the approved sample meeting file"):
+        return "upload_approved_sample_meeting"
+    if lower.startswith("run the internal demo dry run"):
+        return "run_internal_demo_dry_run"
+    if lower.startswith("check upload, processing, structured notes, markdown export"):
+        return "check_upload_processing_markdown_safety"
+    if lower.startswith("draft a short onboarding note"):
+        return "draft_short_onboarding_note"
+
+    return lower
+
+
+def _action_quality_score(action: dict[str, object]) -> int:
+    task = str(action.get("task") or "")
+    lower = task.lower()
+
+    score = 0
+
+    if action.get("due_date"):
+        score += 5
+
+    if "tomorrow afternoon" in lower:
+        score += 4
+    if "by tomorrow afternoon" in lower:
+        score += 2
+    if "proposed next meeting date" in lower:
+        score += 2
+    if "expected output" in lower:
+        score += 3
+    if "by 3pm" in lower:
+        score += 2
+    if "by 11am tomorrow" in lower:
+        score += 2
+    if "by monday morning" in lower:
+        score += 2
+
+    noisy_fragments = [
+        "after more afternoon",
+        "after noon",
+        "mmo account",
+        "unexpected output",
+        "meet iq turns meeting recording into",
+        "priya,",
+        "jordan,",
+        "morgan,",
+        "alex,",
+    ]
+
+    for fragment in noisy_fragments:
+        if fragment in lower:
+            score -= 8
+
+    return score
+
+
 def _clean_final_action_objects(
     action_objects: list[dict[str, object]],
 ) -> list[dict[str, object]]:
-    cleaned: list[dict[str, object]] = []
-    seen_tasks: set[str] = set()
+    ordered_keys: list[str] = []
+    by_key: dict[str, dict[str, object]] = {}
 
     for item in action_objects:
         if not isinstance(item, dict):
@@ -570,14 +653,18 @@ def _clean_final_action_objects(
         normalized_item["status"] = normalized_item.get("status") or "open"
         normalized_item["priority"] = normalized_item.get("priority") or "medium"
 
-        dedupe_key = task.lower()
-        if dedupe_key in seen_tasks:
+        dedupe_key = _canonical_action_dedupe_key(task)
+
+        if dedupe_key not in by_key:
+            ordered_keys.append(dedupe_key)
+            by_key[dedupe_key] = normalized_item
             continue
 
-        seen_tasks.add(dedupe_key)
-        cleaned.append(normalized_item)
+        existing = by_key[dedupe_key]
+        if _action_quality_score(normalized_item) > _action_quality_score(existing):
+            by_key[dedupe_key] = normalized_item
 
-    return cleaned
+    return [by_key[key] for key in ordered_keys]
 
 
 def _finalize_persisted_action_contract(

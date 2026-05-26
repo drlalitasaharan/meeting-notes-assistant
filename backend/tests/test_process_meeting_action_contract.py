@@ -234,3 +234,105 @@ def test_finalizes_filters_30min_transcript_leakage_actions():
         "Send the edited version to Alex by 3pm.",
         "Confirm pricing with finance by 11am tomorrow.",
     ]
+
+
+def test_finalizes_dedupes_60min_action_variants():
+    cleaned_action_items, action_item_objects, summary_slots = _finalize_persisted_action_contract(
+        cleaned_action_items=[],
+        action_item_objects=[
+            {
+                "owner": "Priya",
+                "task": "Update the proposal language today",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Priya",
+                "task": "Send the edited version to Alex by 3pm",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Jordan",
+                "task": "Confirm pricing with finance by 11am tomorrow",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Morgan",
+                "task": "Draft the client follow-up email after noon with the pilot timeline, success criteria, and a proposed next meeting",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Priya",
+                "task": "Clean the demo account",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Priya",
+                "task": "Clean the MMO account",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Morgan",
+                "task": "Draft the client follow-up email later tomorrow afternoon with the pilot timeline, success criteria, and a proposed next meeting",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Morgan",
+                "task": "Draft the client follow-up email by tomorrow afternoon with the pilot timeline, success criteria, and a proposed next meeting date",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Morgan",
+                "task": "Draft the client follow-up email after more afternoon with the pilot timeline, success criteria, and a proposed next meeting",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Morgan",
+                "task": "Draft a short onboarding note with upload guidance, including clear audio, structured meeting format, unexpected output",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Morgan",
+                "task": "Draft a short onboarding note with upload guidance, including clear audio, structured meeting format, and expected output",
+                "status": "open",
+                "priority": "medium",
+            },
+        ],
+        summary_slots={"next_steps": []},
+    )
+
+    tasks = [item["task"] for item in action_item_objects]
+
+    assert tasks == [
+        "Update the proposal language today",
+        "Send the edited version to Alex by 3pm",
+        "Confirm pricing with finance by 11am tomorrow",
+        "Draft the client follow-up email by tomorrow afternoon with the pilot timeline, success criteria, and a proposed next meeting date",
+        "Clean the demo account",
+        "Draft a short onboarding note with upload guidance, including clear audio, structured meeting format, and expected output",
+    ]
+
+    assert [item["owner"] for item in action_item_objects] == [
+        "Priya",
+        "Priya",
+        "Jordan",
+        "Morgan",
+        "Priya",
+        "Morgan",
+    ]
+
+    joined = " ".join([*tasks, *cleaned_action_items, *summary_slots["next_steps"]]).lower()
+
+    assert "mmo account" not in joined
+    assert "unexpected output" not in joined
+    assert "after more afternoon" not in joined
+    assert joined.count("draft the client follow-up email") == 3
