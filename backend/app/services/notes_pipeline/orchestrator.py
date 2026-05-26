@@ -10,6 +10,7 @@ from app.schemas.meeting_notes import (
     RiskItem,
 )
 from app.services.notes_pipeline.compose import compose_summary
+from app.services.notes_pipeline.consistency import apply_risk_action_owner_consistency
 
 PURPOSE_PATTERNS = (
     r"^the purpose of this meeting is\b",
@@ -445,6 +446,143 @@ def _pre_split_transcript_text(transcript_text: str) -> str:
     return text
 
 
+def _model_to_dict(item: object) -> dict[str, object]:
+    if hasattr(item, "model_dump"):
+        return item.model_dump()  # type: ignore[attr-defined]
+    if hasattr(item, "dict"):
+        return item.dict()  # type: ignore[attr-defined]
+    if isinstance(item, dict):
+        return item
+    return {"text": str(item)}
+
+
+def _notes_to_consistency_dict(notes: MeetingNotesCanonical) -> dict[str, object]:
+    return {
+        "meeting_id": notes.meeting_id,
+        "summary": notes.summary,
+        "purpose": notes.purpose,
+        "outcome": notes.outcome,
+        "key_points": list(notes.key_points),
+        "decisions": [_model_to_dict(item) for item in notes.decisions],
+        "risks": [_model_to_dict(item) for item in notes.risks],
+        "next_steps": list(notes.next_steps),
+        "action_items": [_model_to_dict(item) for item in notes.action_items],
+        "metadata": _model_to_dict(notes.metadata),
+    }
+
+
+def _decision_from_text(text: str) -> DecisionItem:
+    return DecisionItem(text=text)
+
+
+def _risk_from_text(text: str) -> RiskItem:
+    return RiskItem(text=text)
+
+
+def _action_from_dict(item: dict[str, object]) -> ActionItem:
+    task = str(item.get("task") or item.get("text") or "").strip()
+    owner_value = str(item.get("owner") or "").strip()
+    due_date_value = item.get("due_date")
+    due_date = (
+        due_date_value.strip()
+        if isinstance(due_date_value, str) and due_date_value.strip()
+        else None
+    )
+
+    return ActionItem(
+        text=task,
+        owner=owner_value or None,
+        due_date=due_date,
+        confidence=0.0,
+        source_chunk_ids=[],
+    )
+
+
+def _apply_consistency_to_notes(notes: MeetingNotesCanonical) -> MeetingNotesCanonical:
+    cleaned = apply_risk_action_owner_consistency(_notes_to_consistency_dict(notes))
+
+    notes.risks = [
+        _risk_from_text(str(item)) for item in cleaned.get("risks", []) if str(item).strip()
+    ]
+    notes.next_steps = [
+        str(item).strip() for item in cleaned.get("next_steps", []) if str(item).strip()
+    ]
+    notes.action_items = [
+        _action_from_dict(item)
+        for item in cleaned.get("action_items", [])
+        if isinstance(item, dict) and str(item.get("task") or item.get("text") or "").strip()
+    ]
+
+    if "risk-action-owner-v1" not in notes.metadata.formatter_version:
+        notes.metadata.formatter_version = (
+            f"{notes.metadata.formatter_version}+risk-action-owner-v1"
+        )
+
+    return notes
+
+
+def build_markdown(notes: MeetingNotesCanonical) -> str:
+    """Build markdown from canonical notes."""
+
+    lines: list[str] = []
+
+    lines.append(f"# Meeting {notes.meeting_id}")
+    lines.append("")
+
+    if notes.purpose:
+        lines.append("## Purpose")
+        lines.append(notes.purpose)
+        lines.append("")
+
+    if notes.outcome:
+        lines.append("## Outcome")
+        lines.append(notes.outcome)
+        lines.append("")
+
+    lines.append("## Risks")
+    if notes.risks:
+        for risk in notes.risks:
+            lines.append(f"- {risk.text}")
+    else:
+        lines.append("- No clear risks detected.")
+    lines.append("")
+
+    lines.append("## Next Steps")
+    if notes.next_steps:
+        for step in notes.next_steps:
+            lines.append(f"- {step}")
+    else:
+        lines.append("- No clear next steps detected.")
+    lines.append("")
+
+    lines.append("## Key Points")
+    if notes.key_points:
+        for point in notes.key_points:
+            lines.append(f"- {point}")
+    else:
+        lines.append("- No key points detected.")
+    lines.append("")
+
+    lines.append("## Decisions")
+    if notes.decisions:
+        for decision in notes.decisions:
+            lines.append(f"- {decision.text}")
+    else:
+        lines.append("- No clear decisions detected.")
+    lines.append("")
+
+    lines.append("## Action Items")
+    if notes.action_items:
+        for item in notes.action_items:
+            owner = item.owner or "Team"
+            due = f" _(due: {item.due_date})_" if item.due_date else ""
+            lines.append(f"- [ ] **{owner}** — {item.text}{due}")
+    else:
+        lines.append("- No clear action items detected.")
+
+    return "\n".join(lines).strip() + "\n"
+
+
 def build_canonical_notes(meeting_id: int, transcript_text: str) -> MeetingNotesCanonical:
     transcript_text = _pre_split_transcript_text(transcript_text)
     sentences = _to_sentences(transcript_text)
@@ -473,5 +611,7 @@ def build_canonical_notes(meeting_id: int, transcript_text: str) -> MeetingNotes
             "formatter_version": "canonical-tight-v3.1",
         },
     )
+    notes.summary = compose_summary(notes)
+    notes = _apply_consistency_to_notes(notes)
     notes.summary = compose_summary(notes)
     return notes

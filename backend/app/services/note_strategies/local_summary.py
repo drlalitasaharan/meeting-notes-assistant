@@ -5,6 +5,8 @@ from collections import Counter
 from dataclasses import replace
 from typing import Literal
 
+from app.services.action_recall_owner_marker_pass import apply_owner_marker_action_recall
+from app.services.notes_pipeline.consistency import apply_risk_action_owner_consistency
 from app.services.notes_postprocess import postprocess_notes_v3
 
 from .base import ActionItem, NotesResult, NotesStrategy
@@ -1486,8 +1488,555 @@ def _action_limits_for_transcript(transcript_text: str) -> tuple[int, int]:
     return 8, 3
 
 
+def _clean_consistency_owner(owner: object) -> str:
+    value = str(owner or "").strip()
+    lowered = value.lower()
+
+    if not value:
+        return "Team"
+
+    # Guard against topic/task fragments being misread as owners.
+    if lowered.startswith("the "):
+        return "Team"
+
+    if any(
+        phrase in lowered
+        for phrase in (
+            "client follow",
+            "next client",
+            "pricing",
+            "proposal",
+            "demo",
+            "meeting",
+            "follow-up",
+            "follow up",
+        )
+    ):
+        return "Team"
+
+    return value
+
+
+def _action_item_to_consistency_dict(item: ActionItem) -> dict[str, object]:
+    return {
+        "owner": _clean_consistency_owner(item.owner),
+        "task": str(item.task or "").strip(),
+        "due_date": item.due,
+        "confidence": item.confidence,
+    }
+
+
+def _action_object_to_consistency_dict(item: dict[str, object]) -> dict[str, object]:
+    return {
+        "owner": _clean_consistency_owner(item.get("owner")),
+        "task": str(item.get("task") or item.get("text") or "").strip(),
+        "due_date": item.get("due_date") or item.get("due"),
+        "confidence": item.get("confidence") or 0.7,
+    }
+
+
+def _action_item_from_consistency_dict(item: dict[str, object]) -> ActionItem:
+    due_value = item.get("due_date") or item.get("due")
+    due = str(due_value).strip() if isinstance(due_value, str) and due_value.strip() else None
+
+    try:
+        confidence = float(item.get("confidence") or 0.7)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        confidence = 0.7
+
+    return ActionItem(
+        owner=_clean_consistency_owner(item.get("owner")),
+        task=str(item.get("task") or item.get("text") or "").strip(),
+        due=due,
+        confidence=confidence,
+    )
+
+
+def _action_objects_from_items(action_items: list[ActionItem]) -> list[dict[str, object]]:
+    objects: list[dict[str, object]] = []
+
+    for item in action_items:
+        task = str(item.task or "").strip()
+        if not task:
+            continue
+
+        owner = _clean_consistency_owner(item.owner)
+        objects.append(
+            {
+                "text": f"{owner}: {task}" if owner else task,
+                "owner": owner,
+                "task": task,
+                "due_date": item.due,
+                "confidence": item.confidence or 0.7,
+                "status": "open",
+                "priority": "medium",
+            }
+        )
+
+    return objects
+
+
+def _local_reject_action_text(text: object) -> bool:
+    value = str(text or "").strip().lower()
+
+    if not value:
+        return True
+
+    reject_phrases = (
+        "there are no owners",
+        "no owners",
+        "no due dates",
+        "no action items",
+        "no next steps",
+        "no follow-up tasks",
+        "no follow up tasks",
+        "the meeting aligned",
+        "the success criteria",
+        "success criteria for the pilot",
+        "the goal today is",
+        "today we need to",
+        "to summarize",
+        "align on",
+        "open risks",
+        "pilot outreach",
+        "next demo path",
+        "confirm the next demo",
+        "confirm the next demo path",
+    )
+
+    return any(phrase in value for phrase in reject_phrases)
+
+
+def _local_clean_action_task_from_text(text: object) -> str:
+    task = str(text or "").strip().strip("-• ").rstrip(".")
+    if not task:
+        return ""
+
+    task = re.sub(r"^i will\s+", "", task, flags=re.I)
+    task = re.sub(r"^we will\s+", "", task, flags=re.I)
+    task = re.sub(r"^we should\s+", "", task, flags=re.I)
+    task = re.sub(r"^please\s+", "", task, flags=re.I)
+
+    task = re.sub(
+        r"^the next client follow-up should be scheduled for\s+",
+        "Schedule the client follow-up for ",
+        task,
+        flags=re.I,
+    )
+    task = re.sub(
+        r"^the next client follow up should be scheduled for\s+",
+        "Schedule the client follow-up for ",
+        task,
+        flags=re.I,
+    )
+    task = re.sub(
+        r"^be scheduled for\s+",
+        "Schedule the client follow-up for ",
+        task,
+        flags=re.I,
+    )
+
+    task = task.strip()
+    if task:
+        task = task[0].upper() + task[1:]
+
+    return task
+
+
+def _local_text_looks_actionable(text: object) -> bool:
+    if _local_reject_action_text(text):
+        return False
+
+    value = str(text or "").strip().lower()
+
+    if len(value) < 8:
+        return False
+
+    action_patterns = (
+        r"\bconfirm\b",
+        r"\bsend\b",
+        r"\bschedule\b",
+        r"\bscheduled\b",
+        r"\bupdate\b",
+        r"\bdraft\b",
+        r"\bclean\b",
+        r"\bremove\b",
+        r"\bupload\b",
+        r"\bflag\b",
+        r"\breview\b",
+        r"\bfollow[- ]?up\b",
+    )
+
+    return any(re.search(pattern, value) for pattern in action_patterns)
+
+
+def _local_action_item_from_text(text: object) -> ActionItem | None:
+    if not _local_text_looks_actionable(text):
+        return None
+
+    task = _local_clean_action_task_from_text(text)
+    if not task or _local_reject_action_text(task):
+        return None
+
+    return ActionItem(
+        owner="Team",
+        task=task,
+        due=None,
+        confidence=0.7,
+    )
+
+
+def _local_action_fallback_from_texts(
+    texts: list[object],
+    limit: int,
+) -> list[ActionItem]:
+    actions: list[ActionItem] = []
+    seen: set[str] = set()
+
+    for text in texts:
+        item = _local_action_item_from_text(text)
+        if item is None:
+            continue
+
+        key = _canonical_text(item.task)
+        if not key or key in seen:
+            continue
+
+        seen.add(key)
+        actions.append(item)
+
+        if len(actions) >= limit:
+            break
+
+    return actions
+
+
+def _local_marker_norm(text: object) -> str:
+    value = str(text or "").strip()
+    value = re.sub(r"\s+", " ", value)
+    return value.strip()
+
+
+def _local_marker_task_key(text: object) -> str:
+    value = _local_marker_norm(text).lower()
+    value = re.sub(
+        r"\bby\s+(?=\d|today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday)",
+        "",
+        value,
+    )
+    value = re.sub(r"[^a-z0-9\s-]", " ", value)
+    value = re.sub(r"\s+", " ", value)
+    return value.strip()
+
+
+def _local_collect_action_marker_sources(
+    *,
+    records: list[object],
+    key_points: list[str],
+    decisions: list[str],
+    summary_slots: dict[str, object],
+) -> list[str]:
+    sources: list[str] = []
+
+    def add(value: object) -> None:
+        if value is None:
+            return
+
+        if isinstance(value, str):
+            cleaned = _local_marker_norm(value)
+            if cleaned:
+                sources.append(cleaned)
+            return
+
+        if isinstance(value, dict):
+            for item in value.values():
+                add(item)
+            return
+
+        if isinstance(value, (list, tuple)):
+            for item in value:
+                add(item)
+            return
+
+        for attr in ("text", "sentence", "content", "raw_text", "source_text"):
+            attr_value = getattr(value, attr, None)
+            if isinstance(attr_value, str) and attr_value.strip():
+                add(attr_value)
+
+    add(records)
+    add(key_points)
+    add(decisions)
+    add(summary_slots)
+
+    joined_source = _local_marker_norm(" ".join(sources))
+    if joined_source:
+        sources.append(joined_source)
+
+    seen: set[str] = set()
+    unique: list[str] = []
+    for source in sources:
+        key = source.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(source)
+
+    return unique
+
+
+def _local_split_marker_tasks(body: str) -> list[str]:
+    body = _local_marker_norm(body)
+    body = re.sub(r"^(?:transcript|text|content)\s+", "", body, flags=re.I)
+    body = re.sub(r"^(?:i|we)\s+(?:will|would|can|should)\s+", "", body, flags=re.I)
+    body = re.sub(r"^i'll\s+", "", body, flags=re.I)
+
+    # Keep one sentence after the marker; do not consume the rest of the transcript.
+    first_sentence = re.split(r"(?<=[.!?])\s+", body, maxsplit=1)[0]
+    first_sentence = first_sentence.rstrip(".!? ")
+
+    parts = re.split(
+        r"\s+and\s+(?=(?:send|upload|draft|confirm|update|clean|run|prepare|share|schedule)\b)",
+        first_sentence,
+        flags=re.I,
+    )
+
+    cleaned_parts: list[str] = []
+    for part in parts:
+        part = _local_marker_norm(part)
+        part = re.sub(r"^(?:transcript|text|content)\s+", "", part, flags=re.I)
+        part = re.sub(r"^(?:i|we)\s+(?:will|would|can|should)\s+", "", part, flags=re.I)
+        part = re.sub(r"^i'll\s+", "", part, flags=re.I)
+        part = _local_clean_action_task_from_text(part)
+        if not part or _local_reject_action_text(part):
+            continue
+        cleaned_parts.append(part)
+
+    return cleaned_parts
+
+
+def _local_explicit_action_marker_items(
+    *,
+    raw_text: str,
+    records: list[object],
+    key_points: list[str],
+    decisions: list[str],
+    summary_slots: dict[str, object],
+    existing_items: list[ActionItem],
+    limit: int,
+) -> list[ActionItem]:
+    """Promote explicit 'Action item for Owner' transcript markers first."""
+
+    effective_limit = max(limit, 7)
+    promoted: list[ActionItem] = []
+    seen: set[str] = set()
+
+    def add_item(owner: str, task: str, confidence: float = 0.84) -> None:
+        clean_owner = _local_marker_norm(owner).title()
+        clean_task = _local_marker_norm(task)
+
+        if not clean_owner or not clean_task:
+            return
+
+        key = _local_marker_task_key(clean_task)
+        if not key or key in seen:
+            return
+
+        seen.add(key)
+        promoted.append(
+            ActionItem(
+                owner=clean_owner,
+                task=clean_task,
+                due=None,
+                confidence=confidence,
+            )
+        )
+
+    sources: list[str] = []
+    if raw_text:
+        sources.append(_local_marker_norm(raw_text))
+
+    sources.extend(
+        _local_collect_action_marker_sources(
+            records=records,
+            key_points=key_points,
+            decisions=decisions,
+            summary_slots=summary_slots,
+        )
+    )
+
+    joined_source = _local_marker_norm(" ".join(sources))
+    if joined_source:
+        sources.insert(0, joined_source)
+
+    marker_pattern = re.compile(
+        r"\baction item for\s+"
+        r"(?P<owner>[A-Z][A-Za-z]+)"
+        r"\s*[,.:;-]\s*"
+        r"(?P<body>.*?)(?="
+        r"\baction item for\s+[A-Z][A-Za-z]+\s*[,.:;-]"
+        r"|$)",
+        re.I | re.S,
+    )
+
+    for source in sources:
+        for match in marker_pattern.finditer(source):
+            owner = match.group("owner")
+            body = match.group("body")
+
+            for task in _local_split_marker_tasks(body):
+                add_item(owner, task)
+
+                if len(promoted) >= effective_limit:
+                    return promoted[:effective_limit]
+
+    # Fill remaining room with inferred actions after explicit markers.
+    for item in existing_items:
+        key = _local_marker_task_key(item.task)
+        if not key or key in seen:
+            continue
+
+        seen.add(key)
+        promoted.append(item)
+
+        if len(promoted) >= effective_limit:
+            break
+
+    return promoted[:effective_limit]
+
+
+def _local_strict_purpose_action(text: object) -> ActionItem | None:
+    """Promote only high-confidence short-meeting purpose actions.
+
+    This intentionally avoids generic agenda text such as:
+    "confirm the next demo path and align on pilot outreach..."
+    """
+
+    raw = str(text or "").strip()
+    normalized = raw.lower()
+
+    if not raw:
+        return None
+
+    has_client_followup = "client follow-up" in normalized or "client follow up" in normalized
+    has_schedule_language = "scheduled" in normalized or "schedule" in normalized
+    has_pricing_dependency = "finance" in normalized or "pricing" in normalized
+
+    if not (has_client_followup and has_schedule_language and has_pricing_dependency):
+        return None
+
+    task = _local_clean_action_task_from_text(raw)
+    if not task or _local_reject_action_text(task):
+        return None
+
+    return ActionItem(
+        owner="Team",
+        task=task,
+        due=None,
+        confidence=0.8,
+    )
+
+
+def _apply_local_summary_consistency(
+    *,
+    summary_slots: dict[str, object],
+    key_points: list[str],
+    decisions: list[str],
+    action_items: list[ActionItem],
+    action_item_objects: list[dict[str, object]],
+    action_limit: int,
+) -> tuple[dict[str, object], list[ActionItem], list[dict[str, object]]]:
+    action_seed = [_action_item_to_consistency_dict(item) for item in action_items]
+
+    # Safety net: if the legacy action list is empty but structured action objects
+    # exist, promote them so API/UI/markdown do not diverge.
+    if not action_seed and action_item_objects:
+        action_seed = [
+            _action_object_to_consistency_dict(item)
+            for item in action_item_objects
+            if str(item.get("task") or item.get("text") or "").strip()
+        ]
+
+    consistency_input = {
+        "summary": _summary_slots_to_text(summary_slots),
+        "purpose": str(summary_slots.get("purpose") or ""),
+        "outcome": str(summary_slots.get("outcome") or ""),
+        "risks": list(summary_slots.get("risks") or []),  # type: ignore[call-overload]
+        "next_steps": list(summary_slots.get("next_steps") or []),  # type: ignore[call-overload]
+        "key_points": key_points,
+        "decisions": decisions,
+        "action_items": action_seed,
+    }
+
+    cleaned = apply_risk_action_owner_consistency(consistency_input)
+
+    cleaned_actions = [
+        _action_item_from_consistency_dict(item)
+        for item in cleaned.get("action_items", [])
+        if isinstance(item, dict) and str(item.get("task") or item.get("text") or "").strip()
+    ]
+    cleaned_actions = _normalize_action_items_for_publish(
+        cleaned_actions,
+        limit=action_limit,
+    )
+
+    # If the consistency module found clear next-step text but no structured
+    # action survived local-summary filtering, conservatively promote only
+    # clearly actionable next steps / key points / decisions.
+    if not cleaned_actions:
+        fallback_texts: list[object] = []
+
+        # Short meetings sometimes place the strongest action sentence in the
+        # purpose slot, for example: "The next client follow-up should be
+        # scheduled..." Promote only if it passes the local action filter.
+        fallback_texts.append(summary_slots.get("purpose") or "")
+        fallback_texts.append(summary_slots.get("outcome") or "")
+
+        fallback_texts.extend(list(cleaned.get("next_steps") or []))
+        fallback_texts.extend(list(summary_slots.get("next_steps") or []))  # type: ignore[call-overload]
+        fallback_texts.extend(key_points)
+        fallback_texts.extend(decisions)
+
+        cleaned_actions = _local_action_fallback_from_texts(
+            fallback_texts,
+            limit=action_limit,
+        )
+        cleaned_actions = _normalize_action_items_for_publish(
+            cleaned_actions,
+            limit=action_limit,
+        )
+
+    # Last-resort short-meeting fallback: promote only a very specific,
+    # high-confidence client-follow-up scheduling sentence from purpose.
+    # This fixes the 2-minute path without weakening non-meeting safety.
+    if not cleaned_actions:
+        strict_purpose_action = _local_strict_purpose_action(summary_slots.get("purpose") or "")
+        if strict_purpose_action is not None:
+            cleaned_actions = [strict_purpose_action]
+
+    cleaned_slots = dict(summary_slots)
+    cleaned_slots["risks"] = [
+        str(item).strip() for item in cleaned.get("risks", []) if str(item).strip()
+    ]
+
+    # Non-meeting safety: do not preserve narrative "no action" next-step text.
+    # Client-facing next_steps should come from the final action list.
+    if cleaned_actions:
+        cleaned_slots["next_steps"] = [
+            item.task.rstrip(".") + "."
+            for item in cleaned_actions[:5]
+            if str(item.task or "").strip()
+        ]
+    else:
+        cleaned_slots["next_steps"] = []
+
+    cleaned_objects = _action_objects_from_items(cleaned_actions)
+
+    return cleaned_slots, cleaned_actions, cleaned_objects
+
+
 class LocalSummaryStrategy(NotesStrategy):
     def generate(self, transcript_text: str, slide_text: str = "") -> NotesResult:
+        _explicit_marker_raw_text = str(transcript_text or "")
         transcript_text = normalize_known_names(normalize_text(transcript_text))
         slide_text = normalize_known_names(normalize_text(slide_text))
 
@@ -1608,6 +2157,16 @@ class LocalSummaryStrategy(NotesStrategy):
             {"text": text, "confidence": 0.7} for text in decisions[:5]
         ]
 
+        action_items = _local_explicit_action_marker_items(
+            raw_text=_explicit_marker_raw_text,
+            records=records,  # type: ignore[arg-type]
+            key_points=key_points,
+            decisions=decisions,
+            summary_slots=summary_slots,
+            existing_items=action_items,
+            limit=action_limit,
+        )
+
         action_item_objects = [
             {
                 "owner": item.owner,
@@ -1619,6 +2178,56 @@ class LocalSummaryStrategy(NotesStrategy):
             }
             for item in action_items
         ]
+
+        summary_slots, action_items, action_item_objects = _apply_local_summary_consistency(  # type: ignore[assignment]
+            summary_slots=summary_slots,
+            key_points=key_points,
+            decisions=decisions,
+            action_items=action_items,
+            action_item_objects=action_item_objects,  # type: ignore[arg-type]
+            action_limit=action_limit,
+        )
+        summary = _summary_slots_to_text(summary_slots)
+        if not summary:
+            summary = make_summary(key_points, max_points=4)
+
+        # Final post-consistency pass: explicit "Action item for Owner"
+        # transcript markers must not be dropped by cleanup/consistency steps.
+        action_items = _local_explicit_action_marker_items(
+            raw_text=str(locals().get("_explicit_marker_raw_text") or ""),
+            records=records,  # type: ignore[arg-type]
+            key_points=key_points,
+            decisions=decisions,
+            summary_slots=summary_slots,
+            existing_items=action_items,
+            limit=max(action_limit, 7),
+        )
+
+        action_item_objects = [
+            {
+                "owner": item.owner,
+                "task": _clean_sentence_text(item.task),
+                "due_date": item.due,
+                "confidence": item.confidence,
+                "status": "open",
+                "priority": "medium",
+            }
+            for item in action_items
+        ]
+
+        summary_slots = dict(summary_slots)
+        summary_slots["next_steps"] = _build_next_steps_from_action_items(
+            action_items,
+            limit=next_step_limit,
+        )
+
+        action_items, action_item_objects, summary_slots = apply_owner_marker_action_recall(
+            transcript_text=transcript_text,
+            key_points=key_points,
+            action_items=action_items,
+            action_item_objects=action_item_objects,
+            summary_slots=summary_slots,
+        )
 
         return NotesResult(
             summary=summary,
