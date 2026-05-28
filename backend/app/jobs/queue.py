@@ -6,6 +6,14 @@ from rq import Queue
 
 
 def get_redis() -> Redis:
+    """
+    Prefer REDIS_URL in hosted environments like Render.
+    Fall back to REDIS_HOST/REDIS_PORT/REDIS_DB for local Docker/dev.
+    """
+    redis_url = os.getenv("REDIS_URL", "").strip()
+    if redis_url:
+        return Redis.from_url(redis_url)
+
     host = os.getenv("REDIS_HOST", "redis")
     port = int(os.getenv("REDIS_PORT", "6379"))
     db = int(os.getenv("REDIS_DB", "0"))
