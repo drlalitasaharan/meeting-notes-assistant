@@ -1,28 +1,29 @@
 # backend/app/worker.py
 import os
-import signal
-import sys
 
-from rq import Connection, Queue, Worker
-
-from .jobs.queue import get_redis
+from redis import Redis
+from rq import Queue, Worker
 
 
-def main():
+def get_redis() -> Redis:
+    redis_url = os.getenv("REDIS_URL", "").strip()
+    if redis_url:
+        return Redis.from_url(redis_url)
+
+    host = os.getenv("REDIS_HOST", "redis")
+    port = int(os.getenv("REDIS_PORT", "6379"))
+    db = int(os.getenv("REDIS_DB", "0"))
+    return Redis(host=host, port=port, db=db)
+
+
+def main() -> None:
     redis_conn = get_redis()
-    queues = [q.strip() for q in os.getenv("RQ_WORKER_QUEUES", "default").split(",")]
-    with Connection(redis_conn):
-        worker = Worker([Queue(q) for q in queues])
+    queue_name = os.getenv("RQ_QUEUE", "default")
+    queue = Queue(queue_name, connection=redis_conn)
 
-        def handle_sig(signum, frame):
-            worker.log.warning("Shutting down worker...")
-            worker.request_stop()
-
-        signal.signal(signal.SIGTERM, handle_sig)
-        signal.signal(signal.SIGINT, handle_sig)
-
-        worker.work(with_scheduler=True)
+    worker = Worker([queue], connection=redis_conn)
+    worker.work()
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
