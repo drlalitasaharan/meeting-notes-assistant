@@ -21,6 +21,11 @@ FROM base AS runtime
 COPY --from=builder /wheels /wheels
 RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
 
+# Ensure Alembic CLI is available for Render pre-deploy migrations.
+RUN python -m pip install --no-cache-dir "alembic>=1.13,<2" \
+    && alembic --version
+
+
 # Copy application code
 COPY backend /app/backend
 
