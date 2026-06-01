@@ -80,6 +80,8 @@ def _local_s3_endpoint_url() -> str | None:
         os.getenv("S3_ENDPOINT_URL")
         or os.getenv("AWS_S3_ENDPOINT_URL")
         or os.getenv("AWS_ENDPOINT_URL")
+        or os.getenv("S3_ENDPOINT")
+        or os.getenv("MINIO_ENDPOINT")
     )
 
 
