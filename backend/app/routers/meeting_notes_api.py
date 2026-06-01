@@ -1,10 +1,12 @@
 # mypy: ignore-errors
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from typing import Any, List
 
+import boto3
 from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile
 from sqlalchemy.orm import Session
 
@@ -26,16 +28,70 @@ def _get_db() -> Session:
         db.close()
 
 
-def _save_raw_media_stub(
+def _s3_bucket() -> str | None:
+    return (
+        os.getenv("S3_BUCKET")
+        or os.getenv("AWS_S3_BUCKET")
+        or os.getenv("S3_BUCKET_NAME")
+        or os.getenv("OBJECT_BUCKET")
+    )
+
+
+def _s3_region() -> str | None:
+    return os.getenv("S3_REGION") or os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION")
+
+
+def _s3_client():
+    kwargs: dict[str, Any] = {}
+
+    region = _s3_region()
+    if region:
+        kwargs["region_name"] = region
+
+    endpoint = os.getenv("S3_ENDPOINT") or os.getenv("AWS_ENDPOINT_URL")
+    if endpoint:
+        kwargs["endpoint_url"] = endpoint
+
+    access_key = os.getenv("S3_ACCESS_KEY") or os.getenv("AWS_ACCESS_KEY_ID")
+    secret_key = os.getenv("S3_SECRET_KEY") or os.getenv("AWS_SECRET_ACCESS_KEY")
+    if access_key and secret_key:
+        kwargs["aws_access_key_id"] = access_key
+        kwargs["aws_secret_access_key"] = secret_key
+
+    return boto3.client("s3", **kwargs)
+
+
+def _use_s3_storage() -> bool:
+    return os.getenv("STORAGE_BACKEND", "").lower() == "s3" and bool(_s3_bucket())
+
+
+def _save_raw_media(
     meeting_id: str,
     file: UploadFile,
     data: bytes,
 ) -> str:
     """
-    Local dev implementation: persist uploaded media on disk so the worker
-    can read it later.
+    Persist uploaded media.
+
+    In production, store the media in S3 so both the web service and worker
+    can access the same object. In local development, fall back to disk.
     """
     suffix = Path(file.filename or "").suffix or ".mp4"
+
+    if _use_s3_storage():
+        bucket = _s3_bucket()
+        if not bucket:
+            raise RuntimeError("S3 storage requested but no S3 bucket is configured")
+
+        key = f"raw_media/meeting_{meeting_id}{suffix}"
+        _s3_client().put_object(
+            Bucket=bucket,
+            Key=key,
+            Body=data,
+            ContentType=file.content_type or "application/octet-stream",
+        )
+        return f"s3://{bucket}/{key}"
+
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     out_path = UPLOAD_DIR / f"meeting_{meeting_id}{suffix}"
     out_path.write_bytes(data)
@@ -78,7 +134,7 @@ async def upload_meeting_media(
         raise HTTPException(status_code=404, detail="Meeting not found")
 
     raw_bytes = await file.read()
-    raw_path = _save_raw_media_stub(str(meeting_id), file, raw_bytes)
+    raw_path = _save_raw_media(str(meeting_id), file, raw_bytes)
 
     meeting.raw_media_path = raw_path
     meeting.status = "PROCESSING"

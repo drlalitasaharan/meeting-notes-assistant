@@ -4,7 +4,9 @@ import logging
 import os
 import tempfile
 from typing import Any
+from urllib.parse import urlparse
 
+import boto3
 from rq import get_current_job
 from sqlalchemy.orm import Session
 
@@ -27,6 +29,48 @@ from app.services.persisted_action_contract import _finalize_persisted_action_co
 from app.services.transcription import get_transcriber
 
 log = logging.getLogger(__name__)
+
+
+def _s3_region() -> str | None:
+    return os.getenv("S3_REGION") or os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION")
+
+
+def _s3_client():
+    kwargs: dict[str, Any] = {}
+
+    region = _s3_region()
+    if region:
+        kwargs["region_name"] = region
+
+    endpoint = os.getenv("S3_ENDPOINT") or os.getenv("AWS_ENDPOINT_URL")
+    if endpoint:
+        kwargs["endpoint_url"] = endpoint
+
+    access_key = os.getenv("S3_ACCESS_KEY") or os.getenv("AWS_ACCESS_KEY_ID")
+    secret_key = os.getenv("S3_SECRET_KEY") or os.getenv("AWS_SECRET_ACCESS_KEY")
+    if access_key and secret_key:
+        kwargs["aws_access_key_id"] = access_key
+        kwargs["aws_secret_access_key"] = secret_key
+
+    return boto3.client("s3", **kwargs)
+
+
+def _read_raw_media_bytes(raw_media_path: str) -> bytes:
+    if raw_media_path.startswith("s3://"):
+        parsed = urlparse(raw_media_path)
+        bucket = parsed.netloc
+        key = parsed.path.lstrip("/")
+        if not bucket or not key:
+            raise RuntimeError(f"Invalid S3 raw_media_path: {raw_media_path}")
+
+        obj = _s3_client().get_object(Bucket=bucket, Key=key)
+        return obj["Body"].read()
+
+    if not os.path.exists(raw_media_path):
+        raise RuntimeError(f"Raw media file not found: {raw_media_path}")
+
+    with open(raw_media_path, "rb") as f:
+        return f.read()
 
 
 def process_meeting(meeting_id: str) -> None:
@@ -74,18 +118,17 @@ def process_meeting(meeting_id: str) -> None:
         if not raw_media_path:
             raise RuntimeError(f"Meeting {meeting.id} has no raw_media_path")
 
-        if not os.path.exists(raw_media_path):
-            raise RuntimeError(
-                f"Raw media file not found for meeting {meeting.id}: {raw_media_path}"
-            )
-
         log.info(
             "process_meeting: loading audio",
             extra={**log_extra, "raw_media_path": raw_media_path},
         )
 
-        with open(raw_media_path, "rb") as f:
-            media_bytes = f.read()
+        try:
+            media_bytes = _read_raw_media_bytes(raw_media_path)
+        except RuntimeError as exc:
+            raise RuntimeError(
+                f"Raw media file not found for meeting {meeting.id}: {raw_media_path}"
+            ) from exc
 
         audio_bytes = load_audio_for_meeting(str(meeting.id), media_bytes)
 
