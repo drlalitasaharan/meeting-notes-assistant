@@ -2,6 +2,9 @@
 import { useState } from "react";
 import axios from "axios";
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:8000";
+
 export default function UploadPage() {
   const [title, setTitle] = useState("");
   const [meetingId, setMeetingId] = useState<string | null>(null);
@@ -9,7 +12,7 @@ export default function UploadPage() {
   const start = async (file: File) => {
     const form = new FormData();
     form.append("title", title);
-    const { data } = await axios.post("http://localhost:8000/v1/meetings/start", form);
+    const { data } = await axios.post(`${API_BASE_URL}/v1/meetings/start`, form);
     setMeetingId(data.meetingId);
     await axios.put(data.uploadUrl, file, { headers: { "Content-Type": file.type } });
     alert("Uploaded. Now run the transcribe & summarize workers for this meeting in your terminal.");
