@@ -7,6 +7,7 @@ from datetime import timedelta
 from typing import Any, Dict
 
 import boto3
+from botocore.exceptions import ClientError
 
 
 def _bucket_name() -> str | None:
@@ -74,6 +75,21 @@ def choose_storage():
     raise RuntimeError(f"Unsupported STORAGE_BACKEND={backend!r}")
 
 
+def _local_s3_endpoint_url() -> str | None:
+    return (
+        os.getenv("S3_ENDPOINT_URL")
+        or os.getenv("AWS_S3_ENDPOINT_URL")
+        or os.getenv("AWS_ENDPOINT_URL")
+    )
+
+
+def _is_missing_bucket_error(exc: ClientError) -> bool:
+    error = exc.response.get("Error", {})
+    code = str(error.get("Code", ""))
+    status_code = exc.response.get("ResponseMetadata", {}).get("HTTPStatusCode")
+    return status_code == 404 or code in {"404", "NoSuchBucket", "NotFound"}
+
+
 def health_check() -> dict:
     backend = os.getenv("STORAGE_BACKEND", "").lower()
     if backend != "s3":
@@ -83,5 +99,22 @@ def health_check() -> dict:
         storage = choose_storage()
         storage.client.head_bucket(Bucket=storage.bucket)
         return {"status": "ok"}
+    except ClientError as exc:
+        endpoint_url = _local_s3_endpoint_url()
+
+        # In local/prodready CI, MinIO starts empty. Create the test bucket
+        # automatically only when using a custom S3 endpoint.
+        if endpoint_url and _is_missing_bucket_error(exc):
+            try:
+                storage.client.create_bucket(Bucket=storage.bucket)
+                storage.client.head_bucket(Bucket=storage.bucket)
+                return {"status": "ok"}
+            except Exception as create_exc:  # noqa: BLE001
+                return {
+                    "status": "error",
+                    "detail": f"storage health failed after bucket create attempt: {create_exc}",
+                }
+
+        return {"status": "error", "detail": f"storage health failed: {exc}"}
     except Exception as exc:  # noqa: BLE001
         return {"status": "error", "detail": f"storage health failed: {exc}"}
