@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import tempfile
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
@@ -53,6 +54,16 @@ def _s3_client():
         kwargs["aws_secret_access_key"] = secret_key
 
     return boto3.client("s3", **kwargs)
+
+
+def _media_suffix(raw_media_path: str) -> str:
+    suffix = Path(raw_media_path.split("?", 1)[0]).suffix.lower()
+    return (
+        suffix
+        if suffix
+        in {".flac", ".m4a", ".mp3", ".mp4", ".mpeg", ".mpga", ".oga", ".ogg", ".wav", ".webm"}
+        else ".mp3"
+    )
 
 
 def _read_raw_media_bytes(raw_media_path: str) -> bytes:
@@ -135,7 +146,7 @@ def process_meeting(meeting_id: str) -> None:
         # 4) Transcription
         log.info("process_meeting: transcribing audio", extra=log_extra)
 
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=_media_suffix(raw_media_path), delete=False) as tmp:
             tmp.write(audio_bytes)
             tmp_audio_path = tmp.name
 
