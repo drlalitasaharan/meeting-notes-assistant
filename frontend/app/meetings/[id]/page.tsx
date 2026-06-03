@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import ActionItemsCard from "../../../components/ActionItemsCard";
 import ErrorBanner from "../../../components/ErrorBanner";
 import KeyPointsCard from "../../../components/KeyPointsCard";
@@ -18,12 +18,6 @@ import {
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
-
-type PageProps = {
-  params: {
-    id: string;
-  };
-};
 
 type MeetingNotes = {
   meeting_id: number;
@@ -105,7 +99,8 @@ function formatLastUpdated(value: number | null) {
   });
 }
 
-export default function MeetingResultsPage({ params }: PageProps) {
+export default function MeetingResultsPage() {
+  const params = useParams<{ id: string }>();
   const meetingId = params.id;
   const searchParams = useSearchParams();
   const jobId = searchParams.get("jobId");
