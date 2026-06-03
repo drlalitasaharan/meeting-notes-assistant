@@ -32,9 +32,10 @@ export default function UploadPage() {
     try {
       const meeting = await createMeeting(title.trim());
 
-      await uploadMeetingFile(meeting.id, file);
+      const upload = await uploadMeetingFile(meeting.id, file);
+      const jobQuery = upload.job_id ? `?jobId=${encodeURIComponent(upload.job_id)}` : "";
 
-      router.push(`/meetings/${meeting.id}`);
+      router.push(`/meetings/${meeting.id}${jobQuery}`);
     } catch (err) {
       console.error(err);
       setError("Upload failed. Please try again.");
