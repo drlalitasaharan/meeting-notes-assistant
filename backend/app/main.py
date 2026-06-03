@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import uuid
 
 from fastapi import FastAPI, Request
@@ -122,6 +123,29 @@ async def metrics_prometheus() -> str:
     return render_all_metrics_prometheus()
 
 
+def _cors_allowed_origins() -> list[str]:
+    default_origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+    ]
+
+    env_origins = [
+        origin.strip()
+        for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+        if origin.strip()
+    ]
+
+    frontend_url = os.getenv("FRONTEND_URL", "").strip()
+
+    origins = [*default_origins, *env_origins]
+    if frontend_url:
+        origins.append(frontend_url)
+
+    return list(dict.fromkeys(origins))
+
+
 # ---------------------------------------------------------------------------
 # API routers
 # ---------------------------------------------------------------------------
@@ -130,12 +154,7 @@ async def metrics_prometheus() -> str:
 # so we include them without an extra prefix here.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-    ],
+    allow_origins=_cors_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
