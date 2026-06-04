@@ -25,9 +25,9 @@ export default function RootLayout({
         <Header />
         <main
           style={{
-            maxWidth: 1080,
+            maxWidth: 980,
             margin: "0 auto",
-            padding: "24px 16px 40px",
+            padding: "18px 16px 28px",
           }}
         >
           {children}

@@ -41,7 +41,7 @@ function validateUploadFile(file: File): string | null {
 const cardStyle = {
   background: "#fbfffb",
   border: "1px solid #cfe6d4",
-  borderRadius: 24,
+  borderRadius: 20,
   boxShadow: "0 10px 28px rgba(31, 90, 67, 0.10)",
 };
 
@@ -49,8 +49,8 @@ const inputStyle = {
   width: "100%",
   border: "1px solid #bfd8c5",
   borderRadius: 14,
-  padding: "14px 16px",
-  fontSize: 18,
+  padding: "12px 14px",
+  fontSize: 16,
   color: "#123326",
   boxSizing: "border-box" as const,
 };
@@ -58,7 +58,7 @@ const inputStyle = {
 const labelStyle = {
   display: "block",
   marginBottom: 10,
-  fontSize: 18,
+  fontSize: 16,
   fontWeight: 800,
   color: "#123326",
 };
@@ -109,12 +109,12 @@ export default function UploadPage() {
   }
 
   return (
-    <div style={{ display: "grid", gap: 28 }}>
-      <section style={{ ...cardStyle, padding: 36 }}>
+    <div style={{ display: "grid", gap: 20 }}>
+      <section style={{ ...cardStyle, padding: 28 }}>
         <h1
           style={{
             margin: 0,
-            fontSize: 44,
+            fontSize: 38,
             lineHeight: 1.1,
             letterSpacing: "-0.04em",
             color: "#123326",
@@ -124,9 +124,9 @@ export default function UploadPage() {
         </h1>
         <p
           style={{
-            margin: "18px 0 0",
-            fontSize: 20,
-            lineHeight: 1.6,
+            margin: "14px 0 0",
+            fontSize: 16,
+            lineHeight: 1.45,
             color: "#416153",
           }}
         >
@@ -134,8 +134,8 @@ export default function UploadPage() {
         </p>
       </section>
 
-      <section style={{ ...cardStyle, padding: 32 }}>
-        <form onSubmit={handleSubmit} style={{ display: "grid", gap: 24 }}>
+      <section style={{ ...cardStyle, padding: 26 }}>
+        <form onSubmit={handleSubmit} style={{ display: "grid", gap: 18 }}>
           <div>
             <label htmlFor="title" style={labelStyle}>
               Meeting title
@@ -168,19 +168,19 @@ export default function UploadPage() {
 
             <div
               style={{
-                marginTop: 16,
+                marginTop: 14,
                 border: "1px solid #cfe6d4",
                 background: "#eef7ef",
-                borderRadius: 18,
-                padding: 18,
+                borderRadius: 14,
+                padding: 15,
                 boxShadow: "0 4px 14px rgba(31, 90, 67, 0.08)",
               }}
             >
               <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
                 <div
                   style={{
-                    width: 34,
-                    height: 34,
+                    width: 30,
+                    height: 30,
                     borderRadius: "50%",
                     background: "#fbfffb",
                     border: "1px solid #cfe6d4",
@@ -198,17 +198,17 @@ export default function UploadPage() {
                   <p style={{ margin: 0, fontWeight: 800, color: "#123326", fontSize: 16 }}>
                     Recommended upload format
                   </p>
-                  <p style={{ margin: "8px 0 0", color: "#416153", lineHeight: 1.6 }}>
+                  <p style={{ margin: "5px 0 0", color: "#416153", lineHeight: 1.45 }}>
                     For best results, upload compressed meeting recordings under{" "}
                     <strong style={{ color: "#123326" }}>24 MB</strong>.
                   </p>
-                  <p style={{ margin: "6px 0 0", color: "#416153", lineHeight: 1.6 }}>
+                  <p style={{ margin: "5px 0 0", color: "#416153", lineHeight: 1.45 }}>
                     Supported formats:{" "}
                     <strong style={{ color: "#123326" }}>
                       M4A, MP3, MP4, WAV, WEBM, OGG, FLAC, MPEG, MPGA, and OGA
                     </strong>.
                   </p>
-                  <p style={{ margin: "6px 0 0", color: "#416153", lineHeight: 1.6 }}>
+                  <p style={{ margin: "5px 0 0", color: "#416153", lineHeight: 1.45 }}>
                     For longer meetings, <strong style={{ color: "#123326" }}>M4A or MP3</strong>{" "}
                     is recommended. Avoid AIFF/AIF and large uncompressed WAV files.
                   </p>
@@ -229,11 +229,11 @@ export default function UploadPage() {
             style={{
               width: "100%",
               border: "none",
-              borderRadius: 16,
+              borderRadius: 14,
               background: isUploading ? "#4f7f65" : "#2f6f4e",
               color: "#ffffff",
-              padding: "16px 24px",
-              fontSize: 20,
+              padding: "14px 22px",
+              fontSize: 16,
               fontWeight: 800,
               cursor: isUploading ? "not-allowed" : "pointer",
               opacity: isUploading ? 0.7 : 1,
@@ -248,8 +248,8 @@ export default function UploadPage() {
                 border: "1px solid #fecaca",
                 background: "#fef2f2",
                 color: "#991b1b",
-                borderRadius: 16,
-                padding: "14px 16px",
+                borderRadius: 14,
+                padding: "12px 14px",
                 fontSize: 16,
               }}
             >
