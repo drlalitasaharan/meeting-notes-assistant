@@ -38,6 +38,31 @@ function validateUploadFile(file: File): string | null {
   return null;
 }
 
+const cardStyle = {
+  background: "#ffffff",
+  border: "1px solid #e5e7eb",
+  borderRadius: 24,
+  boxShadow: "0 2px 8px rgba(15, 23, 42, 0.06)",
+};
+
+const inputStyle = {
+  width: "100%",
+  border: "1px solid #cbd5e1",
+  borderRadius: 14,
+  padding: "14px 16px",
+  fontSize: 18,
+  color: "#0f172a",
+  boxSizing: "border-box" as const,
+};
+
+const labelStyle = {
+  display: "block",
+  marginBottom: 10,
+  fontSize: 18,
+  fontWeight: 800,
+  color: "#0f172a",
+};
+
 export default function UploadPage() {
   const router = useRouter();
 
@@ -84,20 +109,35 @@ export default function UploadPage() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-950">
+    <div style={{ display: "grid", gap: 28 }}>
+      <section style={{ ...cardStyle, padding: 36 }}>
+        <h1
+          style={{
+            margin: 0,
+            fontSize: 44,
+            lineHeight: 1.1,
+            letterSpacing: "-0.04em",
+            color: "#0f172a",
+          }}
+        >
           Turn recordings into decision-ready notes
         </h1>
-        <p className="mt-4 text-lg text-slate-600">
+        <p
+          style={{
+            margin: "18px 0 0",
+            fontSize: 20,
+            lineHeight: 1.6,
+            color: "#475569",
+          }}
+        >
           Upload a meeting recording and get structured summaries, key points, and action items.
         </p>
       </section>
 
-      <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <section style={{ ...cardStyle, padding: 32 }}>
+        <form onSubmit={handleSubmit} style={{ display: "grid", gap: 24 }}>
           <div>
-            <label htmlFor="title" className="block text-lg font-bold text-slate-950">
+            <label htmlFor="title" style={labelStyle}>
               Meeting title
             </label>
             <input
@@ -105,13 +145,13 @@ export default function UploadPage() {
               name="title"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              className="mt-3 w-full rounded-2xl border border-slate-300 px-4 py-4 text-lg text-slate-950"
+              style={inputStyle}
               placeholder="Client weekly sync"
             />
           </div>
 
           <div>
-            <label htmlFor="file" className="block text-lg font-bold text-slate-950">
+            <label htmlFor="file" style={labelStyle}>
               Audio or video file
             </label>
             <input
@@ -120,38 +160,64 @@ export default function UploadPage() {
               type="file"
               accept=".flac,.m4a,.mp3,.mp4,.mpeg,.mpga,.oga,.ogg,.wav,.webm,audio/flac,audio/mp4,audio/mpeg,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm"
               onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-              className="mt-3 w-full rounded-2xl border border-slate-300 px-4 py-4 text-lg text-slate-950"
+              style={inputStyle}
             />
-            <p className="mt-3 text-slate-500">
+            <p style={{ margin: "12px 0 0", color: "#64748b", fontSize: 16 }}>
               Upload an audio or video file to generate structured, decision-ready meeting notes.
             </p>
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600 shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-base shadow-sm">
-                  ⓘ
+
+            <div
+              style={{
+                marginTop: 16,
+                border: "1px solid #e2e8f0",
+                background: "#f8fafc",
+                borderRadius: 18,
+                padding: 18,
+                boxShadow: "0 1px 3px rgba(15, 23, 42, 0.04)",
+              }}
+            >
+              <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+                <div
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: "50%",
+                    background: "#ffffff",
+                    border: "1px solid #e2e8f0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#334155",
+                    fontWeight: 800,
+                    flexShrink: 0,
+                  }}
+                >
+                  i
                 </div>
-                <div className="space-y-2">
-                  <p className="font-bold text-slate-900">Recommended upload format</p>
-                  <p className="leading-6">
+                <div>
+                  <p style={{ margin: 0, fontWeight: 800, color: "#0f172a", fontSize: 16 }}>
+                    Recommended upload format
+                  </p>
+                  <p style={{ margin: "8px 0 0", color: "#475569", lineHeight: 1.6 }}>
                     For best results, upload compressed meeting recordings under{" "}
-                    <span className="font-semibold text-slate-800">24 MB</span>.
+                    <strong style={{ color: "#0f172a" }}>24 MB</strong>.
                   </p>
-                  <p className="leading-6">
+                  <p style={{ margin: "6px 0 0", color: "#475569", lineHeight: 1.6 }}>
                     Supported formats:{" "}
-                    <span className="font-semibold text-slate-800">
+                    <strong style={{ color: "#0f172a" }}>
                       M4A, MP3, MP4, WAV, WEBM, OGG, FLAC, MPEG, MPGA, and OGA
-                    </span>.
+                    </strong>.
                   </p>
-                  <p className="leading-6">
-                    For longer meetings,{" "}
-                    <span className="font-semibold text-slate-800">M4A or MP3</span>{" "}
+                  <p style={{ margin: "6px 0 0", color: "#475569", lineHeight: 1.6 }}>
+                    For longer meetings, <strong style={{ color: "#0f172a" }}>M4A or MP3</strong>{" "}
                     is recommended. Avoid AIFF/AIF and large uncompressed WAV files.
                   </p>
                 </div>
               </div>
             </div>
+
             {file ? (
-              <p className="mt-2 text-slate-950">
+              <p style={{ margin: "12px 0 0", color: "#0f172a", fontSize: 16 }}>
                 Selected file: <strong>{file.name}</strong>
               </p>
             ) : null}
@@ -160,18 +226,38 @@ export default function UploadPage() {
           <button
             type="submit"
             disabled={isUploading}
-            className="w-full rounded-2xl bg-slate-950 px-6 py-4 text-lg font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            style={{
+              width: "100%",
+              border: "none",
+              borderRadius: 16,
+              background: isUploading ? "#334155" : "#0f172a",
+              color: "#ffffff",
+              padding: "16px 24px",
+              fontSize: 20,
+              fontWeight: 800,
+              cursor: isUploading ? "not-allowed" : "pointer",
+              opacity: isUploading ? 0.7 : 1,
+            }}
           >
             {isUploading ? "Uploading..." : "Upload meeting"}
           </button>
 
           {error ? (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-red-800">
+            <div
+              style={{
+                border: "1px solid #fecaca",
+                background: "#fef2f2",
+                color: "#991b1b",
+                borderRadius: 16,
+                padding: "14px 16px",
+                fontSize: 16,
+              }}
+            >
               {error}
             </div>
           ) : null}
         </form>
       </section>
-    </main>
+    </div>
   );
 }
