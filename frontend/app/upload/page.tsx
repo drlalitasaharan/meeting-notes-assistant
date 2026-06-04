@@ -125,6 +125,16 @@ export default function UploadPage() {
             <p className="mt-3 text-slate-500">
               Upload an audio or video file to generate structured meeting notes.
             </p>
+            <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
+              <p className="font-semibold text-slate-800">Recommended upload format</p>
+              <p>
+                For best results, upload compressed meeting recordings under 24 MB.
+                Supported formats: M4A, MP3, MP4, WAV, WEBM, OGG, FLAC, MPEG, MPGA, and OGA.
+              </p>
+              <p className="mt-1">
+                For longer meetings, M4A or MP3 is recommended. Avoid AIFF/AIF and large uncompressed WAV files.
+              </p>
+            </div>
             {file ? (
               <p className="mt-2 text-slate-950">
                 Selected file: <strong>{file.name}</strong>
