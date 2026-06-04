@@ -5,6 +5,39 @@ import { FormEvent, useState } from "react";
 
 import { createMeeting, uploadMeetingFile } from "../../lib/api";
 
+const MAX_UPLOAD_BYTES = 24 * 1024 * 1024;
+
+const SUPPORTED_EXTENSIONS = new Set([
+  "flac",
+  "m4a",
+  "mp3",
+  "mp4",
+  "mpeg",
+  "mpga",
+  "oga",
+  "ogg",
+  "wav",
+  "webm",
+]);
+
+function getFileExtension(fileName: string) {
+  return fileName.split(".").pop()?.toLowerCase() ?? "";
+}
+
+function validateUploadFile(file: File): string | null {
+  const extension = getFileExtension(file.name);
+
+  if (!SUPPORTED_EXTENSIONS.has(extension)) {
+    return "Unsupported file type. Please upload m4a, mp3, mp4, wav, webm, ogg, flac, mpeg, mpga, or oga.";
+  }
+
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return "This file is too large for hosted transcription. Please upload a file under 24 MB or use compressed m4a/mp3.";
+  }
+
+  return null;
+}
+
 export default function UploadPage() {
   const router = useRouter();
 
@@ -24,6 +57,12 @@ export default function UploadPage() {
 
     if (!file) {
       setError("Please choose an audio or video file.");
+      return;
+    }
+
+    const fileError = validateUploadFile(file);
+    if (fileError) {
+      setError(fileError);
       return;
     }
 
@@ -79,7 +118,7 @@ export default function UploadPage() {
               id="file"
               name="file"
               type="file"
-              accept="audio/*,video/*,.m4a,.mp3,.mp4,.wav,.webm,.ogg,.flac"
+              accept=".flac,.m4a,.mp3,.mp4,.mpeg,.mpga,.oga,.ogg,.wav,.webm,audio/flac,audio/mp4,audio/mpeg,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm"
               onChange={(event) => setFile(event.target.files?.[0] ?? null)}
               className="mt-3 w-full rounded-2xl border border-slate-300 px-4 py-4 text-lg text-slate-950"
             />
