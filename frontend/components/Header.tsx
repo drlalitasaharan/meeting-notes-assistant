@@ -4,8 +4,8 @@ export default function Header() {
   return (
     <header
       style={{
-        background: "#ffffff",
-        borderBottom: "1px solid #e5e7eb",
+        background: "rgba(251, 255, 251, 0.92)",
+        borderBottom: "1px solid #cfe6d4",
       }}
     >
       <div
@@ -23,7 +23,7 @@ export default function Header() {
           href="/upload"
           style={{
             textDecoration: "none",
-            color: "#111827",
+            color: "#123326",
             fontWeight: 700,
             fontSize: 18,
           }}
@@ -34,13 +34,13 @@ export default function Header() {
         <nav style={{ display: "flex", gap: 16 }}>
           <Link
             href="/upload"
-            style={{ textDecoration: "none", color: "#374151", fontWeight: 500 }}
+            style={{ textDecoration: "none", color: "#2f6f4e", fontWeight: 500 }}
           >
             New Upload
           </Link>
           <Link
             href="/meetings"
-            style={{ textDecoration: "none", color: "#374151", fontWeight: 500 }}
+            style={{ textDecoration: "none", color: "#2f6f4e", fontWeight: 500 }}
           >
             Meetings
           </Link>
