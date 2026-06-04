@@ -87,10 +87,10 @@ export default function UploadPage() {
     <main className="mx-auto max-w-5xl px-6 py-10">
       <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
         <h1 className="text-4xl font-bold tracking-tight text-slate-950">
-          Turn meetings into clear notes
+          Turn recordings into decision-ready notes
         </h1>
         <p className="mt-4 text-lg text-slate-600">
-          Upload an audio or video file and get a summary, key points, and action items.
+          Upload a meeting recording and get structured summaries, key points, and action items.
         </p>
       </section>
 
@@ -123,7 +123,7 @@ export default function UploadPage() {
               className="mt-3 w-full rounded-2xl border border-slate-300 px-4 py-4 text-lg text-slate-950"
             />
             <p className="mt-3 text-slate-500">
-              Upload an audio or video file to generate structured meeting notes.
+              Upload an audio or video file to generate structured, decision-ready meeting notes.
             </p>
             <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600 shadow-sm">
               <div className="flex items-start gap-3">
