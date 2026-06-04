@@ -114,8 +114,8 @@ export default function UploadPage() {
         <h1
           style={{
             margin: 0,
-            fontSize: 38,
-            lineHeight: 1.1,
+            fontSize: "clamp(30px, 4vw, 38px)",
+            lineHeight: 1.12,
             letterSpacing: "-0.04em",
             color: "#123326",
           }}
