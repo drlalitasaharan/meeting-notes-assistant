@@ -125,15 +125,30 @@ export default function UploadPage() {
             <p className="mt-3 text-slate-500">
               Upload an audio or video file to generate structured meeting notes.
             </p>
-            <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
-              <p className="font-semibold text-slate-800">Recommended upload format</p>
-              <p>
-                For best results, upload compressed meeting recordings under 24 MB.
-                Supported formats: M4A, MP3, MP4, WAV, WEBM, OGG, FLAC, MPEG, MPGA, and OGA.
-              </p>
-              <p className="mt-1">
-                For longer meetings, M4A or MP3 is recommended. Avoid AIFF/AIF and large uncompressed WAV files.
-              </p>
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-base shadow-sm">
+                  ⓘ
+                </div>
+                <div className="space-y-2">
+                  <p className="font-bold text-slate-900">Recommended upload format</p>
+                  <p className="leading-6">
+                    For best results, upload compressed meeting recordings under{" "}
+                    <span className="font-semibold text-slate-800">24 MB</span>.
+                  </p>
+                  <p className="leading-6">
+                    Supported formats:{" "}
+                    <span className="font-semibold text-slate-800">
+                      M4A, MP3, MP4, WAV, WEBM, OGG, FLAC, MPEG, MPGA, and OGA
+                    </span>.
+                  </p>
+                  <p className="leading-6">
+                    For longer meetings,{" "}
+                    <span className="font-semibold text-slate-800">M4A or MP3</span>{" "}
+                    is recommended. Avoid AIFF/AIF and large uncompressed WAV files.
+                  </p>
+                </div>
+              </div>
             </div>
             {file ? (
               <p className="mt-2 text-slate-950">
