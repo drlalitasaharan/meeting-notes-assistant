@@ -20,7 +20,7 @@ export default function Header() {
         }}
       >
         <Link
-          href="/"
+          href="/upload"
           style={{
             textDecoration: "none",
             color: "#111827",
@@ -28,12 +28,12 @@ export default function Header() {
             fontSize: 18,
           }}
         >
-          Meeting Notes Assistant
+          MeetIQ by Acjen AI
         </Link>
 
         <nav style={{ display: "flex", gap: 16 }}>
           <Link
-            href="/"
+            href="/upload"
             style={{ textDecoration: "none", color: "#374151", fontWeight: 500 }}
           >
             New Upload
