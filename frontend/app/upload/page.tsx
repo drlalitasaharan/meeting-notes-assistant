@@ -39,19 +39,19 @@ function validateUploadFile(file: File): string | null {
 }
 
 const cardStyle = {
-  background: "#ffffff",
-  border: "1px solid #e5e7eb",
+  background: "#fbfffb",
+  border: "1px solid #cfe6d4",
   borderRadius: 24,
-  boxShadow: "0 2px 8px rgba(15, 23, 42, 0.06)",
+  boxShadow: "0 10px 28px rgba(31, 90, 67, 0.10)",
 };
 
 const inputStyle = {
   width: "100%",
-  border: "1px solid #cbd5e1",
+  border: "1px solid #bfd8c5",
   borderRadius: 14,
   padding: "14px 16px",
   fontSize: 18,
-  color: "#0f172a",
+  color: "#123326",
   boxSizing: "border-box" as const,
 };
 
@@ -60,7 +60,7 @@ const labelStyle = {
   marginBottom: 10,
   fontSize: 18,
   fontWeight: 800,
-  color: "#0f172a",
+  color: "#123326",
 };
 
 export default function UploadPage() {
@@ -117,7 +117,7 @@ export default function UploadPage() {
             fontSize: 44,
             lineHeight: 1.1,
             letterSpacing: "-0.04em",
-            color: "#0f172a",
+            color: "#123326",
           }}
         >
           Turn recordings into decision-ready notes
@@ -127,7 +127,7 @@ export default function UploadPage() {
             margin: "18px 0 0",
             fontSize: 20,
             lineHeight: 1.6,
-            color: "#475569",
+            color: "#416153",
           }}
         >
           Upload a meeting recording and get structured summaries, key points, and action items.
@@ -162,18 +162,18 @@ export default function UploadPage() {
               onChange={(event) => setFile(event.target.files?.[0] ?? null)}
               style={inputStyle}
             />
-            <p style={{ margin: "12px 0 0", color: "#64748b", fontSize: 16 }}>
+            <p style={{ margin: "12px 0 0", color: "#5f7b6b", fontSize: 16 }}>
               Upload an audio or video file to generate structured, decision-ready meeting notes.
             </p>
 
             <div
               style={{
                 marginTop: 16,
-                border: "1px solid #e2e8f0",
-                background: "#f8fafc",
+                border: "1px solid #cfe6d4",
+                background: "#eef7ef",
                 borderRadius: 18,
                 padding: 18,
-                boxShadow: "0 1px 3px rgba(15, 23, 42, 0.04)",
+                boxShadow: "0 4px 14px rgba(31, 90, 67, 0.08)",
               }}
             >
               <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
@@ -182,12 +182,12 @@ export default function UploadPage() {
                     width: 34,
                     height: 34,
                     borderRadius: "50%",
-                    background: "#ffffff",
-                    border: "1px solid #e2e8f0",
+                    background: "#fbfffb",
+                    border: "1px solid #cfe6d4",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#334155",
+                    color: "#2f6f4e",
                     fontWeight: 800,
                     flexShrink: 0,
                   }}
@@ -195,21 +195,21 @@ export default function UploadPage() {
                   i
                 </div>
                 <div>
-                  <p style={{ margin: 0, fontWeight: 800, color: "#0f172a", fontSize: 16 }}>
+                  <p style={{ margin: 0, fontWeight: 800, color: "#123326", fontSize: 16 }}>
                     Recommended upload format
                   </p>
-                  <p style={{ margin: "8px 0 0", color: "#475569", lineHeight: 1.6 }}>
+                  <p style={{ margin: "8px 0 0", color: "#416153", lineHeight: 1.6 }}>
                     For best results, upload compressed meeting recordings under{" "}
-                    <strong style={{ color: "#0f172a" }}>24 MB</strong>.
+                    <strong style={{ color: "#123326" }}>24 MB</strong>.
                   </p>
-                  <p style={{ margin: "6px 0 0", color: "#475569", lineHeight: 1.6 }}>
+                  <p style={{ margin: "6px 0 0", color: "#416153", lineHeight: 1.6 }}>
                     Supported formats:{" "}
-                    <strong style={{ color: "#0f172a" }}>
+                    <strong style={{ color: "#123326" }}>
                       M4A, MP3, MP4, WAV, WEBM, OGG, FLAC, MPEG, MPGA, and OGA
                     </strong>.
                   </p>
-                  <p style={{ margin: "6px 0 0", color: "#475569", lineHeight: 1.6 }}>
-                    For longer meetings, <strong style={{ color: "#0f172a" }}>M4A or MP3</strong>{" "}
+                  <p style={{ margin: "6px 0 0", color: "#416153", lineHeight: 1.6 }}>
+                    For longer meetings, <strong style={{ color: "#123326" }}>M4A or MP3</strong>{" "}
                     is recommended. Avoid AIFF/AIF and large uncompressed WAV files.
                   </p>
                 </div>
@@ -217,7 +217,7 @@ export default function UploadPage() {
             </div>
 
             {file ? (
-              <p style={{ margin: "12px 0 0", color: "#0f172a", fontSize: 16 }}>
+              <p style={{ margin: "12px 0 0", color: "#123326", fontSize: 16 }}>
                 Selected file: <strong>{file.name}</strong>
               </p>
             ) : null}
@@ -230,7 +230,7 @@ export default function UploadPage() {
               width: "100%",
               border: "none",
               borderRadius: 16,
-              background: isUploading ? "#334155" : "#0f172a",
+              background: isUploading ? "#4f7f65" : "#2f6f4e",
               color: "#ffffff",
               padding: "16px 24px",
               fontSize: 20,

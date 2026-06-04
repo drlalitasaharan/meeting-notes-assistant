@@ -18,8 +18,8 @@ export default function RootLayout({
         style={{
           margin: 0,
           fontFamily: "Arial, sans-serif",
-          background: "#f7f7f8",
-          color: "#111827",
+          background: "linear-gradient(180deg, #f3fbf4 0%, #f8fbf8 45%, #ffffff 100%)",
+          color: "#123326",
         }}
       >
         <Header />
