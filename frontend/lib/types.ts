@@ -7,6 +7,11 @@ export interface Meeting {
   status?: string;
 }
 
+export interface MeetingListResponse {
+  items: Meeting[];
+  total: number;
+}
+
 export interface CreateMeetingResponse {
   id: number;
   title?: string;
@@ -34,4 +39,14 @@ export interface MeetingNotes {
   summary: string;
   key_points: string[];
   action_items: string[];
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+}
+
+export interface UserRead {
+  id: number;
+  email: string;
 }

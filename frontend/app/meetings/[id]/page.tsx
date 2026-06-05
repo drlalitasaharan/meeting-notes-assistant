@@ -15,9 +15,7 @@ import {
   neutralPillStyle,
   pillRowStyle,
 } from "../../../components/ui";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+import { getJobStatus, getMeetingMarkdown, getMeetingNotes } from "../../../lib/api";
 
 type MeetingNotes = {
   meeting_id: number;
@@ -65,30 +63,6 @@ function isPollingStatus(status: string) {
   return normalized === "queued" || normalized === "running";
 }
 
-async function fetchJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}`);
-  }
-
-  return response.json() as Promise<T>;
-}
-
-async function fetchText(path: string): Promise<string> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}`);
-  }
-
-  return response.text();
-}
-
 function formatLastUpdated(value: number | null) {
   if (!value) return "Not loaded yet";
 
@@ -116,8 +90,8 @@ export default function MeetingResultsPage() {
     async (strict: boolean): Promise<boolean> => {
       try {
         const [notesResponse, markdownResponse] = await Promise.all([
-          fetchJson<MeetingNotes>(`/v1/meetings/${meetingId}/notes/ai`),
-          fetchText(`/v1/meetings/${meetingId}/notes.md`),
+          getMeetingNotes(Number(meetingId)),
+          getMeetingMarkdown(Number(meetingId)),
         ]);
 
         setNotes(notesResponse);
@@ -144,7 +118,7 @@ export default function MeetingResultsPage() {
 
   const checkJob = useCallback(async () => {
     if (!jobId) return null;
-    return fetchJson<JobResponse>(`/v1/jobs/${jobId}`);
+    return getJobStatus(jobId);
   }, [jobId]);
 
   useEffect(() => {

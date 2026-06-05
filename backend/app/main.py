@@ -5,7 +5,7 @@ import uuid
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 
 from app.api import health as health_api
 from app.logging_utils import (
@@ -14,13 +14,22 @@ from app.logging_utils import (
     get_logger,
 )
 from app.metrics import render_all_metrics_prometheus, track_http_request
-from app.routers import jobs, meetings, slides
+from app.routers import auth, jobs, meetings, slides
 
 app = FastAPI(title="Meeting Notes Assistant")
 
 # Configure structured logging for the API once at startup
 configure_logging("api")
 logger = get_logger(__name__)
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    logger.exception("unhandled error during request", extra={"path": request.url.path})
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "We couldn't complete your request. Please try again later."},
+    )
 
 
 def _health_payload() -> dict[str, str]:
@@ -163,6 +172,7 @@ app.add_middleware(
 app.include_router(meetings.router)
 app.include_router(slides.router)
 app.include_router(jobs.router)
+app.include_router(auth.router)
 
 
 # Golden-flow: register meeting notes/upload router

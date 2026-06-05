@@ -1,6 +1,29 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { clearAuthToken } from "../lib/api";
 
 export default function Header() {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const token = window.localStorage.getItem("meeting-notes-assistant-token");
+      setLoggedIn(Boolean(token));
+    } catch {
+      setLoggedIn(false);
+    }
+  }, []);
+
+  function handleLogout() {
+    clearAuthToken();
+    setLoggedIn(false);
+    router.push("/login");
+  }
+
   return (
     <header
       style={{
@@ -31,7 +54,7 @@ export default function Header() {
           MeetIQ by Acjen AI
         </Link>
 
-        <nav style={{ display: "flex", gap: 16 }}>
+        <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
           <Link
             href="/upload"
             style={{ textDecoration: "none", color: "#2f6f4e", fontWeight: 500 }}
@@ -44,6 +67,23 @@ export default function Header() {
           >
             Meetings
           </Link>
+
+          {loggedIn ? (
+            <button
+              onClick={handleLogout}
+              style={{
+                background: "transparent",
+                border: "none",
+                padding: 0,
+                margin: 0,
+                color: "#2f6f4e",
+                fontWeight: 500,
+                cursor: "pointer",
+              }}
+            >
+              Logout
+            </button>
+          ) : null}
         </nav>
       </div>
     </header>
