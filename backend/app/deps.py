@@ -4,8 +4,11 @@ from __future__ import annotations
 import os
 from typing import Generator, Optional
 
-from fastapi import Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
+
+from app.models.user import User
+from app.services.auth import decode_access_token
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -56,4 +59,44 @@ async def require_api_key(
     )
 
 
-__all__ = ["get_db", "require_api_key"]
+def get_current_user(
+    authorization: Optional[str] = Header(
+        default=None,
+        alias="Authorization",
+        convert_underscores=False,
+    ),
+    db: Session = Depends(get_db),
+) -> User:
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication credentials were not provided.",
+        )
+
+    token = authorization.split(" ", 1)[1]
+    try:
+        payload = decode_access_token(token)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired authentication token.",
+        )
+
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication token.",
+        )
+
+    user = db.get(User, int(user_id))
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found.",
+        )
+
+    return user
+
+
+__all__ = ["get_db", "require_api_key", "get_current_user"]

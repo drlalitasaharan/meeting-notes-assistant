@@ -1,37 +1,156 @@
 import type {
+  AuthResponse,
   CreateMeetingResponse,
   JobStatus,
+  MeetingListResponse,
   MeetingNotes,
   UploadMeetingResponse,
+  UserRead,
 } from "./types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
+const AUTH_TOKEN_KEY = "meeting-notes-assistant-token";
 
 if (!API_BASE_URL) {
   throw new Error("NEXT_PUBLIC_API_BASE_URL is not set");
 }
 
+function getAuthToken(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  return window.localStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+function setAuthToken(token: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.setItem(AUTH_TOKEN_KEY, token);
+}
+
+export function clearAuthToken() {
+  if (typeof window === "undefined") {
+    return;
+  }
+  window.localStorage.removeItem(AUTH_TOKEN_KEY);
+}
+
+function buildHeaders(additional?: HeadersInit) {
+  const token = getAuthToken();
+  const headers: Record<string, string> = {};
+
+  if (additional instanceof Headers) {
+    additional.forEach((value, key) => {
+      headers[key] = value;
+    });
+  } else if (additional) {
+    Object.assign(headers, additional);
+  }
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
+}
+
+async function parseErrorResponse(response: Response): Promise<string> {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    try {
+      const payload = await response.json();
+      if (payload && typeof payload === "object") {
+        if (typeof payload.detail === "string") {
+          return payload.detail;
+        }
+        if (typeof payload.error === "string") {
+          return payload.error;
+        }
+      }
+    } catch {
+      // ignore parse failure
+    }
+  }
+
+  const text = await response.text();
+  return text || `Request failed with status ${response.status}`;
+}
+
 async function handleJsonResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `Request failed with status ${response.status}`);
+    const message = await parseErrorResponse(response);
+    throw new Error(message);
   }
+
   return response.json() as Promise<T>;
 }
 
-export async function createMeeting(title: string): Promise<CreateMeetingResponse> {
-  const response = await fetch(`${API_BASE_URL}/v1/meetings`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      title,
-      tags: [],
-    }),
+async function handleTextResponse(response: Response): Promise<string> {
+  if (!response.ok) {
+    const message = await parseErrorResponse(response);
+    throw new Error(message);
+  }
+
+  return response.text();
+}
+
+async function fetchWithAuth<T>(path: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers: buildHeaders(options?.headers),
   });
 
-  return handleJsonResponse<CreateMeetingResponse>(response);
+  return handleJsonResponse<T>(response);
+}
+
+async function fetchTextWithAuth(path: string, options?: RequestInit): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers: buildHeaders(options?.headers),
+  });
+
+  return handleTextResponse(response);
+}
+
+export async function loginUser(email: string, password: string): Promise<AuthResponse> {
+  const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
+    method: "POST",
+    headers: buildHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ email, password }),
+  });
+
+  const payload = await handleJsonResponse<AuthResponse>(response);
+  setAuthToken(payload.access_token);
+  return payload;
+}
+
+export async function signupUser(email: string, password: string): Promise<AuthResponse> {
+  const response = await fetch(`${API_BASE_URL}/v1/auth/signup`, {
+    method: "POST",
+    headers: buildHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ email, password }),
+  });
+
+  const payload = await handleJsonResponse<AuthResponse>(response);
+  setAuthToken(payload.access_token);
+  return payload;
+}
+
+export async function getCurrentUser(): Promise<UserRead> {
+  return fetchWithAuth<UserRead>("/v1/auth/me");
+}
+
+export async function getMeetings(): Promise<MeetingListResponse> {
+  return fetchWithAuth<MeetingListResponse>("/v1/meetings?limit=50");
+}
+
+export async function createMeeting(title: string): Promise<CreateMeetingResponse> {
+  return fetchWithAuth<CreateMeetingResponse>("/v1/meetings", {
+    method: "POST",
+    headers: buildHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ title, tags: [] }),
+  });
 }
 
 export async function uploadMeetingFile(
@@ -43,6 +162,7 @@ export async function uploadMeetingFile(
 
   const response = await fetch(`${API_BASE_URL}/v1/meetings/${meetingId}/upload`, {
     method: "POST",
+    headers: buildHeaders(),
     body: formData,
   });
 
@@ -50,33 +170,22 @@ export async function uploadMeetingFile(
 }
 
 export async function getJobStatus(jobId: string): Promise<JobStatus> {
-  const response = await fetch(`${API_BASE_URL}/v1/jobs/${jobId}`, {
+  return fetchWithAuth<JobStatus>(`/v1/jobs/${jobId}`, {
     method: "GET",
     cache: "no-store",
   });
-
-  return handleJsonResponse<JobStatus>(response);
 }
 
 export async function getMeetingNotes(meetingId: number): Promise<MeetingNotes> {
-  const response = await fetch(`${API_BASE_URL}/v1/meetings/${meetingId}/notes/ai`, {
+  return fetchWithAuth<MeetingNotes>(`/v1/meetings/${meetingId}/notes/ai`, {
     method: "GET",
     cache: "no-store",
   });
-
-  return handleJsonResponse<MeetingNotes>(response);
 }
 
 export async function getMeetingMarkdown(meetingId: number): Promise<string> {
-  const response = await fetch(`${API_BASE_URL}/v1/meetings/${meetingId}/notes.md`, {
+  return fetchTextWithAuth(`/v1/meetings/${meetingId}/notes.md`, {
     method: "GET",
     cache: "no-store",
   });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `Request failed with status ${response.status}`);
-  }
-
-  return response.text();
 }

@@ -11,13 +11,28 @@ from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFil
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
+from app.deps import get_current_user
 from app.jobs.meetings import enqueue_process_meeting
 from app.models.meeting import Meeting
 from app.models.meeting_notes import MeetingNotes
+from app.models.user import User
 
 router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
 
 UPLOAD_DIR = Path("/app/backend/storage/uploads")
+SUPPORTED_EXTENSIONS = {
+    ".flac",
+    ".m4a",
+    ".mp3",
+    ".mp4",
+    ".wav",
+    ".webm",
+    ".ogg",
+    ".oga",
+    ".mpeg",
+    ".mpga",
+}
+MAX_UPLOAD_BYTES = 24 * 1024 * 1024
 
 
 def _get_db() -> Session:
@@ -128,13 +143,33 @@ async def upload_meeting_media(
     meeting_id: int,
     file: UploadFile = File(...),
     db: Session = Depends(_get_db),
+    current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
     meeting = db.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Meeting not found")
 
     raw_bytes = await file.read()
-    raw_path = _save_raw_media(str(meeting_id), file, raw_bytes)
+    if len(raw_bytes) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail="This file is too large for hosted transcription. Please upload a file under 24 MB or use compressed m4a/mp3.",
+        )
+
+    extension = Path(file.filename or "").suffix.lower()
+    if extension not in SUPPORTED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported file type. Please upload MP3, MP4, M4A, WAV, WEBM, OGG, or FLAC.",
+        )
+
+    try:
+        raw_path = _save_raw_media(str(meeting_id), file, raw_bytes)
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="We couldn't process this file. Please try a shorter recording or upload a supported audio/video format.",
+        )
 
     meeting.raw_media_path = raw_path
     meeting.status = "PROCESSING"
@@ -236,9 +271,10 @@ def _client_facing_summary_from_slots(
 def get_meeting_notes(
     meeting_id: int,
     db: Session = Depends(_get_db),
+    current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
     meeting = db.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Meeting not found")
 
     notes = (
@@ -291,9 +327,10 @@ def _clean_publishable_markdown_text(text: str) -> str:
 def download_meeting_notes_markdown(
     meeting_id: int,
     db: Session = Depends(_get_db),
+    current_user: User = Depends(get_current_user),
 ) -> Response:
     meeting = db.get(Meeting, meeting_id)
-    if meeting is None:
+    if meeting is None or meeting.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Meeting not found")
 
     notes = (

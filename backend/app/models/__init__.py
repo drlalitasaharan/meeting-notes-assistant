@@ -16,6 +16,7 @@ class Base(DeclarativeBase):
 from app.models import job as _job  # noqa: F401,E402
 from app.models import meeting as _meeting  # noqa: F401,E402
 from app.models import meeting_notes as _meeting_notes  # noqa: F401,E402
+from app.models import user as _user  # noqa: F401,E402
 
 Transcript = Any  # type: ignore[misc]
 Summary = Any  # type: ignore[misc]

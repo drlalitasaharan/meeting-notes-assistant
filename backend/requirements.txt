@@ -277,3 +277,4 @@ websockets==15.0.1
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
 alembic>=1.13,<2
+email-validator>=2.2.0
