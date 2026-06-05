@@ -125,9 +125,59 @@ jobs:
           # Sanity
           $C ps
 
-          # 1) Create a meeting via API (same as pytest)
-          MEETING_ID=$($C exec -T backend python - <<'PY'
+          # 0) Authenticate smoke user for Phase 1 user-owned meetings
+          SMOKE_TOKEN=$($C exec -T backend python - <<'PY'
           import json
+          import sys
+          import urllib.error
+          import urllib.request
+
+          email = "ci-smoke@example.com"
+          password = "SmokePassword123!"
+
+          def post_json(path):
+              payload = json.dumps({"email": email, "password": password}).encode()
+              req = urllib.request.Request(
+                  f"http://127.0.0.1:8000{path}",
+                  data=payload,
+                  headers={"Content-Type": "application/json"},
+                  method="POST",
+              )
+              try:
+                  resp = urllib.request.urlopen(req, timeout=10)
+                  return resp.status, resp.read().decode()
+              except urllib.error.HTTPError as e:
+                  return e.code, e.read().decode()
+
+          status, body_text = post_json("/v1/auth/signup")
+          if status in (400, 409):
+              status, body_text = post_json("/v1/auth/login")
+
+          if status >= 400:
+              sys.stderr.write(f"Smoke auth failed: HTTP {status}\n{body_text}\n")
+              raise SystemExit(1)
+
+          body = json.loads(body_text)
+          token = body.get("access_token")
+          if not token:
+              sys.stderr.write(f"Smoke auth did not return access_token: {body}\n")
+              raise SystemExit(1)
+
+          sys.stdout.write(token)
+          PY
+          )
+
+          if [ -z "${SMOKE_TOKEN}" ]; then
+            echo "Smoke auth token was empty"
+            exit 1
+          fi
+
+          echo "Smoke auth token acquired"
+
+          # 1) Create a meeting via API
+          MEETING_ID=$($C exec -T backend env SMOKE_TOKEN="$SMOKE_TOKEN" python - <<'PY'
+          import json
+          import os
           import sys
           import urllib.error
           import urllib.request
@@ -142,6 +192,7 @@ jobs:
               headers={
                   "Content-Type": "application/json",
                   "X-API-Key": "dev-secret-123",
+                  "Authorization": f"Bearer {os.environ['SMOKE_TOKEN']}",
               },
               method="POST",
           )
@@ -162,9 +213,10 @@ jobs:
 
           echo "Created meeting id=${MEETING_ID}"
 
-          # 2) Kick off processing job for that meeting (async if available)
-          JOB=$($C exec -T backend python - <<PY
+          # 2) Kick off processing job for that meeting
+          JOB=$($C exec -T backend env SMOKE_TOKEN="$SMOKE_TOKEN" python - <<PY
           import json
+          import os
           import sys
           import urllib.error
           import urllib.request
@@ -173,7 +225,10 @@ jobs:
           req = urllib.request.Request(
               url,
               data=b"",
-              headers={"X-API-Key": "dev-secret-123"},
+              headers={
+                  "X-API-Key": "dev-secret-123",
+                  "Authorization": f"Bearer {os.environ['SMOKE_TOKEN']}",
+              },
               method="POST",
           )
 
@@ -187,10 +242,8 @@ jobs:
           body = json.load(resp)
           sys.stderr.write(f"/process response JSON: {body}\n")
 
-          # Prefer explicit job_id; fall back to id; otherwise assume sync path
           job_id = body.get("job_id") or body.get("id")
           if not job_id:
-              # Synchronous processing – nothing to poll
               sys.exit(0)
 
           sys.stdout.write(str(job_id))
@@ -202,10 +255,10 @@ jobs:
           else
             echo "JOB=${JOB}"
 
-            # 3) Poll the job until it finishes
             for i in {1..60}; do
-              STATUS=$($C exec -T backend python - <<PY
+              STATUS=$($C exec -T backend env SMOKE_TOKEN="$SMOKE_TOKEN" python - <<PY
           import json
+          import os
           import sys
           import urllib.error
           import urllib.request
@@ -213,7 +266,10 @@ jobs:
           url = f"http://127.0.0.1:8000/v1/jobs/${JOB}"
           req = urllib.request.Request(
               url,
-              headers={"X-API-Key": "dev-secret-123"},
+              headers={
+                  "X-API-Key": "dev-secret-123",
+                  "Authorization": f"Bearer {os.environ['SMOKE_TOKEN']}",
+              },
               method="GET",
           )
 
@@ -233,8 +289,9 @@ jobs:
               sleep 2
             done
 
-            FINAL_STATUS=$($C exec -T backend python - <<PY
+            FINAL_STATUS=$($C exec -T backend env SMOKE_TOKEN="$SMOKE_TOKEN" python - <<PY
           import json
+          import os
           import sys
           import urllib.error
           import urllib.request
@@ -242,7 +299,10 @@ jobs:
           url = f"http://127.0.0.1:8000/v1/jobs/${JOB}"
           req = urllib.request.Request(
               url,
-              headers={"X-API-Key": "dev-secret-123"},
+              headers={
+                  "X-API-Key": "dev-secret-123",
+                  "Authorization": f"Bearer {os.environ['SMOKE_TOKEN']}",
+              },
               method="GET",
           )
 
@@ -266,8 +326,9 @@ jobs:
           fi
 
           # 4) Best-effort notes fetch – warn only, don't fail the job
-          $C exec -T backend python - <<PY | jq . || echo "WARN: /notes fetch failed (non-fatal)"
+          $C exec -T backend env SMOKE_TOKEN="$SMOKE_TOKEN" python - <<PY | jq . || echo "WARN: /notes fetch failed (non-fatal)"
           import json
+          import os
           import sys
           import urllib.error
           import urllib.request
@@ -275,7 +336,10 @@ jobs:
           url = f"http://127.0.0.1:8000/v1/meetings/${MEETING_ID}/notes"
           req = urllib.request.Request(
               url,
-              headers={"X-API-Key": "dev-secret-123"},
+              headers={
+                  "X-API-Key": "dev-secret-123",
+                  "Authorization": f"Bearer {os.environ['SMOKE_TOKEN']}",
+              },
               method="GET",
           )
 

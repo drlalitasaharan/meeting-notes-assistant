@@ -24,9 +24,35 @@ done
 echo "== /healthz =="
 curl -sS "$MNA_API/healthz" | jq .
 
+echo "== authenticate test user (Phase 1 auth) =="
+SMOKE_EMAIL="ci-smoke@example.com"
+SMOKE_PASSWORD="SmokePassword123!"
+
+# Try signup first
+HTTP_CODE="$(curl -sS -X POST "$MNA_API/v1/auth/signup" \
+  -H 'content-type: application/json' \
+  -d "{\"email\":\"$SMOKE_EMAIL\",\"password\":\"$SMOKE_PASSWORD\"}" \
+  -w '%{http_code}' \
+  -o /tmp/auth_resp.json)"
+BODY="$(cat /tmp/auth_resp.json)"
+
+# If signup fails (409 or 400), try login
+if [[ "$HTTP_CODE" =~ ^(409|400)$ ]]; then
+  echo "Signup returned $HTTP_CODE, trying login..."
+  BODY="$(curl -sS -X POST "$MNA_API/v1/auth/login" \
+    -H 'content-type: application/json' \
+    -d "{\"email\":\"$SMOKE_EMAIL\",\"password\":\"$SMOKE_PASSWORD\"}")"
+fi
+
+echo "$BODY" | jq .
+SMOKE_TOKEN="$(echo "$BODY" | jq -r '.access_token // empty')"
+[ -n "$SMOKE_TOKEN" ] || { echo "Failed to get auth token"; exit 1; }
+echo "Auth token acquired: ${SMOKE_TOKEN:0:20}..."
+
 echo "== create meeting (POST /v1/meetings) =="
 MEETING_JSON="$(curl -sS -X POST "$MNA_API/v1/meetings" \
   -H 'content-type: application/json' \
+  -H "Authorization: Bearer $SMOKE_TOKEN" \
   -d '{"title":"smoke test meeting"}')"
 echo "$MEETING_JSON" | jq .
 MEETING_ID="$(echo "$MEETING_JSON" | jq -r '.id')"
