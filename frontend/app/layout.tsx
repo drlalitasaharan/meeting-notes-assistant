@@ -3,8 +3,8 @@ import "./globals.css";
 import Header from "../components/Header";
 
 export const metadata: Metadata = {
-  title: "Meeting Notes Assistant",
-  description: "Upload audio or video and get structured meeting notes.",
+  title: "MeetIQ by Acjen AI",
+  description: "Upload audio or video meetings and get structured notes with AI-powered summaries and action items.",
 };
 
 export default function RootLayout({

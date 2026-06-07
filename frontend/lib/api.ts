@@ -10,6 +10,7 @@ import type {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
 const AUTH_TOKEN_KEY = "meeting-notes-assistant-token";
+const AUTH_CHANGE_EVENT = "meetiq-auth-change";
 
 if (!API_BASE_URL) {
   throw new Error("NEXT_PUBLIC_API_BASE_URL is not set");
@@ -19,24 +20,58 @@ function getAuthToken(): string | null {
   if (typeof window === "undefined") {
     return null;
   }
+
   return window.localStorage.getItem(AUTH_TOKEN_KEY);
 }
 
-function setAuthToken(token: string) {
+function dispatchAuthChange(): void {
   if (typeof window === "undefined") {
     return;
   }
+
+  window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
+}
+
+function setAuthToken(token: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
   window.localStorage.setItem(AUTH_TOKEN_KEY, token);
+  dispatchAuthChange();
 }
 
-export function clearAuthToken() {
+export function clearAuthToken(): void {
   if (typeof window === "undefined") {
     return;
   }
+
   window.localStorage.removeItem(AUTH_TOKEN_KEY);
+  dispatchAuthChange();
 }
 
-function buildHeaders(additional?: HeadersInit) {
+export function subscribeToAuthChanges(callback: () => void): () => void {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const handleAuthChange = () => callback();
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key === AUTH_TOKEN_KEY) {
+      callback();
+    }
+  };
+
+  window.addEventListener(AUTH_CHANGE_EVENT, handleAuthChange);
+  window.addEventListener("storage", handleStorage);
+
+  return () => {
+    window.removeEventListener(AUTH_CHANGE_EVENT, handleAuthChange);
+    window.removeEventListener("storage", handleStorage);
+  };
+}
+
+function buildHeaders(additional?: HeadersInit): Record<string, string> {
   const token = getAuthToken();
   const headers: Record<string, string> = {};
 
