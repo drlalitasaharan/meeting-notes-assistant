@@ -98,7 +98,7 @@ function LoginPageContent() {
           ) : null}
         </form>
 
-        <p style={{ margin: 0, textAlign: "center", color: "#4b5563", fontSize: 16 }}>
+        <p style={{ margin: "8px 0 0", textAlign: "center", color: "#4b5563", fontSize: 16 }}>
           New to MeetIQ?{" "}
           <Link
             href="/signup"

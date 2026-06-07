@@ -234,7 +234,7 @@ export default function MeetingResultsPage() {
           }}
         >
           <div>
-            <p style={eyebrowStyle}>Meeting notes assistant</p>
+            <p style={eyebrowStyle}>MeetIQ by Acjen AI</p>
             <h1
               style={{
                 margin: "8px 0 10px",
