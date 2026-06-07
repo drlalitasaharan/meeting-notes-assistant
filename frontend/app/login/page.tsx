@@ -1,11 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { loginUser } from "../../lib/api";
 
-export default function LoginPage() {
+function isValidNextPath(path: string): boolean {
+  return typeof path === "string" && path.startsWith("/") && !path.includes("//");
+}
+
+function LoginPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedNextPath = searchParams.get("next") ?? "";
+  const nextPath = isValidNextPath(requestedNextPath) ? requestedNextPath : "/meetings";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +31,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       await loginUser(email.trim(), password);
-      router.push("/meetings");
+      router.push(nextPath);
     } catch (err) {
       setError(
         err instanceof Error
@@ -88,7 +97,25 @@ export default function LoginPage() {
             </div>
           ) : null}
         </form>
+
+        <p style={{ margin: 0, textAlign: "center", color: "#4b5563", fontSize: 16 }}>
+          New to MeetIQ?{" "}
+          <Link
+            href="/signup"
+            style={{ color: "#2f6f4e", fontWeight: 700, textDecoration: "none" }}
+          >
+            Create an account
+          </Link>
+        </p>
       </section>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<main style={{ padding: 24 }}>Loading login...</main>}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

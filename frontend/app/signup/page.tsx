@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { signupUser } from "../../lib/api";
 
 export default function SignupPage() {
@@ -88,6 +89,16 @@ export default function SignupPage() {
             </div>
           ) : null}
         </form>
+
+        <p style={{ margin: 0, textAlign: "center", color: "#4b5563", fontSize: 16 }}>
+          Already have an account?{" "}
+          <Link
+            href="/login"
+            style={{ color: "#2f6f4e", fontWeight: 700, textDecoration: "none" }}
+          >
+            Sign in
+          </Link>
+        </p>
       </section>
     </div>
   );

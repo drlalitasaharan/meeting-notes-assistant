@@ -41,7 +41,7 @@ export default function MeetingsPage() {
     };
   }, []);
 
-  const authError = error && /401|unauthorized/i.test(error);
+  const authError = error && (/401|unauthorized|authentication credentials/i.test(error) || error.toLowerCase().includes("not provided"));
 
   return (
     <div style={{ display: "grid", gap: 20, maxWidth: 1080 }}>
@@ -100,13 +100,13 @@ export default function MeetingsPage() {
         >
           <p style={{ margin: 0, color: "#991b1b", fontSize: 16, lineHeight: 1.6 }}>
             {authError
-              ? "Please sign in to access your meetings."
+              ? "Please sign in to view your meeting history."
               : error}
           </p>
           {authError ? (
             <div style={{ marginTop: 16, display: "flex", gap: 12, flexWrap: "wrap" }}>
               <Link
-                href="/login"
+                href="/login?next=/meetings"
                 style={{
                   padding: "12px 18px",
                   borderRadius: 14,
