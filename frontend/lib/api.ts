@@ -46,6 +46,11 @@ export function clearAuthToken(): void {
     return;
   }
 
+  const existingToken = window.localStorage.getItem(AUTH_TOKEN_KEY);
+  if (existingToken === null) {
+    return;
+  }
+
   window.localStorage.removeItem(AUTH_TOKEN_KEY);
   dispatchAuthChange();
 }
@@ -112,10 +117,17 @@ async function parseErrorResponse(response: Response): Promise<string> {
   return text || `Request failed with status ${response.status}`;
 }
 
+class ApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 async function handleJsonResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const message = await parseErrorResponse(response);
-    throw new Error(message);
+    throw new ApiError(response.status, message);
   }
 
   return response.json() as Promise<T>;
@@ -124,7 +136,7 @@ async function handleJsonResponse<T>(response: Response): Promise<T> {
 async function handleTextResponse(response: Response): Promise<string> {
   if (!response.ok) {
     const message = await parseErrorResponse(response);
-    throw new Error(message);
+    throw new ApiError(response.status, message);
   }
 
   return response.text();
@@ -136,6 +148,10 @@ async function fetchWithAuth<T>(path: string, options?: RequestInit): Promise<T>
     headers: buildHeaders(options?.headers),
   });
 
+  if (response.status === 401 || response.status === 403) {
+    clearAuthToken();
+  }
+
   return handleJsonResponse<T>(response);
 }
 
@@ -144,6 +160,10 @@ async function fetchTextWithAuth(path: string, options?: RequestInit): Promise<s
     ...options,
     headers: buildHeaders(options?.headers),
   });
+
+  if (response.status === 401 || response.status === 403) {
+    clearAuthToken();
+  }
 
   return handleTextResponse(response);
 }
@@ -200,6 +220,10 @@ export async function uploadMeetingFile(
     headers: buildHeaders(),
     body: formData,
   });
+
+  if (response.status === 401 || response.status === 403) {
+    clearAuthToken();
+  }
 
   return handleJsonResponse<UploadMeetingResponse>(response);
 }

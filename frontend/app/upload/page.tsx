@@ -1,9 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
-import { createMeeting, uploadMeetingFile } from "../../lib/api";
+import {
+  clearAuthToken,
+  createMeeting,
+  getCurrentUser,
+  uploadMeetingFile,
+} from "../../lib/api";
 
 const MAX_UPLOAD_BYTES = 24 * 1024 * 1024;
 
@@ -66,14 +71,71 @@ const labelStyle = {
 export default function UploadPage() {
   const router = useRouter();
 
+  const [authStatus, setAuthStatus] = useState<"checking" | "authenticated" | "unauthenticated" | "error">("checking");
+  const [authError, setAuthError] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
+  function isAuthError(err: unknown) {
+    const status = typeof err === "object" && err !== null ? (err as any).status : undefined;
+    if (status === 401 || status === 403) {
+      return true;
+    }
+
+    if (err instanceof Error) {
+      return /401|403|unauthorized|authentication credentials/i.test(err.message);
+    }
+
+    return false;
+  }
+
+  useEffect(() => {
+    let active = true;
+
+    async function verifyAuth() {
+      try {
+        await getCurrentUser();
+
+        if (!active) {
+          return;
+        }
+
+        setAuthError(null);
+        setAuthStatus("authenticated");
+      } catch (err) {
+        if (!active) {
+          return;
+        }
+
+        if (isAuthError(err)) {
+          clearAuthToken();
+          setAuthStatus("unauthenticated");
+          router.replace("/login?next=/upload");
+          return;
+        }
+
+        setAuthError("Unable to verify your login status. Please refresh or try again later.");
+        setAuthStatus("error");
+      }
+    }
+
+    verifyAuth();
+
+    return () => {
+      active = false;
+    };
+  }, [router]);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+
+    if (authStatus !== "authenticated") {
+      router.replace("/login?next=/upload");
+      return;
+    }
 
     if (!title.trim()) {
       setError("Please enter a meeting title.");
@@ -95,17 +157,116 @@ export default function UploadPage() {
 
     try {
       const meeting = await createMeeting(title.trim());
-
       const upload = await uploadMeetingFile(meeting.id, file);
       const jobQuery = upload.job_id ? `?jobId=${encodeURIComponent(upload.job_id)}` : "";
 
       router.push(`/meetings/${meeting.id}${jobQuery}`);
     } catch (err) {
+      if (isAuthError(err)) {
+        clearAuthToken();
+        setAuthStatus("unauthenticated");
+        router.replace("/login?next=/upload");
+        return;
+      }
+
       console.error(err);
       setError("Upload failed. Please try again.");
     } finally {
       setIsUploading(false);
     }
+  }
+
+  if (authStatus === "checking") {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+          color: "#123326",
+          background: "#f8fbf8",
+        }}
+      >
+        <div style={{ maxWidth: 560, textAlign: "center" }}>
+          <p style={{ margin: 0, fontSize: 18, color: "#4b5563" }}>
+            Verifying your session before uploading...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (authStatus === "unauthenticated") {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+          color: "#123326",
+          background: "#f8fbf8",
+        }}
+      >
+        <div style={{ maxWidth: 560, textAlign: "center" }}>
+          <p style={{ margin: 0, fontSize: 18, color: "#4b5563" }}>
+            Redirecting you to sign in...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (authStatus === "error") {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+          color: "#123326",
+          background: "#f8fbf8",
+        }}
+      >
+        <div style={{ maxWidth: 560, textAlign: "center" }}>
+          <div
+            style={{
+              borderRadius: 20,
+              border: "1px solid #cfe6d4",
+              background: "#fbfffb",
+              padding: 28,
+              boxShadow: "0 10px 28px rgba(31, 90, 67, 0.10)",
+            }}
+          >
+            <p style={{ margin: 0, fontSize: 18, color: "#123326", fontWeight: 800 }}>
+              {authError ?? "Unable to verify your login status. Please refresh or try again later."}
+            </p>
+            <button
+              type="button"
+              onClick={() => router.refresh()}
+              style={{
+                marginTop: 20,
+                border: "none",
+                borderRadius: 14,
+                background: "#2f6f4e",
+                color: "#ffffff",
+                padding: "12px 18px",
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -147,6 +308,7 @@ export default function UploadPage() {
               onChange={(event) => setTitle(event.target.value)}
               style={inputStyle}
               placeholder="Client weekly sync"
+              disabled={authStatus !== "authenticated"}
             />
           </div>
 
@@ -161,6 +323,7 @@ export default function UploadPage() {
               accept=".flac,.m4a,.mp3,.mp4,.mpeg,.mpga,.oga,.ogg,.wav,.webm,audio/flac,audio/mp4,audio/mpeg,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm"
               onChange={(event) => setFile(event.target.files?.[0] ?? null)}
               style={inputStyle}
+              disabled={authStatus !== "authenticated"}
             />
             <p style={{ margin: "12px 0 0", color: "#5f7b6b", fontSize: 16 }}>
               Upload an audio or video file to generate structured, decision-ready meeting notes.
@@ -225,7 +388,7 @@ export default function UploadPage() {
 
           <button
             type="submit"
-            disabled={isUploading}
+            disabled={isUploading || authStatus !== "authenticated"}
             style={{
               width: "100%",
               border: "none",
@@ -235,12 +398,27 @@ export default function UploadPage() {
               padding: "14px 22px",
               fontSize: 16,
               fontWeight: 800,
-              cursor: isUploading ? "not-allowed" : "pointer",
-              opacity: isUploading ? 0.7 : 1,
+              cursor: isUploading || authStatus !== "authenticated" ? "not-allowed" : "pointer",
+              opacity: isUploading || authStatus !== "authenticated" ? 0.7 : 1,
             }}
           >
             {isUploading ? "Uploading..." : "Upload meeting"}
           </button>
+
+          {authError ? (
+            <div
+              style={{
+                border: "1px solid #f5c2c7",
+                background: "#f8d7da",
+                color: "#842029",
+                borderRadius: 14,
+                padding: "12px 14px",
+                fontSize: 16,
+              }}
+            >
+              {authError}
+            </div>
+          ) : null}
 
           {error ? (
             <div
