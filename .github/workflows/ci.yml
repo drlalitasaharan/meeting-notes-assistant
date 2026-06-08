@@ -136,7 +136,10 @@ jobs:
           password = "SmokePassword123!"
 
           def post_json(path):
-              payload = json.dumps({"email": email, "password": password}).encode()
+              payload_data = {"email": email, "password": password}
+              if path == "/v1/auth/signup":
+                  payload_data.update({"first_name": "CI", "last_name": "Smoke"})
+              payload = json.dumps(payload_data).encode()
               req = urllib.request.Request(
                   f"http://127.0.0.1:8000{path}",
                   data=payload,

@@ -31,7 +31,7 @@ SMOKE_PASSWORD="SmokePassword123!"
 # Try signup first
 HTTP_CODE="$(curl -sS -X POST "$MNA_API/v1/auth/signup" \
   -H 'content-type: application/json' \
-  -d "{\"email\":\"$SMOKE_EMAIL\",\"password\":\"$SMOKE_PASSWORD\"}" \
+  -d "{\"email\":\"$SMOKE_EMAIL\",\"password\":\"$SMOKE_PASSWORD\",\"first_name\":\"CI\",\"last_name\":\"Smoke\"}" \
   -w '%{http_code}' \
   -o /tmp/auth_resp.json)"
 BODY="$(cat /tmp/auth_resp.json)"

@@ -9,20 +9,29 @@ export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [organizationName, setOrganizationName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    if (!email.trim() || !password.trim()) {
-      setError("Please enter both email and password.");
+    if (!email.trim() || !password.trim() || !firstName.trim() || !lastName.trim()) {
+      setError("Please enter email, password, first name, and last name.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await signupUser(email.trim(), password);
+      await signupUser(
+        email.trim(),
+        password,
+        firstName.trim(),
+        lastName.trim(),
+        organizationName.trim() || undefined,
+      );
       router.push("/meetings");
     } catch (err) {
       setError(
@@ -52,6 +61,35 @@ export default function SignupPage() {
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
+              style={{ width: "100%", padding: 12, borderRadius: 12, border: "1px solid #d1d5db", fontSize: 16 }}
+            />
+          </label>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <label style={{ display: "grid", gap: 6, fontSize: 16, fontWeight: 700, color: "#111827" }}>
+              First name
+              <input
+                value={firstName}
+                onChange={(event) => setFirstName(event.target.value)}
+                style={{ width: "100%", padding: 12, borderRadius: 12, border: "1px solid #d1d5db", fontSize: 16 }}
+              />
+            </label>
+
+            <label style={{ display: "grid", gap: 6, fontSize: 16, fontWeight: 700, color: "#111827" }}>
+              Last name
+              <input
+                value={lastName}
+                onChange={(event) => setLastName(event.target.value)}
+                style={{ width: "100%", padding: 12, borderRadius: 12, border: "1px solid #d1d5db", fontSize: 16 }}
+              />
+            </label>
+          </div>
+
+          <label style={{ display: "grid", gap: 6, fontSize: 16, fontWeight: 700, color: "#111827" }}>
+            Organization (optional)
+            <input
+              value={organizationName}
+              onChange={(event) => setOrganizationName(event.target.value)}
               style={{ width: "100%", padding: 12, borderRadius: 12, border: "1px solid #d1d5db", fontSize: 16 }}
             />
           </label>
