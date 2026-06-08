@@ -180,11 +180,25 @@ export async function loginUser(email: string, password: string): Promise<AuthRe
   return payload;
 }
 
-export async function signupUser(email: string, password: string): Promise<AuthResponse> {
+export async function signupUser(
+  email: string,
+  password: string,
+  firstName: string,
+  lastName: string,
+  organizationName?: string | null,
+): Promise<AuthResponse> {
+  const body = {
+    email,
+    password,
+    first_name: firstName,
+    last_name: lastName,
+    organization_name: organizationName ?? null,
+  };
+
   const response = await fetch(`${API_BASE_URL}/v1/auth/signup`, {
     method: "POST",
     headers: buildHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify(body),
   });
 
   const payload = await handleJsonResponse<AuthResponse>(response);

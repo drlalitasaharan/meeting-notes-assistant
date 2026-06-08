@@ -20,8 +20,27 @@ def signup(payload: AuthSignup, db: Session = Depends(get_db)) -> AuthResponse:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="A user with that email already exists.",
         )
+    first_name = payload.first_name.strip()
+    last_name = payload.last_name.strip()
+    if not first_name or not last_name:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="First name and last name are required.",
+        )
 
-    user = User(email=payload.email.lower().strip(), password_hash=hash_password(payload.password))
+    organization_name = None
+    if payload.organization_name is not None:
+        trimmed_org = payload.organization_name.strip()
+        if trimmed_org:
+            organization_name = trimmed_org
+
+    user = User(
+        email=payload.email.lower().strip(),
+        password_hash=hash_password(payload.password),
+        first_name=first_name,
+        last_name=last_name,
+        organization_name=organization_name,
+    )
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -43,4 +62,10 @@ def login(payload: AuthLogin, db: Session = Depends(get_db)) -> AuthResponse:
 
 @router.get("/me", response_model=UserRead)
 def get_me(current_user: User = Depends(get_current_user)) -> UserRead:
-    return UserRead(id=current_user.id, email=current_user.email)
+    return UserRead(
+        id=current_user.id,
+        email=current_user.email,
+        first_name=current_user.first_name,
+        last_name=current_user.last_name,
+        organization_name=current_user.organization_name,
+    )
