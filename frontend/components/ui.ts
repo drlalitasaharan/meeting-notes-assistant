@@ -143,3 +143,46 @@ export function getStatusBadgeStyle(status: string): CSSProperties {
     border: "1px solid #fde68a",
   };
 }
+
+
+export const secondaryButtonStyle: CSSProperties = {
+  background: "#ffffff",
+  border: "1px solid #d1d5db",
+  borderRadius: 8,
+  padding: "8px 12px",
+  cursor: "pointer",
+  fontWeight: 600,
+  color: "#374151",
+};
+
+export const primaryButtonStyle: CSSProperties = {
+  background: "#111827",
+  border: "1px solid #111827",
+  borderRadius: 8,
+  padding: "8px 12px",
+  cursor: "pointer",
+  fontWeight: 600,
+  color: "#ffffff",
+};
+
+export const editorStyle: CSSProperties = {
+  width: "100%",
+  boxSizing: "border-box",
+  minHeight: 150,
+  resize: "vertical",
+  border: "1px solid #d1d5db",
+  borderRadius: 12,
+  padding: 14,
+  color: "#111827",
+  background: "#ffffff",
+  fontFamily: "inherit",
+  fontSize: 16,
+  lineHeight: 1.7,
+};
+
+export const inlineErrorStyle: CSSProperties = {
+  margin: "10px 0 0",
+  color: "#b91c1c",
+  fontSize: 14,
+  lineHeight: 1.5,
+};
