@@ -186,3 +186,11 @@ export const inlineErrorStyle: CSSProperties = {
   fontSize: 14,
   lineHeight: 1.5,
 };
+
+export const successTextStyle: CSSProperties = {
+  margin: "10px 0 0",
+  color: "#166534",
+  fontSize: 14,
+  fontWeight: 700,
+  lineHeight: 1.5,
+};

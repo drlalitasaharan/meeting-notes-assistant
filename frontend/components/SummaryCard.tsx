@@ -12,6 +12,7 @@ import {
   primaryButtonStyle,
   secondaryButtonStyle,
   sectionTitleStyle,
+  successTextStyle,
 } from "./ui";
 
 type SummaryCardProps = {
@@ -27,6 +28,7 @@ export default function SummaryCard({
   const [draft, setDraft] = useState(summary);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [saveMessage, setSaveMessage] = useState("");
 
   function startEditing() {
     setDraft(summary);
@@ -51,8 +53,11 @@ export default function SummaryCard({
     try {
       setIsSaving(true);
       setSaveError("");
+      setSaveMessage("");
       await onSave(cleaned);
       setIsEditing(false);
+      setSaveMessage("Changes saved");
+      window.setTimeout(() => setSaveMessage(""), 2500);
     } catch (error) {
       setSaveError(
         error instanceof Error
@@ -133,6 +138,11 @@ export default function SummaryCard({
       )}
 
       {saveError ? <p style={inlineErrorStyle}>{saveError}</p> : null}
+      {saveMessage ? (
+        <p role="status" aria-live="polite" style={successTextStyle}>
+          ✓ {saveMessage}
+        </p>
+      ) : null}
     </section>
   );
 }
