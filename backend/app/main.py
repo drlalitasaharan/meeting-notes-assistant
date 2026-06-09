@@ -14,7 +14,7 @@ from app.logging_utils import (
     get_logger,
 )
 from app.metrics import render_all_metrics_prometheus, track_http_request
-from app.routers import auth, jobs, meetings, slides
+from app.routers import admin, auth, jobs, meetings, slides
 
 app = FastAPI(title="Meeting Notes Assistant")
 
@@ -169,6 +169,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(admin.router)
 app.include_router(meetings.router)
 app.include_router(slides.router)
 app.include_router(jobs.router)
