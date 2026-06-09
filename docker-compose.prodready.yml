@@ -41,6 +41,7 @@ services:
       dockerfile: backend/Dockerfile
     environment:
       ENV: ${ENV:-dev}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://mna:mna_local_pw@db:5432/meetings}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       STORAGE_BACKEND: ${STORAGE_BACKEND:-s3}
