@@ -5,6 +5,10 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./dev.db"
     APP_ENV: str = "dev"
 
+    # Comma-separated email addresses allowed to access admin APIs.
+    # Admin access fails closed when this is empty.
+    ADMIN_EMAILS: str = ""
+
     # Redis / RQ
     REDIS_URL: str = "redis://redis:6379/0"
     RQ_QUEUE: str = "default"

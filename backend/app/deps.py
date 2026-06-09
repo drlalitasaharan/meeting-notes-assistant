@@ -99,4 +99,40 @@ def get_current_user(
     return user
 
 
-__all__ = ["get_db", "require_api_key", "get_current_user"]
+def _configured_admin_emails() -> set[str]:
+    """
+    Return normalized admin email addresses.
+
+    The value is read at request time so environment changes do not require
+    importing this module again during tests or local development.
+    """
+    raw_value = os.getenv("ADMIN_EMAILS", "")
+    return {email.strip().lower() for email in raw_value.split(",") if email.strip()}
+
+
+def require_admin(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """
+    Require the authenticated user's email to be explicitly allowlisted.
+
+    Access fails closed when ADMIN_EMAILS is unset or empty.
+    """
+    admin_emails = _configured_admin_emails()
+    current_email = current_user.email.strip().lower()
+
+    if not admin_emails or current_email not in admin_emails:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required.",
+        )
+
+    return current_user
+
+
+__all__ = [
+    "get_db",
+    "require_api_key",
+    "get_current_user",
+    "require_admin",
+]
