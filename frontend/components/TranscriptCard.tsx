@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import CopyButton from "./CopyButton";
 import { downloadTextFile } from "../lib/utils";
 import {
@@ -18,6 +22,8 @@ export default function TranscriptCard({
   markdown,
   filename,
 }: TranscriptCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <section style={cardStyle}>
       <div style={cardHeaderStyle}>
@@ -48,7 +54,11 @@ export default function TranscriptCard({
         </div>
       </div>
 
-      <details>
+      <details
+        onToggle={(event) =>
+          setIsExpanded(event.currentTarget.open)
+        }
+      >
         <summary
           style={{
             cursor: "pointer",
@@ -57,7 +67,9 @@ export default function TranscriptCard({
             marginBottom: 16,
           }}
         >
-          Show full markdown export
+          {isExpanded
+              ? "Hide full markdown export"
+              : "Show full markdown export"}
         </summary>
 
         <pre style={markdownPreStyle}>{markdown}</pre>
