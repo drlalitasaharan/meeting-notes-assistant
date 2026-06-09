@@ -263,6 +263,10 @@ def _client_facing_summary_from_slots(
     cleaned_summary = _clean_client_facing_json_text(summary)
 
     if isinstance(summary_slots, dict):
+        edited_summary = _clean_client_facing_json_text(summary_slots.get("edited_summary"))
+        if edited_summary:
+            return edited_summary
+
         purpose = _clean_client_facing_json_text(summary_slots.get("purpose"))
         outcome = _clean_client_facing_json_text(summary_slots.get("outcome"))
 
@@ -346,12 +350,10 @@ def update_meeting_notes_section(
 
         notes.summary = summary
 
-        # The client-facing summary is normally rebuilt from purpose/outcome.
-        # Make the user's edited summary authoritative while retaining risks
-        # and next steps already stored in summary_slots.
+        # Preserve the generated Purpose and Outcome. Store the user's
+        # revised Summary separately in the existing JSON field.
         summary_slots = dict(notes.summary_slots) if isinstance(notes.summary_slots, dict) else {}
-        summary_slots["purpose"] = ""
-        summary_slots["outcome"] = summary
+        summary_slots["edited_summary"] = summary
         notes.summary_slots = summary_slots
 
     elif payload.section == "key_points":
@@ -438,10 +440,16 @@ def download_meeting_notes_markdown(
     lines.append("")
 
     if summary_slots:
+        edited_summary = _clean_client_facing_json_text(summary_slots.get("edited_summary"))
         purpose = summary_slots.get("purpose") or ""
         outcome = summary_slots.get("outcome") or ""
         risks = summary_slots.get("risks") or []
         next_steps = summary_slots.get("next_steps") or []
+
+        if edited_summary:
+            lines.append("## Summary")
+            lines.append(edited_summary)
+            lines.append("")
 
         lines.append("## Purpose")
         lines.append(purpose or "(none)")
