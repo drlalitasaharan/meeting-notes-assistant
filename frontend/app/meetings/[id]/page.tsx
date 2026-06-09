@@ -235,56 +235,119 @@ export default function MeetingResultsPage() {
 
   const modelVersion = notes?.model_version ?? null;
 
-  const pageTitle = useMemo(() => {
-    if (notes?.meeting_id) {
-      return `Meeting ${notes.meeting_id} results`;
-    }
-    return `Meeting ${meetingId} results`;
-  }, [meetingId, notes?.meeting_id]);
+  const pageTitle = useMemo(
+    () =>
+      notes
+        ? "Your meeting notes are ready"
+        : "Preparing your meeting notes",
+    [notes],
+  );
 
   return (
     <div
       style={{
         display: "grid",
         gap: 20,
-        maxWidth: 1180,
+        width: "100%",
+        maxWidth: 980,
+        minWidth: 0,
       }}
     >
-      <section style={cardStyle}>
+      <section
+        style={{
+          ...cardStyle,
+          padding: "clamp(26px, 5vw, 42px)",
+          borderColor: "#bbf7d0",
+          background:
+            "linear-gradient(135deg, #ecfdf3 0%, #f7fcf8 58%, #ffffff 100%)",
+          boxShadow: "0 12px 34px rgba(22, 101, 52, 0.08)",
+        }}
+      >
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            gap: 16,
+            gap: 24,
             flexWrap: "wrap",
           }}
         >
-          <div>
-            <p style={eyebrowStyle}>MeetIQ by Acjen AI</p>
+          <div style={{ maxWidth: 620 }}>
+            <p style={{ ...eyebrowStyle, color: "#166534" }}>
+              MeetIQ by Acjen AI
+            </p>
+
             <h1
               style={{
-                margin: "8px 0 10px",
-                fontSize: 32,
-                lineHeight: 1.15,
-                color: "#111827",
+                margin: "10px 0 12px",
+                fontSize: "clamp(30px, 5vw, 44px)",
+                lineHeight: 1.08,
+                letterSpacing: "-0.03em",
+                color: "#102a1a",
               }}
             >
               {pageTitle}
             </h1>
-            <p style={{ ...mutedTextStyle, fontSize: 15 }}>
-              Review summary, key points, action items, and the markdown export in one place.
-            </p>
+
+            <p
+              style={{
+                ...mutedTextStyle,
+                fontSize: 17,
+                color: "#4b6353",
+              }}
+            >
+              {notes
+
+                ? "Review, edit, copy, and export your notes."
+
+                : "MeetIQ is processing your recording. You can return from Meetings when your notes are ready."}
+
+              </p>
           </div>
 
-          <div style={pillRowStyle}>
-            <span style={neutralPillStyle}>Meeting ID: {meetingId}</span>
-            {jobId ? (
-              <span style={neutralPillStyle}>Job: {jobId.slice(0, 8)}…</span>
-            ) : null}
-            <span style={neutralPillStyle}>
-              Last updated: {formatLastUpdated(lastUpdated)}
-            </span>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 10,
+            }}
+          >
+            <a
+              href="/upload"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "11px 16px",
+                borderRadius: 10,
+                border: "1px solid #166534",
+                background: "#166534",
+                color: "#ffffff",
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+            >
+              Upload another recording
+            </a>
+
+            <a
+              href="/meetings"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "11px 16px",
+                borderRadius: 10,
+                border: "1px solid #bbd7c2",
+                background: "#ffffff",
+                color: "#166534",
+                fontWeight: 700,
+                textDecoration: "none",
+              }}
+            >
+              View all meetings
+            </a>
           </div>
         </div>
       </section>
@@ -294,10 +357,36 @@ export default function MeetingResultsPage() {
         modelVersion={modelVersion}
         meetingId={meetingId}
         jobId={jobId}
+        lastUpdated={formatLastUpdated(lastUpdated)}
         isPolling={Boolean(jobId && isPollingStatus(status) && !notes)}
       />
 
       {error ? <ErrorBanner message={error} /> : null}
+
+      {notes ? (
+        <aside
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 12,
+            padding: "16px 18px",
+            borderRadius: 16,
+            border: "1px solid #bbf7d0",
+            background: "#f0fdf4",
+            color: "#365342",
+            fontSize: 14,
+            lineHeight: 1.6,
+          }}
+        >
+          <span aria-hidden="true" style={{ fontSize: 18 }}>
+            ✓
+          </span>
+          <span>
+            Review names, owners, deadlines, and important decisions before
+            sharing your notes.
+          </span>
+        </aside>
+      ) : null}
 
       {loadingResults && !notes ? (
         <section style={cardStyle}>
@@ -322,7 +411,7 @@ export default function MeetingResultsPage() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
               gap: 20,
             }}
           >
