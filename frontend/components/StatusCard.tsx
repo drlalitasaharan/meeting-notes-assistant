@@ -70,7 +70,7 @@ export default function StatusCard({
       <div style={cardHeaderStyle}>
         <div>
           <p style={eyebrowStyle}>Status</p>
-          <h2 style={sectionTitleStyle}>{statusLabel(status)}</h2>
+          <h2 style={sectionTitleStyle}>Meeting status</h2>
         </div>
 
         <span style={getStatusBadgeStyle(status)}>

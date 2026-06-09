@@ -15,6 +15,7 @@ import {
   primaryButtonStyle,
   secondaryButtonStyle,
   sectionTitleStyle,
+  successTextStyle,
 } from "./ui";
 
 type ActionItemsCardProps = {
@@ -30,6 +31,7 @@ export default function ActionItemsCard({
   const [draft, setDraft] = useState(items.join("\n"));
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [saveMessage, setSaveMessage] = useState("");
 
   const parsedItems = items.map(parseActionItem);
   const text = items.join("\n");
@@ -55,8 +57,11 @@ export default function ActionItemsCard({
     try {
       setIsSaving(true);
       setSaveError("");
+      setSaveMessage("");
       await onSave(updatedItems);
       setIsEditing(false);
+      setSaveMessage("Changes saved");
+      window.setTimeout(() => setSaveMessage(""), 2500);
     } catch (error) {
       setSaveError(
         error instanceof Error
@@ -192,6 +197,11 @@ export default function ActionItemsCard({
       )}
 
       {saveError ? <p style={inlineErrorStyle}>{saveError}</p> : null}
+      {saveMessage ? (
+        <p role="status" aria-live="polite" style={successTextStyle}>
+          ✓ {saveMessage}
+        </p>
+      ) : null}
     </section>
   );
 }

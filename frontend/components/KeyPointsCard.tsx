@@ -13,6 +13,7 @@ import {
   primaryButtonStyle,
   secondaryButtonStyle,
   sectionTitleStyle,
+  successTextStyle,
 } from "./ui";
 
 type KeyPointsCardProps = {
@@ -28,6 +29,7 @@ export default function KeyPointsCard({
   const [draft, setDraft] = useState(items.join("\n"));
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [saveMessage, setSaveMessage] = useState("");
 
   const text = items.join("\n");
 
@@ -52,8 +54,11 @@ export default function KeyPointsCard({
     try {
       setIsSaving(true);
       setSaveError("");
+      setSaveMessage("");
       await onSave(updatedItems);
       setIsEditing(false);
+      setSaveMessage("Changes saved");
+      window.setTimeout(() => setSaveMessage(""), 2500);
     } catch (error) {
       setSaveError(
         error instanceof Error
@@ -162,6 +167,11 @@ export default function KeyPointsCard({
       )}
 
       {saveError ? <p style={inlineErrorStyle}>{saveError}</p> : null}
+      {saveMessage ? (
+        <p role="status" aria-live="polite" style={successTextStyle}>
+          ✓ {saveMessage}
+        </p>
+      ) : null}
     </section>
   );
 }
