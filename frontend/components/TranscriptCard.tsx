@@ -25,7 +25,7 @@ export default function TranscriptCard({
           <p style={eyebrowStyle}>Export</p>
           <h2 style={sectionTitleStyle}>Markdown notes</h2>
           <p style={{ ...mutedTextStyle, marginTop: 8 }}>
-            Keep this collapsed by default so the primary UI stays focused on summary and actions.
+            Preview, copy, or download your saved meeting notes.
           </p>
         </div>
 

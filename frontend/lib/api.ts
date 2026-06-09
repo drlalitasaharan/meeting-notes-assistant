@@ -1,6 +1,7 @@
 import type {
   AuthResponse,
   CreateMeetingResponse,
+  EditableNotesSection,
   JobStatus,
   MeetingListResponse,
   MeetingNotes,
@@ -254,6 +255,26 @@ export async function getMeetingNotes(meetingId: number): Promise<MeetingNotes> 
     method: "GET",
     cache: "no-store",
   });
+}
+
+export async function updateMeetingNotesSection(
+  meetingId: number,
+  section: EditableNotesSection,
+  value: string | string[],
+): Promise<MeetingNotes> {
+  return fetchWithAuth<MeetingNotes>(
+    `/v1/meetings/${meetingId}/notes/ai`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        section,
+        value,
+      }),
+    },
+  );
 }
 
 export async function getMeetingMarkdown(meetingId: number): Promise<string> {

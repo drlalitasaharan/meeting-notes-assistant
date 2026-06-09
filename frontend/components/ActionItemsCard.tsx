@@ -1,22 +1,72 @@
+"use client";
+
+import { useState } from "react";
 import CopyButton from "./CopyButton";
 import { parseActionItem } from "../lib/notes";
 import {
   bodyTextStyle,
   cardHeaderStyle,
   cardStyle,
+  editorStyle,
   eyebrowStyle,
+  inlineErrorStyle,
   mutedTextStyle,
   neutralPillStyle,
+  primaryButtonStyle,
+  secondaryButtonStyle,
   sectionTitleStyle,
 } from "./ui";
 
 type ActionItemsCardProps = {
   items: string[];
+  onSave: (items: string[]) => Promise<void>;
 };
 
-export default function ActionItemsCard({ items }: ActionItemsCardProps) {
+export default function ActionItemsCard({
+  items,
+  onSave,
+}: ActionItemsCardProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(items.join("\n"));
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+
   const parsedItems = items.map(parseActionItem);
   const text = items.join("\n");
+
+  function startEditing() {
+    setDraft(items.join("\n"));
+    setSaveError("");
+    setIsEditing(true);
+  }
+
+  function cancelEditing() {
+    setDraft(items.join("\n"));
+    setSaveError("");
+    setIsEditing(false);
+  }
+
+  async function saveItems() {
+    const updatedItems = draft
+      .split("\n")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    try {
+      setIsSaving(true);
+      setSaveError("");
+      await onSave(updatedItems);
+      setIsEditing(false);
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Could not save the action items.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   return (
     <section style={cardStyle}>
@@ -26,13 +76,72 @@ export default function ActionItemsCard({ items }: ActionItemsCardProps) {
           <h2 style={sectionTitleStyle}>Action items</h2>
         </div>
 
-        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            alignItems: "center",
+            flexWrap: "wrap",
+          }}
+        >
           <span style={neutralPillStyle}>{items.length} items</span>
-          <CopyButton text={text} />
+
+          {isEditing ? (
+            <>
+              <button
+                type="button"
+                onClick={cancelEditing}
+                disabled={isSaving}
+                style={{
+                  ...secondaryButtonStyle,
+                  opacity: isSaving ? 0.6 : 1,
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={saveItems}
+                disabled={isSaving}
+                style={{
+                  ...primaryButtonStyle,
+                  opacity: isSaving ? 0.6 : 1,
+                }}
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={startEditing}
+                style={secondaryButtonStyle}
+              >
+                Edit
+              </button>
+              <CopyButton text={text} />
+            </>
+          )}
         </div>
       </div>
 
-      {parsedItems.length > 0 ? (
+      {isEditing ? (
+        <>
+          <textarea
+            aria-label="Edit action items"
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder="Priya — Update the proposal (due: tomorrow)"
+            style={editorStyle}
+          />
+          <p style={{ ...mutedTextStyle, marginTop: 8 }}>
+            Enter one action item per line. Use “Owner — Task” to retain
+            owner display.
+          </p>
+        </>
+      ) : parsedItems.length > 0 ? (
         <div style={{ display: "grid", gap: 12 }}>
           {parsedItems.map((item, index) => (
             <div
@@ -53,8 +162,11 @@ export default function ActionItemsCard({ items }: ActionItemsCardProps) {
                 }}
               >
                 <span style={neutralPillStyle}>
-                  {item.owner ? `Owner: ${item.owner}` : "Owner: Unassigned"}
+                  {item.owner
+                    ? `Owner: ${item.owner}`
+                    : "Owner: Unassigned"}
                 </span>
+
                 {item.due ? (
                   <span
                     style={{
@@ -74,8 +186,12 @@ export default function ActionItemsCard({ items }: ActionItemsCardProps) {
           ))}
         </div>
       ) : (
-        <p style={mutedTextStyle}>No clear action items detected.</p>
+        <p style={mutedTextStyle}>
+          No clear action items detected.
+        </p>
       )}
+
+      {saveError ? <p style={inlineErrorStyle}>{saveError}</p> : null}
     </section>
   );
 }

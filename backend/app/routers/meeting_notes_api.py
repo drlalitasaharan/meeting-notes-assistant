@@ -4,10 +4,11 @@ from __future__ import annotations
 import os
 import re
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, Literal
 
 import boto3
 from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
@@ -18,6 +19,12 @@ from app.models.meeting_notes import MeetingNotes
 from app.models.user import User
 
 router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
+
+
+class MeetingNotesSectionUpdate(BaseModel):
+    section: Literal["summary", "key_points", "action_items"]
+    value: str | list[str]
+
 
 UPLOAD_DIR = Path("/app/backend/storage/uploads")
 SUPPORTED_EXTENSIONS = {
@@ -301,6 +308,87 @@ def get_meeting_notes(
         "action_item_objects": notes.action_item_objects or [],
         "model_version": notes.model_version,
     }
+
+
+@router.patch("/{meeting_id}/notes/ai")
+def update_meeting_notes_section(
+    meeting_id: int,
+    payload: MeetingNotesSectionUpdate,
+    db: Session = Depends(_get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict[str, Any]:
+    meeting = db.get(Meeting, meeting_id)
+    if meeting is None or meeting.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    notes = (
+        db.query(MeetingNotes)
+        .filter(MeetingNotes.meeting_id == meeting_id)
+        .order_by(MeetingNotes.id.desc())
+        .first()
+    )
+    if notes is None:
+        raise HTTPException(status_code=404, detail="Notes not found")
+
+    if payload.section == "summary":
+        if not isinstance(payload.value, str):
+            raise HTTPException(
+                status_code=422,
+                detail="Summary must be text",
+            )
+
+        summary = payload.value.strip()
+        if not summary:
+            raise HTTPException(
+                status_code=422,
+                detail="Summary cannot be empty",
+            )
+
+        notes.summary = summary
+
+        # The client-facing summary is normally rebuilt from purpose/outcome.
+        # Make the user's edited summary authoritative while retaining risks
+        # and next steps already stored in summary_slots.
+        summary_slots = dict(notes.summary_slots) if isinstance(notes.summary_slots, dict) else {}
+        summary_slots["purpose"] = ""
+        summary_slots["outcome"] = summary
+        notes.summary_slots = summary_slots
+
+    elif payload.section == "key_points":
+        if not isinstance(payload.value, list):
+            raise HTTPException(
+                status_code=422,
+                detail="Key points must be a list",
+            )
+
+        notes.key_points = [
+            item.strip() for item in payload.value if isinstance(item, str) and item.strip()
+        ]
+
+    elif payload.section == "action_items":
+        if not isinstance(payload.value, list):
+            raise HTTPException(
+                status_code=422,
+                detail="Action items must be a list",
+            )
+
+        notes.action_items = [
+            item.strip() for item in payload.value if isinstance(item, str) and item.strip()
+        ]
+
+        # Markdown prefers action_item_objects when present. Clear the old
+        # generated objects so edited action_items become the source of truth.
+        notes.action_item_objects = []
+
+    db.add(notes)
+    db.commit()
+    db.refresh(notes)
+
+    return get_meeting_notes(
+        meeting_id=meeting_id,
+        db=db,
+        current_user=current_user,
+    )
 
 
 def _clean_publishable_markdown_text(text: str) -> str:

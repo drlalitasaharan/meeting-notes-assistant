@@ -15,7 +15,13 @@ import {
   neutralPillStyle,
   pillRowStyle,
 } from "../../../components/ui";
-import { getJobStatus, getMeetingMarkdown, getMeetingNotes } from "../../../lib/api";
+import {
+  getJobStatus,
+  getMeetingMarkdown,
+  getMeetingNotes,
+  updateMeetingNotesSection,
+} from "../../../lib/api";
+import type { EditableNotesSection } from "../../../lib/types";
 
 type MeetingNotes = {
   meeting_id: number;
@@ -114,6 +120,27 @@ export default function MeetingResultsPage() {
       }
     },
     [meetingId],
+  );
+
+  const saveNotesSection = useCallback(
+    async (
+      section: EditableNotesSection,
+      value: string | string[],
+    ): Promise<void> => {
+      await updateMeetingNotesSection(
+        Number(meetingId),
+        section,
+        value,
+      );
+
+      const refreshed = await loadNotes(true);
+      if (!refreshed) {
+        throw new Error(
+          "The notes were saved, but the page could not refresh.",
+        );
+      }
+    },
+    [loadNotes, meetingId],
   );
 
   const checkJob = useCallback(async () => {
@@ -285,7 +312,12 @@ export default function MeetingResultsPage() {
 
       {notes ? (
         <>
-          <SummaryCard summary={notes.summary} />
+          <SummaryCard
+            summary={notes.summary}
+            onSave={(summary) =>
+              saveNotesSection("summary", summary)
+            }
+          />
 
           <div
             style={{
@@ -294,8 +326,18 @@ export default function MeetingResultsPage() {
               gap: 20,
             }}
           >
-            <KeyPointsCard items={notes.key_points} />
-            <ActionItemsCard items={notes.action_items} />
+            <KeyPointsCard
+              items={notes.key_points}
+              onSave={(items) =>
+                saveNotesSection("key_points", items)
+              }
+            />
+            <ActionItemsCard
+              items={notes.action_items}
+              onSave={(items) =>
+                saveNotesSection("action_items", items)
+              }
+            />
           </div>
 
           {markdown ? (

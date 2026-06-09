@@ -1,5 +1,10 @@
 export type JobState = "queued" | "running" | "succeeded" | "failed" | string;
 
+export type EditableNotesSection =
+  | "summary"
+  | "key_points"
+  | "action_items";
+
 export interface Meeting {
   id: number;
   title?: string;
