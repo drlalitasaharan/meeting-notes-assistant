@@ -1,0 +1,165 @@
+{
+  "id": "L04",
+  "title": "AMI TS3007b degraded functional design meeting for TV remote",
+  "category": "long",
+  "target_duration_minutes": 48.0,
+  "audio_file": "L04_AMI_TS3007b_48min_degraded.m4a",
+  "transcript_file": "L04_AMI_TS3007b_48min_degraded.txt",
+  "source_metadata_file": "L04_AMI_TS3007b_48min_degraded.source.json",
+  "source_type": "AMI",
+  "audio_quality": "degraded",
+  "meeting_id": "TS3007b",
+  "clip_start_seconds": 0.0,
+  "clip_end_seconds": 2880.0,
+  "speakers": [
+    {
+      "speaker": "A",
+      "role": "Industrial Designer"
+    },
+    {
+      "speaker": "B",
+      "role": "Project Manager"
+    },
+    {
+      "speaker": "C",
+      "role": "User Interface Designer"
+    },
+    {
+      "speaker": "D",
+      "role": "Marketing Expert"
+    }
+  ],
+  "expected_context": [
+    "The meeting is a functional design meeting for the remote-control project.",
+    "Each participant presents recent individual work and design recommendations.",
+    "Management guidance says the remote should be TV-only, internet should become the main focus, younger users should be targeted, and the company slogan/logo should be more recognizable on the remote.",
+    "The audio is degraded, so wording may be imperfect, but the core design direction and follow-up actions should be captured."
+  ],
+  "expected_decisions": [
+    "Keep the remote focused on television use only, not as a general multi-purpose remote.",
+    "Target the new remote mainly at younger users, especially the sixteen-to-forty-five audience, while keeping it usable for older users.",
+    "Keep the most important controls, especially channel switching, volume, and teletext, clear and easy to access.",
+    "Prioritize simplicity: fewer visible functions, fewer buttons, and important actions available directly.",
+    "Stick primarily with infrared transmission and avoid adding Bluetooth, radio, or a receiver unless cost and compatibility justify it.",
+    "Avoid overbuilding the remote with too many gadgets or complex functions.",
+    "Consider touchscreen or LCD-style extra-function areas, but keep primary controls visible and usable.",
+    "Use the right-hand design option after the team vote.",
+    "Avoid a fragile pop-open or flip-open mechanism because it may be sensitive or easy to break."
+  ],
+  "expected_requirements": [
+    "The remote should support TV use only.",
+    "The design should stay relatively cheap and simple.",
+    "The most-used buttons should be bigger, clearer, or more prominent.",
+    "Channel switching, volume control, and teletext should work quickly and directly.",
+    "Advanced or less important options should be hidden, placed away, or moved to menus rather than blocking primary controls.",
+    "The remote should give feedback when a user presses a button.",
+    "The remote should fit comfortably in the hand.",
+    "The company logo or slogan should be considered in the physical/aesthetic design.",
+    "The design should account for current TV technologies and compatibility limitations.",
+    "Session notes, minutes, or board outputs should be saved into the shared/project documents."
+  ],
+  "expected_research_findings": [
+    "The marketing questionnaire involved about one hundred respondents.",
+    "The younger audience is the larger target group, while the older audience is smaller but still relevant.",
+    "Younger users are more interested in new technologies such as LCD screens and speech recognition.",
+    "Older users are less interested in new technology features.",
+    "Seventy-five percent of users find many current remote controls ugly.",
+    "Eighty percent of users would spend more money on a remote that looks fancy.",
+    "The most important or frequently used functions are channel switching, teletext, and volume controls.",
+    "Many buttons on current remote controls are not used.",
+    "Current remotes are mainly infrared, which helps cost and compatibility.",
+    "Bluetooth or radio would require compatible receiving hardware and may increase cost."
+  ],
+  "expected_design_ideas": [
+    "A placeholder or docking place near the TV for storing the remote.",
+    "A locator feature where saying something like where is the remote makes the remote beep.",
+    "One button could support multiple minor functions.",
+    "Important buttons could be larger or more prominent.",
+    "Less-used functions could be hidden behind menus, a secondary area, or a touchscreen.",
+    "A touchscreen could show large visual icons and scale controls for older users.",
+    "A TV-screen menu could be used for many options, but this has compatibility concerns.",
+    "Primary buttons should remain visible and directly pushable.",
+    "Extra functions could appear on a touchscreen or secondary display area.",
+    "A docking station could be used for updates or configuration."
+  ],
+  "expected_actions": [
+    {
+      "owner": "Industrial Designer",
+      "action": "Take minutes and put updated minutes in the shared folder.",
+      "deadline": null
+    },
+    {
+      "owner": "Team",
+      "action": "Do another individual-work session after lunch.",
+      "deadline": "after lunch"
+    },
+    {
+      "owner": "Team",
+      "action": "Use the next email instructions for the next meeting or work session.",
+      "deadline": "after lunch"
+    },
+    {
+      "owner": "Team",
+      "action": "Save the smartboard or session output into shared/project documents, preferably as an image such as JPEG.",
+      "deadline": null
+    },
+    {
+      "owner": "Team",
+      "action": "Fill out the questionnaire after lunch.",
+      "deadline": "after lunch"
+    }
+  ],
+  "expected_owners": [
+    "Industrial Designer",
+    "Team"
+  ],
+  "expected_deadlines": [
+    "after lunch",
+    "thirty minutes"
+  ],
+  "expected_risks": [
+    "Adding Bluetooth, radio, or a receiver could increase cost and complexity.",
+    "Relying on TV-screen menus may not work across all televisions.",
+    "Too many visible functions or buttons can make the remote hard to use.",
+    "Combining too many functions into one button can confuse users.",
+    "A pop-open or flip-open mechanism may be sensitive or easy to break.",
+    "A touchscreen or LCD-style design may add cost or implementation complexity.",
+    "Focusing too much on younger users may reduce usability for older users."
+  ],
+  "expected_open_questions": [
+    "How much teletext should remain if management expects internet to become the main focus.",
+    "Whether touchscreen or LCD-style controls are feasible within the cost and compatibility constraints.",
+    "Whether extra functions should be on the remote itself or displayed through a TV menu.",
+    "How to balance fewer buttons against the desire for originality and multi-function capability.",
+    "Whether a remote-locator beep or speech-triggered locator feature is worth exploring.",
+    "How to incorporate the company slogan and logo into the remote design.",
+    "Whether the lunch break is thirty minutes or forty-five minutes."
+  ],
+  "resolved_questions": [
+    "The remote should be TV-only rather than multi-purpose.",
+    "The main design direction should keep important buttons visible and easy to use.",
+    "The right-hand design option receives the team vote.",
+    "The team prefers avoiding a fragile pop-open mechanism.",
+    "The team will continue with individual work after lunch."
+  ],
+  "acceptable_behavior": [
+    "Summarize this as a functional design meeting for a TV remote.",
+    "Capture the degraded audio quality as a fixture attribute, not as meeting content.",
+    "Capture concrete decisions, especially TV-only scope, simplicity, infrared direction, primary-button accessibility, and the right-hand design vote.",
+    "Capture relative timing such as after lunch and thirty minutes without inventing calendar dates.",
+    "Capture explicit actions around minutes, shared folder, individual work, saved session output, and questionnaire.",
+    "Treat touchscreen, locator, docking station, and TV-menu ideas as design ideas unless stated as final."
+  ],
+  "must_not_invent": [
+    "A finalized production-ready remote",
+    "A confirmed manufacturing budget",
+    "A final supplier or hardware bill of materials",
+    "A final decision to use Bluetooth or radio",
+    "A final decision to remove teletext entirely",
+    "A final decision that the remote works with every TV",
+    "Calendar dates",
+    "Named people beyond the AMI roles",
+    "Business/customer launch actions",
+    "Facts from outside the first 48-minute clip"
+  ]
+}

@@ -107,8 +107,8 @@
       "audio_file": "L04_AMI_TS3007b_48min_degraded.m4a",
       "source_type": "AMI",
       "audio_quality": "degraded",
-      "expected_fixture": null,
-      "ground_truth_status": "pending"
+      "expected_fixture": "L04_AMI_TS3007b_48min_degraded.expected.json",
+      "ground_truth_status": "complete"
     },
     {
       "id": "N01",
