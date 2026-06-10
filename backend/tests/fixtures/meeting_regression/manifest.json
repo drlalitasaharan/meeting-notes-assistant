@@ -98,8 +98,8 @@
       "audio_file": "L03_AMI_IN1001_50min.m4a",
       "source_type": "AMI",
       "audio_quality": "clean",
-      "expected_fixture": null,
-      "ground_truth_status": "pending"
+      "expected_fixture": "L03_AMI_IN1001_50min.expected.json",
+      "ground_truth_status": "complete"
     },
     {
       "id": "L04",

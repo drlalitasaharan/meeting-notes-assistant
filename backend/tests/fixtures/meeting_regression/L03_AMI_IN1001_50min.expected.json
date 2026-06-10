@@ -1,0 +1,158 @@
+{
+  "id": "L03",
+  "title": "AMI IN1001 video shot detector technical review",
+  "category": "long",
+  "target_duration_minutes": 50.0,
+  "audio_file": "L03_AMI_IN1001_50min.m4a",
+  "transcript_file": "L03_AMI_IN1001_50min.txt",
+  "source_metadata_file": "L03_AMI_IN1001_50min.source.json",
+  "source_type": "AMI",
+  "audio_quality": "clean",
+  "meeting_id": "IN1001",
+  "clip_start_seconds": 0.0,
+  "clip_end_seconds": 3000.0,
+  "speakers": [
+    {
+      "speaker": "A",
+      "role": "Speaker A"
+    },
+    {
+      "speaker": "B",
+      "role": "Speaker B"
+    },
+    {
+      "speaker": "C",
+      "role": "Speaker C"
+    },
+    {
+      "speaker": "D",
+      "role": "Speaker D"
+    }
+  ],
+  "expected_context": [
+    "The meeting is a technical status and demo review for a video shot detector.",
+    "The goal is to present and explain the video shot detector and review results on CINETIS video data.",
+    "The discussion covers shot detection, keyframe extraction, motion features, histogram distance, Bhattacharya distance, MMM data handling, privacy, and code/library usage."
+  ],
+  "expected_decisions": [
+    "Use shot-level segmentation as useful output for CINETIS-style restoration or color-correction workflows.",
+    "Use keyframes and shot summaries as a practical way for users to inspect video content.",
+    "Treat motion features as useful for difficult transitions, while recognizing that histogram-based methods can handle many simple cuts.",
+    "Use the distance output file to retune or reprocess shot thresholds without reprocessing the full video when possible.",
+    "Keep the frame step parameter at one for shot detection to avoid losing temporal precision.",
+    "Leave the sub-threshold parameter at one.",
+    "Use OpenCV or the MPEG input reader path rather than relying on the old tosh library."
+  ],
+  "expected_requirements": [
+    "The detector should output XML describing detected shots.",
+    "The detector should output a distance file containing distances between histograms.",
+    "The system should support keyframe extraction.",
+    "The MMM data workflow should allow videos and XML output to be placed in a data directory for browsing.",
+    "The browser or interface should be able to show detected shots and associated frames.",
+    "Privacy must be considered when publishing or browsing videos through FTP, HTTP, or MMM web paths.",
+    "Directories exposed through the browser should not be publicly listable when privacy is required."
+  ],
+  "expected_technical_findings": [
+    "The demo video detector found about thirty shots in the reviewed CINETIS example.",
+    "Each shot can be expanded to show keyframes.",
+    "The current keyframes are extracted by downsampling, not by using sub-shots.",
+    "Real Media compression reduces visual quality for the demo video.",
+    "Dissolves are harder to detect than simple cuts.",
+    "Histogram distance can detect many changes, but motion features can better explain difficult transitions.",
+    "Black or low-texture regions are poor for motion estimation.",
+    "Shot detection latency is related to about half of the sliding window.",
+    "The alpha threshold discussed is around 2.4.",
+    "Some code was originally tied to older libraries, but OpenCV and related image-processing classes can be used instead."
+  ],
+  "expected_actions": [
+    {
+      "owner": "Speaker B",
+      "action": "Provide the shot detector parameter or configuration file discussed at the end of the meeting.",
+      "deadline": null
+    },
+    {
+      "owner": "Speaker B",
+      "action": "Help review the C code and video-structure classes if newer versions of the detector are used.",
+      "deadline": null
+    },
+    {
+      "owner": "Speaker B",
+      "action": "Explain or document how to put video data and XML output into the MMM data workflow.",
+      "deadline": null
+    },
+    {
+      "owner": "Speaker C",
+      "action": "Check whether the DVD/video grabbing issue produced an incorrect or duplicated video file.",
+      "deadline": null
+    },
+    {
+      "owner": "Team",
+      "action": "Take privacy/password protection into account before exposing experiment videos or MMM browser directories.",
+      "deadline": null
+    }
+  ],
+  "expected_owners": [
+    "Speaker B",
+    "Speaker C",
+    "Team"
+  ],
+  "expected_deadlines": [],
+  "expected_risks": [
+    "Compressed or low-quality video can make visual review harder.",
+    "Dissolves and ambiguous transitions may not be detected cleanly.",
+    "Low-texture or black frames reduce the usefulness of motion estimation.",
+    "Some libraries or older code may not compile cleanly on Debian.",
+    "Incorrect video grabbing or cached frames can lead to wrong browser output.",
+    "Publicly accessible MMM or browser directories can create privacy issues."
+  ],
+  "expected_open_questions": [
+    "Whether certain ambiguous transitions should be labelled as shot changes.",
+    "Whether the CINETIS workflow needs better keyframe extraction or a more detailed summary.",
+    "Whether stabilization tasks require a different segmentation than color correction or restoration tasks.",
+    "How much manual labelling the client or user should do.",
+    "Whether a simple user-facing tool should let users select shots, assign names, and create chapters.",
+    "How best to handle cache invalidation when videos are corrected or re-grabbed.",
+    "Which parts of the existing code should be kept, updated, or replaced with OpenCV-based components."
+  ],
+  "expected_technical_terms": [
+    "shot detector",
+    "CINETIS",
+    "keyframe extraction",
+    "downsampling",
+    "sub-shots",
+    "motion features",
+    "histogram distance",
+    "Bhattacharya distance",
+    "chi-square distance",
+    "sliding window",
+    "alpha threshold",
+    "XML output",
+    "distance file",
+    "MMM data",
+    "cache",
+    "OpenCV",
+    "MPEG input reader",
+    "privacy",
+    "password protection"
+  ],
+  "acceptable_behavior": [
+    "Summarize this as a technical demo and review of video shot detection.",
+    "Capture shot detection, keyframes, motion features, histogram distance, MMM workflow, code-library issues, and privacy concerns.",
+    "Treat the detector and workflow as technical/research infrastructure rather than a customer-facing business launch.",
+    "Include explicit technical follow-ups without inventing deadlines.",
+    "Leave business decisions and commercial launch risks empty or none-equivalent."
+  ],
+  "must_not_invent": [
+    "Customer sales decisions",
+    "Meeting-note product decisions",
+    "Remote-control design decisions",
+    "Business launch actions",
+    "Deadlines",
+    "A finalized detector accuracy score",
+    "A completed production interface",
+    "A confirmed privacy implementation",
+    "A final decision that all CINETIS videos are ready",
+    "Named people beyond Speaker A, Speaker B, Speaker C, and Speaker D",
+    "Facts from outside the first 50-minute clip"
+  ]
+}
