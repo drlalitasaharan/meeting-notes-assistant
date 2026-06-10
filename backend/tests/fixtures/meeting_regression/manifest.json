@@ -53,8 +53,8 @@
       "audio_file": "M03_AMI_TS3005b_25min_degraded.m4a",
       "source_type": "AMI",
       "audio_quality": "degraded",
-      "expected_fixture": null,
-      "ground_truth_status": "pending"
+      "expected_fixture": "M03_AMI_TS3005b_25min_degraded.expected.json",
+      "ground_truth_status": "complete"
     },
     {
       "id": "M04",

@@ -1,0 +1,117 @@
+{
+  "id": "M03",
+  "title": "AMI TS3005b LCD remote-control design discussion",
+  "category": "medium",
+  "target_duration_minutes": 25.0,
+  "audio_file": "M03_AMI_TS3005b_25min_degraded.m4a",
+  "transcript_file": "M03_AMI_TS3005b_25min_degraded.txt",
+  "source_metadata_file": "M03_AMI_TS3005b_25min_degraded.source.json",
+  "source_type": "AMI",
+  "audio_quality": "degraded",
+  "meeting_id": "TS3005b",
+  "clip_start_seconds": 0.0,
+  "clip_end_seconds": 1500.0,
+  "speakers": [
+    {
+      "speaker": "A",
+      "role": "Industrial Designer"
+    },
+    {
+      "speaker": "B",
+      "role": "Project Manager"
+    },
+    {
+      "speaker": "C",
+      "role": "User Interface Designer"
+    },
+    {
+      "speaker": "D",
+      "role": "Marketing Expert"
+    }
+  ],
+  "expected_context": [
+    "The team continues the remote-control product design discussion.",
+    "The discussion focuses on button behavior, target market, LCD/touchscreen use, cost, power supply, and basic remote-control functions.",
+    "The audio is degraded, so wording may be imperfect, but the main design decisions and concerns should still be captured."
+  ],
+  "expected_decisions": [
+    "Include a dedicated control for switching between one-digit and two-digit channel entry.",
+    "Target the new product primarily at customers younger than forty while not intentionally excluding older customers.",
+    "Use an LCD or touchscreen screen as the current design direction.",
+    "Keep rubber or physical buttons as a backup plan if the LCD screen is too expensive.",
+    "Put teletext and less important settings in separate LCD menus or submenus.",
+    "Use automatic standby or shutdown behavior after a short idle period rather than requiring users to manually turn the remote on first."
+  ],
+  "expected_requirements": [
+    "The main remote-control functions should include channel selection, volume control, and power.",
+    "The remote should include a mute function.",
+    "Teletext should still be available for users who want it.",
+    "Less important functions such as screen settings, audio settings, and channel settings should be available but not primary.",
+    "The LCD or touchscreen should support adjustable on-screen buttons.",
+    "The design should consider the 12.50 production-cost constraint.",
+    "The design should address power supply and battery usage.",
+    "The design should include a low-battery indicator on the screen."
+  ],
+  "expected_design_ideas": [
+    "A one-digit/two-digit channel-entry button.",
+    "An LCD or touchscreen that displays only the needed buttons.",
+    "A minimal screen with core controls such as channel and volume.",
+    "Contextual menus for audio settings.",
+    "A separate LCD menu for teletext.",
+    "Submenus for screen, audio, and channel settings.",
+    "Physical or rubber buttons as a fallback option.",
+    "Rechargeable or refillable power similar to a mouse-style charging approach.",
+    "Automatic standby after roughly two or three minutes of inactivity.",
+    "A low-battery indicator shown on the screen."
+  ],
+  "expected_actions": [
+    {
+      "owner": "Marketing Expert",
+      "action": "Post or share LCD cost information in the project mail folder if cost information is received.",
+      "deadline": null
+    }
+  ],
+  "expected_owners": [
+    "Marketing Expert"
+  ],
+  "expected_deadlines": [],
+  "expected_risks": [
+    "LCD or touchscreen screens may be too expensive for the low-cost production target.",
+    "An LCD-only design may not appeal to older users.",
+    "LCD screens may drain batteries quickly.",
+    "Requiring users to turn the remote on before use could hurt usability.",
+    "Different TV models may handle two-digit channel entry differently."
+  ],
+  "expected_open_questions": [
+    "How much the LCD or touchscreen screen will cost.",
+    "Whether the LCD screen can fit within the 12.50 production-cost constraint.",
+    "Whether older users will accept an LCD-heavy remote.",
+    "Which controls should remain physical versus placed in LCD menus.",
+    "How the final power, charging, standby, and low-battery behavior should work."
+  ],
+  "resolved_questions": [
+    "The team agrees to proceed with LCD for now.",
+    "The team agrees that buttons should remain the backup plan if LCD is too expensive.",
+    "The team aligns that the new target market is younger than forty.",
+    "The team agrees the one-digit/two-digit channel-entry control should be included."
+  ],
+  "acceptable_behavior": [
+    "Summarize the LCD/touchscreen decision as current direction, not as final production approval.",
+    "Capture the backup button plan if LCD is too expensive.",
+    "Capture battery, standby, and low-battery concerns.",
+    "Capture the Marketing Expert cost-sharing follow-up without inventing a deadline.",
+    "Mention degraded audio only as a quality attribute, not as meeting content."
+  ],
+  "must_not_invent": [
+    "A finalized production-ready prototype",
+    "A confirmed LCD supplier",
+    "A confirmed LCD cost",
+    "A confirmed budget increase",
+    "A final decision to remove all physical buttons",
+    "A final decision to target only young users",
+    "Deadlines",
+    "Additional action owners",
+    "A final sales forecast",
+    "Facts from outside the first 25-minute clip"
+  ]
+}
