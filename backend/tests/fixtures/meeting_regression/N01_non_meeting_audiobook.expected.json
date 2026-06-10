@@ -1,0 +1,33 @@
+{
+  "id": "N01",
+  "title": "Non-meeting audiobook guardrail",
+  "category": "negative_control",
+  "audio_file": "N01_non_meeting_audiobook_60min.m4a",
+  "source_type": "non_meeting",
+  "expected_decisions": [],
+  "expected_actions": [],
+  "expected_owners": [],
+  "expected_deadlines": [],
+  "expected_risks": [],
+  "expected_open_questions": [],
+  "acceptable_behavior": [
+    "Recognize that the recording is narrative speech rather than a business meeting.",
+    "Provide a neutral content summary only if the product supports non-meeting summaries.",
+    "Return empty or none-equivalent meeting-specific sections."
+  ],
+  "must_not_invent": [
+    "Meeting participants",
+    "Business decisions",
+    "Action items",
+    "Task owners",
+    "Deadlines",
+    "Operational risks",
+    "Meeting next steps",
+    "A business-meeting purpose or outcome"
+  ],
+  "source_metadata": {
+    "title": "02 - The Red-Headed League",
+    "artist": "Sir Arthur Conan Doyle",
+    "album": "The Adventures of Sherlock Holmes"
+  }
+}

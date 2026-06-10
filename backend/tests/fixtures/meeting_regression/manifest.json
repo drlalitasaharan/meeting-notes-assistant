@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "audio_directory": "demo_media/regression/pack",
+  "cases": [
+    {
+      "id": "S01",
+      "category": "short",
+      "audio_file": "S01_controlled_short_2min.m4a",
+      "source_type": "controlled",
+      "audio_quality": "clean",
+      "expected_fixture": "S01_controlled_short.expected.json",
+      "ground_truth_status": "complete"
+    },
+    {
+      "id": "S02",
+      "category": "short",
+      "audio_file": "S02_AMI_ES2002a_5min.m4a",
+      "source_type": "AMI",
+      "audio_quality": "clean",
+      "expected_fixture": "S02_AMI_ES2002a_5min.expected.json",
+      "ground_truth_status": "complete"
+    },
+    {
+      "id": "S03",
+      "category": "short",
+      "audio_file": "S03_AMI_TS3003a_7min_degraded.m4a",
+      "source_type": "AMI",
+      "audio_quality": "degraded",
+      "expected_fixture": null,
+      "ground_truth_status": "pending"
+    },
+    {
+      "id": "M01",
+      "category": "medium",
+      "audio_file": "M01_controlled_29min.m4a",
+      "source_type": "controlled",
+      "audio_quality": "clean",
+      "expected_fixture": "M01_controlled_29min.expected.json",
+      "ground_truth_status": "complete"
+    },
+    {
+      "id": "M02",
+      "category": "medium",
+      "audio_file": "M02_AMI_IS1004b_20min.m4a",
+      "source_type": "AMI",
+      "audio_quality": "clean",
+      "expected_fixture": null,
+      "ground_truth_status": "pending"
+    },
+    {
+      "id": "M03",
+      "category": "medium",
+      "audio_file": "M03_AMI_TS3005b_25min_degraded.m4a",
+      "source_type": "AMI",
+      "audio_quality": "degraded",
+      "expected_fixture": null,
+      "ground_truth_status": "pending"
+    },
+    {
+      "id": "M04",
+      "category": "medium",
+      "audio_file": "M04_decisions_only_medium.m4a",
+      "source_type": "controlled",
+      "audio_quality": "clean",
+      "expected_fixture": "M04_decisions_only.expected.json",
+      "ground_truth_status": "complete"
+    },
+    {
+      "id": "M05",
+      "category": "medium",
+      "audio_file": "M05_risks_open_questions_medium.m4a",
+      "source_type": "controlled",
+      "audio_quality": "clean",
+      "expected_fixture": "M05_risks_open_questions.expected.json",
+      "ground_truth_status": "complete"
+    },
+    {
+      "id": "L01",
+      "category": "long",
+      "audio_file": "L01_controlled_long_business_50min.m4a",
+      "source_type": "controlled",
+      "audio_quality": "clean",
+      "expected_fixture": "L01_long_business.expected.json",
+      "ground_truth_status": "complete"
+    },
+    {
+      "id": "L02",
+      "category": "long",
+      "audio_file": "L02_AMI_EN2001b_50min.m4a",
+      "source_type": "AMI",
+      "audio_quality": "clean",
+      "expected_fixture": null,
+      "ground_truth_status": "pending"
+    },
+    {
+      "id": "L03",
+      "category": "long",
+      "audio_file": "L03_AMI_IN1001_50min.m4a",
+      "source_type": "AMI",
+      "audio_quality": "clean",
+      "expected_fixture": null,
+      "ground_truth_status": "pending"
+    },
+    {
+      "id": "L04",
+      "category": "long",
+      "audio_file": "L04_AMI_TS3007b_48min_degraded.m4a",
+      "source_type": "AMI",
+      "audio_quality": "degraded",
+      "expected_fixture": null,
+      "ground_truth_status": "pending"
+    },
+    {
+      "id": "N01",
+      "category": "negative_control",
+      "audio_file": "N01_non_meeting_audiobook_60min.m4a",
+      "source_type": "non_meeting",
+      "audio_quality": "clean",
+      "expected_fixture": "N01_non_meeting_audiobook.expected.json",
+      "ground_truth_status": "complete"
+    }
+  ]
+}
