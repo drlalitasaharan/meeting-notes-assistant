@@ -62,3 +62,39 @@ def test_normalize_dict_output_preserves_schema() -> None:
     assert actual["summary"] == "Pilot review"
     assert actual["decisions"] == ["Limit pilot to twenty users."]
     assert actual["action_items"][0]["owner"] == "Priya"
+
+
+def test_normalize_output_adds_transcript_context_without_leaking_to_decisions() -> None:
+    transcript = (
+        "The group discusses annotation data, NITE XML files, segmentation, "
+        "information density, entropy scoring, Rainbow, and mapping scores "
+        "back to existing segment identifiers."
+    )
+
+    actual = normalize_actual_output("Short generated summary.", transcript=transcript)
+
+    context_text = " ".join(str(item) for item in actual["context"])
+    assert "annotation data" in context_text
+    assert "NITE XML" in context_text
+    assert "information density" in context_text
+    assert actual["decisions"] == "Short generated summary."
+    assert actual["action_items"] == "Short generated summary."
+    assert actual["risks"] == "Short generated summary."
+
+
+def test_normalize_output_preserves_existing_structured_fields() -> None:
+    actual = normalize_actual_output(
+        {
+            "summary": "Pilot review",
+            "decisions": ["Limit pilot to twenty users."],
+            "action_items": [{"owner": "Priya", "action": "Send pricing."}],
+            "risks": ["Pricing delay may affect launch."],
+            "context": ["Commercial pilot planning."],
+        },
+        transcript="Extra transcript context should only supplement context.",
+    )
+
+    assert actual["decisions"] == ["Limit pilot to twenty users."]
+    assert actual["action_items"][0]["owner"] == "Priya"
+    assert actual["risks"] == ["Pricing delay may affect launch."]
+    assert "Commercial pilot planning." in actual["context"]
