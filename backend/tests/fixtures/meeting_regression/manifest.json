@@ -44,8 +44,8 @@
       "audio_file": "M02_AMI_IS1004b_20min.m4a",
       "source_type": "AMI",
       "audio_quality": "clean",
-      "expected_fixture": null,
-      "ground_truth_status": "pending"
+      "expected_fixture": "M02_AMI_IS1004b_20min.expected.json",
+      "ground_truth_status": "complete"
     },
     {
       "id": "M03",

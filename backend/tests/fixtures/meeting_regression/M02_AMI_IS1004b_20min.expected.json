@@ -1,0 +1,115 @@
+{
+  "id": "M02",
+  "title": "AMI IS1004b functional design meeting",
+  "category": "medium",
+  "target_duration_minutes": 20.0,
+  "audio_file": "M02_AMI_IS1004b_20min.m4a",
+  "transcript_file": "M02_AMI_IS1004b_20min.txt",
+  "source_metadata_file": "M02_AMI_IS1004b_20min.source.json",
+  "source_type": "AMI",
+  "audio_quality": "clean",
+  "meeting_id": "IS1004b",
+  "clip_start_seconds": 0.0,
+  "clip_end_seconds": 1200.0,
+  "speakers": [
+    {
+      "speaker": "A",
+      "role": "Industrial Designer"
+    },
+    {
+      "speaker": "B",
+      "role": "Project Manager"
+    },
+    {
+      "speaker": "C",
+      "role": "User Interface Designer"
+    },
+    {
+      "speaker": "D",
+      "role": "Marketing Expert"
+    }
+  ],
+  "expected_context": [
+    "This is the second project meeting.",
+    "The meeting is about functional design for a remote-control project.",
+    "The team reviews minutes from the previous meeting.",
+    "The team discusses whether the remote should be universal or specific.",
+    "Participants give individual presentations related to the functional design."
+  ],
+  "expected_decisions": [
+    "Use Mando as the working project or product name.",
+    "Defer detailed look-and-feel decisions for the Mando name until later."
+  ],
+  "expected_requirements": [
+    "The remote control should be restricted to TV only because of time limitations.",
+    "The design should focus more on internet aspects because teletext is outdated.",
+    "The corporate image, including company colors and logos, should be clearly identified in the product.",
+    "The design should consider the 25 Euro price point."
+  ],
+  "expected_research_findings": [
+    "Many people think remote controls are ugly.",
+    "Some users would spend more money on a fancier remote control.",
+    "Users are concerned about remote-control shape and repetitive strain injury.",
+    "Users often lose remote controls.",
+    "Younger users are more interested in incorporating new technologies into the remote control.",
+    "Current remote controls have not changed significantly in the last five to ten years."
+  ],
+  "expected_design_ideas": [
+    "Consider making the remote not too small so it is less likely to be lost.",
+    "Consider an alarm or beep feature to help users find a lost remote.",
+    "Consider different button sizes based on frequency or importance of use.",
+    "Consider a shape that fits the hand.",
+    "Consider a universal hand shape rather than separate left-handed and right-handed versions.",
+    "Consider finger grips or a palm-shaped form.",
+    "Consider side buttons.",
+    "Consider LCD functionality if budget allows.",
+    "Consider speech recognition if feasibility and budget allow.",
+    "Consider command-controlled speech activation to avoid TV background-noise problems.",
+    "Consider a scroll wheel for changing channels.",
+    "Consider a program-driven interface rather than navigating only by channel number.",
+    "Consider limiting the number of buttons while preserving functionality.",
+    "Consider hiding extra buttons behind a flip-open or removable door."
+  ],
+  "expected_actions": [],
+  "expected_owners": [],
+  "expected_deadlines": [],
+  "expected_risks": [
+    "LCD and speech-recognition features may exceed the available budget.",
+    "Speech recognition may be difficult because TV background noise can interfere.",
+    "Separate left-handed and right-handed prototypes could reduce the addressable market unless targeting single-person use.",
+    "Removing traditional number buttons too abruptly could make the remote seem difficult to learn.",
+    "Too many buttons or overloaded multifunction buttons could make the remote harder to understand and use."
+  ],
+  "expected_open_questions": [
+    "Whether the 25 Euro price point can support advanced features such as LCD or speech recognition.",
+    "Whether the final look and feel of the Mando name could exclude potential buyers.",
+    "Whether LCD functionality should be included.",
+    "Whether speech recognition should be included.",
+    "How far the product should move away from a traditional numbered remote-control interface."
+  ],
+  "resolved_questions": [
+    "The working name discussion is resolved by choosing Mando.",
+    "The universal-versus-specific scope discussion is narrowed by the head-office requirement to focus on TV only.",
+    "The marketing presentation is chosen as the first individual presentation."
+  ],
+  "acceptable_behavior": [
+    "Summarize the functional design discussion, Mando naming decision, TV-only requirement, marketing findings, design ideas, and feature concerns.",
+    "Treat LCD, speech recognition, scroll wheel, fewer buttons, and program-driven navigation as design ideas or open questions unless stated as final decisions.",
+    "Treat the 25 Euro price point as a constraint or open concern, not as a resolved budget approval.",
+    "Leave formal action items, owners, and deadlines empty or none-equivalent."
+  ],
+  "must_not_invent": [
+    "A final physical remote-control design",
+    "A finalized prototype",
+    "A final decision to include LCD",
+    "A final decision to include speech recognition",
+    "A final decision to remove number buttons",
+    "A final decision to use a program-driven interface",
+    "A finalized target market",
+    "Deadlines",
+    "Formal action items",
+    "Task owners",
+    "A confirmed budget increase",
+    "Facts from outside the first 20-minute clip"
+  ]
+}
