@@ -1,0 +1,1398 @@
+# L02 — AMI EN2001b, first 50 minutes
+
+Speaker mapping:
+- A: Speaker A
+- B: Speaker B
+- C: Speaker C
+- D: Speaker D
+
+[00:03.09-00:03.24] Speaker A (A): Hmm
+[00:22.30-00:22.69] Speaker C (C): Yeah.
+[00:30.60-00:34.62] Speaker A (A): It's with cameras
+[00:32.19-00:32.86] Speaker B (B): Hmm?
+[00:34.62-00:38.78] Speaker A (A): . You look quite funny at the moment, Tim.
+[00:42.91-00:45.24] Speaker B (B): This isn't supposed to look like just
+[00:48.09-00:49.35] Speaker B (B): Ah, sod that. Okay, there.
+[00:51.25-00:52.03] Speaker A (A): Nice.
+[00:54.81-00:56.42] Speaker B (B): Group K_. Da.
+[00:58.48-00:58.67] Speaker B (B): Yeah.
+[01:05.33-01:07.53] Speaker B (B): Yeah, I guess. Whatever.
+[01:10.75-01:22.07] Speaker B (B): It's yeah, I never get this, so what's the point of if this is strapless if this strap's supposed to go behind m I obviously doing this wrong. Obviously failing this like whatev calling centre
+[01:21.54-01:22.13] Speaker C (C): You you have
+[01:22.07-01:22.35] Speaker B (B): and
+[01:22.13-01:22.96] Speaker C (C): this
+[01:22.35-01:22.44] Speaker B (B): tra
+[01:22.96-01:24.82] Speaker C (C): going behind your ears, the
+[01:24.49-01:25.34] Speaker B (B): Like this
+[01:24.82-01:26.03] Speaker C (C): yeah
+[01:25.34-01:27.88] Speaker B (B): and
+[01:26.03-01:26.33] Speaker C (C): . Yeah.
+[01:26.40-01:28.33] Speaker D (D): Look's good
+[01:27.88-01:28.39] Speaker B (B): then
+[01:28.33-01:28.33] Speaker D (D): .
+[01:28.39-01:30.65] Speaker B (B): yeah, you know what the shit has to do now.
+[01:35.99-01:36.19] Speaker D (D): Yeah.
+[01:37.49-01:38.70] Speaker B (B): Okay.
+[01:46.43-01:52.62] Speaker B (B): Yes, so um actually I just realise I don't have power, let me just switch on the other which is gonna run out.
+[01:57.71-01:58.08] Speaker B (B): Okay.
+[01:58.82-01:59.12] Speaker D (D): Okay.
+[02:03.19-02:14.33] Speaker B (B): So there's probably not much to talk about at the moment in terms of like talking about each other's stuff, I mean beyond what we've been talking about yesterday.
+[02:14.51-02:15.61] Speaker D (D): Yeah, that's true I think.
+[02:16.18-02:46.58] Speaker B (B): So what I've been thinking is maybe if we try to really make sense together of the X_M_L_ format to be sure that we can all produce the data that we are producing in a way or at least I mean I guess my data I'll probably load in from completely different way anyway because it's matrix, but all this stuff that goes with annotation, that we have it in the right format. Maybe if we just sort of pool what we know about the X_M_L_ format and try to make sense of it. I don't at all know how to go about this.
+[02:48.28-02:53.99] Speaker B (B): Um what I did just now is I downloaded
+[03:00.64-03:08.24] Speaker B (B): Um I downloaded some files, some X_M_L_ files
+[03:07.33-03:07.62] Speaker D (D): Oh yeah.
+[03:08.24-03:29.69] Speaker B (B): and I was thinking if we maybe just should go through some of them and like try to see if you understand the general structure and pool together what we think about the structure, what we think that things mean. And then talk about how the annotation for information density and stuff should maybe be structured in a similar way
+[03:28.38-03:28.60] Speaker D (D): Yeah
+[03:28.47-03:28.83] Speaker C (C): Hmm
+[03:28.60-03:28.60] Speaker D (D): .
+[03:28.83-03:28.83] Speaker C (C): .
+[03:29.69-03:34.95] Speaker B (B): . Or but I don't r I don't really have an idea like what, other words, what we would do today in this meeting. I mean
+[03:36.29-03:38.00] Speaker D (D): Yeah, we haven't got that much to talk about, I don't
+[03:37.94-03:38.16] Speaker C (C): No
+[03:38.00-03:38.15] Speaker D (D): think.
+[03:38.16-03:43.57] Speaker C (C): . Just maybe talk about um how you would give me your data file
+[03:42.78-03:43.09] Speaker D (D): Yeah.
+[03:43.57-03:43.84] Speaker C (C): . Yeah.
+[03:44.68-03:45.41] Speaker D (D): Yes, we can do that.
+[03:46.80-03:47.53] Speaker B (B): What's that part?
+[03:48.27-03:53.46] Speaker C (C): That's um the interface between having the topic segments and
+[03:53.12-03:53.76] Speaker B (B): Mm-hmm
+[03:53.46-03:54.78] Speaker C (C): calculating
+[03:53.76-03:53.76] Speaker B (B): .
+[03:54.78-03:57.50] Speaker C (C): the uh information importance of words.
+[03:57.87-03:58.35] Speaker B (B): Mm-hmm.
+[03:58.98-04:03.19] Speaker C (C): Yeah. So I I would need separate files for each segment or just
+[04:03.11-04:03.49] Speaker D (D): Alright
+[04:03.19-04:03.74] Speaker C (C): maybe
+[04:03.49-04:03.49] Speaker D (D): .
+[04:03.74-04:05.77] Speaker C (C): have delimiters inbetween each
+[04:05.68-04:05.88] Speaker D (D): Yeah
+[04:05.77-04:06.37] Speaker C (C): segment
+[04:05.88-04:06.75] Speaker D (D): well, that that's
+[04:06.37-04:06.37] Speaker C (C): .
+[04:06.75-04:08.89] Speaker D (D): the way it works. It's got delimiters in-between
+[04:08.40-04:09.00] Speaker C (C): Okay, yeah
+[04:08.89-04:09.14] Speaker D (D): the mar
+[04:09.00-04:09.20] Speaker C (C): , and y
+[04:09.14-04:09.22] Speaker D (D): the
+[04:09.20-04:09.42] Speaker C (C): then
+[04:09.22-04:09.69] Speaker D (D): boundaries
+[04:09.42-04:09.70] Speaker C (C): I can
+[04:09.69-04:09.89] Speaker D (D): . But
+[04:09.70-04:10.70] Speaker C (C): make files of that.
+[04:10.75-04:12.35] Speaker D (D): Yeah, if you're happy to do that, yeah
+[04:11.98-04:12.26] Speaker C (C): Alright.
+[04:12.35-04:15.70] Speaker D (D): . And you're saying you need a a label for each segment. But I mean the most
+[04:15.64-04:15.80] Speaker C (C): No
+[04:15.70-04:16.33] Speaker D (D): I ca
+[04:15.80-04:16.82] Speaker C (C): , I don't kno
+[04:16.33-04:16.95] Speaker D (D): you don't need
+[04:16.82-04:17.11] Speaker C (C): know
+[04:16.95-04:18.03] Speaker D (D): a one
+[04:17.11-04:17.66] Speaker C (C): it, no.
+[04:18.03-04:19.80] Speaker D (D): . Well, I could give you an I_D_, but it'd be quite
+[04:19.72-04:19.87] Speaker C (C): Yeah
+[04:19.80-04:20.13] Speaker D (D): difficult
+[04:19.87-04:20.41] Speaker C (C): , that's fine
+[04:20.13-04:20.44] Speaker D (D): to actually
+[04:20.41-04:20.41] Speaker C (C): .
+[04:20.44-04:22.08] Speaker D (D): give a topic a
+[04:21.74-04:22.61] Speaker C (C): I just
+[04:22.08-04:22.96] Speaker D (D): title
+[04:22.61-04:23.09] Speaker C (C): I just
+[04:22.96-04:22.96] Speaker D (D): .
+[04:23.09-04:26.27] Speaker C (C): need a a title for the file, but doesn't
+[04:26.22-04:27.61] Speaker D (D): Right
+[04:26.27-04:27.47] Speaker C (C): matter what it is.
+[04:27.61-04:29.24] Speaker D (D): . Okay. Yeah, that's no problem.
+[04:32.49-04:42.66] Speaker B (B): Yes, so does anyone have a good idea where to start like which what so what is it we talk about getting in at the moment? We're basically just'cause the two of you will merge your data together, right? In some way like i
+[04:42.52-04:42.79] Speaker A (A): Mm
+[04:42.66-04:42.81] Speaker B (B): in
+[04:42.79-04:43.12] Speaker A (A): yes
+[04:42.81-04:43.26] Speaker B (B): the end it'll
+[04:43.12-04:43.12] Speaker A (A): .
+[04:43.26-04:52.14] Speaker B (B): result in one annotation. So the only thing we're trying to tie in is just an additional annotation which is similar to
+[04:53.68-05:00.29] Speaker B (B): the annotation about what what would it be s most similar to. Simply to the segmentation information
+[04:59.92-05:00.75] Speaker A (A): Yes, perhaps
+[05:00.29-05:00.83] Speaker B (B): or
+[05:00.75-05:05.45] Speaker A (A): yeah, but I mean they're all very very similar, all those X_M_L_ files
+[05:04.83-05:05.30] Speaker B (B): Okay.
+[05:05.45-05:10.37] Speaker A (A): . I had um a look at the um for example
+[05:10.00-05:10.55] Speaker B (B): I'm not sure
+[05:10.37-05:10.88] Speaker A (A): A_S_
+[05:10.55-05:13.90] Speaker B (B): it Ah
+[05:11.46-05:12.49] Speaker C (C): Mm
+[05:12.15-05:12.37] Speaker A (A): Mm.
+[05:12.49-05:12.49] Speaker C (C): .
+[05:13.90-05:22.31] Speaker B (B): . See, that's what I was thinking. Not sure what software I have at the moment, which would be hello? Um
+[05:26.50-05:26.64] Speaker B (B): Yeah.
+[05:28.18-05:28.22] Speaker B (B): Ah.
+[05:32.69-05:36.31] Speaker B (B): Does anyone know any good standards software displays X_M_L_, I'm not sure.
+[05:36.67-05:37.49] Speaker A (A): Take Mozilla.
+[05:38.36-05:42.26] Speaker B (B): Yeah, but I'm afraid I only have Firefox and Firefox doesn't have the nice X_M_L_ viewer anymore.
+[05:44.32-05:44.47] Speaker D (D): Hmm.
+[05:44.50-05:48.14] Speaker B (B): I think I don't have Mozilla..
+[05:50.50-05:50.91] Speaker B (B): No.
+[05:54.23-05:55.70] Speaker B (B): I can probably just Emacs them.
+[05:58.62-06:09.93] Speaker C (C): So uh we have then when we are mixing our um values together, is it um a value for each um expression, for each sentence or something?
+[06:10.47-06:12.37] Speaker A (A): Yeah, I think that would be m
+[06:12.14-06:12.78] Speaker C (C): Yeah
+[06:12.37-06:12.91] Speaker A (A): I mean
+[06:12.78-06:12.78] Speaker C (C): .
+[06:12.91-06:22.65] Speaker A (A): uh for me it's quite difficult to say o on, you know, w um what scope one annotation
+[06:21.88-06:22.50] Speaker C (C): Mm-mm.
+[06:22.65-06:23.26] Speaker A (A): would have.
+[06:24.85-06:28.21] Speaker A (A): I think it would be certainly more than one word and
+[06:29.73-06:32.71] Speaker A (A): I think it would work best with
+[06:32.61-06:33.07] Speaker C (C): Yeah
+[06:32.71-06:33.39] Speaker A (A): utterances
+[06:33.07-06:33.07] Speaker C (C): .
+[06:33.39-06:34.13] Speaker A (A): or segments.
+[06:35.39-06:35.57] Speaker C (C): Yeah
+[06:35.51-06:35.60] Speaker A (A): Yep
+[06:35.57-06:35.62] Speaker C (C): , I
+[06:35.60-06:35.60] Speaker A (A): .
+[06:35.62-06:45.47] Speaker C (C): would just end up with uh values for each word, so I wouldn't have um any boundaries for segments at all.
+[06:47.11-06:47.34] Speaker B (B): But
+[06:47.13-06:54.34] Speaker C (C): I just I just would have the words, and then how we um how long each expression would be, I don't know.
+[06:55.22-07:00.09] Speaker B (B): But going from from a word business, wouldn't it be easier to then go back and calculate for each utterance?
+[07:00.68-07:03.25] Speaker C (C): Yeah, but what is an utterance. Uh
+[07:02.85-07:03.39] Speaker B (B): You know, wha wha
+[07:03.25-07:03.83] Speaker C (C): , yeah
+[07:03.39-07:04.10] Speaker B (B): each turn
+[07:03.83-07:03.83] Speaker C (C): .
+[07:04.09-07:04.18] Speaker A (A): I
+[07:04.10-07:04.24] Speaker B (B): , so
+[07:04.18-07:04.49] Speaker A (A): think
+[07:04.24-07:04.68] Speaker B (B): if we
+[07:04.49-07:05.94] Speaker A (A): just the segments as
+[07:05.88-07:06.41] Speaker C (C): Okay
+[07:05.94-07:06.87] Speaker A (A): they're segmented
+[07:06.41-07:06.41] Speaker C (C): .
+[07:06.87-07:07.89] Speaker A (A): in the
+[07:07.62-07:08.12] Speaker B (B): Yeah
+[07:07.89-07:08.32] Speaker A (A): for example
+[07:08.12-07:08.12] Speaker B (B): .
+[07:08.32-07:10.25] Speaker A (A): in the point se point
+[07:09.98-07:10.43] Speaker C (C): So what
+[07:10.25-07:10.62] Speaker A (A): six
+[07:10.43-07:10.91] Speaker C (C): we
+[07:10.62-07:10.92] Speaker A (A): five
+[07:10.91-07:11.20] Speaker C (C): what
+[07:10.92-07:10.92] Speaker A (A): .
+[07:11.20-07:16.86] Speaker C (C): we would fit in into the XML files, would it be uh um a value for each utterance? Or what you
+[07:18.49-07:19.10] Speaker A (A): I think so.
+[07:19.10-07:19.34] Speaker C (C): Okay.
+[07:24.04-07:33.77] Speaker A (A): And you would s probably still need um your values for the words, um perhaps for for um the keywords that are displayed
+[07:33.46-07:33.91] Speaker C (C): Mm-hmm.
+[07:35.33-07:36.06] Speaker A (A): when you click on
+[07:36.06-07:36.37] Speaker C (C): So
+[07:36.06-07:36.48] Speaker A (A): something
+[07:36.37-07:36.54] Speaker C (C): then
+[07:36.48-07:36.48] Speaker A (A): .
+[07:36.54-07:39.52] Speaker C (C): we would have to fit in more than just one where
+[07:39.27-07:39.61] Speaker D (D): Mm
+[07:39.52-07:40.28] Speaker C (C): values
+[07:39.61-07:39.61] Speaker D (D): .
+[07:40.28-07:40.51] Speaker C (C): um
+[07:41.00-07:44.74] Speaker A (A): Yeah, but that's another representation then, I think, f
+[07:44.65-07:44.86] Speaker B (B): So
+[07:44.74-07:45.09] Speaker A (A): for
+[07:44.86-07:44.93] Speaker B (B): d
+[07:45.09-07:46.09] Speaker A (A): the importance
+[07:45.57-07:46.02] Speaker C (C): Yeah.
+[07:46.09-07:46.68] Speaker A (A): measure.
+[07:47.56-07:47.70] Speaker B (B): Does
+[07:47.61-07:47.87] Speaker C (C): But
+[07:47.70-07:49.44] Speaker B (B): anyone
+[07:47.87-07:49.64] Speaker C (C): um
+[07:48.16-07:49.05] Speaker A (A): Should yeah.
+[07:49.44-07:54.16] Speaker B (B): does anyone know in which file the actual, like what's it called, the splitting into the utterances?
+[07:54.89-07:55.51] Speaker A (A): Um
+[07:55.07-07:55.53] Speaker D (D): Um is it
+[07:55.51-07:55.65] Speaker A (A): po
+[07:55.53-07:56.94] Speaker D (D): not segments
+[07:56.85-07:56.94] Speaker B (B): Is
+[07:56.86-07:57.30] Speaker A (A): Yes
+[07:56.94-07:57.03] Speaker D (D): ? Or
+[07:56.94-07:57.04] Speaker B (B): is
+[07:57.03-07:57.11] Speaker D (D): is
+[07:57.04-07:57.36] Speaker B (B): called
+[07:57.11-07:57.70] Speaker D (D): it dialogue
+[07:57.30-07:57.30] Speaker A (A): .
+[07:57.36-07:57.72] Speaker B (B): is that
+[07:57.70-07:58.86] Speaker D (D): act dialogue acts
+[07:58.84-07:59.10] Speaker A (A): No
+[07:58.86-07:58.86] Speaker D (D): ?
+[07:59.10-08:01.58] Speaker A (A): , it's not. It's um for
+[08:01.57-08:01.77] Speaker B (B): Is
+[08:01.58-08:01.89] Speaker A (A): example
+[08:01.77-08:01.87] Speaker B (B): it
+[08:01.89-08:06.95] Speaker A (A): , there's uh B_D_B_O_O_ one C_ point
+[08:06.10-08:06.97] Speaker B (B): What does it end with
+[08:06.95-08:07.57] Speaker A (A): six
+[08:06.97-08:07.65] Speaker B (B): ? Does it with
+[08:07.57-08:07.57] Speaker A (A): .
+[08:07.65-08:08.28] Speaker B (B): with SAX?
+[08:09.93-08:10.78] Speaker B (B): Does that look like it?
+[08:12.45-08:14.70] Speaker A (A): Uh I can't see anything very much
+[08:14.40-08:14.96] Speaker C (C): Mm uh-huh
+[08:14.70-08:15.27] Speaker A (A): , but
+[08:14.92-08:15.22] Speaker D (D): Yeah
+[08:14.96-08:14.96] Speaker C (C): .
+[08:15.22-08:15.22] Speaker D (D): .
+[08:15.23-08:16.23] Speaker B (B): Okay
+[08:15.27-08:16.38] Speaker A (A): yeah, that's that's
+[08:16.23-08:16.23] Speaker B (B): .
+[08:16.32-08:16.47] Speaker D (D): I
+[08:16.38-08:16.61] Speaker A (A): it
+[08:16.47-08:16.76] Speaker D (D): think
+[08:16.61-08:16.61] Speaker A (A): .
+[08:16.76-08:17.41] Speaker D (D): that's it, yeah.
+[08:18.63-08:18.75] Speaker B (B): Be
+[08:18.65-08:18.78] Speaker D (D): Yeah
+[08:18.75-08:19.17] Speaker B (B): nice
+[08:18.78-08:19.20] Speaker D (D): , they've all got
+[08:19.17-08:19.17] Speaker B (B): .
+[08:19.20-08:21.13] Speaker D (D): an I_D_ for each utterance
+[08:21.11-08:21.38] Speaker B (B): Let's
+[08:21.13-08:21.13] Speaker D (D): .
+[08:21.38-08:23.53] Speaker B (B): actually just see if maybe K_ right.
+[08:25.39-08:29.60] Speaker B (B): Oh this is how much time you spend just getting the right software going.
+[08:34.08-08:36.57] Speaker B (B): Is that better to see? I guess yeah, white and black is better to see.
+[08:39.78-08:40.42] Speaker C (C): Yeah, it's better.
+[08:40.48-08:41.49] Speaker A (A): Can you use a bigger
+[08:41.42-08:41.51] Speaker B (B): So
+[08:41.49-08:41.98] Speaker A (A): font
+[08:41.51-08:42.01] Speaker B (B): just see
+[08:41.98-08:41.98] Speaker A (A): ?
+[08:42.01-08:44.88] Speaker B (B): if I can view
+[08:57.31-08:57.91] Speaker B (B): Okay.
+[09:00.55-09:00.99] Speaker B (B): So
+[09:01.47-09:04.29] Speaker A (A): Okay, so here there's for
+[09:04.15-09:04.95] Speaker B (B): This
+[09:04.29-09:05.43] Speaker A (A): um each
+[09:04.95-09:05.29] Speaker B (B): this
+[09:05.43-09:14.25] Speaker A (A): segment um uh that's really all segments, I mean it's it can be words or topics or um anything I think.
+[09:16.32-09:24.50] Speaker A (A): Um that's why th it's for example, time provenance dialogue act or time provenance segment or time provenance
+[09:26.00-09:28.43] Speaker D (D): Yeah, and it's got a different uh file for each speaker.
+[09:29.68-09:33.57] Speaker B (B): But what is this? I mean this doesn't contain any content. Like any text
+[09:33.54-09:33.90] Speaker A (A): No
+[09:33.57-09:33.57] Speaker B (B): .
+[09:33.62-09:33.94] Speaker D (D): N no, it
+[09:33.90-09:34.24] Speaker A (A): , but
+[09:33.94-09:34.50] Speaker D (D): just points
+[09:34.24-09:34.86] Speaker A (A): it
+[09:34.50-09:35.33] Speaker D (D): to the
+[09:34.86-09:35.15] Speaker A (A): yeah.
+[09:35.33-09:35.83] Speaker D (D): to the words.
+[09:38.13-09:41.77] Speaker B (B): Oh wait, somebody s s somebody explain that slowly to me. So
+[09:43.36-09:50.01] Speaker A (A): Yeah, it p Oh, well some of them point to the words, other others point to the um dialogue acts
+[09:48.97-09:49.90] Speaker D (D): Yeah, yeah.
+[09:50.01-09:56.20] Speaker A (A): . So that's kind of the global thing that ties together
+[09:55.32-09:56.21] Speaker B (B): So what do all these
+[09:56.20-09:56.44] Speaker A (A): other
+[09:56.21-09:56.49] Speaker B (B): things
+[09:56.44-09:56.81] Speaker A (A): things
+[09:56.49-09:56.96] Speaker B (B): in this file
+[09:56.81-09:56.81] Speaker A (A): .
+[09:56.96-09:58.51] Speaker B (B): have in common? What what are they?
+[09:59.65-10:04.74] Speaker A (A): Um yeah, they have their NITE I_D_, the time
+[10:05.21-10:09.31] Speaker B (B): No but w like uh so they are they are segments in what sense? Wh what's definition
+[10:09.00-10:09.36] Speaker D (D): The I
+[10:09.31-10:09.40] Speaker B (B): of
+[10:09.36-10:09.69] Speaker D (D): suppose
+[10:09.40-10:09.93] Speaker B (B): a segment
+[10:09.69-10:09.97] Speaker D (D): so
+[10:09.93-10:10.22] Speaker B (B): then
+[10:09.97-10:10.92] Speaker D (D): , the utterances
+[10:10.22-10:10.22] Speaker B (B): ?
+[10:10.92-10:12.66] Speaker D (D): . But also includes things like
+[10:12.21-10:12.82] Speaker A (A): The segment
+[10:12.66-10:13.02] Speaker D (D): like
+[10:12.82-10:15.80] Speaker A (A): is what is displayed in one line um by
+[10:15.39-10:17.42] Speaker B (B): Okay
+[10:15.80-10:16.06] Speaker A (A): NITE.
+[10:17.42-10:24.26] Speaker B (B): . And and that's usually dialogue what what's difference i between provenance dialogue act and between segmenter? I
+[10:24.23-10:24.43] Speaker A (A): Yeah
+[10:24.26-10:24.57] Speaker B (B): don't
+[10:24.43-10:35.78] Speaker A (A): , it looks uh uh the segment thing looks in the into the words X_M_L_ file and the dialogue acts um thing. Yeah, I think it's
+[10:35.01-10:36.48] Speaker B (B): A dialogue act uh
+[10:35.78-10:36.52] Speaker A (A): in a different
+[10:36.48-10:38.57] Speaker B (B): a dialogue act annotations of dialogue act. So
+[10:38.49-10:38.75] Speaker A (A): Um
+[10:38.57-10:40.53] Speaker B (B): is that just another representation of text?
+[10:41.33-10:53.92] Speaker A (A): No, their their annotation of dialogue acts, and one um segment can have or one um of those word strings that are presented in one line can have several um dialogue acts annotated on it.
+[10:55.44-10:56.08] Speaker A (A): That's why
+[10:58.67-11:01.52] Speaker B (B): Just see, can we have this files somewhere. So the stuff that's
+[11:03.30-11:08.34] Speaker B (B): that's called segment here that do we know which file this is pulling from? From yeah, it's it's c
+[11:08.17-11:08.38] Speaker A (A): Yeah
+[11:08.34-11:08.68] Speaker B (B): it
+[11:08.38-11:08.75] Speaker A (A): , it's from
+[11:08.68-11:09.05] Speaker B (B): from
+[11:08.75-11:09.10] Speaker A (A): words
+[11:09.05-11:09.34] Speaker B (B): words
+[11:09.10-11:09.10] Speaker A (A): .
+[11:09.34-11:10.82] Speaker B (B): X_M_L_, is that it's saying here?
+[11:11.49-11:11.82] Speaker A (A): Yes.
+[11:13.17-11:17.98] Speaker B (B): Let me see if I have that words X_M_L_ file. So let's for example
+[11:17.81-11:18.07] Speaker A (A): That's
+[11:17.98-11:18.37] Speaker B (B): look
+[11:18.07-11:18.77] Speaker A (A): just
+[11:18.37-11:18.63] Speaker B (B): at
+[11:18.77-11:19.13] Speaker A (A): below.
+[11:20.63-11:27.81] Speaker C (C): So we n would need a value label for each of those segments that are not dialogue acts.
+[11:30.16-11:33.30] Speaker C (C): For all those that point to the actual words.
+[11:34.49-11:37.58] Speaker B (B): Okay, let me just try to get them all to a different screen.
+[11:41.14-11:42.68] Speaker B (B): Uh uh is that what we were
+[11:51.47-11:56.56] Speaker B (B): Sorry, I'm just I'm trying to arrange them, so that we have one above the other, so to make some sense of that.
+[12:08.25-12:10.39] Speaker B (B): So no. Here we had
+[12:10.39-12:17.95] Speaker A (A): But I think these segments are perhaps not exactly what we are looking at, because that's just o one tying all the others together.
+[12:19.49-12:27.06] Speaker A (A): And the information or r I mean we are going to create a file that looks more like um the words file. I think.
+[12:28.52-12:35.94] Speaker B (B): Um I'm just trying to understand what this segments file is about. Like it's it's referencing here it's referencing to
+[12:38.86-12:42.63] Speaker B (B): To a certain position in the in the words file.
+[12:43.62-12:44.78] Speaker D (D): Yeah, think so.
+[12:48.42-12:52.88] Speaker B (B): So it's that non-vocal sound one here. That's the mic noise, okay.
+[12:54.96-13:02.90] Speaker B (B): But what's the does it always just oh no, it's it's referencing to several word structures. So this would be basically be a a sequence, right?
+[13:03.53-13:03.86] Speaker A (A): Yes.
+[13:04.28-13:07.21] Speaker B (B): So that's from W_ fifty two.
+[13:10.20-13:12.20] Speaker B (B): Are they not ordered or oh yeah
+[13:12.08-13:12.43] Speaker A (A): Yeah
+[13:12.20-13:12.68] Speaker B (B): , from W_
+[13:12.43-13:12.79] Speaker A (A): , they are
+[13:12.68-13:13.05] Speaker B (B): fifty
+[13:12.79-13:12.79] Speaker A (A): .
+[13:13.05-13:18.21] Speaker B (B): two down to W_ what are we talking about? And yeah, w sorry.
+[13:18.96-13:23.66] Speaker A (A): Um to discourse marker, DIS F_ marker fi point five.
+[13:25.38-13:26.60] Speaker A (A): Yeah, that's
+[13:25.72-13:26.82] Speaker C (C): Yeah, that's there
+[13:26.60-13:26.89] Speaker A (A): there
+[13:26.82-13:27.33] Speaker C (C): . No
+[13:26.89-13:27.44] Speaker A (A): no no, up
+[13:27.33-13:27.72] Speaker C (C): , above
+[13:27.44-13:28.10] Speaker A (A): up
+[13:27.72-13:27.72] Speaker C (C): .
+[13:28.10-13:29.41] Speaker A (A): . Go up. Yeah
+[13:29.27-13:29.54] Speaker C (C): Yeah
+[13:29.41-13:29.65] Speaker A (A): , right
+[13:29.54-13:29.54] Speaker C (C): .
+[13:29.65-13:29.65] Speaker A (A): .
+[13:32.15-13:37.59] Speaker B (B): Okay. So this so this is somebody saying it it doesn't. Do we have any
+[13:37.47-13:37.82] Speaker C (C): Yeah
+[13:37.59-13:39.26] Speaker B (B): confirmation
+[13:37.82-13:37.82] Speaker C (C): .
+[13:39.26-13:42.15] Speaker B (B): do we actually see from this file who's doing it, just out of interest?
+[13:42.92-13:44.53] Speaker A (A): Yeah, this is all the speaker D_.
+[13:46.15-13:46.58] Speaker A (A): You and the
+[13:46.51-13:47.37] Speaker B (B): Oh
+[13:46.58-13:47.36] Speaker A (A): speaker D_.
+[13:47.37-14:01.18] Speaker B (B): . Sorry, in speaker D_'s file. So this is where he'd like time stops. And then it only starts at a later time, because oh, you don't see when I'm pointing at screen, it's just for this. So then it starts here this time against speaker D_ because in-between there's somebody else.
+[14:02.19-14:02.88] Speaker A (A): Yes. Um
+[14:02.64-14:03.12] Speaker B (B): Okay
+[14:02.88-14:03.24] Speaker A (A): you can
+[14:03.12-14:03.12] Speaker B (B): .
+[14:03.24-14:16.43] Speaker A (A): see whether there's somebody else or not. You can see that in the w um W_ point um first it's W_ point um five uh fifty four and then it's seventy six, so there are um
+[14:15.85-14:17.20] Speaker B (B): Yeah
+[14:16.43-14:17.53] Speaker A (A): this number of utterances
+[14:17.20-14:17.74] Speaker B (B): . Okay
+[14:17.53-14:18.00] Speaker A (A): of other
+[14:17.74-14:17.74] Speaker B (B): .
+[14:18.00-14:18.87] Speaker A (A): speakers in-between.
+[14:18.91-14:35.64] Speaker B (B): Okay. So the the file with annotations for information density, what would that be like? Would that be like the segments file, giving a start word and end word, or or would that How would that be to best tie in with the system?
+[14:36.61-14:39.15] Speaker A (A): Yeah, I think we would also need two of those.
+[14:40.36-14:40.70] Speaker B (B): Sorry?
+[14:41.12-14:50.93] Speaker A (A): Yeah, I think we would have to have the same structure, one that points to it, where we tie together, all our information. So we would perhaps have to
+[14:50.65-14:51.05] Speaker B (B): Something
+[14:50.93-14:51.23] Speaker A (A): make
+[14:51.05-14:52.11] Speaker B (B): like
+[14:51.23-14:52.30] Speaker A (A): one
+[14:52.11-14:52.49] Speaker B (B): something
+[14:52.30-14:52.51] Speaker A (A): that's
+[14:52.49-14:52.69] Speaker B (B): like
+[14:52.51-14:52.96] Speaker A (A): similar
+[14:52.69-14:53.29] Speaker B (B): this or
+[14:52.96-14:52.96] Speaker A (A): .
+[14:53.29-14:57.24] Speaker B (B): like where you give sort of a reference to a beginning and an end position.
+[14:57.45-15:03.54] Speaker A (A): Yes, and uh then another one that would perhaps give the actual probability value.
+[15:04.60-15:08.08] Speaker B (B): Well that would be in the same file, wouldn't it? It would just
+[15:07.40-15:08.72] Speaker A (A): Yeah, it could
+[15:08.08-15:08.86] Speaker B (B): couldn't we have a like
+[15:08.72-15:08.87] Speaker A (A): could
+[15:08.86-15:09.02] Speaker B (B): uh
+[15:08.87-15:10.70] Speaker A (A): probably be in the same file, I don't know.
+[15:11.05-15:13.92] Speaker B (B): I guess we could introduce a different um
+[15:13.43-15:19.11] Speaker A (A): But if you have several layers, then you can't represent them on the same file.
+[15:21.41-15:44.99] Speaker B (B): We have for now if we just do something which for every segment in here attaches actually can we not tie it to the segments file? Would that not be the way how they would want it to have to do as if we in the end, if we want to attach to each of those segments one number for now. And those segments have uh do they have an I_D_? Yeah, I guess they do. So this is the I_D_ of a specific segment
+[15:44.71-15:45.29] Speaker A (A): Yeah
+[15:44.99-15:45.24] Speaker B (B): , right?
+[15:45.29-15:47.80] Speaker A (A): , in segment point one. Um there line below.
+[15:49.03-16:13.46] Speaker B (B): Yeah, so wouldn't it I mean the problem is they've me haven't looked at the exact inner workings of their of their engineered. But you'd think that the easiest way and the way that how it's intended to be would be just, if we have here a link to the segment, a like an I_D_ for that segment, that we just create another file which links to the segment and then has an additional value which is the number.
+[16:15.64-16:18.18] Speaker C (C): So you mean an a an attribute
+[16:17.75-16:18.22] Speaker B (B): Yeah
+[16:18.18-16:18.56] Speaker C (C): . Yeah
+[16:18.22-16:18.50] Speaker B (B): , yeah.
+[16:18.56-16:18.56] Speaker C (C): .
+[16:18.79-16:21.65] Speaker A (A): Yeah, that's what I meant actually, yeah
+[16:20.82-16:21.67] Speaker B (B): Yeah, oh sorry, I
+[16:21.65-16:21.65] Speaker A (A): .
+[16:21.67-16:23.39] Speaker B (B): I thought we were talking about having two files.
+[16:25.52-16:46.83] Speaker B (B): I was think yeah, I I think that I I understood wrong. I thought you were wanting to have two different X_M_L_ files, with one the reference and one just th just the number. And I was thinking that's probably what you meant, just um having like for each sort of of our segments having just the I_D_, which is referencing to these segments here and another attribute which is the the value.
+[16:47.16-16:47.38] Speaker A (A): Mm-hmm.
+[16:48.74-17:04.30] Speaker B (B): So this whole information we would then store in this Ah, no, that I don't have access to because I didn't download like there's this one meta information file where it describes the structure of all the files and describes which um which attributes they bring in. So we would add that to that file?
+[17:06.54-17:06.72] Speaker D (D): Mm.
+[17:06.90-17:21.22] Speaker B (B): Saying that sort of we bring in information density. And then we would create the file of that type, which we probably couldn't call it segment. I'm not sure. We probably might have to have a different word for it. I'm not sure if it there's any trouble with it repeating.
+[17:22.62-17:23.04] Speaker A (A): Um
+[17:23.08-17:28.60] Speaker C (C): Wouldn't it be easiest to just incorporate a new attribute in in this file?
+[17:29.00-17:30.02] Speaker B (B): In the existing segments
+[17:29.93-17:30.10] Speaker C (C): Yeah
+[17:30.02-17:30.32] Speaker B (B): file
+[17:30.10-17:30.36] Speaker C (C): , I don't
+[17:30.32-17:30.32] Speaker B (B): .
+[17:30.36-17:35.69] Speaker C (C): know, that's probably not very uh nice but would quite easy, wouldn't it?
+[17:36.45-17:38.45] Speaker B (B): Yeah, I reckon actually if we make a copy of it
+[17:38.74-17:38.98] Speaker A (A): But
+[17:38.82-17:39.15] Speaker C (C): Yeah
+[17:38.98-17:39.25] Speaker A (A): I
+[17:39.15-17:39.15] Speaker C (C): .
+[17:39.25-18:06.04] Speaker A (A): I mean there's not all the information that is in in the c corpus in there in the segments file. I think that is just the um things that are loaded every time, but we have lazy loading, so it can load more than that. Perhaps we could just try to cope. Um, you know, to make our file one of those lazy loaded. But I mean I've no real idea how that works.
+[18:06.70-18:12.31] Speaker B (B): What uh what are you saying about the w I th doesn't the lazy loading apply to everything? I mean that it sort of dynamically
+[18:12.18-18:12.38] Speaker A (A): Yeah
+[18:12.31-18:12.68] Speaker B (B): loads
+[18:12.38-18:13.37] Speaker A (A): , but
+[18:12.68-18:12.68] Speaker B (B): .
+[18:13.37-18:26.16] Speaker A (A): yes, but it has um, you know, a basic thing that it loads, I think. So for example every time it loads the segment things, it can't it can't not display words, I think.
+[18:28.17-18:28.40] Speaker B (B): You think
+[18:28.30-18:28.44] Speaker A (A): And
+[18:28.40-18:28.49] Speaker B (B): it
+[18:28.44-18:28.86] Speaker A (A): it
+[18:28.49-18:28.99] Speaker B (B): i it
+[18:28.86-18:29.30] Speaker A (A): eras
+[18:28.99-18:31.54] Speaker B (B): l it loads the whole of the segments file every time.
+[18:32.42-18:34.61] Speaker A (A): I think so. That's
+[18:34.44-18:34.62] Speaker B (B): Okay
+[18:34.61-18:34.73] Speaker A (A): how
+[18:34.62-18:34.62] Speaker B (B): .
+[18:34.73-18:35.41] Speaker A (A): I understood it.
+[18:36.35-18:37.81] Speaker B (B): The segment at the moment is split up
+[18:37.76-18:38.07] Speaker A (A): Because
+[18:37.81-18:38.00] Speaker B (B): over
+[18:38.07-18:52.78] Speaker A (A): otherwise in the in the other things there is no information about what the participant name is and so on. So in the segments file it's really the very basic that have to be displayed for any thing.
+[18:53.72-18:54.09] Speaker B (B): Hmm.
+[18:54.55-19:05.76] Speaker C (C): But they display the segments in or that the utterances i in their um user interface as well, where the words are y um displayed.
+[19:07.59-19:08.22] Speaker C (C): So so
+[19:08.07-19:08.07] Speaker A (A): ?
+[19:08.22-19:20.99] Speaker C (C): they have they have their utterances displayed in their interface. So that's they um access probably this file and then they display the words. So why shouldn't we be able to do that? Uh
+[19:21.54-19:45.27] Speaker B (B): No but I think it's too early to really like discuss that in detail, because we don't at all understand at the moment how the internal data structure like how the loading works. So maybe if we g if we go ahead, do you think it would be possible for you to do an like something like segments or maybe just a copy of segment which has an attribute for for each segment, um but it is like with a with a value with a density value.
+[19:47.52-19:56.45] Speaker A (A): Yeah, I thin I mean it wouldn't be difficult to um create a file of the p sh of that shape. I mean that would be no problem
+[19:56.21-19:56.51] Speaker B (B): Would it be
+[19:56.45-19:56.45] Speaker A (A): .
+[19:56.51-20:11.40] Speaker B (B): easier though, because all your methods are sort of not working with their whole time frame structure there. So would it be easy for you to to tie the things together. Like if you're doing it on on the word basis here with those words, that in the end you then tie it back in into the right segment here. I mean you probably
+[20:11.14-20:11.68] Speaker A (A): Um
+[20:11.40-20:11.70] Speaker B (B): have to
+[20:11.68-20:11.96] Speaker A (A): yeah
+[20:11.70-20:11.98] Speaker B (B): do a bit
+[20:11.96-20:12.12] Speaker A (A): , I
+[20:11.98-20:12.17] Speaker B (B): of
+[20:12.12-20:21.52] Speaker A (A): I don't know how about you with your words, but um for my segments were the um F_ zero measurements and all those
+[20:20.94-20:21.39] Speaker B (B): Hmm.
+[20:21.52-20:31.24] Speaker A (A): values I get from there. Um I always store the beg uh start and end time of everything I calculated there, so I would just
+[20:31.00-20:31.24] Speaker B (B): You're doing
+[20:31.24-20:31.40] Speaker A (A): have
+[20:31.24-20:31.41] Speaker B (B): it
+[20:31.40-20:31.73] Speaker A (A): to
+[20:31.41-20:32.11] Speaker B (B): time-based
+[20:31.73-20:32.25] Speaker A (A): pu put
+[20:32.11-20:32.32] Speaker B (B): at the
+[20:32.25-20:32.41] Speaker A (A): it
+[20:32.32-20:33.56] Speaker B (B): moment
+[20:32.41-20:33.28] Speaker A (A): uh yes.
+[20:33.56-20:38.13] Speaker B (B): . So this isn't directly having time references, but you can get the oh, it is actually
+[20:37.93-20:38.16] Speaker A (A): Yeah
+[20:38.13-20:38.48] Speaker B (B): here
+[20:38.16-20:38.65] Speaker A (A): , it is
+[20:38.48-20:38.48] Speaker B (B): .
+[20:38.65-20:38.65] Speaker A (A): .
+[20:40.76-20:48.67] Speaker B (B): Okay. So if you slice it up by time, you'd probably be able to just like attach like just some attribute of
+[20:51.04-20:54.94] Speaker B (B): info val just f to each of those segments.
+[20:57.68-21:08.92] Speaker A (A): Uh actu but actually my segments are not always the same as their segments, because and their segments, there are um Pause um pauses sometimes
+[21:07.83-21:08.22] Speaker B (B): Mm-hmm.
+[21:08.56-21:09.04] Speaker D (D): Yeah, can you not
+[21:08.92-21:08.95] Speaker A (A): . A
+[21:09.04-21:10.31] Speaker D (D): just leaves those lines blank?
+[21:11.30-21:17.08] Speaker A (A): Um yes, but uh yeah, I mean one segment of theirs is sometimes two segments of mine, that's just
+[21:16.92-21:17.16] Speaker D (D): Oh
+[21:17.08-21:17.21] Speaker A (A): what
+[21:17.16-21:18.07] Speaker D (D): alright
+[21:17.21-21:17.70] Speaker A (A): I meant.
+[21:18.07-21:18.39] Speaker D (D): . Okay.
+[21:21.27-21:38.18] Speaker B (B): 'Kay. Um I don't understand enough of what their data structure is. This probably would be a lot easier would I really understand how they are handling the data internally,'cause then we c then I could say oh, it's easy to just tie it in if you just have it time-stamped that just reference by words and stuff. But t at the moment
+[21:47.79-21:50.33] Speaker B (B): So you would you're doing i you're doing a word by word base.
+[21:50.37-21:55.08] Speaker C (C): Yeah, the problem is probably that um I extract all the words
+[21:55.00-21:55.35] Speaker B (B): Mm-hmm
+[21:55.08-21:56.38] Speaker C (C): and then
+[21:55.35-21:55.35] Speaker B (B): .
+[21:56.38-22:01.11] Speaker C (C): uh I don't um use an I_D_ or something for it, so
+[22:01.07-22:01.45] Speaker B (B): Okay
+[22:01.11-22:01.56] Speaker C (C): it would
+[22:01.45-22:01.45] Speaker B (B): .
+[22:01.56-22:05.19] Speaker C (C): be difficult to write it back to the right position
+[22:04.85-22:05.49] Speaker B (B): But every
+[22:05.19-22:05.19] Speaker C (C): .
+[22:05.49-22:10.98] Speaker B (B): word does does the word picking, like does it always have the same information value in your thing i does it depend on its position
+[22:10.84-22:11.09] Speaker C (C): It
+[22:10.98-22:11.23] Speaker B (B): like
+[22:11.09-22:13.36] Speaker C (C): depends on the position, I think
+[22:12.58-22:13.42] Speaker B (B): It be d depends
+[22:13.36-22:13.76] Speaker C (C): . Yeah
+[22:13.42-22:14.43] Speaker B (B): on the position
+[22:13.76-22:13.76] Speaker C (C): .
+[22:14.43-22:14.43] Speaker B (B): .
+[22:16.80-22:17.72] Speaker B (B): Hmm.
+[22:20.08-22:23.93] Speaker B (B): And you're doing this via some software that's like external software, so you can't
+[22:24.07-22:27.66] Speaker C (C): Yeah, I I could use another a different approach
+[22:27.62-22:27.82] Speaker B (B): So
+[22:27.66-22:28.06] Speaker C (C): , though
+[22:27.82-22:28.20] Speaker B (B): what if
+[22:28.06-22:28.41] Speaker C (C): . It
+[22:28.20-22:37.98] Speaker B (B): you if you if you get the results from that software and you go back over it then with that file sort of, you write an algorithm which which then goes back because they they're in the right order still and stuff, right? So that shouldn't
+[22:37.91-22:37.99] Speaker C (C): Mm
+[22:37.98-22:38.06] Speaker B (B): be
+[22:37.99-22:38.47] Speaker C (C): yeah
+[22:38.06-22:39.45] Speaker B (B): a problem
+[22:38.47-22:38.47] Speaker C (C): .
+[22:39.45-22:42.55] Speaker B (B): . Oh but this is by speaker here which makes it slightly more difficult.
+[22:42.82-22:43.19] Speaker D (D): Hmm.
+[22:46.89-22:50.23] Speaker B (B): The problem is that actually NITE X_M_L_ probably provides a lot of the tools that
+[22:50.10-22:50.29] Speaker A (A): Yeah
+[22:50.23-22:50.40] Speaker B (B): we'd
+[22:50.29-22:50.62] Speaker A (A): , but
+[22:50.40-22:50.72] Speaker B (B): need to
+[22:50.62-22:50.80] Speaker A (A): for
+[22:50.72-22:50.90] Speaker B (B): do
+[22:50.80-22:51.22] Speaker A (A): example
+[22:50.90-22:51.07] Speaker B (B): that.
+[22:51.22-22:51.58] Speaker C (C): Mm-hmm
+[22:51.22-22:51.74] Speaker A (A): I
+[22:51.58-22:51.58] Speaker C (C): .
+[22:51.74-23:00.93] Speaker A (A): made a file that contains just the um start times. It could contain end times and words for all speakers of all meetings. I mean that's just the same
+[23:00.50-23:01.35] Speaker B (B): In in a temporal
+[23:00.93-23:01.54] Speaker A (A): thing as
+[23:01.35-23:01.93] Speaker B (B): sequence
+[23:01.54-23:02.43] Speaker A (A): I gave
+[23:01.93-23:01.93] Speaker B (B): .
+[23:02.43-23:15.47] Speaker A (A): , yeah, as I gave to you. But um uh displaying also a start and end times of every word. So you could perhaps use it to match um it with your additional information you got
+[23:15.04-23:15.65] Speaker D (D): Yeah, what did you
+[23:15.47-23:15.68] Speaker A (A): , couldn't
+[23:15.65-23:15.88] Speaker D (D): use
+[23:15.68-23:15.82] Speaker A (A): you?
+[23:15.88-23:17.87] Speaker D (D): to make that file
+[23:17.32-23:18.01] Speaker A (A): Perl
+[23:17.87-23:18.11] Speaker D (D): ? Just
+[23:18.01-23:18.11] Speaker A (A): , a
+[23:18.11-23:18.23] Speaker D (D): in
+[23:18.11-23:18.36] Speaker A (A): Perl
+[23:18.23-23:19.36] Speaker D (D): Perl
+[23:18.36-23:18.99] Speaker A (A): script, yeah.
+[23:19.36-23:20.99] Speaker D (D): ? You didn't use an X_M_L_ parser?
+[23:21.30-23:21.71] Speaker A (A): No, no.
+[23:22.15-23:22.48] Speaker D (D): Okay.
+[23:23.49-23:40.92] Speaker C (C): Um would you think it would make sense to just take um file files by speaker. It's it doesn't matter what input I give to um to Rainbow. So I just could g use the files as they are. I don't know
+[23:40.73-23:41.39] Speaker B (B): But
+[23:40.78-23:41.10] Speaker D (D): Hmm
+[23:40.92-23:41.55] Speaker C (C): if that's
+[23:41.10-23:41.10] Speaker D (D): .
+[23:41.39-23:41.61] Speaker B (B): but
+[23:41.55-23:41.71] Speaker C (C): that
+[23:41.61-23:41.90] Speaker B (B): would
+[23:41.71-23:42.08] Speaker C (C): would
+[23:41.90-23:42.59] Speaker B (B): the information
+[23:42.08-23:42.91] Speaker C (C): give an output
+[23:42.59-23:42.92] Speaker B (B): density
+[23:42.91-23:42.91] Speaker C (C): .
+[23:42.92-23:44.32] Speaker B (B): algorithm still make any sense if
+[23:44.30-23:44.45] Speaker C (C): I
+[23:44.32-23:44.68] Speaker B (B): you split
+[23:44.45-23:44.69] Speaker C (C): don't
+[23:44.68-23:44.82] Speaker B (B): them
+[23:44.69-23:45.20] Speaker C (C): know
+[23:44.82-23:45.33] Speaker B (B): up, because I mean
+[23:45.20-23:45.20] Speaker C (C): .
+[23:45.33-23:46.18] Speaker B (B): the whole I thought
+[23:46.08-23:46.29] Speaker A (A): Mm yeah
+[23:46.18-23:46.41] Speaker B (B): the whole
+[23:46.29-23:46.29] Speaker A (A): .
+[23:46.41-23:56.08] Speaker B (B): thing is that you look at the frequency of a word in that specific how often a word inc occurs in a certain topic versus how often it occurs over the whole corpus and that from that it calculates.
+[23:56.21-24:05.91] Speaker C (C): No, it um I think it's not uh versus the whole corpus. It's um you have certain categories
+[24:05.42-24:05.81] Speaker B (B): Mm-hmm.
+[24:05.91-24:17.33] Speaker C (C): , and you measure which words um have the highest information for one category. So it's the categories across each other I think.
+[24:17.55-24:22.78] Speaker A (A): But would you then not get the typical words for every speaker? If you
+[24:22.65-24:27.48] Speaker C (C): Um probably yeah. But
+[24:26.93-24:27.28] Speaker B (B): Yeah, I have
+[24:27.27-24:27.66] Speaker A (A): Because
+[24:27.28-24:27.54] Speaker B (B): a gut
+[24:27.48-24:28.04] Speaker C (C): yeah
+[24:27.54-24:27.88] Speaker B (B): feeling
+[24:27.66-24:28.01] Speaker A (A): it would
+[24:27.88-24:28.10] Speaker B (B): it's
+[24:28.01-24:28.51] Speaker A (A): then
+[24:28.04-24:28.39] Speaker C (C): , it's
+[24:28.10-24:28.51] Speaker B (B): not a good
+[24:28.39-24:28.80] Speaker C (C): it's
+[24:28.51-24:28.73] Speaker B (B): idea
+[24:28.51-24:28.93] Speaker A (A): say
+[24:28.73-24:28.87] Speaker B (B): to
+[24:28.80-24:28.94] Speaker C (C): s
+[24:28.87-24:29.17] Speaker B (B): split
+[24:28.93-24:29.14] Speaker A (A): how
+[24:28.94-24:29.55] Speaker C (C): strange
+[24:29.14-24:29.26] Speaker A (A): it
+[24:29.17-24:29.27] Speaker B (B): it
+[24:29.26-24:29.66] Speaker A (A): find
+[24:29.27-24:29.27] Speaker B (B): .
+[24:29.55-24:29.55] Speaker C (C): .
+[24:29.66-24:30.46] Speaker A (A): that it's
+[24:30.32-24:31.15] Speaker B (B): Yeah
+[24:30.46-24:31.15] Speaker A (A): that speaker.
+[24:31.15-24:31.31] Speaker B (B): . No, but
+[24:31.22-24:31.45] Speaker D (D): Hmm
+[24:31.31-24:31.54] Speaker B (B): I mean
+[24:31.45-24:31.45] Speaker D (D): .
+[24:31.54-24:37.10] Speaker B (B): it can't be that difficult. If you if you already have you have in the right order all the words with
+[24:37.03-24:37.28] Speaker C (C): Yeah
+[24:37.10-24:37.39] Speaker B (B): a with
+[24:37.28-24:37.28] Speaker C (C): .
+[24:37.39-24:42.15] Speaker B (B): a score to them, and you have a file which has each word and a time stamp
+[24:41.60-24:41.92] Speaker A (A): Yeah.
+[24:42.15-24:45.18] Speaker B (B): . So those two tied together have each word and its time and
+[24:46.88-24:47.82] Speaker A (A): It's probability
+[24:47.10-24:47.94] Speaker B (B): and and
+[24:47.82-24:48.49] Speaker A (A): , yeah
+[24:47.94-24:48.61] Speaker B (B): and its proba
+[24:48.49-24:48.67] Speaker A (A): . Or
+[24:48.61-24:48.75] Speaker B (B): and
+[24:48.67-24:49.06] Speaker A (A): or
+[24:48.75-24:50.14] Speaker B (B): its value
+[24:49.06-24:49.90] Speaker A (A): value, yeah.
+[24:50.14-24:50.41] Speaker B (B): . Yeah.
+[24:51.13-25:05.98] Speaker C (C): Yeah, but what what the problem is, I don't know exactly. I think the information gain in Rainbow is ordered by the value of the information gain, not I am not sure if I can get the right order and the values.
+[25:07.56-25:08.46] Speaker C (C): That's the problem
+[25:07.95-25:08.67] Speaker B (B): So they're
+[25:08.46-25:08.46] Speaker C (C): .
+[25:08.67-25:09.68] Speaker B (B): they're at the moment
+[25:09.63-25:09.81] Speaker C (C): But
+[25:09.68-25:10.08] Speaker B (B): so
+[25:09.81-25:20.55] Speaker C (C): I um if the order stays the same, it's no problem at all to i just write back again. But if uh it's ordered by information gain, I don't know where the words come from, because
+[25:20.53-25:20.81] Speaker D (D): Hmm
+[25:20.55-25:21.09] Speaker C (C): it's
+[25:20.81-25:20.81] Speaker D (D): .
+[25:21.09-25:23.67] Speaker C (C): it has a bag of words representation.
+[25:24.43-25:26.33] Speaker B (B): It appears to me that Rainbow was made for something
+[25:26.10-25:26.68] Speaker C (C): Uh
+[25:26.33-25:26.69] Speaker B (B): quite
+[25:26.68-25:27.08] Speaker C (C): yes
+[25:26.69-25:27.29] Speaker B (B): different
+[25:27.08-25:27.34] Speaker C (C): . Is
+[25:27.29-25:27.29] Speaker B (B): .
+[25:27.34-25:28.72] Speaker C (C): it is. It was made
+[25:28.66-25:29.27] Speaker B (B): Hmm
+[25:28.72-25:30.11] Speaker C (C): for text classification
+[25:29.27-25:29.27] Speaker B (B): .
+[25:30.11-25:30.11] Speaker C (C): .
+[25:30.37-25:33.16] Speaker A (A): So, could you put the more information back in then?
+[25:34.28-25:35.42] Speaker C (C): Yeah, that's the problem
+[25:35.03-25:35.50] Speaker B (B): I actually
+[25:35.42-25:35.42] Speaker C (C): .
+[25:35.50-25:47.56] Speaker B (B): like um um i are you actually sure that Rainbow is doing a measure, like is returning a measure of what we are trying to measure,'cause it it seems to me that it's just it sounds like something quite different in in d
+[25:47.55-25:47.99] Speaker C (C): Yeah
+[25:47.56-25:48.59] Speaker B (B): many aspects
+[25:47.99-25:49.06] Speaker C (C): , um what it actually
+[25:48.59-25:48.59] Speaker B (B): .
+[25:49.06-25:53.70] Speaker C (C): does is that you you put in some documents
+[25:53.23-25:53.64] Speaker B (B): Mm-hmm.
+[25:53.70-26:00.07] Speaker C (C): , and you have several documents per category. Um and you have several categories
+[25:59.89-26:00.15] Speaker B (B): And w
+[26:00.07-26:07.31] Speaker C (C): . And then it measures um which words are typical for a certain t category
+[26:07.04-26:07.43] Speaker B (B): Yeah
+[26:07.31-26:07.48] Speaker C (C): . And
+[26:07.43-26:07.43] Speaker B (B): .
+[26:07.48-26:16.03] Speaker C (C): if you get a new document, it will um compare which words are in that new document
+[26:15.19-26:15.55] Speaker B (B): Yeah.
+[26:16.03-26:27.10] Speaker C (C): . And if there are a lot of words that um are typical for one category, it will assign it to that category, and if it's typical for another one, it will assign it to that one.
+[26:28.28-26:30.93] Speaker B (B): But where do you have the original category information from?
+[26:31.35-26:39.74] Speaker C (C): Yeah, it's because you have um y um you have um oth different files. If if this is your directory
+[26:39.32-26:39.64] Speaker B (B): Yeah.
+[26:39.74-26:46.33] Speaker C (C): , you have um um a diagra um, a directory one, two and three
+[26:46.30-26:46.62] Speaker B (B): Yeah
+[26:46.33-26:46.84] Speaker C (C): . And
+[26:46.62-26:46.62] Speaker B (B): .
+[26:46.84-26:50.73] Speaker C (C): this represents the category. Everything that's in there is in category
+[26:50.23-26:50.76] Speaker B (B): So where
+[26:50.73-26:51.27] Speaker C (C): one
+[26:50.76-26:51.29] Speaker B (B): do you where
+[26:51.27-26:51.35] Speaker C (C): . A
+[26:51.29-26:53.14] Speaker B (B): do you have them from at the moment the split up?
+[26:53.72-26:53.83] Speaker A (A): Yeah
+[26:53.76-26:53.94] Speaker C (C): Yeah
+[26:53.83-26:54.21] Speaker A (A): , but
+[26:53.94-26:54.48] Speaker C (C): , just split
+[26:54.21-26:54.50] Speaker A (A): the
+[26:54.48-26:54.55] Speaker C (C): it
+[26:54.50-26:55.31] Speaker A (A): topic
+[26:54.55-26:55.87] Speaker C (C): up somehow
+[26:55.31-26:55.95] Speaker A (A): isn't it
+[26:55.87-26:56.16] Speaker C (C): , yeah
+[26:55.95-26:56.21] Speaker A (A): ? That's
+[26:56.16-26:56.16] Speaker C (C): .
+[26:56.21-26:56.54] Speaker A (A): a topic
+[26:56.29-26:57.23] Speaker B (B): In i
+[26:56.54-26:57.22] Speaker A (A): information.
+[26:57.23-26:57.74] Speaker B (B): in the t in the
+[26:57.66-26:57.97] Speaker C (C): Yeah
+[26:57.74-26:58.17] Speaker B (B): topics
+[26:57.97-26:57.97] Speaker C (C): .
+[26:58.17-27:03.38] Speaker B (B): , in the in the human topic s um so you've split them up by topic at the moment
+[27:03.36-27:03.61] Speaker C (C): No
+[27:03.38-27:03.38] Speaker B (B): .
+[27:03.61-27:12.67] Speaker C (C): , I've just um split them up uh somehow um by um there are several documents for
+[27:14.79-27:17.86] Speaker C (C): um each meeting
+[27:17.77-27:17.96] Speaker B (B): Yeah
+[27:17.86-27:18.02] Speaker C (C): , and
+[27:17.96-27:18.20] Speaker B (B): , but
+[27:18.02-27:27.48] Speaker C (C): I just put one in each category. So uh it's it's not very sensible at the moment, because I'm waiting for the um topic segments or I'm just
+[27:26.98-27:27.72] Speaker B (B): Okay okay
+[27:27.48-27:27.73] Speaker C (C): yeah
+[27:27.72-27:28.97] Speaker B (B): okay
+[27:27.73-27:27.73] Speaker C (C): .
+[27:28.97-27:47.85] Speaker B (B): .'Cause I was just thinking that doesn't make sense at all, but yeah, if you if that's just while you're waiting. Okay. Have you ever like looked into different ways of calculating,'cause I was just thinking like I mean the for example the the infor um what's it called, the entropy calculation, is that she boxed it under the simple calculation that you could probably write the
+[27:47.81-27:48.43] Speaker C (C): Yeah
+[27:47.85-27:48.65] Speaker B (B): script in no time
+[27:48.43-27:49.58] Speaker C (C): , yeah, probably
+[27:48.65-27:49.85] Speaker B (B): at all
+[27:49.58-27:50.11] Speaker C (C): . Yeah, maybe
+[27:49.85-27:50.37] Speaker B (B): and
+[27:50.11-28:01.70] Speaker C (C): it's it's better if I write it myself, because otherwise it's too easy to just split things up into bins, and it it wouldn't be any work at all in terms of programming or something
+[28:01.67-28:01.82] Speaker B (B): Yeah
+[28:01.70-28:01.70] Speaker C (C): .
+[28:01.82-28:16.46] Speaker B (B): , but I'm also just like I think that probably the entropy value at the moment for a word is closer to what we're at the moment looking for. I can just like k k I can sit together with you for twenty minutes and just show you the entropy code that I wrote for my other project and
+[28:15.97-28:16.30] Speaker C (C): Alright.
+[28:16.46-28:23.74] Speaker B (B): it probably and we should work together because it's we used t we have to we'd use the same matrix as I'm using in my latent semantic analysis, you'd
+[28:23.58-28:24.04] Speaker C (C): Mm-hmm
+[28:23.74-28:24.10] Speaker B (B): use to
+[28:24.04-28:24.04] Speaker C (C): .
+[28:24.10-28:34.66] Speaker B (B): calculate entropy scores. And then we'd have um a score which actually which would be the same for the word in each position. So in that sense it's doing something
+[28:34.64-28:35.15] Speaker C (C): Mm-hmm
+[28:34.66-28:35.54] Speaker B (B): a bit different
+[28:35.15-28:35.15] Speaker C (C): .
+[28:35.54-28:47.06] Speaker B (B): , and like w basically the score that I'm talking about is a conditional entropy score which just checks how much information, the fact that there's one word tells you about what would be the next word
+[28:46.96-28:47.23] Speaker A (A): Mm-hmm
+[28:47.06-28:47.38] Speaker B (B): . But that's
+[28:47.23-28:47.23] Speaker A (A): .
+[28:47.38-28:51.80] Speaker B (B): a relatively good measure of whether that's a very specific word, in which case they are usually words which tell you quite
+[28:51.67-28:51.85] Speaker A (A): Yeah
+[28:51.80-28:51.87] Speaker B (B): a
+[28:51.85-28:51.85] Speaker A (A): .
+[28:51.87-28:54.94] Speaker B (B): lot or a very general word which usually doesn't tell you quite a lot.
+[28:55.06-28:56.72] Speaker C (C): How does it calculate that actually?
+[28:57.32-29:01.22] Speaker B (B): Um it it's basically the it's the standard entropy formula
+[29:00.99-29:01.42] Speaker C (C): Okay
+[29:01.22-29:01.42] Speaker B (B): . And you
+[29:01.42-29:01.42] Speaker C (C): .
+[29:01.42-29:02.06] Speaker B (B): sort of you you
+[29:02.08-29:08.01] Speaker A (A): So how sure or unsure you are about the what's following our b our context
+[29:07.86-29:08.50] Speaker B (B): Yes
+[29:08.01-29:08.73] Speaker A (A): measures
+[29:08.50-29:08.75] Speaker B (B): , yes
+[29:08.73-29:08.97] Speaker A (A): , yeah
+[29:08.75-29:09.07] Speaker B (B): , it has. I
+[29:08.97-29:08.97] Speaker A (A): .
+[29:09.07-29:19.22] Speaker B (B): mean, I think the official le sort of the official description of what it tells you is um how much that like the fact that a given word occurs tells you about what's the next word's gonna be
+[29:18.84-29:19.04] Speaker A (A): Yeah.
+[29:19.22-29:35.79] Speaker B (B): . Which doesn't sound too exciting, but it it just works out in the way that words which are promiscuous and which occur with everything all over the place have very low a scores on that, and also usually end up being the words which are p Least like expressive, and l contain less information.
+[29:36.54-29:37.92] Speaker D (D): Well like function words and stuff.
+[29:37.92-29:44.13] Speaker B (B): Yeah, function words or just very general nouns. Pr probably like what whatev for example the word computer in that context. You
+[29:44.07-29:44.27] Speaker D (D): Mm
+[29:44.13-29:44.56] Speaker B (B): could imagine
+[29:44.27-29:44.27] Speaker D (D): .
+[29:44.56-29:46.89] Speaker B (B): it to f like be in all in all the contexts
+[29:46.64-29:46.91] Speaker A (A): But do
+[29:46.89-29:46.89] Speaker B (B): .
+[29:46.91-30:06.28] Speaker A (A): we have enough informa enough data for that it gives us sensible things? Because I mean the the words we're look really looking for appear not too often, and if they appear five times in the meeting and they have each time a different, you know, differ some
+[30:06.25-30:06.43] Speaker B (B): Yeah
+[30:06.28-30:06.58] Speaker A (A): different
+[30:06.43-30:06.67] Speaker B (B): , so we
+[30:06.58-30:07.04] Speaker A (A): surrounded
+[30:06.67-30:07.34] Speaker B (B): would we
+[30:07.04-30:07.66] Speaker A (A): words, perhaps
+[30:07.34-30:07.69] Speaker B (B): w wouldn't
+[30:07.66-30:07.73] Speaker A (A): we
+[30:07.69-30:07.76] Speaker B (B): do
+[30:07.73-30:07.96] Speaker A (A): have
+[30:07.76-30:08.10] Speaker B (B): it by
+[30:07.96-30:08.15] Speaker A (A): not
+[30:08.10-30:08.46] Speaker B (B): word
+[30:08.15-30:08.69] Speaker A (A): enough
+[30:08.46-30:09.78] Speaker B (B): , we would
+[30:08.69-30:09.20] Speaker A (A): data.
+[30:09.78-30:20.29] Speaker B (B): sorry, okay, um I was I was getting that w actually, sorry, I was getting that wrong, I was getting it from what I did my project. Now in this case, we would do it by per mee words per meeting.
+[30:21.94-30:22.70] Speaker B (B): So
+[30:23.36-30:23.66] Speaker C (C): Yeah, but
+[30:23.53-30:23.87] Speaker A (A): I don't
+[30:23.66-30:24.32] Speaker C (C): that's
+[30:23.87-30:24.50] Speaker A (A): understand
+[30:24.32-30:24.74] Speaker C (C): the sa
+[30:24.50-30:24.69] Speaker A (A): what you
+[30:24.74-30:31.44] Speaker C (C): uh almost I think similar to what I'm doing, because words that are in every class, that are
+[30:31.22-30:31.49] Speaker B (B): Hmm
+[30:31.44-30:31.67] Speaker C (C): not
+[30:31.49-30:31.49] Speaker B (B): .
+[30:31.67-30:37.09] Speaker C (C): very informative, but words that are only in one class are are very informative for that class.
+[30:37.70-30:46.99] Speaker B (B): Yes, it it's probably doing it's probably doing quite the same thing in the end, but I'm just saying like with that thing you would easily have an algorithm which at the moment provides you for each word
+[30:46.26-30:46.78] Speaker C (C): Oh okay.
+[30:46.99-30:48.54] Speaker B (B): with a score which we can use.
+[30:48.76-30:49.10] Speaker C (C): Alright.
+[30:50.57-31:02.75] Speaker B (B): Um no um, I was I was I was describing the wrong thing. In this case we wouldn't be doing how much it tells you about another word. In this case we would be doing given that you know a word, how good is it at predicting from which um specific topic that was.
+[31:02.93-31:03.43] Speaker A (A): Yeah, okay.
+[31:04.74-31:05.70] Speaker B (B): So that would yeah, in
+[31:05.66-31:05.90] Speaker C (C): Yeah
+[31:05.70-31:06.06] Speaker B (B): that sense
+[31:05.90-31:06.35] Speaker C (C): , that's
+[31:06.06-31:06.55] Speaker B (B): it's the same
+[31:06.35-31:07.23] Speaker C (C): th yeah
+[31:06.55-31:07.23] Speaker B (B): thing here.
+[31:07.23-31:07.23] Speaker C (C): .
+[31:07.33-31:15.18] Speaker A (A): Mm-hmm. But that would give the same value for one word every time I mean for for a specific
+[31:14.93-31:15.67] Speaker B (B): Yeah
+[31:15.18-31:16.11] Speaker A (A): word
+[31:15.67-31:16.39] Speaker B (B): , yeah
+[31:16.11-31:16.58] Speaker A (A): . Yeah
+[31:16.39-31:17.02] Speaker B (B): , for a specific
+[31:16.58-31:21.58] Speaker A (A): , because then it would be quite easy to re-integrate it into
+[31:21.11-31:21.39] Speaker C (C): For
+[31:21.27-31:21.61] Speaker B (B): Yeah
+[31:21.39-31:22.19] Speaker C (C): a specific
+[31:21.58-31:21.96] Speaker A (A): such
+[31:21.61-31:21.61] Speaker B (B): .
+[31:21.96-31:22.20] Speaker A (A): a
+[31:22.19-31:23.12] Speaker C (C): word per
+[31:24.34-31:24.81] Speaker B (B): The same
+[31:24.64-31:24.73] Speaker C (C): per
+[31:24.81-31:30.62] Speaker B (B): word the word yesterday would be would have the same score all over the place
+[31:30.33-31:30.72] Speaker C (C): All over
+[31:30.62-31:30.62] Speaker B (B): .
+[31:30.72-31:38.62] Speaker C (C): the place. And in my case it would have I think it would have different uh values for each category
+[31:38.60-31:39.18] Speaker B (B): Okay
+[31:38.62-31:39.21] Speaker C (C): . But in that
+[31:39.18-31:39.18] Speaker B (B): .
+[31:39.21-31:42.48] Speaker C (C): category it would have the same value at each place.
+[31:44.16-31:44.37] Speaker C (C): Do you
+[31:44.23-31:44.36] Speaker B (B): I c
+[31:44.37-31:45.83] Speaker C (C): know what I mean?
+[31:46.28-31:54.83] Speaker A (A): Okay, but then it would also be possible to re-integrate it. It would be more dif I mean it would be a bit more work, but
+[31:54.26-31:55.42] Speaker B (B): But
+[31:54.83-31:55.13] Speaker A (A): then
+[31:54.86-31:55.19] Speaker C (C): Yeah.
+[31:55.42-32:01.78] Speaker B (B): but your category thing depends on that we not just have topic segments, but also that these topic segments we have them in categories.
+[32:03.48-32:07.74] Speaker B (B): You you do wouldn't you need several documents for each category? Or several
+[32:07.72-32:10.20] Speaker C (C): Um
+[32:07.74-32:09.04] Speaker B (B): segments for each category.
+[32:10.20-32:12.46] Speaker C (C): that would be best, but I I would
+[32:12.42-32:12.70] Speaker B (B): Do
+[32:12.46-32:12.83] Speaker C (C): have to
+[32:12.70-32:13.25] Speaker B (B): but
+[32:12.83-32:13.57] Speaker C (C): look if that
+[32:13.25-32:13.61] Speaker B (B): will it
+[32:13.57-32:13.57] Speaker C (C): .
+[32:13.61-32:14.92] Speaker B (B): word without that at all?
+[32:15.21-32:16.27] Speaker C (C): Um at
+[32:16.27-32:16.47] Speaker B (B): 'Cause
+[32:16.27-32:25.40] Speaker C (C): least it works if there are several categories with each with one document each, but it um
+[32:25.02-32:25.70] Speaker B (B): Yeah, I mean s
+[32:25.40-32:25.86] Speaker C (C): yeah
+[32:25.70-32:25.88] Speaker B (B): so
+[32:25.86-32:25.86] Speaker C (C): .
+[32:25.88-32:32.99] Speaker B (B): in our case basically every every s topic would be its own category. And the question
+[32:32.95-32:33.32] Speaker C (C): Yeah
+[32:32.99-32:33.40] Speaker B (B): is does the
+[32:33.32-32:33.67] Speaker C (C): , that's
+[32:33.40-32:33.81] Speaker B (B): algorithm
+[32:33.67-32:34.34] Speaker C (C): the questio
+[32:33.81-32:34.39] Speaker B (B): still make any
+[32:34.34-32:34.64] Speaker C (C): yeah
+[32:34.39-32:34.77] Speaker B (B): sense
+[32:34.64-32:34.91] Speaker C (C): , I don't
+[32:34.77-32:35.42] Speaker B (B): in that
+[32:34.91-32:36.01] Speaker C (C): know
+[32:35.42-32:36.05] Speaker B (B): I don't understand the
+[32:36.01-32:36.01] Speaker C (C): .
+[32:36.05-32:43.10] Speaker B (B): algorithm enough for that. But what I'm really like because the entropical um calculation is so simple
+[32:42.47-32:42.81] Speaker C (C): Mm-hmm.
+[32:43.10-32:48.85] Speaker B (B): , maybe we should look into making that score just as a preliminary score that we have
+[32:48.38-32:48.78] Speaker C (C): Mm okay.
+[32:48.85-32:58.75] Speaker B (B): . Like it it's a very it gives you like I've looked at the result, it gives you basically something in the end which vaguely tells you just whether a word is a very specific word or a very general word
+[32:58.72-32:59.13] Speaker A (A): Yes
+[32:58.75-32:58.75] Speaker B (B): .
+[32:59.13-32:59.13] Speaker A (A): .
+[32:59.97-33:12.16] Speaker B (B): And I like there is some hope that probably having just sentences where there's lots of very specific words, if you mark them as being more interesting than the words which are only very general words, that they would get us somewhere.
+[33:13.87-33:21.76] Speaker A (A): Um and what well, what score would a word get that just occurs once in all the corpus for example?
+[33:21.76-33:24.42] Speaker B (B): Probably one point zero is very high information value.
+[33:25.99-33:30.46] Speaker A (A): Even though there are all the other same topics where it doesn't occur?
+[33:31.24-33:32.70] Speaker B (B): Yeah,'cause this would
+[33:34.45-33:39.72] Speaker B (B): Yeah, in in a sense I mean this is a bit like the what like document frequency over total frequency.
+[33:40.48-33:40.75] Speaker A (A): Mm-hmm.
+[33:40.79-33:42.50] Speaker B (B): Measure it sort of just going by
+[33:42.85-33:43.01] Speaker D (D): Hmm.
+[33:45.29-33:56.09] Speaker A (A): So would it be higher-scored than a word that um occurs in every um sequence of the same topic?
+[33:59.30-34:00.97] Speaker B (B): What do you mean every sequence of the same
+[34:00.74-34:07.48] Speaker A (A): Yeah, I mean um we have uh s uh our several topics. For example we have twenty topics
+[34:07.09-34:07.36] Speaker B (B): Mm-hmm.
+[34:07.48-34:12.55] Speaker A (A): , and um for one of these topics there are five occurrences, and we have one
+[34:12.36-34:12.75] Speaker B (B): Within
+[34:12.55-34:13.04] Speaker A (A): word
+[34:12.75-34:13.10] Speaker B (B): th within
+[34:13.04-34:13.24] Speaker A (A): that
+[34:13.10-34:21.16] Speaker B (B): the topic, so like topic we had to when you say topic, you mean like just like from from a beginning to end point, like within one meeting there are several topics?
+[34:22.26-34:27.44] Speaker A (A): Yes, but across meetings um there will be the same topic several times.
+[34:28.49-34:30.69] Speaker B (B): But we don't have that information anywhere, do we?
+[34:31.48-34:35.48] Speaker A (A): Ah. It wasn okay. I thought that was what you were doing.
+[34:35.88-34:42.90] Speaker D (D): Well, um when it splits the topics up, it does do it on regular words that um
+[34:42.69-34:42.91] Speaker A (A): Yeah
+[34:42.90-34:43.21] Speaker D (D): that
+[34:42.91-34:43.16] Speaker A (A): , but
+[34:43.21-34:44.93] Speaker D (D): occur. But it doesn't tell you what they are, no.
+[34:45.00-34:45.45] Speaker B (B): But but
+[34:45.32-34:45.47] Speaker A (A): Yeah
+[34:45.45-34:45.75] Speaker B (B): you
+[34:45.47-34:46.15] Speaker A (A): , but you make
+[34:45.75-34:46.75] Speaker B (B): you are segmenting
+[34:46.15-34:46.94] Speaker A (A): also um
+[34:46.75-34:46.75] Speaker B (B): .
+[34:46.94-34:47.29] Speaker A (A): segment
+[34:47.29-34:47.59] Speaker D (D): Hmm
+[34:47.29-34:47.95] Speaker A (A): similarity
+[34:47.59-34:47.59] Speaker D (D): .
+[34:47.95-34:49.55] Speaker A (A): , I think that was I
+[34:49.37-34:49.57] Speaker B (B): Well
+[34:49.55-34:49.74] Speaker A (A): I
+[34:49.57-34:49.85] Speaker B (B): , I'm
+[34:49.74-34:49.98] Speaker A (A): thought
+[34:49.85-34:50.07] Speaker B (B): I'm
+[34:49.98-34:50.15] Speaker A (A): that
+[34:50.07-34:50.31] Speaker B (B): doing
+[34:50.15-34:50.27] Speaker A (A): would
+[34:50.31-34:51.43] Speaker B (B): one on segment similarity
+[34:51.25-34:51.54] Speaker D (D): Yeah
+[34:51.43-34:51.63] Speaker B (B): in the
+[34:51.54-34:51.54] Speaker D (D): .
+[34:51.63-34:58.47] Speaker B (B): end, yeah. I'm doing like finding similar segments, basic latent semantic analysis. But
+[35:00.13-35:03.74] Speaker B (B): But like f for now, like your segmentation is just splitting a meeting
+[35:03.57-35:03.90] Speaker D (D): Yeah
+[35:03.74-35:03.90] Speaker B (B): up
+[35:03.90-35:03.90] Speaker D (D): .
+[35:03.90-35:05.83] Speaker B (B): into different blocks
+[35:05.33-35:05.77] Speaker D (D): Yeah, you can't
+[35:05.74-35:05.90] Speaker A (A): And
+[35:05.77-35:05.97] Speaker D (D): really
+[35:05.83-35:06.06] Speaker B (B): ver
+[35:05.90-35:06.09] Speaker A (A): they
+[35:05.97-35:06.10] Speaker D (D): get
+[35:06.09-35:06.32] Speaker A (A): they
+[35:06.10-35:06.52] Speaker D (D): any other
+[35:06.32-35:06.67] Speaker A (A): are not
+[35:06.52-35:06.93] Speaker D (D): output
+[35:06.67-35:07.34] Speaker A (A): related
+[35:06.93-35:06.93] Speaker D (D): .
+[35:07.34-35:09.71] Speaker A (A): then to other blocks of
+[35:10.13-35:11.81] Speaker B (B): Not not from what Colin is doing from what
+[35:11.80-35:13.44] Speaker D (D): No
+[35:11.81-35:12.88] Speaker B (B): I
+[35:12.08-35:13.57] Speaker A (A): Okay
+[35:12.88-35:13.52] Speaker B (B): no
+[35:13.44-35:13.64] Speaker D (D): . No
+[35:13.52-35:13.65] Speaker B (B): . It's
+[35:13.57-35:13.68] Speaker A (A): . I
+[35:13.64-35:13.64] Speaker D (D): .
+[35:13.65-35:13.83] Speaker B (B): only
+[35:13.68-35:14.00] Speaker A (A): um
+[35:13.83-35:21.58] Speaker B (B): like I'm writing an algorithm that which then tries to also again based on word p occurrence patterns try to link together maybe different ones of those.
+[35:21.61-35:24.54] Speaker A (A): Oh, okay. I misunderstood that then.
+[35:26.57-35:27.16] Speaker B (B): So
+[35:28.12-35:31.02] Speaker A (A): So yeah, how would it work? I mean what would
+[35:32.66-35:49.80] Speaker A (A): um the his information then be useful for in r Rainbow? Um I thought the point about that was that we would put um into s um serial categories all the segments of the same topic
+[35:49.79-35:49.95] Speaker B (B): So
+[35:49.80-35:50.13] Speaker A (A): across
+[35:49.89-35:50.03] Speaker C (C): Oh
+[35:49.95-35:51.46] Speaker B (B): that
+[35:50.03-35:50.42] Speaker C (C): no
+[35:50.13-35:50.65] Speaker A (A): meetings
+[35:50.42-35:50.68] Speaker C (C): , I li
+[35:50.65-35:50.65] Speaker A (A): .
+[35:50.68-35:51.60] Speaker C (C): I th I thought
+[35:51.46-35:51.66] Speaker B (B): yeah
+[35:51.60-35:52.04] Speaker C (C): something
+[35:51.66-35:51.66] Speaker B (B): .
+[35:52.04-35:52.53] Speaker C (C): else that
+[35:52.43-35:52.80] Speaker A (A): Okay
+[35:52.53-35:53.45] Speaker C (C): we d
+[35:52.80-35:52.80] Speaker A (A): .
+[35:53.45-36:04.32] Speaker C (C): um we just split I need somewhere to split, and that um splitting at category boundaries um splitting at topic boundaries would a nice thing to do
+[36:04.11-36:04.41] Speaker D (D): Mm-hmm
+[36:04.32-36:04.64] Speaker C (C): , rather
+[36:04.41-36:04.41] Speaker D (D): .
+[36:04.64-36:07.31] Speaker C (C): than just splitting somewhere
+[36:06.88-36:07.45] Speaker D (D): Yeah, it's supposed
+[36:07.31-36:08.39] Speaker C (C): . So
+[36:07.45-36:08.45] Speaker D (D): to split it into cu
+[36:08.12-36:08.49] Speaker A (A): Yeah, but
+[36:08.39-36:09.22] Speaker C (C): yeah
+[36:08.45-36:08.82] Speaker D (D): coherent
+[36:08.49-36:08.84] Speaker A (A): but then
+[36:08.82-36:09.22] Speaker D (D): topics
+[36:08.84-36:09.67] Speaker A (A): it does
+[36:09.22-36:09.22] Speaker C (C): ,
+[36:09.22-36:09.32] Speaker D (D): with
+[36:09.22-36:09.68] Speaker C (C): yeah
+[36:09.32-36:09.76] Speaker D (D): the similar
+[36:09.67-36:10.13] Speaker A (A): okay
+[36:09.68-36:09.68] Speaker C (C): .
+[36:09.76-36:10.41] Speaker D (D): information
+[36:10.13-36:10.13] Speaker A (A): .
+[36:10.41-36:10.41] Speaker D (D): .
+[36:11.21-36:22.77] Speaker B (B): Yeah, I'm also a bit b like I'm not a hundred percent sure about Rainbow being the right thing,'cause it seems that Rainbow does in its structure quite rely on having different examples of the same category sort of in in a way
+[36:22.67-36:23.22] Speaker C (C): Yeah
+[36:22.77-36:22.77] Speaker B (B): .
+[36:23.22-36:40.22] Speaker C (C): , but it I think it should work for just one document, because it it compares between the categories, and if you just have one document um it still can find out which words are informative for that category and which are not. So if you
+[36:40.20-36:40.50] Speaker B (B): 'Kay
+[36:40.22-36:40.70] Speaker C (C): have just
+[36:40.50-36:40.50] Speaker B (B): .
+[36:40.70-36:52.98] Speaker C (C): one document in each category, and there are a lot of um occurrences of the word the in each one, so this word will be not very informative across the categories
+[36:51.96-36:52.30] Speaker A (A): Mm-hmm.
+[36:52.39-36:52.64] Speaker D (D): Hmm.
+[36:52.98-37:01.44] Speaker C (C): . So it should work for one, but I'm not sure if how exactly it it um calculates everything. Uh I think it's not possible to look that up.
+[37:02.02-37:20.49] Speaker B (B): You know what, as a byproduct of my L_S_A_ I'll provide um a vocabulary like sort of a dictionary which for each word gives an entropy score entropy score, which just tells you of how much information the presence of a word tells you about which topic it is. Not
+[37:20.47-37:20.70] Speaker A (A): Mm
+[37:20.49-37:21.08] Speaker B (B): which category
+[37:20.70-37:20.70] Speaker A (A): .
+[37:21.08-37:32.67] Speaker B (B): , like I'm not I'm not lumping together separate topic segments into categories. But just like how much this word tells you about wh how likely that w the occurrence of that word makes it that it's a specific segment
+[37:32.27-37:32.55] Speaker A (A): Mm.
+[37:32.67-37:50.25] Speaker B (B): topic segment. Which is some measure already of how widespread this word is versus how specific f to a certain segment that is. And I'll just provide that, because that's just not much more work than just the usual thing. And then we can see how we can tie that in with the other stuff. So if
+[37:50.25-37:50.48] Speaker A (A): Yep
+[37:50.25-37:50.55] Speaker B (B): you
+[37:50.48-37:50.48] Speaker A (A): .
+[37:50.55-37:56.45] Speaker B (B): um keep on working on Rainbow meanwhile and try to find a way how to tie your Rainbow stuff into
+[37:58.80-38:02.80] Speaker B (B): some way that we can attach it to a certain time segment
+[38:02.76-38:03.05] Speaker C (C): Yeah
+[38:02.80-38:02.80] Speaker B (B): .
+[38:03.05-38:08.08] Speaker C (C): , maybe it's possible to have a list that it's o that is ordered by
+[38:09.76-38:11.42] Speaker C (C): Yeah, don't know.
+[38:11.47-38:28.51] Speaker B (B): I'm just thinking, wh if It it used is each word completely unique, like sort of does it treat each word, each occurrence of word, as a completely unique event. Or does it, I mean, no, it it has to, I mean, basically the the form of the word is important, right? We can't just replace
+[38:28.26-38:28.51] Speaker C (C): Mm-hmm.
+[38:28.51-38:29.82] Speaker B (B): the word by an arbitrary string.
+[38:31.33-38:33.53] Speaker B (B): Because it looks if the same word occurs again and stuff.
+[38:34.86-38:35.42] Speaker C (C): Um
+[38:34.87-38:35.51] Speaker B (B): Yeah, it it has to
+[38:35.42-38:35.54] Speaker C (C): I
+[38:35.51-38:35.75] Speaker B (B): work
+[38:35.54-38:35.87] Speaker C (C): don't know
+[38:35.75-38:35.90] Speaker B (B): with
+[38:35.87-38:36.02] Speaker C (C): what
+[38:35.90-38:36.77] Speaker B (B): a m
+[38:36.02-38:36.81] Speaker C (C): you mean by that
+[38:36.77-38:37.04] Speaker B (B): yeah
+[38:36.81-38:37.15] Speaker C (C): . It's
+[38:37.04-38:37.22] Speaker B (B): , well
+[38:37.15-38:37.93] Speaker C (C): uh
+[38:37.22-38:43.63] Speaker B (B): I think it's a stupid question, like it it it has to work on on on the word, like on
+[38:45.43-38:49.62] Speaker B (B): What I was thinking is whether if we replace the word by something uniquely id identifiable
+[38:49.10-38:49.93] Speaker C (C): Mm-hmm
+[38:49.62-38:50.01] Speaker B (B): , then it wouldn't
+[38:49.93-38:50.19] Speaker C (C): . Oh
+[38:50.01-38:50.42] Speaker B (B): make a different
+[38:50.19-38:50.52] Speaker C (C): right
+[38:50.42-38:50.55] Speaker B (B): which
+[38:50.52-38:50.52] Speaker C (C): .
+[38:50.55-38:58.42] Speaker B (B): order it is. But that wouldn't work because it needs the word, because that's all it's working on. It's the word and that looks if that word occurs again and versus how often that word occurs in other
+[38:58.25-38:58.75] Speaker C (C): Mm
+[38:58.42-38:58.87] Speaker B (B): context
+[38:58.75-38:58.75] Speaker C (C): .
+[38:58.87-39:02.89] Speaker B (B): , right? So we can't attach some type of information to the word, just to the word string
+[39:02.82-39:03.34] Speaker A (A): Yeah
+[39:02.89-39:03.85] Speaker B (B): itself, like
+[39:03.34-39:04.06] Speaker A (A): . Mm yeah
+[39:03.85-39:04.12] Speaker B (B): making
+[39:04.06-39:04.06] Speaker A (A): .
+[39:04.12-39:05.62] Speaker B (B): an underscore, making the time or something
+[39:05.39-39:06.27] Speaker C (C): Alright
+[39:05.62-39:06.29] Speaker B (B): , that wouldn't work
+[39:06.27-39:06.53] Speaker C (C): . Yeah
+[39:06.29-39:06.29] Speaker B (B): .
+[39:06.53-39:08.55] Speaker C (C): , you you can use um
+[39:10.86-39:19.48] Speaker C (C): some kind of um truncation maybe if you attach a number to each word and say that it should omit the last
+[39:19.48-39:19.65] Speaker B (B): But
+[39:19.48-39:21.10] Speaker C (C): part
+[39:19.65-39:21.35] Speaker B (B): would it have that in the untruncated
+[39:21.10-39:21.10] Speaker C (C): .
+[39:21.35-39:24.51] Speaker B (B): version then, like would it s would the output be the untruncated version
+[39:24.42-39:24.69] Speaker C (C): Uh
+[39:24.51-39:24.71] Speaker B (B): ? It will
+[39:24.69-39:25.17] Speaker C (C): probably
+[39:24.71-39:25.82] Speaker B (B): probably um
+[39:25.17-39:25.91] Speaker C (C): not
+[39:25.82-39:26.22] Speaker B (B): no
+[39:25.91-39:26.46] Speaker C (C): . No
+[39:26.22-39:26.51] Speaker B (B): , I don't
+[39:26.46-39:26.93] Speaker C (C): , no
+[39:26.51-39:27.05] Speaker B (B): think it would
+[39:26.93-39:26.93] Speaker C (C): .
+[39:27.05-39:27.05] Speaker B (B): .
+[39:38.57-39:42.09] Speaker C (C): Yeah, maybe I should try something different and just programme it for myself.
+[39:44.69-39:46.52] Speaker C (C): Because um
+[39:46.82-39:48.54] Speaker B (B): Yeah, for now, I mean really just like
+[39:51.03-39:54.92] Speaker B (B): Yeah, I think if we work together on an on an entropy based score
+[39:53.66-39:54.09] Speaker C (C): Mm.
+[39:54.92-40:02.02] Speaker B (B): . It's let me see if I can demonstrate T I mean, let's just keep on talking meanwhile and I'll try to start that up.
+[40:04.29-40:19.61] Speaker B (B): It's it's it's really d it it's a very simple thing, but it it basically just does something which tells you how specific a word is. In a sense it's in a it's it's basically just to to a high degree really telling you how r how rare a word is
+[40:19.29-40:19.60] Speaker C (C): Mm-hmm.
+[40:19.61-40:27.22] Speaker B (B): or how common a word is. But uh as as the first step that's probably for for a prototype for next week that's probably not a bad thing, I mean even if it's
+[40:27.12-40:27.62] Speaker D (D): Hmm
+[40:27.22-40:27.78] Speaker B (B): just that. Even
+[40:27.62-40:27.85] Speaker D (D): . Yeah
+[40:27.78-40:27.88] Speaker B (B): if
+[40:27.85-40:27.85] Speaker D (D): .
+[40:27.88-40:37.39] Speaker B (B): you just like if you have segments where where lots of rare words occur, highlighted in darker red than segments where all the very common words occur. That's just that's somewhere to start from.
+[40:39.44-40:45.84] Speaker B (B): And it's it's a bit more sophisticated than that, but then de facto it just ends up doing that mostly, from what I figured out.
+[40:49.76-40:50.42] Speaker B (B): Um
+[40:56.58-41:00.95] Speaker B (B): Actually I think I'm not gonna not gonna start that now, because that's probably gonna take too long.
+[41:03.04-41:03.57] Speaker B (B): So
+[41:05.59-41:10.50] Speaker B (B): if we get it on a word by word basis whatever you do it'll probably appear in a word by word basis, and
+[41:10.47-41:10.91] Speaker C (C): Mm-hmm
+[41:10.50-41:11.25] Speaker B (B): what you have
+[41:10.91-41:10.91] Speaker C (C): .
+[41:11.25-41:14.59] Speaker B (B): on a sort of segment but not quite segment base.
+[41:15.90-41:42.32] Speaker A (A): Yes. Yeah, I mean I haven't really decided on uh how to really get the information out of this now, because um when I have for example um increased speaker overlap, that applies to several turns of course. But I could give um the information about, yeah, how how important this is to each of those segments.
+[41:42.54-42:34.43] Speaker B (B): 'Kay, what about the following model? I mean this is a very unscientific way of doing it in some sense, but what if we if we take time as the standard unit for now and sort of like make a massive one segment split super-array. Because everything you're doing can in one way or the other be ti tied down to actual time. So if we if we if for if for each one segment time slot we could attach a value, and then it would be easy to then go back when if we have the time marks here, and re-map that onto onto the length of a segment, you know what I mean? So if you have for each word say and we know that word starts at this segment and ends at that segment, and you have for like for some time period w the overlap and that period on the F_ ones and that period or something. So you also have a value which can be tied down to a time. And then we could just in m in Matlab or in something just create some massive super-array of
+[42:36.64-43:00.40] Speaker B (B): of things for each for each like sort of time sampling slot and and calculate a value for this, and once we have this array, we can go with the script and sort of go for each segment to the starting and end times and say okay, this is from our time segment f here to this time segment there. So we take the some of those and divide them by by the number or something, create the average and put it in as the value for the segment. You know what I mean?
+[43:01.92-43:09.83] Speaker C (C): Yeah, but how can we get to know what makes sense as a a function for joining everything together
+[43:09.57-43:09.81] Speaker B (B): Oh.
+[43:09.83-43:11.31] Speaker C (C): ? Might be difficult to find
+[43:11.27-43:11.41] Speaker B (B): Tha
+[43:11.31-43:11.51] Speaker C (C): that
+[43:11.41-43:11.85] Speaker B (B): that's
+[43:11.51-43:13.16] Speaker C (C): out
+[43:11.85-43:13.19] Speaker B (B): that's a fiddling play in the end
+[43:13.16-43:13.57] Speaker C (C): . Yeah
+[43:13.19-43:13.75] Speaker B (B): , but that problem
+[43:13.57-43:13.57] Speaker C (C): .
+[43:13.75-43:20.52] Speaker B (B): we'll always have. Because we don't have a useful way of automatically evaluating um
+[43:22.44-43:28.52] Speaker B (B): We don't have a way of usefully evaluating automatically what's good and what's bad, so it's it's probably always
+[43:28.28-43:28.50] Speaker D (D): Hmm.
+[43:28.52-43:39.33] Speaker B (B): gonna be a question of looking at it and saying okay, like running it with different different factor loadings and seeing okay, this way it works this well and this way it works that well.
+[43:39.70-43:54.60] Speaker A (A): Yeah, pros um but you proposed um we we should break that down to have um the smallest um smallest um unity um of time duration should be one word. I mean
+[43:54.38-43:54.65] Speaker D (D): Hmm
+[43:54.60-43:54.88] Speaker A (A): , that
+[43:54.65-43:54.65] Speaker D (D): .
+[43:54.88-43:56.90] Speaker A (A): would be because that
+[43:56.60-43:56.97] Speaker C (C): Mm-hmm
+[43:56.90-43:57.37] Speaker A (A): would
+[43:56.97-43:56.97] Speaker C (C): .
+[43:57.37-44:00.63] Speaker A (A): be what naturally came out of her thing
+[44:00.38-44:00.75] Speaker B (B): But it
+[44:00.63-44:01.21] Speaker A (A): . And
+[44:00.75-44:05.54] Speaker B (B): probably be more difficult for mapped t to map for you to map it on so
+[44:05.44-44:05.70] Speaker A (A): Yeah
+[44:05.54-44:05.78] Speaker B (B): for you
+[44:05.70-44:05.95] Speaker A (A): sure
+[44:05.78-44:06.06] Speaker B (B): sort of
+[44:05.95-44:06.16] Speaker A (A): , but
+[44:06.06-44:06.30] Speaker B (B): i
+[44:06.16-44:12.18] Speaker A (A): I could then if I if I have um the value for a segment, I would perhaps just give all the
+[44:13.91-44:17.31] Speaker A (A): important wor or mm yeah no
+[44:17.25-44:17.41] Speaker C (C): You
+[44:17.31-44:17.31] Speaker A (A): .
+[44:17.41-44:21.84] Speaker C (C): you could always find out how many words there are in an utterance, couldn't you?
+[44:22.61-44:22.98] Speaker A (A): Yes.
+[44:23.27-44:23.92] Speaker C (C): Yeah. So
+[44:23.56-44:33.18] Speaker B (B): Yeah, but so you say that inst like you basically say w having an array where each each cell is is one like is o is one word
+[44:32.26-44:32.54] Speaker A (A): Mm-hmm.
+[44:33.18-44:36.45] Speaker B (B): .. And then you would map your information onto individual words.
+[44:38.02-44:41.01] Speaker A (A): Yeah, I would say that someone have to break it down, aye
+[44:40.95-44:41.17] Speaker B (B): Hmm
+[44:41.01-44:41.01] Speaker A (A): ?
+[44:41.17-44:41.17] Speaker B (B): ?
+[44:42.12-44:45.21] Speaker A (A): I would probably somehow have to break it down to to that level, yeah.
+[44:45.74-44:48.66] Speaker B (B): Would you be able to find out which word that is and
+[44:50.46-44:51.05] Speaker A (A): Yes, sure.
+[44:54.04-45:11.43] Speaker B (B): 'Kay, and and then we could have like some type of just point in the end where the one scores from the all the individual word cells get multiplied all with like for each utterance or whatever. You have get all multiplied with the same value all the ones that are within that utterance. That's sort of the combination of of the two scores.
+[45:11.92-45:13.85] Speaker A (A): Yeah, probably somehow
+[45:13.55-45:14.12] Speaker C (C): For example
+[45:13.85-45:14.17] Speaker A (A): it should
+[45:14.12-45:14.12] Speaker C (C): .
+[45:14.17-45:14.81] Speaker A (A): work that way.
+[45:14.95-45:18.97] Speaker B (B): And then we'd have to go back again and then put that back into that segment mode here.
+[45:19.83-45:20.16] Speaker C (C): Mm.
+[45:20.24-45:24.17] Speaker B (B): So that we because in the end we don't want it on a per word basis, but probably on a per segment base.
+[45:26.24-45:28.94] Speaker A (A): Yeah, but then okay, but th at
+[45:28.91-45:29.08] Speaker C (C): So
+[45:28.94-45:29.15] Speaker A (A): that
+[45:29.08-45:29.45] Speaker C (C): but
+[45:29.15-45:33.84] Speaker A (A): moment it would be better for me to just make it on a per-segment basis right way
+[45:32.99-45:33.22] Speaker D (D): Hmm.
+[45:33.69-45:34.05] Speaker C (C): Mm
+[45:33.84-45:34.15] Speaker A (A): , and let
+[45:34.05-45:34.05] Speaker C (C): .
+[45:34.15-45:36.19] Speaker A (A): her adapt it also to the segment
+[45:35.93-45:36.30] Speaker B (B): Oh, yeah
+[45:36.19-45:36.61] Speaker A (A): basis
+[45:36.30-45:36.63] Speaker B (B): yeah, actually
+[45:36.45-45:36.63] Speaker C (C): Mm-hmm
+[45:36.61-45:36.61] Speaker A (A): .
+[45:36.63-45:36.63] Speaker C (C): .
+[45:36.63-45:38.94] Speaker B (B): that yeah, that's true, so that it's easier if you
+[45:40.58-45:44.31] Speaker B (B): are able to yeah well, I think that's probably back where we started at this. But you
+[45:44.20-45:44.46] Speaker A (A): Yeah
+[45:44.31-45:44.54] Speaker B (B): said
+[45:44.46-45:44.46] Speaker A (A): .
+[45:44.54-45:48.34] Speaker B (B): it wi but you said it's more complicated, because your segments aren't those segments exactly.
+[45:49.45-45:58.34] Speaker A (A): Yeah, I mean mine are only more, but they have the same start and end point. Sometimes they're two segments and one with a gap in-between, but
+[45:58.20-45:58.59] Speaker D (D): Hmm
+[45:58.34-45:58.65] Speaker A (A): um the
+[45:58.59-45:58.59] Speaker D (D): .
+[45:58.65-46:01.51] Speaker A (A): have um th th they don't overlap.
+[46:01.92-46:04.84] Speaker B (B): Hmm. And their segments do overlap.
+[46:05.23-46:07.45] Speaker A (A): No no, they don't, but um
+[46:06.60-46:08.61] Speaker B (B): Uh the tho those do or those don't?
+[46:09.37-46:15.95] Speaker A (A): Um they're I mean my segments overlap in the same way as theirs do. But
+[46:15.91-46:16.38] Speaker B (B): Mm-hmm
+[46:15.95-46:16.97] Speaker A (A): sometimes
+[46:16.38-46:16.38] Speaker B (B): .
+[46:16.97-46:23.47] Speaker A (A): I have um split one of the segments into two segments, but it's easy to match the
+[46:23.45-46:24.14] Speaker B (B): Okay
+[46:23.47-46:24.57] Speaker A (A): start and end times
+[46:24.14-46:25.00] Speaker B (B): . So you could
+[46:24.57-46:25.18] Speaker A (A): to
+[46:25.00-46:25.21] Speaker B (B): on
+[46:25.18-46:25.46] Speaker A (A): map
+[46:25.21-46:27.58] Speaker B (B): their granularity
+[46:25.46-46:27.67] Speaker A (A): it to their segments
+[46:27.58-46:27.76] Speaker B (B): you
+[46:27.67-46:27.67] Speaker A (A): .
+[46:27.76-46:31.46] Speaker B (B): could on their granularity create a score like
+[46:31.33-46:31.56] Speaker A (A): I
+[46:31.46-46:31.66] Speaker B (B): for
+[46:31.56-46:31.78] Speaker A (A): uh
+[46:31.66-46:32.04] Speaker B (B): each
+[46:31.78-46:32.17] Speaker A (A): hope so
+[46:32.04-46:32.28] Speaker B (B): for
+[46:32.17-46:32.69] Speaker A (A): , yeah
+[46:32.28-46:32.70] Speaker B (B): each of their
+[46:32.69-46:32.69] Speaker A (A): .
+[46:32.70-46:33.39] Speaker B (B): segments.
+[46:33.80-46:34.04] Speaker C (C): Mm.
+[46:36.46-46:40.26] Speaker B (B): Well I guess I mean for you, if you know for each word, if you find that out, then it
+[46:40.19-46:40.43] Speaker C (C): Yeah
+[46:40.26-46:40.50] Speaker B (B): has
+[46:40.43-46:40.63] Speaker C (C): , then
+[46:40.50-46:40.66] Speaker B (B): to
+[46:40.63-46:40.76] Speaker C (C): we
+[46:40.66-46:41.26] Speaker B (B): be possible
+[46:40.76-46:41.46] Speaker C (C): sh
+[46:41.26-46:41.51] Speaker B (B): , because
+[46:41.46-46:41.80] Speaker C (C): yeah
+[46:41.51-46:42.35] Speaker B (B): if we know
+[46:41.80-46:41.80] Speaker C (C): .
+[46:42.35-46:54.11] Speaker B (B): sort of this is going from word to word or it this is going from time to time and then there has to be a way then for you say okay, this concerns these following words, and then just make make a simple mean over them.
+[46:56.03-47:26.47] Speaker B (B): I think an interesting thing is if we don't combine your two scores in the in the X_M_L_ file you had, but if we do that in the software, then we can probably make ways of playing with it in the software and sort of l you know like adapting some sort of control, like playing around with look like it's playing with different weightings for that the utterance-based one versus the word-based one and sort of look at it dynamically. You know what I mean? Like playing around, sort of figuring out what's the best way of combining
+[47:26.07-47:26.92] Speaker A (A): Mm-hmm
+[47:26.47-47:27.04] Speaker B (B): them by playing
+[47:26.92-47:27.21] Speaker A (A): , yeah
+[47:27.04-47:27.45] Speaker B (B): around
+[47:27.21-47:27.21] Speaker A (A): .
+[47:27.45-47:28.65] Speaker B (B): and looking at the results.
+[47:29.37-47:29.50] Speaker C (C): We
+[47:29.40-47:29.59] Speaker A (A): That
+[47:29.50-47:29.71] Speaker C (C): could
+[47:29.59-47:29.72] Speaker A (A): would
+[47:29.71-47:31.60] Speaker C (C): even
+[47:29.72-47:31.78] Speaker A (A): be quite difficult, but yeah
+[47:31.60-47:31.83] Speaker C (C): yeah, we
+[47:31.78-47:31.78] Speaker A (A): .
+[47:31.83-47:37.79] Speaker C (C): could even have a look at our different measures, if they um come
+[47:37.69-47:38.16] Speaker B (B): Yeah
+[47:37.79-47:38.25] Speaker C (C): up with the
+[47:38.16-47:38.16] Speaker B (B): .
+[47:38.25-47:41.51] Speaker C (C): same same kinds of
+[47:40.62-47:41.77] Speaker B (B): Yeah, we could probably like
+[47:41.51-47:41.92] Speaker C (C): yeah
+[47:41.77-47:42.15] Speaker B (B): make
+[47:41.92-47:41.92] Speaker C (C): .
+[47:42.15-47:50.55] Speaker B (B): a uh um graphic display initially, at least for our experimenting. We'd just place them in different ways and then see how they interact with each
+[47:50.54-47:50.82] Speaker A (A): Yeah
+[47:50.55-47:50.91] Speaker B (B): other
+[47:50.82-47:51.10] Speaker A (A): , I mean
+[47:50.91-47:50.91] Speaker B (B): .
+[47:51.10-47:53.89] Speaker A (A): that's what I'm already doing with my
+[47:53.72-47:54.31] Speaker B (B): Okay
+[47:53.89-47:54.64] Speaker A (A): s uh separate
+[47:54.31-48:11.36] Speaker B (B): . Yeah. So do you think y like both of you then can map something onto their segments, like just each of you provide one value, like double value or whatever, like one decimal value or whatever onto onto exactly their segments.
+[48:12.44-48:21.73] Speaker C (C): Uh I think if I can provide something for the words, as they are It's stated from where to where the segments go. It should be uh
+[48:21.28-48:22.03] Speaker B (B): It's stated
+[48:21.50-48:21.74] Speaker A (A): Yeah
+[48:21.73-48:22.11] Speaker C (C): should
+[48:21.74-48:22.25] Speaker A (A): , it's
+[48:22.03-48:22.35] Speaker B (B): both
+[48:22.11-48:22.80] Speaker C (C): be possible
+[48:22.25-48:22.57] Speaker A (A): tells
+[48:22.35-48:22.50] Speaker B (B): in
+[48:22.57-48:23.03] Speaker A (A): you even
+[48:22.80-48:22.80] Speaker C (C): .
+[48:23.03-48:24.10] Speaker A (A): which words it is
+[48:23.92-48:24.27] Speaker C (C): Yeah
+[48:24.10-48:24.10] Speaker A (A): .
+[48:24.17-48:24.38] Speaker B (B): It's
+[48:24.27-48:24.60] Speaker C (C): , so
+[48:24.38-48:24.65] Speaker B (B): done
+[48:24.60-48:24.67] Speaker C (C): it
+[48:24.65-48:24.90] Speaker B (B): both
+[48:24.67-48:25.08] Speaker C (C): must
+[48:24.90-48:25.26] Speaker B (B): in terms
+[48:25.08-48:25.44] Speaker C (C): should
+[48:25.26-48:25.68] Speaker B (B): of words
+[48:25.44-48:27.26] Speaker C (C): be possible
+[48:25.68-48:27.30] Speaker B (B): and in terms of segments. It's
+[48:27.26-48:27.70] Speaker C (C): . Yeah
+[48:27.30-48:27.82] Speaker B (B): a bit sad
+[48:27.70-48:27.70] Speaker C (C): .
+[48:27.82-48:31.13] Speaker B (B): sort of that we do this before we've truly figured out how the NITE X_M_L_ thing
+[48:31.11-48:31.45] Speaker D (D): Hmm
+[48:31.13-48:32.05] Speaker B (B): works, because
+[48:31.45-48:31.45] Speaker D (D): .
+[48:32.05-48:39.81] Speaker B (B): now we're doing it all by hand and like parsing and un-parsing that thing and it's it's all part of the framework
+[48:38.04-48:39.67] Speaker D (D): Yeah.
+[48:39.81-48:44.84] Speaker B (B): . Uh How much easier would it be if we truly understood this
+[48:44.67-48:44.94] Speaker D (D): Oh
+[48:44.84-48:45.15] Speaker B (B): . So
+[48:44.94-48:47.19] Speaker D (D): I'm sure it'd be quite straightforward, some of the tasks we have
+[48:47.02-48:48.55] Speaker C (C): Mm-hmm
+[48:47.19-48:48.66] Speaker D (D): to do. But yet
+[48:48.55-48:48.55] Speaker C (C): .
+[48:48.66-48:53.18] Speaker D (D): no one really understands them, the actual X_M_L_ parsing.
+[48:54.41-49:02.38] Speaker B (B): 'Kay, I might just change my order of in which I do things and like forget my latent semantic analysis stuff until the weekend and try to really make sense of the
+[49:04.36-49:17.73] Speaker B (B): of the NITE data system now, so that maybe as soon as I've understood that we find ways of doing that in within the NITE framework already, so that we don't manually have to parse times and entire things together.
+[49:17.79-49:20.84] Speaker C (C): You mean by matching strings. Or what?
+[49:22.04-49:28.66] Speaker B (B): Well, at the moment what you would do like to to solve this problem is you would sort of like write some Perl script or something that gets this time value out
+[49:28.65-49:28.88] Speaker C (C): Yeah
+[49:28.66-49:28.96] Speaker B (B): of here
+[49:28.88-49:29.41] Speaker C (C): , but
+[49:28.96-49:29.23] Speaker B (B): and
+[49:29.41-49:34.57] Speaker C (C): what I've done is um a parser, an X_M_L_ parser where you can get the start times.
+[49:35.03-49:35.76] Speaker B (B): Okay
+[49:35.70-49:36.56] Speaker C (C): So
+[49:35.76-49:35.76] Speaker B (B): .
+[49:36.56-49:41.59] Speaker C (C): , yeah, that's quite easy, because it's it's an attribute and you just s say that you want the
+[49:41.49-49:42.77] Speaker B (B): Mm-hmm
+[49:41.59-49:43.17] Speaker C (C): values of those attributes
+[49:42.77-49:43.63] Speaker B (B): . Mm-hmm
+[49:43.17-49:43.17] Speaker C (C): .
+[49:43.63-49:52.66] Speaker B (B): . So provided that you get your words in the right order, do you think it is an easy task for you to it it's a f relatively feasible task for you to to get just a single value per segment?
+[49:52.98-49:56.32] Speaker C (C): I think that should be possible. I don't know how long it takes me. But
+[49:56.74-50:00.01] Speaker B (B): Okay. And you say you think you're able as well to map onto

@@ -1,0 +1,130 @@
+{
+  "id": "L02",
+  "title": "AMI EN2001b annotation-format and information-density planning meeting",
+  "category": "long",
+  "target_duration_minutes": 50.0,
+  "audio_file": "L02_AMI_EN2001b_50min.m4a",
+  "transcript_file": "L02_AMI_EN2001b_50min.txt",
+  "source_metadata_file": "L02_AMI_EN2001b_50min.source.json",
+  "source_type": "AMI",
+  "audio_quality": "clean",
+  "meeting_id": "EN2001b",
+  "clip_start_seconds": 0.0,
+  "clip_end_seconds": 3000.0,
+  "speakers": [
+    {
+      "speaker": "A",
+      "role": "Speaker A"
+    },
+    {
+      "speaker": "B",
+      "role": "Speaker B"
+    },
+    {
+      "speaker": "C",
+      "role": "Speaker C"
+    },
+    {
+      "speaker": "D",
+      "role": "Speaker D"
+    }
+  ],
+  "expected_context": [
+    "The meeting is a technical research/planning discussion about annotation data, XML/NITE XML files, segmentation, information density, Rainbow, entropy scoring, and mapping scores back to segments.",
+    "The group is trying to understand how to represent and merge multiple annotation outputs into a shared annotation structure.",
+    "The discussion is exploratory and technical rather than customer-facing or business-planning oriented."
+  ],
+  "expected_decisions": [
+    "Use the existing segment structure as the main target for attaching information-density values.",
+    "Create or consider an additional annotation file that links to existing segment IDs and adds a numeric density or information value.",
+    "Treat segment-level output as the desired final representation, even if some methods first produce word-level values.",
+    "Use a preliminary entropy-style score as a possible prototype measure.",
+    "Keep Rainbow/information-gain exploration separate while also considering an entropy-based alternative.",
+    "Explore combining utterance-based or segment-based scores with word-based scores outside the XML file, possibly in the software, so weights can be adjusted dynamically.",
+    "Map values back to existing segments using start/end times, word references, or segment IDs rather than inventing a new unrelated structure."
+  ],
+  "expected_actions": [
+    {
+      "owner": "Speaker C",
+      "action": "Create files from delimited segments or otherwise prepare data in a form that can be merged with the annotation structure.",
+      "deadline": null
+    },
+    {
+      "owner": "Speaker B",
+      "action": "Provide a vocabulary or dictionary with an entropy score for each word as a byproduct of the LSA work.",
+      "deadline": null
+    },
+    {
+      "owner": "Speaker C",
+      "action": "Continue working on Rainbow and try to find a way to tie Rainbow output into the shared segment or word structure.",
+      "deadline": null
+    },
+    {
+      "owner": "Speaker B",
+      "action": "Spend time understanding the NITE data system so the team can avoid manually parsing and recombining time values where possible.",
+      "deadline": null
+    },
+    {
+      "owner": "Speaker C",
+      "action": "Investigate whether it is feasible to produce a single value per segment from the word-level output.",
+      "deadline": null
+    }
+  ],
+  "expected_owners": [
+    "Speaker B",
+    "Speaker C"
+  ],
+  "expected_deadlines": [],
+  "expected_risks": [
+    "The team does not yet fully understand the internal NITE XML data structure or loading framework.",
+    "Manual parsing and remapping of times, words, and segments may be fragile or inefficient.",
+    "Rainbow output may not preserve the word order or values needed for direct mapping back to the source words.",
+    "There is no useful automatic evaluation method for deciding which combined scoring approach is best.",
+    "Different annotation methods may operate at different granularities such as words, utterances, time slots, and segments."
+  ],
+  "expected_open_questions": [
+    "Whether each annotation value should be attached to words, utterances, time slots, or segments.",
+    "Which XML file contains or should contain the utterance or segment boundaries needed for mapping.",
+    "How to represent the new information-density annotation in NITE XML.",
+    "Whether Rainbow returns the right kind of measure for the intended information-density task.",
+    "How to combine Rainbow or word-level values with utterance-based or segment-based values.",
+    "How to evaluate whether one scoring combination is better than another.",
+    "Whether the final integration should happen inside the XML file or in the software layer."
+  ],
+  "expected_technical_terms": [
+    "NITE XML",
+    "XML parsing",
+    "segments",
+    "utterances",
+    "segment IDs",
+    "start times",
+    "end times",
+    "Rainbow",
+    "information gain",
+    "entropy score",
+    "information density",
+    "latent semantic analysis",
+    "word-level values",
+    "segment-level values",
+    "lazy loading"
+  ],
+  "acceptable_behavior": [
+    "Summarize this as a technical annotation/information-density meeting.",
+    "Capture the uncertainty around XML structure, segment mapping, Rainbow output, entropy scoring, and evaluation.",
+    "Capture Speaker B and Speaker C as the main action owners where explicit follow-ups are discussed.",
+    "Leave customer-facing decisions, business risks, deadlines, and product-launch items empty or none-equivalent.",
+    "Treat the proposed approaches as exploratory unless the transcript clearly states a decision."
+  ],
+  "must_not_invent": [
+    "Customer or sales decisions",
+    "Remote-control product decisions",
+    "Business launch actions",
+    "Deadlines",
+    "Named people beyond Speaker A, Speaker B, Speaker C, and Speaker D",
+    "A finalized XML schema",
+    "A finalized scoring algorithm",
+    "A confirmed evaluation method",
+    "A completed prototype",
+    "Facts from outside the first 50-minute clip"
+  ]
+}

@@ -89,8 +89,8 @@
       "audio_file": "L02_AMI_EN2001b_50min.m4a",
       "source_type": "AMI",
       "audio_quality": "clean",
-      "expected_fixture": null,
-      "ground_truth_status": "pending"
+      "expected_fixture": "L02_AMI_EN2001b_50min.expected.json",
+      "ground_truth_status": "complete"
     },
     {
       "id": "L03",
