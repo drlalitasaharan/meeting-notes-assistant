@@ -23,6 +23,9 @@ from backend.app.services.meeting_regression_evaluator import (  # noqa: E402
     evaluate_manifest,
     load_expected_cases,
 )
+from backend.app.services.transcript_signal_extractor import (  # noqa: E402
+    extract_structured_signals_from_transcript,
+)
 
 SummarizerCallable = Callable[..., Any]
 
@@ -305,14 +308,27 @@ def normalize_actual_output(
         or raw_output
     )
 
-    # Keep decision/action/risk candidates tied to the product summary output.
-    # Do not inject transcript context into these fields, otherwise the baseline
-    # can over-credit recall from raw transcript text instead of generated notes.
+    # Keep risk candidates tied to product summary output for now.
+    # Decision/action enrichment below uses a structured extractor rather than
+    # raw transcript text, so it measures extraction signal without giving the
+    # evaluator the entire transcript as a decision/action candidate.
     actual.setdefault("summary", summary_text)
     actual.setdefault("notes_markdown", summary_text)
-    actual.setdefault("decisions", summary_text)
-    actual.setdefault("action_items", summary_text)
     actual.setdefault("risks", summary_text)
+
+    extracted_signals = extract_structured_signals_from_transcript(transcript)
+
+    if not actual.get("decisions"):
+        extracted_decisions = list(extracted_signals.get("decisions", []))
+        actual["decisions"] = (
+            [*extracted_decisions, summary_text] if summary_text else extracted_decisions
+        )
+
+    if not actual.get("action_items"):
+        extracted_actions = list(extracted_signals.get("action_items", []))
+        actual["action_items"] = (
+            [*extracted_actions, summary_text] if summary_text else extracted_actions
+        )
 
     context_values = _as_list(actual.get("context"))
     if summary_text:
