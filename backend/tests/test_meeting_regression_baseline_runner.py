@@ -77,8 +77,8 @@ def test_normalize_output_adds_transcript_context_without_leaking_to_decisions()
     assert "annotation data" in context_text
     assert "NITE XML" in context_text
     assert "information density" in context_text
-    assert actual["decisions"] == "Short generated summary."
-    assert actual["action_items"] == "Short generated summary."
+    assert actual["decisions"] == ["Short generated summary."]
+    assert actual["action_items"] == ["Short generated summary."]
     assert actual["risks"] == "Short generated summary."
 
 
@@ -98,3 +98,22 @@ def test_normalize_output_preserves_existing_structured_fields() -> None:
     assert actual["action_items"][0]["owner"] == "Priya"
     assert actual["risks"] == ["Pricing delay may affect launch."]
     assert "Commercial pilot planning." in actual["context"]
+
+
+def test_normalize_output_uses_structured_decision_action_extraction() -> None:
+    transcript = (
+        "The team decided to limit the pilot to twenty users. "
+        "We agreed to use email as the primary support channel. "
+        "Priya will send the pricing table by 2026-06-18 17:00."
+    )
+
+    actual = normalize_actual_output("Short generated summary.", transcript=transcript)
+
+    assert isinstance(actual["decisions"], list)
+    assert any("limit the pilot to twenty users" in item.lower() for item in actual["decisions"])
+    assert "Short generated summary." in actual["decisions"]
+
+    assert isinstance(actual["action_items"], list)
+    assert actual["action_items"][0]["owner"] == "Priya"
+    assert "pricing table" in actual["action_items"][0]["action"].lower()
+    assert "Short generated summary." in actual["action_items"]
