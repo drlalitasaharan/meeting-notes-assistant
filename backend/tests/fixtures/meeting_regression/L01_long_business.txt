@@ -1,0 +1,449 @@
+Priya: This is the commercial pilot launch and operations review. We will cover scope, pricing, security, retention, processing quality, support, and customer access. Confirmed decisions, explicit actions, risks, and open questions must remain separate.
+
+Jordan: The purpose is not to produce a broad platform roadmap. The purpose is to define a launch-safe commercial pilot and preserve a reliable record of what the team actually approved.
+
+Alex: An idea or possible future feature is not an action item. An action exists only when the owner is explicit or when the record deliberately states that the action remains unassigned.
+
+Morgan: Likewise, a proposed option is not a decision. We will use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected.
+
+Priya: The meeting is intentionally detailed because long recordings can contain important commitments near the beginning, middle, and end. The final recap must repeat existing facts only.
+
+Jordan: No new owner, deadline, decision, risk, or customer promise may be introduced during the recap. Anything not confirmed in the main discussion remains outside the approved record.
+
+Alex: We will also distinguish product readiness from commercial readiness. A pricing delay is not the same as a processing failure, and an open enterprise requirement is not the same as an approved feature.
+
+Morgan: With those rules established, we can begin the structured review.
+
+Priya: Section 1: Pilot audience and controlled release. The team is defining the commercial pilot audience and deciding how much customer access can be supported without creating an uncontrolled support or processing burden. This section may include discussion, but only explicitly marked items belong in the final decision or action record.
+
+Jordan: The current evidence is as follows. Previous controlled demonstrations showed stable processing when the number of participants and meeting types remained limited. That evidence informs the recommendation but does not create an automatic commitment.
+
+Alex: From an operational and technical perspective, the boundary must remain clear. The alternatives are an immediate public launch, an invited pilot with twenty customer users, or unrestricted access for the first customer. Each option has different cost, reliability, security, or support consequences.
+
+Morgan: From the customer perspective, The first customer needs enough seats to evaluate collaboration, but does not need unrestricted organization-wide access. We should communicate the selected policy plainly and avoid implying that unselected features are already included.
+
+Priya: The working recommendation is this: Use an invited pilot with a defined participant list and review capacity after real usage data is available. Before confirming anything, we should test that recommendation against the pilot objective and current evidence.
+
+Jordan: The recommendation fits a controlled pilot because it limits unnecessary variation while still giving the customer enough access to evaluate the core workflow and generated meeting notes.
+
+Alex: It also creates a measurable boundary. If later evidence supports broader access or additional features, those changes can be evaluated separately instead of being inferred from this discussion.
+
+Morgan: For the record, general comments about future possibilities in this section are not assignments. No speaker accepts work unless an explicit action statement follows.
+
+Priya: Rejected proposal: Launch publicly without an invited pilot. The group considered this option but did not approve it for the commercial pilot.
+
+Jordan: That rejected option must not appear in the output as a decision, commitment, next step, or promised capability.
+
+Alex: Risk confirmed: An unconfirmed customer user count could create inaccurate capacity assumptions. This risk should be monitored, but its presence alone does not create an additional action owner.
+
+Morgan: The risk belongs in the risk section because it could affect timing, cost, quality, privacy, or capacity. It should not be converted into an invented mitigation task.
+
+Priya: Explicit action: Confirm the first pilot customer participant list. I accept ownership and will complete it by noon on June twenty-fourth, twenty twenty-six.
+
+Priya: Ownership and deadline confirmed for Priya. Both details should remain attached to this action.
+
+Priya: Decision confirmed: Limit the initial commercial pilot to twenty customer users.
+
+Jordan: The decision is approved exactly as stated. Related alternatives or future possibilities are not part of the approved decision.
+
+Alex: Before closing this section, I confirm that no additional technical commitment, task owner, or deadline has been created by the surrounding discussion.
+
+Morgan: I also confirm that the customer-facing interpretation should match the explicit decision and action language rather than the broader brainstorming.
+
+Jordan: This section can now be treated as complete. Its confirmed facts will be repeated during the final recap without alteration.
+
+Priya: Section 1 is closed. We will move to the next topic.
+
+Priya: Section 2: Recording-duration policy. The group is reviewing how recording length affects transcription cost, processing time, action recall, and the predictability of the pilot. This section may include discussion, but only explicitly marked items belong in the final decision or action record.
+
+Jordan: The current evidence is as follows. Short and thirty-minute business recordings have produced the most consistent notes, while longer recordings require more careful validation. That evidence informs the recommendation but does not create an automatic commitment.
+
+Alex: From an operational and technical perspective, the boundary must remain clear. The alternatives are a thirty-minute standard limit, unrestricted duration, or controlled sixty-minute access for selected evaluations. Each option has different cost, reliability, security, or support consequences.
+
+Morgan: From the customer perspective, Some customers may occasionally need longer meetings, but standard pilot users need a clear and reliable default limit. We should communicate the selected policy plainly and avoid implying that unselected features are already included.
+
+Priya: The working recommendation is this: Use thirty minutes as the standard limit and reserve sixty-minute testing for approved evaluation accounts. Before confirming anything, we should test that recommendation against the pilot objective and current evidence.
+
+Jordan: The recommendation fits a controlled pilot because it limits unnecessary variation while still giving the customer enough access to evaluate the core workflow and generated meeting notes.
+
+Alex: It also creates a measurable boundary. If later evidence supports broader access or additional features, those changes can be evaluated separately instead of being inferred from this discussion.
+
+Morgan: For the record, general comments about future possibilities in this section are not assignments. No speaker accepts work unless an explicit action statement follows.
+
+Priya: Rejected proposal: Offer unlimited recording duration. The group considered this option but did not approve it for the commercial pilot.
+
+Jordan: That rejected option must not appear in the output as a decision, commitment, next step, or promised capability.
+
+Alex: Risk confirmed: Unexpected sixty-minute usage could increase processing cost and delay. This risk should be monitored, but its presence alone does not create an additional action owner.
+
+Morgan: The risk belongs in the risk section because it could affect timing, cost, quality, privacy, or capacity. It should not be converted into an invented mitigation task.
+
+Priya: Open question: Whether sixty-minute support is essential for the first commercial customer. The answer is not confirmed during this meeting.
+
+Jordan: Because the answer remains unknown, the notes must not describe a requirement, approval, or product commitment as settled.
+
+Jordan: Explicit action: Run the twelve-recording regression suite and document failures. I accept ownership and will complete it by five PM on June twenty-fifth, twenty twenty-six.
+
+Priya: Ownership and deadline confirmed for Jordan. Both details should remain attached to this action.
+
+Priya: Decision confirmed: Limit standard pilot recordings to thirty minutes.
+
+Jordan: The decision is approved exactly as stated. Related alternatives or future possibilities are not part of the approved decision.
+
+Priya: Decision confirmed: Allow sixty-minute recordings only for approved evaluation accounts.
+
+Jordan: The decision is approved exactly as stated. Related alternatives or future possibilities are not part of the approved decision.
+
+Alex: Before closing this section, I confirm that no additional technical commitment, task owner, or deadline has been created by the surrounding discussion.
+
+Morgan: I also confirm that the customer-facing interpretation should match the explicit decision and action language rather than the broader brainstorming.
+
+Jordan: This section can now be treated as complete. Its confirmed facts will be repeated during the final recap without alteration.
+
+Priya: Section 2 is closed. We will move to the next topic.
+
+Priya: Section 3: Pricing and commercial approval. The product demonstration is ready, but commercial communication cannot be finalized until the pricing table has formal approval. This section may include discussion, but only explicitly marked items belong in the final decision or action record.
+
+Jordan: The current evidence is as follows. Earlier client follow-up was delayed when pricing remained provisional, even though the product itself was functioning correctly. That evidence informs the recommendation but does not create an automatic commitment.
+
+Alex: From an operational and technical perspective, the boundary must remain clear. The team could announce an estimated price, delay all communication, or wait for the approved table while continuing non-commercial preparation. Each option has different cost, reliability, security, or support consequences.
+
+Morgan: From the customer perspective, The customer needs a simple and consistent pilot price rather than several provisional options that could later change. We should communicate the selected policy plainly and avoid implying that unselected features are already included.
+
+Priya: The working recommendation is this: Continue technical preparation, but use only formally approved pricing in customer communication. Before confirming anything, we should test that recommendation against the pilot objective and current evidence.
+
+Jordan: The recommendation fits a controlled pilot because it limits unnecessary variation while still giving the customer enough access to evaluate the core workflow and generated meeting notes.
+
+Alex: It also creates a measurable boundary. If later evidence supports broader access or additional features, those changes can be evaluated separately instead of being inferred from this discussion.
+
+Morgan: For the record, general comments about future possibilities in this section are not assignments. No speaker accepts work unless an explicit action statement follows.
+
+Alex: Risk confirmed: Delayed pricing approval could postpone commercial follow-up. This risk should be monitored, but its presence alone does not create an additional action owner.
+
+Morgan: The risk belongs in the risk section because it could affect timing, cost, quality, privacy, or capacity. It should not be converted into an invented mitigation task.
+
+Priya: Explicit action: Circulate the approved pilot pricing table. I accept ownership and will complete it by five PM on June eighteenth, twenty twenty-six.
+
+Priya: Ownership and deadline confirmed for Priya. Both details should remain attached to this action.
+
+Alex: Before closing this section, I confirm that no additional technical commitment, task owner, or deadline has been created by the surrounding discussion.
+
+Morgan: I also confirm that the customer-facing interpretation should match the explicit decision and action language rather than the broader brainstorming.
+
+Jordan: This section can now be treated as complete. Its confirmed facts will be repeated during the final recap without alteration.
+
+Priya: Section 3 is closed. We will move to the next topic.
+
+Priya: Section 4: Security and launch approval. The team is reviewing storage access, administrator permissions, authentication, and deletion controls before commercial launch. This section may include discussion, but only explicitly marked items belong in the final decision or action record.
+
+Jordan: The current evidence is as follows. Database, Redis, object storage, and admin monitoring are operational, but the final security summary must present those controls clearly. That evidence informs the recommendation but does not create an automatic commitment.
+
+Alex: From an operational and technical perspective, the boundary must remain clear. The team could publish a date immediately or wait until the pricing and security approvals are both complete. Each option has different cost, reliability, security, or support consequences.
+
+Morgan: From the customer perspective, A customer evaluating recorded meetings needs confidence that access is restricted and that operational monitoring does not expose meeting content. We should communicate the selected policy plainly and avoid implying that unselected features are already included.
+
+Priya: The working recommendation is this: Keep technical preparation moving but do not announce the final date until both commercial and security approvals are complete. Before confirming anything, we should test that recommendation against the pilot objective and current evidence.
+
+Jordan: The recommendation fits a controlled pilot because it limits unnecessary variation while still giving the customer enough access to evaluate the core workflow and generated meeting notes.
+
+Alex: It also creates a measurable boundary. If later evidence supports broader access or additional features, those changes can be evaluated separately instead of being inferred from this discussion.
+
+Morgan: For the record, general comments about future possibilities in this section are not assignments. No speaker accepts work unless an explicit action statement follows.
+
+Alex: Risk confirmed: An incomplete security review could delay launch approval. This risk should be monitored, but its presence alone does not create an additional action owner.
+
+Morgan: The risk belongs in the risk section because it could affect timing, cost, quality, privacy, or capacity. It should not be converted into an invented mitigation task.
+
+Alex: Explicit action: Complete the storage and access-control security review. I accept ownership and will complete it by noon on June twenty-second, twenty twenty-six.
+
+Priya: Ownership and deadline confirmed for Alex. Both details should remain attached to this action.
+
+Priya: Decision confirmed: Do not announce the launch date until pricing and security approval are complete.
+
+Jordan: The decision is approved exactly as stated. Related alternatives or future possibilities are not part of the approved decision.
+
+Alex: Before closing this section, I confirm that no additional technical commitment, task owner, or deadline has been created by the surrounding discussion.
+
+Morgan: I also confirm that the customer-facing interpretation should match the explicit decision and action language rather than the broader brainstorming.
+
+Jordan: This section can now be treated as complete. Its confirmed facts will be repeated during the final recap without alteration.
+
+Priya: Section 4 is closed. We will move to the next topic.
+
+Priya: Section 5: Retention, deletion, and regional storage. The group is defining how long uploaded recordings should remain available and how deletion should be verified across storage systems. This section may include discussion, but only explicitly marked items belong in the final decision or action record.
+
+Jordan: The current evidence is as follows. Thirty days provides users time to review results while reducing unnecessary long-term retention of source recordings. That evidence informs the recommendation but does not create an automatic commitment.
+
+Alex: From an operational and technical perspective, the boundary must remain clear. The alternatives are indefinite retention, ninety-day retention, or a thirty-day pilot retention policy. Each option has different cost, reliability, security, or support consequences.
+
+Morgan: From the customer perspective, Customers need a clear retention statement and confidence that a deleted recording is removed from the relevant object store. We should communicate the selected policy plainly and avoid implying that unselected features are already included.
+
+Priya: The working recommendation is this: Use thirty days for the pilot and verify deletion behavior before making broader retention claims. Before confirming anything, we should test that recommendation against the pilot objective and current evidence.
+
+Jordan: The recommendation fits a controlled pilot because it limits unnecessary variation while still giving the customer enough access to evaluate the core workflow and generated meeting notes.
+
+Alex: It also creates a measurable boundary. If later evidence supports broader access or additional features, those changes can be evaluated separately instead of being inferred from this discussion.
+
+Morgan: For the record, general comments about future possibilities in this section are not assignments. No speaker accepts work unless an explicit action statement follows.
+
+Alex: Risk confirmed: Unclear retention requirements could delay privacy approval. This risk should be monitored, but its presence alone does not create an additional action owner.
+
+Morgan: The risk belongs in the risk section because it could affect timing, cost, quality, privacy, or capacity. It should not be converted into an invented mitigation task.
+
+Priya: Open question: Whether recordings must remain in a specific geographic region. The answer is not confirmed during this meeting.
+
+Jordan: Because the answer remains unknown, the notes must not describe a requirement, approval, or product commitment as settled.
+
+Alex: Explicit action: Verify recording deletion from storage after the retention test. I accept ownership of this action. No deadline is assigned.
+
+Priya: Ownership confirmed for Alex. The record must not invent a completion date.
+
+Morgan: Explicit action: Confirm whether regional data storage is required. This action is intentionally unassigned and has no deadline.
+
+Alex: The notes must preserve the action while leaving the owner unassigned. No participant should be guessed as the owner.
+
+Priya: Decision confirmed: Retain uploaded pilot recordings for thirty days.
+
+Jordan: The decision is approved exactly as stated. Related alternatives or future possibilities are not part of the approved decision.
+
+Alex: Before closing this section, I confirm that no additional technical commitment, task owner, or deadline has been created by the surrounding discussion.
+
+Morgan: I also confirm that the customer-facing interpretation should match the explicit decision and action language rather than the broader brainstorming.
+
+Jordan: This section can now be treated as complete. Its confirmed facts will be repeated during the final recap without alteration.
+
+Priya: Section 5 is closed. We will move to the next topic.
+
+Priya: Section 6: Processing quality and regression testing. The team is reviewing how to prevent improvements for one meeting from silently reducing quality on another meeting type. This section may include discussion, but only explicitly marked items belong in the final decision or action record.
+
+Jordan: The current evidence is as follows. The regression pack now covers short, medium, long, degraded-audio, decisions-only, risk-review, and non-meeting guardrail cases. That evidence informs the recommendation but does not create an automatic commitment.
+
+Alex: From an operational and technical perspective, the boundary must remain clear. The team could continue making isolated prompt changes or use a fixed regression suite and review quality after measured usage. Each option has different cost, reliability, security, or support consequences.
+
+Morgan: From the customer perspective, Customers need stable summaries, decisions, risks, and action items rather than quality that changes unpredictably after each update. We should communicate the selected policy plainly and avoid implying that unselected features are already included.
+
+Priya: The working recommendation is this: Use the complete regression suite before quality changes and perform a commercial review after the first twenty processed meetings. Before confirming anything, we should test that recommendation against the pilot objective and current evidence.
+
+Jordan: The recommendation fits a controlled pilot because it limits unnecessary variation while still giving the customer enough access to evaluate the core workflow and generated meeting notes.
+
+Alex: It also creates a measurable boundary. If later evidence supports broader access or additional features, those changes can be evaluated separately instead of being inferred from this discussion.
+
+Morgan: For the record, general comments about future possibilities in this section are not assignments. No speaker accepts work unless an explicit action statement follows.
+
+Alex: Risk confirmed: Poor-quality recordings could reduce transcription and action recall. This risk should be monitored, but its presence alone does not create an additional action owner.
+
+Morgan: The risk belongs in the risk section because it could affect timing, cost, quality, privacy, or capacity. It should not be converted into an invented mitigation task.
+
+Priya: Decision confirmed: Review pilot quality and usage after the first twenty processed meetings.
+
+Jordan: The decision is approved exactly as stated. Related alternatives or future possibilities are not part of the approved decision.
+
+Alex: Before closing this section, I confirm that no additional technical commitment, task owner, or deadline has been created by the surrounding discussion.
+
+Morgan: I also confirm that the customer-facing interpretation should match the explicit decision and action language rather than the broader brainstorming.
+
+Jordan: This section can now be treated as complete. Its confirmed facts will be repeated during the final recap without alteration.
+
+Priya: Section 6 is closed. We will move to the next topic.
+
+Priya: Section 7: Demonstration readiness. The customer demonstration needs a reliable account, an approved sample recording, and a backup processed meeting. This section may include discussion, but only explicitly marked items belong in the final decision or action record.
+
+Jordan: The current evidence is as follows. Previous demonstrations were strongest when the sample had already been processed and the output could be reviewed without waiting. That evidence informs the recommendation but does not create an automatic commitment.
+
+Alex: From an operational and technical perspective, the boundary must remain clear. The team could improvise with an unverified recording or use a final approved sample that has already passed a smoke test. Each option has different cost, reliability, security, or support consequences.
+
+Morgan: From the customer perspective, The customer should see the normal workflow from upload through review without unrelated test meetings or incomplete results. We should communicate the selected policy plainly and avoid implying that unselected features are already included.
+
+Priya: The working recommendation is this: Use the approved sample recording and retain one processed backup meeting for demonstration continuity. Before confirming anything, we should test that recommendation against the pilot objective and current evidence.
+
+Jordan: The recommendation fits a controlled pilot because it limits unnecessary variation while still giving the customer enough access to evaluate the core workflow and generated meeting notes.
+
+Alex: It also creates a measurable boundary. If later evidence supports broader access or additional features, those changes can be evaluated separately instead of being inferred from this discussion.
+
+Morgan: For the record, general comments about future possibilities in this section are not assignments. No speaker accepts work unless an explicit action statement follows.
+
+Jordan: Explicit action: Upload the final demonstration recording. I accept ownership and will complete it by three PM on June nineteenth, twenty twenty-six.
+
+Priya: Ownership and deadline confirmed for Jordan. Both details should remain attached to this action.
+
+Alex: Before closing this section, I confirm that no additional technical commitment, task owner, or deadline has been created by the surrounding discussion.
+
+Morgan: I also confirm that the customer-facing interpretation should match the explicit decision and action language rather than the broader brainstorming.
+
+Jordan: This section can now be treated as complete. Its confirmed facts will be repeated during the final recap without alteration.
+
+Priya: Section 7 is closed. We will move to the next topic.
+
+Priya: Section 8: Support and customer onboarding. The team is deciding how customers should receive help and how the first-use workflow should explain upload, processing, review, and limits. This section may include discussion, but only explicitly marked items belong in the final decision or action record.
+
+Jordan: The current evidence is as follows. A small invited pilot does not require live telephone coverage, but it does require consistent written responses and a clear onboarding checklist. That evidence informs the recommendation but does not create an automatic commitment.
+
+Alex: From an operational and technical perspective, the boundary must remain clear. The alternatives are live chat, telephone support, email support, or an unstructured combination of channels. Each option has different cost, reliability, security, or support consequences.
+
+Morgan: From the customer perspective, Customers need to know which recordings are supported, what outputs are produced, and how to report a failed meeting. We should communicate the selected policy plainly and avoid implying that unselected features are already included.
+
+Priya: The working recommendation is this: Use email as the primary support channel and provide consistent response templates and onboarding guidance. Before confirming anything, we should test that recommendation against the pilot objective and current evidence.
+
+Jordan: The recommendation fits a controlled pilot because it limits unnecessary variation while still giving the customer enough access to evaluate the core workflow and generated meeting notes.
+
+Alex: It also creates a measurable boundary. If later evidence supports broader access or additional features, those changes can be evaluated separately instead of being inferred from this discussion.
+
+Morgan: For the record, general comments about future possibilities in this section are not assignments. No speaker accepts work unless an explicit action statement follows.
+
+Morgan: Explicit action: Prepare the pilot support-response templates. I accept ownership and will complete it by five PM on June twenty-third, twenty twenty-six.
+
+Priya: Ownership and deadline confirmed for Morgan. Both details should remain attached to this action.
+
+Morgan: Explicit action: Create the customer onboarding checklist. I accept ownership of this action. No deadline is assigned.
+
+Priya: Ownership confirmed for Morgan. The record must not invent a completion date.
+
+Priya: Decision confirmed: Use email as the primary pilot support channel.
+
+Jordan: The decision is approved exactly as stated. Related alternatives or future possibilities are not part of the approved decision.
+
+Alex: Before closing this section, I confirm that no additional technical commitment, task owner, or deadline has been created by the surrounding discussion.
+
+Morgan: I also confirm that the customer-facing interpretation should match the explicit decision and action language rather than the broader brainstorming.
+
+Jordan: This section can now be treated as complete. Its confirmed facts will be repeated during the final recap without alteration.
+
+Priya: Section 8 is closed. We will move to the next topic.
+
+Priya: Section 9: Authentication and custom scope. The group is separating launch requirements from enterprise features that may be valuable later but are not necessary for the first pilot. This section may include discussion, but only explicitly marked items belong in the final decision or action record.
+
+Jordan: The current evidence is as follows. Email and password authentication already supports the invited pilot, while single sign-on and custom reporting would add implementation scope. That evidence informs the recommendation but does not create an automatic commitment.
+
+Alex: From an operational and technical perspective, the boundary must remain clear. The team could promise enterprise features immediately or retain the current authentication and standard notes package during the pilot. Each option has different cost, reliability, security, or support consequences.
+
+Morgan: From the customer perspective, The customer may eventually request enterprise identity or specialized reports, but those requirements have not been confirmed. We should communicate the selected policy plainly and avoid implying that unselected features are already included.
+
+Priya: The working recommendation is this: Keep the initial scope focused and evaluate enterprise additions only after the customer confirms the requirement. Before confirming anything, we should test that recommendation against the pilot objective and current evidence.
+
+Jordan: The recommendation fits a controlled pilot because it limits unnecessary variation while still giving the customer enough access to evaluate the core workflow and generated meeting notes.
+
+Alex: It also creates a measurable boundary. If later evidence supports broader access or additional features, those changes can be evaluated separately instead of being inferred from this discussion.
+
+Morgan: For the record, general comments about future possibilities in this section are not assignments. No speaker accepts work unless an explicit action statement follows.
+
+Priya: Rejected proposal: Include custom reporting in the standard pilot. The group considered this option but did not approve it for the commercial pilot.
+
+Jordan: That rejected option must not appear in the output as a decision, commitment, next step, or promised capability.
+
+Priya: Rejected proposal: Promise single sign-on before requirements are confirmed. The group considered this option but did not approve it for the commercial pilot.
+
+Jordan: That rejected option must not appear in the output as a decision, commitment, next step, or promised capability.
+
+Priya: Open question: Whether the customer requires single sign-on. The answer is not confirmed during this meeting.
+
+Jordan: Because the answer remains unknown, the notes must not describe a requirement, approval, or product commitment as settled.
+
+Priya: Decision confirmed: Keep single sign-on outside the initial commercial scope.
+
+Jordan: The decision is approved exactly as stated. Related alternatives or future possibilities are not part of the approved decision.
+
+Alex: Before closing this section, I confirm that no additional technical commitment, task owner, or deadline has been created by the surrounding discussion.
+
+Morgan: I also confirm that the customer-facing interpretation should match the explicit decision and action language rather than the broader brainstorming.
+
+Jordan: This section can now be treated as complete. Its confirmed facts will be repeated during the final recap without alteration.
+
+Priya: Section 9 is closed. We will move to the next topic.
+
+Priya: Section 10: Participant type and contractor access. The proposed participant list currently contains customer employees, but the possibility of external contractor accounts has been mentioned. This section may include discussion, but only explicitly marked items belong in the final decision or action record.
+
+Jordan: The current evidence is as follows. Contractor access can affect account ownership, confidentiality, offboarding, and the interpretation of customer data responsibilities. That evidence informs the recommendation but does not create an automatic commitment.
+
+Alex: From an operational and technical perspective, the boundary must remain clear. The team could assume contractors are included, exclude them permanently, or leave the matter open pending customer confirmation. Each option has different cost, reliability, security, or support consequences.
+
+Morgan: From the customer perspective, The customer should confirm whether outside consultants require access before accounts are created for them. We should communicate the selected policy plainly and avoid implying that unselected features are already included.
+
+Priya: The working recommendation is this: Do not infer contractor eligibility. Record the issue as unresolved and review it when the customer provides the participant list. Before confirming anything, we should test that recommendation against the pilot objective and current evidence.
+
+Jordan: The recommendation fits a controlled pilot because it limits unnecessary variation while still giving the customer enough access to evaluate the core workflow and generated meeting notes.
+
+Alex: It also creates a measurable boundary. If later evidence supports broader access or additional features, those changes can be evaluated separately instead of being inferred from this discussion.
+
+Morgan: For the record, general comments about future possibilities in this section are not assignments. No speaker accepts work unless an explicit action statement follows.
+
+Priya: Open question: Whether external contractors will participate in the pilot. The answer is not confirmed during this meeting.
+
+Jordan: Because the answer remains unknown, the notes must not describe a requirement, approval, or product commitment as settled.
+
+Morgan: Explicit action: Review whether contractor accounts may join the pilot. This action is intentionally unassigned and has no deadline.
+
+Alex: The notes must preserve the action while leaving the owner unassigned. No participant should be guessed as the owner.
+
+Alex: Before closing this section, I confirm that no additional technical commitment, task owner, or deadline has been created by the surrounding discussion.
+
+Morgan: I also confirm that the customer-facing interpretation should match the explicit decision and action language rather than the broader brainstorming.
+
+Jordan: This section can now be treated as complete. Its confirmed facts will be repeated during the final recap without alteration.
+
+Priya: Section 10 is closed. We will move to the next topic.
+
+Priya: We have completed the main discussion. The final recap begins now and will repeat only facts already confirmed.
+
+Priya: Recap decision: Limit the initial commercial pilot to twenty customer users.
+
+Priya: Recap decision: Limit standard pilot recordings to thirty minutes.
+
+Priya: Recap decision: Allow sixty-minute recordings only for approved evaluation accounts.
+
+Priya: Recap decision: Use email as the primary pilot support channel.
+
+Priya: Recap decision: Retain uploaded pilot recordings for thirty days.
+
+Priya: Recap decision: Keep single sign-on outside the initial commercial scope.
+
+Priya: Recap decision: Do not announce the launch date until pricing and security approval are complete.
+
+Priya: Recap decision: Review pilot quality and usage after the first twenty processed meetings.
+
+Jordan: Recap action: Circulate the approved pilot pricing table. Owner: Priya. Deadline: 2026-06-18 17:00.
+
+Jordan: Recap action: Upload the final demonstration recording. Owner: Jordan. Deadline: 2026-06-19 15:00.
+
+Jordan: Recap action: Complete the storage and access-control security review. Owner: Alex. Deadline: 2026-06-22 12:00.
+
+Jordan: Recap action: Prepare the pilot support-response templates. Owner: Morgan. Deadline: 2026-06-23 17:00.
+
+Jordan: Recap action: Confirm the first pilot customer participant list. Owner: Priya. Deadline: 2026-06-24 12:00.
+
+Jordan: Recap action: Run the twelve-recording regression suite and document failures. Owner: Jordan. Deadline: 2026-06-25 17:00.
+
+Jordan: Recap action: Verify recording deletion from storage after the retention test. Owner: Alex. Deadline: No deadline.
+
+Jordan: Recap action: Create the customer onboarding checklist. Owner: Morgan. Deadline: No deadline.
+
+Jordan: Recap action: Confirm whether regional data storage is required. Owner: Unassigned. Deadline: No deadline.
+
+Jordan: Recap action: Review whether contractor accounts may join the pilot. Owner: Unassigned. Deadline: No deadline.
+
+Alex: Recap risk: Delayed pricing approval could postpone commercial follow-up.
+
+Alex: Recap risk: An incomplete security review could delay launch approval.
+
+Alex: Recap risk: Poor-quality recordings could reduce transcription and action recall.
+
+Alex: Recap risk: Unexpected sixty-minute usage could increase processing cost and delay.
+
+Alex: Recap risk: Unclear retention requirements could delay privacy approval.
+
+Alex: Recap risk: An unconfirmed customer user count could create inaccurate capacity assumptions.
+
+Morgan: Recap open question: Whether the customer requires single sign-on.
+
+Morgan: Recap open question: Whether recordings must remain in a specific geographic region.
+
+Morgan: Recap open question: Whether external contractors will participate in the pilot.
+
+Morgan: Recap open question: Whether sixty-minute support is essential for the first commercial customer.
+
+Priya: The rejected proposals remain rejected. No final launch date has been approved, no single sign-on commitment has been made, unlimited recording duration has not been approved, and custom reporting is not part of the standard pilot.
+
+Jordan: The recap introduced no new actions, owners, deadlines, decisions, risks, questions, or customer promises.
+
+Alex: The commercial pilot record is complete and ready for regression testing.
+
+Morgan: Meeting complete.

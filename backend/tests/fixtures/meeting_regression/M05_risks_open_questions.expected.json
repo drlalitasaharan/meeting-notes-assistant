@@ -1,0 +1,56 @@
+{
+  "id": "M05",
+  "title": "Pilot risk and open-question review",
+  "category": "medium",
+  "target_duration_minutes": 15.3,
+  "audio_file": "M05_risks_open_questions_medium.m4a",
+  "expected_decisions": [
+    "Do not announce a final pilot launch date until pricing approval and the security review are complete.",
+    "Do not promise single sign-on or sixty-minute meeting support until the client confirms the requirements and the additional scope is approved."
+  ],
+  "expected_actions": [
+    {
+      "owner": "Priya",
+      "action": "Obtain written pricing approval and circulate the approved pricing table to the team.",
+      "deadline": "2026-06-18 17:00"
+    },
+    {
+      "owner": "Alex",
+      "action": "Send the completed security review summary covering storage access, administrator permissions, and deletion controls.",
+      "deadline": "2026-06-22 12:00"
+    }
+  ],
+  "expected_owners": [
+    "Priya",
+    "Alex"
+  ],
+  "expected_deadlines": [
+    "2026-06-18 17:00",
+    "2026-06-22 12:00"
+  ],
+  "expected_risks": [
+    "Delayed pricing approval could postpone the client follow-up and prevent confirmation of the commercial pilot.",
+    "Unclear data-retention requirements could delay legal and privacy approval.",
+    "The unconfirmed pilot user count could create inaccurate capacity and pricing assumptions.",
+    "An incomplete security review could delay the planned pilot launch.",
+    "Low-quality or unsupported recordings could cause processing failures or incomplete meeting notes."
+  ],
+  "expected_open_questions": [
+    "Whether the client requires single sign-on during the pilot.",
+    "Whether recordings must remain in a specific geographic region.",
+    "Whether external contractors will be included in the pilot.",
+    "Whether sixty-minute recordings must be supported in the initial pilot."
+  ],
+  "must_not_invent": [
+    "An action assigned to Jordan",
+    "An action assigned to Morgan",
+    "Deadlines for unresolved questions",
+    "A confirmed single sign-on requirement",
+    "A confirmed regional-storage requirement",
+    "A commitment to support sixty-minute meetings",
+    "A confirmed external-contractor pilot group",
+    "Additional mitigation commitments"
+  ],
+  "actual_duration_minutes": 15.3,
+  "audio_notes": "Synthetic multi-speaker risk review at natural speech speed with 7.5-second pauses between turns."
+}

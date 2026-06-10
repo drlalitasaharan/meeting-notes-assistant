@@ -1,0 +1,112 @@
+{
+  "id": "L01",
+  "title": "Commercial pilot launch and operations review",
+  "category": "long",
+  "target_duration_minutes": 50,
+  "audio_file": "L01_controlled_long_business_50min.m4a",
+  "expected_decisions": [
+    "Limit the initial commercial pilot to twenty customer users.",
+    "Limit standard pilot recordings to thirty minutes.",
+    "Allow sixty-minute recordings only for approved evaluation accounts.",
+    "Use email as the primary pilot support channel.",
+    "Retain uploaded pilot recordings for thirty days.",
+    "Keep single sign-on outside the initial commercial scope.",
+    "Do not announce the launch date until pricing and security approval are complete.",
+    "Review pilot quality and usage after the first twenty processed meetings."
+  ],
+  "expected_actions": [
+    {
+      "owner": "Priya",
+      "action": "Circulate the approved pilot pricing table.",
+      "deadline": "2026-06-18 17:00"
+    },
+    {
+      "owner": "Jordan",
+      "action": "Upload the final demonstration recording.",
+      "deadline": "2026-06-19 15:00"
+    },
+    {
+      "owner": "Alex",
+      "action": "Complete the storage and access-control security review.",
+      "deadline": "2026-06-22 12:00"
+    },
+    {
+      "owner": "Morgan",
+      "action": "Prepare the pilot support-response templates.",
+      "deadline": "2026-06-23 17:00"
+    },
+    {
+      "owner": "Priya",
+      "action": "Confirm the first pilot customer participant list.",
+      "deadline": "2026-06-24 12:00"
+    },
+    {
+      "owner": "Jordan",
+      "action": "Run the twelve-recording regression suite and document failures.",
+      "deadline": "2026-06-25 17:00"
+    },
+    {
+      "owner": "Alex",
+      "action": "Verify recording deletion from storage after the retention test.",
+      "deadline": null
+    },
+    {
+      "owner": "Morgan",
+      "action": "Create the customer onboarding checklist.",
+      "deadline": null
+    },
+    {
+      "owner": null,
+      "action": "Confirm whether regional data storage is required.",
+      "deadline": null
+    },
+    {
+      "owner": null,
+      "action": "Review whether contractor accounts may join the pilot.",
+      "deadline": null
+    }
+  ],
+  "expected_owners": [
+    "Priya",
+    "Jordan",
+    "Alex",
+    "Morgan"
+  ],
+  "expected_risks": [
+    "Delayed pricing approval could postpone commercial follow-up.",
+    "An incomplete security review could delay launch approval.",
+    "Poor-quality recordings could reduce transcription and action recall.",
+    "Unexpected sixty-minute usage could increase processing cost and delay.",
+    "Unclear retention requirements could delay privacy approval.",
+    "An unconfirmed customer user count could create inaccurate capacity assumptions."
+  ],
+  "expected_open_questions": [
+    "Whether the customer requires single sign-on.",
+    "Whether recordings must remain in a specific geographic region.",
+    "Whether external contractors will participate in the pilot.",
+    "Whether sixty-minute support is essential for the first commercial customer."
+  ],
+  "rejected_proposals": [
+    "Launch publicly without an invited pilot.",
+    "Offer unlimited recording duration.",
+    "Include custom reporting in the standard pilot.",
+    "Promise single sign-on before requirements are confirmed."
+  ],
+  "must_not_invent": [
+    "Owners for the two explicitly unassigned actions",
+    "Deadlines for actions that have no deadline",
+    "Approval of unlimited recording duration",
+    "Approval of custom reporting",
+    "A confirmed single sign-on commitment",
+    "A final launch date",
+    "Additional actions introduced only in the final recap"
+  ],
+  "actual_duration_minutes": 50.0,
+  "actual_size_mb": 16.17,
+  "audio_notes": "Synthetic four-speaker controlled business meeting generated at 135 words per minute with natural calculated pauses.",
+  "generation": {
+    "speech_rate_wpm": 135,
+    "pause_seconds_between_turns": 2.441,
+    "turn_count": 225
+  }
+}
