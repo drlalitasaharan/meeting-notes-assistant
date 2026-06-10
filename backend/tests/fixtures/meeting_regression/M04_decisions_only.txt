@@ -1,0 +1,111 @@
+Priya: This meeting is limited to product-policy decisions for the MeetIQ pilot. We are not assigning implementation work, owners, due dates, or follow-up tasks.
+
+Jordan: For every topic, the minutes should record only the selected policy. Discussion of alternatives must not be interpreted as an action item.
+
+Alex: Agreed. No speaker is volunteering to complete work, and no deadline will be established during this meeting.
+
+Morgan: I will also use the phrase decision confirmed whenever the group reaches agreement so the distinction remains explicit.
+
+Priya: The next policy topic is pilot audience. The alternatives under discussion are a broad public launch or a limited invited pilot. This is a policy choice and not an assignment of work.
+
+Jordan: The relevant reasoning is that A limited invited pilot gives the team clearer feedback and reduces unnecessary operational variation. I am describing the rationale only. I am not accepting an action item, and no deadline is being proposed.
+
+Alex: The distinction should remain precise. We may discuss possible future implementation, but this meeting is not authorizing or assigning that implementation.
+
+Morgan: Before confirmation, the record should state that no individual owns a follow-up task for this topic and no completion date is being set.
+
+Priya: Decision confirmed: The initial release will remain an invited pilot. This decision has no action owner and no deadline.
+
+Jordan: Confirmed. The group has selected the policy, and there are no next steps associated with this topic in this meeting.
+
+Priya: The next policy topic is pilot account size. The alternatives under discussion are ten users, twenty-five users, or unrestricted access. This is a policy choice and not an assignment of work.
+
+Jordan: The relevant reasoning is that Ten users provide enough usage diversity without creating an uncontrolled support burden. I am describing the rationale only. I am not accepting an action item, and no deadline is being proposed.
+
+Alex: The distinction should remain precise. We may discuss possible future implementation, but this meeting is not authorizing or assigning that implementation.
+
+Morgan: Before confirmation, the record should state that no individual owns a follow-up task for this topic and no completion date is being set.
+
+Priya: Decision confirmed: The pilot will support no more than ten users. This decision has no action owner and no deadline.
+
+Jordan: Confirmed. The group has selected the policy, and there are no next steps associated with this topic in this meeting.
+
+Priya: The next policy topic is recording duration. The alternatives under discussion are a thirty-minute limit, a sixty-minute limit, or no duration limit. This is a policy choice and not an assignment of work.
+
+Jordan: The relevant reasoning is that Thirty-minute recordings currently provide the most predictable balance of quality, processing time, and cost. I am describing the rationale only. I am not accepting an action item, and no deadline is being proposed.
+
+Alex: The distinction should remain precise. We may discuss possible future implementation, but this meeting is not authorizing or assigning that implementation.
+
+Morgan: Before confirmation, the record should state that no individual owns a follow-up task for this topic and no completion date is being set.
+
+Priya: Decision confirmed: Pilot recordings will be limited to thirty minutes. This decision has no action owner and no deadline.
+
+Jordan: Confirmed. The group has selected the policy, and there are no next steps associated with this topic in this meeting.
+
+Priya: The next policy topic is standard notes package. The alternatives under discussion are a brief summary only or a structured package containing purpose, outcome, decisions, risks, key points, and next steps. This is a policy choice and not an assignment of work.
+
+Jordan: The relevant reasoning is that The structured package provides clearer operational value than an unstructured summary. I am describing the rationale only. I am not accepting an action item, and no deadline is being proposed.
+
+Alex: The distinction should remain precise. We may discuss possible future implementation, but this meeting is not authorizing or assigning that implementation.
+
+Morgan: Before confirmation, the record should state that no individual owns a follow-up task for this topic and no completion date is being set.
+
+Priya: Decision confirmed: The standard output will include purpose, outcome, decisions, risks, key points, and next steps. This decision has no action owner and no deadline.
+
+Jordan: Confirmed. The group has selected the policy, and there are no next steps associated with this topic in this meeting.
+
+Priya: The next policy topic is custom reporting. The alternatives under discussion are include custom reporting in the pilot or defer it to a later phase. This is a policy choice and not an assignment of work.
+
+Jordan: The relevant reasoning is that Custom reporting would expand scope before the standard workflow has been commercially validated. I am describing the rationale only. I am not accepting an action item, and no deadline is being proposed.
+
+Alex: The distinction should remain precise. We may discuss possible future implementation, but this meeting is not authorizing or assigning that implementation.
+
+Morgan: Before confirmation, the record should state that no individual owns a follow-up task for this topic and no completion date is being set.
+
+Priya: Decision confirmed: Custom reporting will remain outside the initial pilot. This decision has no action owner and no deadline.
+
+Jordan: Confirmed. The group has selected the policy, and there are no next steps associated with this topic in this meeting.
+
+Priya: The next policy topic is single sign-on. The alternatives under discussion are include single sign-on immediately or retain email and password authentication during the pilot. This is a policy choice and not an assignment of work.
+
+Jordan: The relevant reasoning is that Email and password authentication is sufficient for the current controlled pilot audience. I am describing the rationale only. I am not accepting an action item, and no deadline is being proposed.
+
+Alex: The distinction should remain precise. We may discuss possible future implementation, but this meeting is not authorizing or assigning that implementation.
+
+Morgan: Before confirmation, the record should state that no individual owns a follow-up task for this topic and no completion date is being set.
+
+Priya: Decision confirmed: The pilot will use email and password authentication rather than single sign-on. This decision has no action owner and no deadline.
+
+Jordan: Confirmed. The group has selected the policy, and there are no next steps associated with this topic in this meeting.
+
+Priya: The next policy topic is data retention. The alternatives under discussion are retain uploaded recordings indefinitely, for ninety days, or for thirty days. This is a policy choice and not an assignment of work.
+
+Jordan: The relevant reasoning is that A thirty-day retention period limits unnecessary storage while allowing users enough time to review their results. I am describing the rationale only. I am not accepting an action item, and no deadline is being proposed.
+
+Alex: The distinction should remain precise. We may discuss possible future implementation, but this meeting is not authorizing or assigning that implementation.
+
+Morgan: Before confirmation, the record should state that no individual owns a follow-up task for this topic and no completion date is being set.
+
+Priya: Decision confirmed: Uploaded pilot recordings will follow a thirty-day retention policy. This decision has no action owner and no deadline.
+
+Jordan: Confirmed. The group has selected the policy, and there are no next steps associated with this topic in this meeting.
+
+Priya: The next policy topic is support channel. The alternatives under discussion are live chat, telephone support, or email support during the pilot. This is a policy choice and not an assignment of work.
+
+Jordan: The relevant reasoning is that Email support is sufficient for a small invited pilot and creates a clear written record of reported issues. I am describing the rationale only. I am not accepting an action item, and no deadline is being proposed.
+
+Alex: The distinction should remain precise. We may discuss possible future implementation, but this meeting is not authorizing or assigning that implementation.
+
+Morgan: Before confirmation, the record should state that no individual owns a follow-up task for this topic and no completion date is being set.
+
+Priya: Decision confirmed: Email will be the standard support channel for the pilot. This decision has no action owner and no deadline.
+
+Jordan: Confirmed. The group has selected the policy, and there are no next steps associated with this topic in this meeting.
+
+Alex: We have now completed all policy topics. The record contains eight decisions and contains no assigned actions.
+
+Morgan: There are also no owners, no deadlines, no operational risks, and no unresolved questions recorded in this discussion.
+
+Jordan: Any future implementation planning will occur in a separate meeting and must not be inferred from today's decision record.
+
+Priya: Final confirmation: this was a decisions-only meeting. No action items or next steps were assigned. Meeting complete.

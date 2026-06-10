@@ -1,0 +1,70 @@
+{
+  "id": "S02",
+  "title": "AMI ES2002a kickoff and project brief",
+  "category": "short",
+  "target_duration_minutes": 5.0,
+  "audio_file": "S02_AMI_ES2002a_5min.m4a",
+  "transcript_file": "S02_AMI_ES2002a_5min.txt",
+  "source_metadata_file": "S02_AMI_ES2002a_5min.source.json",
+  "source_type": "AMI",
+  "audio_quality": "clean",
+  "meeting_id": "ES2002a",
+  "clip_start_seconds": 0.0,
+  "clip_end_seconds": 300.0,
+  "speakers": [
+    {
+      "speaker": "A",
+      "role": "Industrial Designer"
+    },
+    {
+      "speaker": "B",
+      "role": "Project Manager"
+    },
+    {
+      "speaker": "C",
+      "role": "User Interface Designer"
+    },
+    {
+      "speaker": "D",
+      "role": "Marketing Expert"
+    }
+  ],
+  "expected_context": [
+    "This is a project kickoff meeting.",
+    "The team is designing a new remote control.",
+    "The remote control brief is to be original, trendy, and user friendly.",
+    "The project has three design stages.",
+    "The process includes individual work followed by a meeting, repeated three times.",
+    "The participants introduce themselves and their roles."
+  ],
+  "expected_in_meeting_activities": [
+    "The group begins a whiteboard exercise.",
+    "Participants are asked to draw their favorite animal and summarize its characteristics.",
+    "The Marketing Expert volunteers to go first.",
+    "The Marketing Expert discusses a beagle.",
+    "The User Interface Designer discusses a monkey."
+  ],
+  "expected_decisions": [],
+  "expected_actions": [],
+  "expected_owners": [],
+  "expected_deadlines": [],
+  "expected_risks": [],
+  "expected_open_questions": [],
+  "acceptable_behavior": [
+    "Summarize the kickoff context and project brief.",
+    "Mention participant roles if useful.",
+    "Treat the favorite-animal discussion as an in-meeting exercise, not as a business action item.",
+    "Leave decisions, action items, owners, deadlines, risks, and open questions empty or none-equivalent."
+  ],
+  "must_not_invent": [
+    "A final product design decision",
+    "A selected remote-control concept",
+    "Business action items",
+    "Task owners",
+    "Deadlines",
+    "Risks",
+    "Open questions",
+    "Customer requirements beyond original, trendy, and user friendly",
+    "Future work not stated in the first five-minute clip"
+  ]
+}

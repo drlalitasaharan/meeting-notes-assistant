@@ -1,0 +1,31 @@
+{
+  "id": "M04",
+  "title": "Pilot policy decisions",
+  "category": "medium",
+  "target_duration_minutes": 16,
+  "audio_file": "M04_decisions_only_medium.m4a",
+  "expected_decisions": [
+    "The initial release will remain an invited pilot.",
+    "The pilot will support no more than ten users.",
+    "Pilot recordings will be limited to thirty minutes.",
+    "The standard output will include purpose, outcome, decisions, risks, key points, and next steps.",
+    "Custom reporting will remain outside the initial pilot.",
+    "The pilot will use email and password authentication rather than single sign-on.",
+    "Uploaded pilot recordings will follow a thirty-day retention policy.",
+    "Email will be the standard support channel for the pilot."
+  ],
+  "expected_actions": [],
+  "expected_owners": [],
+  "expected_deadlines": [],
+  "expected_risks": [],
+  "expected_open_questions": [],
+  "must_not_invent": [
+    "Action items",
+    "Task owners",
+    "Deadlines",
+    "Implementation commitments",
+    "Operational risks",
+    "Unresolved questions"
+  ],
+  "audio_notes": "Synthetic multi-speaker meeting at natural speech speed with approximately 6.6-second pauses between turns."
+}

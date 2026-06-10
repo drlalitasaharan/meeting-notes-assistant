@@ -1,0 +1,96 @@
+# S02 — AMI ES2002a, first five minutes
+
+Official speaker-role mapping:
+- A: Industrial Designer
+- B: Project Manager
+- C: User Interface Designer
+- D: Marketing Expert
+
+[00:50.42-00:50.99] Project Manager (B): Okay.
+[00:53.56-00:53.96] Project Manager (B): Right.
+[00:55.98-01:07.55] Project Manager (B): Um well this is the kick-off meeting for our our project. Um and um this is just what we're gonna be doing over the next twenty five minutes
+[01:07.21-01:07.45] Marketing Expert (D): Mm-hmm.
+[01:07.55-01:14.91] Project Manager (B): . Um so first of all, just to kind of make sure that we all know each other, I'm Laura and I'm the project manager. Do
+[01:14.89-01:15.24] Marketing Expert (D): Great
+[01:14.91-01:16.10] Project Manager (B): you
+[01:15.24-01:15.24] Marketing Expert (D): .
+[01:16.10-01:17.29] Project Manager (B): want to introduce yourself again?
+[01:17.44-01:20.87] Industrial Designer (A): Hi, I'm David and I'm supposed to be an industrial designer
+[01:20.81-01:21.26] Project Manager (B): Okay
+[01:20.87-01:20.87] Industrial Designer (A): .
+[01:21.26-01:21.26] Project Manager (B): .
+[01:22.08-01:24.46] Marketing Expert (D): And I'm Andrew and I'm uh our marketing
+[01:25.99-01:27.17] User Interface Designer (C): Um
+[01:26.07-01:26.50] Marketing Expert (D): expert.
+[01:27.17-01:28.71] User Interface Designer (C): I'm Craig and I'm User Interface.
+[01:29.30-01:41.76] Project Manager (B): Great. Okay. Um so we're designing a new remote control and um Oh I have to record who's here actually. So that's David, Andrew and Craig, isn't it?
+[01:44.89-01:46.58] Project Manager (B): And you all arrived on time.
+[01:48.96-02:12.03] Project Manager (B): Um yeah so des uh design a new remote control. Um, as you can see it's supposed to be original, trendy and user friendly. Um so that's kind of our our brief, as it were. Um and so there are three different stages to the design. Um I'm not really sure what what you guys have already received um in your emails. What did you get?
+[02:12.57-02:15.18] Industrial Designer (A): Um, I just got the project announcement about
+[02:15.08-02:15.44] Project Manager (B): Mm-hmm
+[02:15.18-02:15.44] Industrial Designer (A): what the
+[02:15.44-02:15.44] Project Manager (B): .
+[02:15.44-02:17.37] Industrial Designer (A): project is. Designing
+[02:17.12-02:17.39] Marketing Expert (D): Mm-hmm
+[02:17.37-02:17.42] Industrial Designer (A): a
+[02:17.39-02:17.39] Marketing Expert (D): .
+[02:17.42-02:19.15] Industrial Designer (A): remote control. That's about it
+[02:18.96-02:19.51] Marketing Expert (D): Mm-hmm
+[02:19.15-02:19.73] Industrial Designer (A): , didn't
+[02:19.51-02:19.75] Marketing Expert (D): . Yeah
+[02:19.73-02:19.84] Industrial Designer (A): get
+[02:19.75-02:20.07] Marketing Expert (D): , that's
+[02:19.84-02:20.10] Industrial Designer (A): anything
+[02:20.07-02:20.36] Marketing Expert (D): that's
+[02:20.10-02:20.20] Project Manager (B): Is
+[02:20.10-02:20.77] Industrial Designer (A): else
+[02:20.20-02:20.46] Project Manager (B): that what
+[02:20.36-02:20.56] Marketing Expert (D): it
+[02:20.46-02:20.83] Project Manager (B): everybody
+[02:20.47-02:20.83] User Interface Designer (C): Yeah
+[02:20.56-02:20.56] Marketing Expert (D): .
+[02:20.77-02:20.87] Industrial Designer (A): . Did
+[02:20.83-02:20.83] User Interface Designer (C): .
+[02:20.83-02:21.53] Project Manager (B): got
+[02:20.87-02:21.98] Industrial Designer (A): you get the same thing
+[02:21.53-02:22.66] Project Manager (B): ? Okay
+[02:21.80-02:21.95] Marketing Expert (D): Yeah.
+[02:21.98-02:21.98] Industrial Designer (A): ?
+[02:22.66-02:46.72] Project Manager (B): . Um. So we're gonna have like individual work and then a meeting about it. And repeat that process three times. Um and at this point we get try out the whiteboard over there. Um. So uh you get to draw your favourite animal and sum up your favourite characteristics of it. So who would like to go
+[02:46.67-02:46.82] Marketing Expert (D): I
+[02:46.72-02:47.31] Project Manager (B): first
+[02:46.82-02:47.36] Marketing Expert (D): will go
+[02:47.31-02:47.31] Project Manager (B): ?
+[02:47.36-02:47.81] Marketing Expert (D): . That's fine.
+[02:47.84-02:48.84] Project Manager (B): Very good.
+[02:54.20-02:56.69] Marketing Expert (D): Alright. So
+[03:01.39-03:02.34] Marketing Expert (D): This one here, right?
+[03:03.26-03:04.24] Project Manager (B): Mm-hmm
+[03:03.93-03:05.34] Marketing Expert (D): Okay
+[03:04.24-03:04.24] Project Manager (B): .
+[03:05.34-03:08.35] Marketing Expert (D): . Very nice. Alright. My favourite animal
+[03:10.01-03:11.68] Marketing Expert (D): is like
+[03:23.45-03:24.24] Marketing Expert (D): A beagle.
+[03:31.97-03:36.46] Marketing Expert (D): Um charac favourite characteristics of it? Is that right
+[03:35.95-03:36.60] Project Manager (B): Yeah
+[03:36.46-03:36.87] Marketing Expert (D): ? Uh
+[03:36.60-03:36.77] Project Manager (B): . Yeah.
+[03:36.87-04:02.41] Marketing Expert (D): , right, well basically um high priority for any animal for me is that they be willing to take a lot of physical affection from their family. And, yeah that they have lots of personality and uh be fit and in robust good health. So this is blue. Blue beagle. My family's beagle.
+[04:03.40-04:05.70] Project Manager (B): Right. Lovely.
+[04:15.07-04:17.26] User Interface Designer (C): Well, my favourite animal would be a monkey.
+[04:28.00-04:33.99] User Interface Designer (C): Then they're small cute and furry, and uh when planet of the apes becomes real, I'm gonna be up there with them.
+[04:35.67-04:36.02] Project Manager (B): Right
+[04:35.83-04:36.15] Industrial Designer (A): Cool
+[04:36.02-04:36.02] Project Manager (B): .
+[04:36.15-04:36.15] Industrial Designer (A): .
+[04:40.75-04:42.65] Industrial Designer (A): There's too much gear.
+[04:45.96-04:53.37] Project Manager (B): You can take as long over this as you like, because we haven't got an awful lot to discuss. Ok oh we do we do. Don't feel like you're in a rush, anyway
+[04:53.26-04:54.25] Industrial Designer (A): Okay
+[04:53.37-04:53.37] Project Manager (B): .
+[04:54.25-04:54.25] Industrial Designer (A): .
+[04:56.02-04:58.03] Marketing Expert (D): I coulda told you a whole lot more about beagles
+[04:57.94-04:58.70] Project Manager (B): Ach
+[04:58.03-04:58.88] Marketing Expert (D): . Boy, let me tell
+[04:58.70-04:58.97] Project Manager (B): why not
+[04:58.88-05:00.92] Marketing Expert (D): you
+[04:58.97-05:00.20] Project Manager (B): We might have to get you up again

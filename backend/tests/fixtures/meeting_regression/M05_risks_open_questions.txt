@@ -1,0 +1,131 @@
+Priya: This is the MeetIQ pilot risk review. We will separate confirmed risks, unresolved questions, explicit actions, and decisions. Discussion alone must not be interpreted as an assignment.
+
+Jordan: A risk describes something that may affect the pilot. It does not create an owner or deadline unless a speaker explicitly accepts responsibility.
+
+Alex: An unresolved question also remains open until the client or the team provides an answer. Open questions must not become invented decisions.
+
+Morgan: Only two actions will be assigned during this meeting. All other topics are being documented for awareness and monitoring.
+
+Priya: Risk number 1: Delayed pricing approval could postpone the client follow-up and prevent confirmation of the commercial pilot.
+
+Jordan: The product demonstration is ready, but the approved pricing table has not yet been issued.
+
+Alex: This could affect timing, quality, cost, or approval, so it belongs in the risk section.
+
+Morgan: No task owner or deadline is being assigned merely because this risk has been discussed.
+
+Priya: Risk confirmed. The record should preserve the issue without inventing a mitigation commitment.
+
+Priya: Risk number 2: Unclear data-retention requirements could delay legal and privacy approval.
+
+Jordan: The client has not confirmed how long recordings, transcripts, and generated notes must be retained.
+
+Alex: This could affect timing, quality, cost, or approval, so it belongs in the risk section.
+
+Morgan: No task owner or deadline is being assigned merely because this risk has been discussed.
+
+Priya: Risk confirmed. The record should preserve the issue without inventing a mitigation commitment.
+
+Priya: Risk number 3: The unconfirmed pilot user count could create inaccurate capacity and pricing assumptions.
+
+Jordan: The current estimate ranges from ten to forty users, which would create materially different support and usage requirements.
+
+Alex: This could affect timing, quality, cost, or approval, so it belongs in the risk section.
+
+Morgan: No task owner or deadline is being assigned merely because this risk has been discussed.
+
+Priya: Risk confirmed. The record should preserve the issue without inventing a mitigation commitment.
+
+Priya: Risk number 4: An incomplete security review could delay the planned pilot launch.
+
+Jordan: Storage access, administrator permissions, and deletion controls must be summarized before final approval.
+
+Alex: This could affect timing, quality, cost, or approval, so it belongs in the risk section.
+
+Morgan: No task owner or deadline is being assigned merely because this risk has been discussed.
+
+Priya: Risk confirmed. The record should preserve the issue without inventing a mitigation commitment.
+
+Priya: Risk number 5: Low-quality or unsupported recordings could cause processing failures or incomplete meeting notes.
+
+Jordan: Noisy audio, overlapping speakers, and unsupported formats may reduce transcription and action-item accuracy.
+
+Alex: This could affect timing, quality, cost, or approval, so it belongs in the risk section.
+
+Morgan: No task owner or deadline is being assigned merely because this risk has been discussed.
+
+Priya: Risk confirmed. The record should preserve the issue without inventing a mitigation commitment.
+
+Jordan: We have documented five risks. We will now review unresolved questions separately.
+
+Alex: None of the following questions has a confirmed answer today.
+
+Priya: Unresolved question number 1: Whether the client requires single sign-on during the pilot.
+
+Jordan: The client has mentioned enterprise access controls but has not made single sign-on a confirmed pilot requirement.
+
+Alex: The answer remains unknown. We should not infer a product commitment or policy from the discussion.
+
+Morgan: No owner or deadline is assigned to this open question during this meeting.
+
+Priya: Question remains unresolved and should be recorded as open.
+
+Priya: Unresolved question number 2: Whether recordings must remain in a specific geographic region.
+
+Jordan: No regional storage requirement has been provided by the client or their legal team.
+
+Alex: The answer remains unknown. We should not infer a product commitment or policy from the discussion.
+
+Morgan: No owner or deadline is assigned to this open question during this meeting.
+
+Priya: Question remains unresolved and should be recorded as open.
+
+Priya: Unresolved question number 3: Whether external contractors will be included in the pilot.
+
+Jordan: The proposed participant list currently contains employees only, but the client may later include outside consultants.
+
+Alex: The answer remains unknown. We should not infer a product commitment or policy from the discussion.
+
+Morgan: No owner or deadline is assigned to this open question during this meeting.
+
+Priya: Question remains unresolved and should be recorded as open.
+
+Priya: Unresolved question number 4: Whether sixty-minute recordings must be supported in the initial pilot.
+
+Jordan: The current launch-safe recommendation is a thirty-minute limit, but the client has not confirmed whether longer meetings are essential.
+
+Alex: The answer remains unknown. We should not infer a product commitment or policy from the discussion.
+
+Morgan: No owner or deadline is assigned to this open question during this meeting.
+
+Priya: Question remains unresolved and should be recorded as open.
+
+Morgan: We have completed the risk and open-question review. We will now record the only two explicit actions.
+
+Jordan: The next statements contain direct commitments, named owners, and specific deadlines.
+
+Priya: I accept the first action. I will obtain written pricing approval and circulate the approved pricing table to the team. by five PM on June eighteenth, twenty twenty-six.
+
+Alex: Confirmed. Priya is the owner of the pricing-approval action and the deadline is explicit.
+
+Alex: I accept the second action. I will send the completed security review summary covering storage access, administrator permissions, and deletion controls. by noon on June twenty-second, twenty twenty-six.
+
+Morgan: Confirmed. Alex is the owner of the security-review action and the deadline is explicit.
+
+Jordan: No action was assigned to Jordan or Morgan. No other task should be inferred from the risk discussion.
+
+Priya: Decision confirmed: Do not announce a final pilot launch date until pricing approval and the security review are complete.
+
+Jordan: That decision prevents the team from presenting an unapproved commercial date.
+
+Alex: Decision confirmed: Do not promise single sign-on or sixty-minute meeting support until the client confirms the requirements and the additional scope is approved.
+
+Morgan: That decision preserves the current pilot scope while the client requirements remain unresolved.
+
+Priya: Final recap: five risks, four unresolved questions, two assigned actions, and two confirmed decisions.
+
+Jordan: Priya owns only the pricing action. Alex owns only the security review action.
+
+Alex: There are no additional owners, deadlines, implementation promises, or resolved answers.
+
+Morgan: The meeting record should distinguish risks and open questions from actual commitments. Meeting complete.

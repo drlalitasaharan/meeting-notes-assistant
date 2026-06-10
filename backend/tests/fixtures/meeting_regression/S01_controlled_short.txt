@@ -1,0 +1,27 @@
+Priya: Thanks everyone. This is the final pilot launch readiness check. We need to confirm scope, pricing, the sample recording, and the security review.
+
+Jordan: The product itself is ready for the controlled pilot. I recommend that we limit the first pilot to ten users and recordings no longer than thirty minutes.
+
+Alex: I agree. Supporting longer recordings during the first pilot would increase processing risk, and we do not yet have enough regression evidence for every sixty-minute case.
+
+Priya: Decision confirmed. The first pilot will be limited to ten users, and each recording will have a maximum duration of thirty minutes.
+
+Jordan: The sample account is ready, but it still needs the approved demonstration recording. I will upload the final sample recording by three PM on June nineteenth, twenty twenty-six.
+
+Priya: Good. I am still waiting for final pricing approval. I will send the approved pricing table to the team by five PM on June eighteenth, twenty twenty-six.
+
+Alex: The security checklist is nearly complete. I will finish the remaining storage and access-control checks by noon on June twenty-second, twenty twenty-six.
+
+Jordan: The main risk is that delayed pricing approval could postpone the client follow-up. The product demonstration itself is not blocked.
+
+Priya: Agreed. We should describe that as a commercial timing risk, not a product failure.
+
+Alex: There is also one unresolved question. We still do not know whether the client will require single sign-on during the pilot.
+
+Jordan: We should not promise single sign-on until the client confirms that requirement.
+
+Priya: Decision confirmed. Single sign-on will remain outside the pilot scope unless the client explicitly requests it and we approve the additional work.
+
+Alex: To recap, Priya owns the pricing table, Jordan owns the sample recording, and I own the security checklist. No other tasks were assigned.
+
+Priya: Correct. The pilot remains limited to ten users and thirty-minute recordings. Pricing delay is the primary risk, and the single sign-on requirement remains unresolved. Meeting complete.

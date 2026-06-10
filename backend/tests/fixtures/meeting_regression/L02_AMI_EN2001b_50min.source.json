@@ -1,0 +1,26 @@
+{
+  "id": "L02",
+  "meeting_id": "EN2001b",
+  "clip_start_seconds": 0.0,
+  "clip_end_seconds": 3000.0,
+  "audio_file": "L02_AMI_EN2001b_50min.m4a",
+  "transcript_file": "L02_AMI_EN2001b_50min.txt",
+  "annotation_release": "AMI manual annotations v1.6.2",
+  "annotation_format": "NXT XML",
+  "audio_quality": "clean",
+  "speaker_role_map": {
+    "A": "Speaker A",
+    "B": "Speaker B",
+    "C": "Speaker C",
+    "D": "Speaker D"
+  },
+  "word_xml_files": [
+    "demo_media/regression/ami_annotations/manual_1.6.2/words/EN2001b.A.words.xml",
+    "demo_media/regression/ami_annotations/manual_1.6.2/words/EN2001b.B.words.xml",
+    "demo_media/regression/ami_annotations/manual_1.6.2/words/EN2001b.C.words.xml",
+    "demo_media/regression/ami_annotations/manual_1.6.2/words/EN2001b.D.words.xml"
+  ],
+  "word_count": 9695,
+  "turn_count": 1390,
+  "ground_truth_status": "review_required"
+}

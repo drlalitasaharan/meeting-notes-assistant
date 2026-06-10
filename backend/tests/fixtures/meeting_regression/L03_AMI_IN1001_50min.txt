@@ -1,0 +1,2533 @@
+# L03 — AMI IN1001, first 50 minutes
+
+Speaker mapping:
+- A: Speaker A
+- B: Speaker B
+- C: Speaker C
+- D: Speaker D
+
+[00:33.10-00:33.44] Speaker B (B): Oh yeah.
+[00:41.58-00:47.05] Speaker B (B): You don't put your headset microphone?
+[01:18.01-01:23.36] Speaker A (A): So we are here to just make the point. Well make the point, yeah.
+[01:25.22-01:27.89] Speaker A (A): Make the status about the shot detection.
+[01:28.81-01:29.29] Speaker B (B): Okay.
+[01:29.64-01:35.08] Speaker A (A): To so you have applied the shot detector to some of the CINETIS video, or
+[01:34.94-01:35.23] Speaker B (B): Yeah
+[01:35.08-01:35.44] Speaker A (A): at least
+[01:35.23-01:35.23] Speaker B (B): .
+[01:35.44-01:47.22] Speaker A (A): one, and uh so we can basically maybe just comment on on this, maybe quickly remind what the shot detector is how the shot detector is working
+[01:46.79-01:46.97] Speaker C (C): Hmm.
+[01:47.22-01:55.23] Speaker A (A): , basically. Uh we might be able anyway to give you some reference. I mean your report
+[01:55.14-01:55.49] Speaker B (B): Yeah
+[01:55.23-01:55.53] Speaker A (A): it's
+[01:55.49-01:55.49] Speaker B (B): .
+[01:55.53-01:57.19] Speaker A (A): it should be described there or
+[01:57.15-01:57.54] Speaker B (B): Yeah
+[01:57.19-01:58.36] Speaker A (A): yeah
+[01:57.54-01:58.44] Speaker B (B): , I have actually
+[01:58.36-01:59.13] Speaker A (A): , yeah
+[01:58.44-01:59.27] Speaker B (B): yeah, the
+[01:59.13-01:59.31] Speaker A (A): . You
+[01:59.27-01:59.40] Speaker B (B): we
+[01:59.31-01:59.44] Speaker A (A): have
+[01:59.40-01:59.66] Speaker B (B): can
+[01:59.44-02:00.49] Speaker A (A): the report
+[01:59.66-02:00.52] Speaker B (B): see the report
+[02:00.49-02:01.07] Speaker A (A): ? Okay
+[02:00.52-02:01.40] Speaker B (B): here
+[02:01.07-02:01.07] Speaker A (A): .
+[02:01.40-02:11.15] Speaker B (B): and the demo, and the goal of uh this meeting is to present the video shot detector to
+[02:10.67-02:11.75] Speaker A (A): To Olivier
+[02:11.15-02:12.00] Speaker B (B): Olivier, okay
+[02:11.75-02:11.98] Speaker A (A): , yeah.
+[02:12.00-02:12.00] Speaker B (B): .
+[02:12.28-02:12.60] Speaker C (C): Yes.
+[02:15.05-02:43.25] Speaker B (B): Okay. So yeah, it was my project um during my internship at IDIAP under the supervision of Jean-Marc. And as you saw as you saw in the email I sent uh okay. I didn't send this video is the new one. I just um uh processed from your images
+[02:42.55-02:43.31] Speaker A (A): Ah, okay, yes, the
+[02:43.25-02:43.62] Speaker B (B): . Yeah
+[02:43.31-02:43.66] Speaker A (A): kayak
+[02:43.62-02:43.91] Speaker B (B): . But
+[02:43.66-02:44.02] Speaker A (A): wi
+[02:43.91-02:44.23] Speaker B (B): uh
+[02:44.02-02:44.28] Speaker A (A): I was
+[02:44.23-02:44.57] Speaker B (B): let's
+[02:44.28-02:44.63] Speaker A (A): not even
+[02:44.57-02:44.81] Speaker B (B): let's
+[02:44.63-02:46.62] Speaker A (A): with
+[02:44.81-02:46.90] Speaker B (B): start by the video from
+[02:46.62-02:46.93] Speaker A (A): the
+[02:46.90-02:48.45] Speaker B (B): Friday
+[02:46.93-02:48.06] Speaker A (A): other one, okay.
+[02:48.45-02:50.09] Speaker B (B): . CINETIS demo one.
+[02:51.23-02:58.43] Speaker A (A): By the way, I was uh going to ask, so I had seen the video, i you uh did um a downsampling of the video, right? I mean
+[03:00.44-03:02.33] Speaker A (A): For uh browsing I mean
+[03:01.99-03:02.18] Speaker B (B): Yeah.
+[03:02.33-03:02.84] Speaker A (A): . Okay, yeah.
+[03:07.86-03:09.03] Speaker B (B): So this was uh
+[03:11.19-03:11.60] Speaker B (B): Okay.
+[03:11.92-03:15.97] Speaker A (A): So this is hierarchical normally, so you have scenes and shots
+[03:15.69-03:15.93] Speaker B (B): Yeah
+[03:15.71-03:15.97] Speaker C (C): Mm
+[03:15.93-03:16.19] Speaker B (B): , here
+[03:15.97-03:16.21] Speaker A (A): , but
+[03:15.97-03:16.29] Speaker C (C): 'kay
+[03:16.19-03:16.32] Speaker B (B): on
+[03:16.29-03:16.29] Speaker C (C): .
+[03:16.32-03:19.66] Speaker B (B): the left you have different things, but uh
+[03:18.45-03:19.77] Speaker C (C): Okay, this
+[03:19.66-03:19.88] Speaker B (B): as
+[03:19.77-03:20.34] Speaker C (C): is
+[03:19.88-03:20.57] Speaker B (B): applied
+[03:19.96-03:20.38] Speaker A (A): Because for
+[03:20.34-03:20.34] Speaker C (C): .
+[03:20.38-03:27.86] Speaker A (A): instance we could probably, you know, like group all the initial ones into one scene and maybe after, when there's some things inside, it s should
+[03:27.62-03:28.17] Speaker C (C): Okay
+[03:27.86-03:28.31] Speaker A (A): be another
+[03:28.17-03:28.17] Speaker C (C): .
+[03:28.31-03:29.04] Speaker A (A): scene, so.
+[03:29.61-03:39.52] Speaker B (B): So this detector uh detected the thirty shots, and if you click on uh plus button you can expand
+[03:39.14-03:39.48] Speaker C (C): Mm-hmm.
+[03:39.52-03:47.69] Speaker B (B): it and see the key frames that are in fact uh five extracted frames from the shot
+[03:45.93-03:46.41] Speaker C (C): Okay
+[03:45.96-03:46.84] Speaker A (A): Which are extracted
+[03:46.41-03:46.41] Speaker C (C): .
+[03:46.84-03:48.36] Speaker A (A): I think
+[03:47.69-03:48.58] Speaker B (B): . But I think
+[03:48.36-03:48.43] Speaker A (A): uh
+[03:48.58-03:54.98] Speaker B (B): th uh as it is, it's t extracted uh without uh using sub-shots, uh it's simply uh
+[03:54.81-03:55.76] Speaker A (A): Downsampling
+[03:54.98-03:56.29] Speaker B (B): five down-sam
+[03:55.76-03:55.76] Speaker A (A): .
+[03:56.29-03:58.29] Speaker B (B): yeah, down-sampling
+[03:57.04-03:57.42] Speaker C (C): Okay.
+[03:58.29-04:03.20] Speaker B (B): . Um so I we can see the video actually
+[04:02.76-04:03.07] Speaker A (A): Yeah.
+[04:03.20-04:08.45] Speaker B (B): , uh the entire video, can open with Real Player. I hope it will work.
+[04:15.23-04:27.47] Speaker B (B): So we don't have the the sound, and it won't be grabbed the video won't uh I don't know if uh Okay, it's not good quality.
+[04:28.05-04:31.53] Speaker A (A): Yeah, the quality is that's why I was asking that
+[04:31.32-04:31.63] Speaker B (B): Oh yeah
+[04:31.53-04:31.87] Speaker A (A): . It
+[04:31.63-04:31.95] Speaker B (B): , yeah, yeah
+[04:31.87-04:32.05] Speaker A (A): it's
+[04:31.95-04:31.95] Speaker B (B): .
+[04:32.05-04:33.37] Speaker A (A): not this that you processed
+[04:33.29-04:33.40] Speaker B (B): No
+[04:33.37-04:33.76] Speaker A (A): , right
+[04:33.40-04:33.76] Speaker B (B): no no no
+[04:33.76-04:33.76] Speaker A (A): ?
+[04:33.76-04:33.88] Speaker B (B): no
+[04:33.76-04:34.24] Speaker A (A): Okay
+[04:33.88-04:34.63] Speaker B (B): no
+[04:34.24-04:34.60] Speaker A (A): , okay.
+[04:34.63-04:37.23] Speaker B (B): . It's in Real Media, so it's very compressed.
+[04:37.25-04:37.47] Speaker A (A): So
+[04:37.44-04:37.97] Speaker C (C): Okay
+[04:37.47-04:38.07] Speaker A (A): here we see
+[04:37.97-04:37.97] Speaker C (C): .
+[04:38.07-04:43.95] Speaker A (A): that we the shot at eighteenth and after twenty twos and after again. And uh
+[04:43.64-04:43.92] Speaker C (C): 'Kay.
+[04:43.95-04:47.79] Speaker A (A): if we go down, I mean maybe in terms of shot here, we can see that
+[04:50.09-04:54.42] Speaker A (A): Right, I mean so now we see shot seven I suppose, yeah.
+[05:00.02-05:00.54] Speaker C (C): Okay.
+[05:03.05-05:03.76] Speaker A (A): Uh yeah, okay
+[05:03.65-05:05.11] Speaker B (B): Uh
+[05:03.76-05:05.15] Speaker A (A): , shot nine currently
+[05:05.11-05:05.74] Speaker B (B): okay
+[05:05.15-05:06.52] Speaker A (A): , shot ten
+[05:05.74-05:05.74] Speaker B (B): .
+[05:06.52-05:07.11] Speaker A (A): probably.
+[05:09.12-05:12.52] Speaker A (A): Eleven or twelve. No, eleven
+[05:12.48-05:12.97] Speaker B (B): Uh
+[05:12.52-05:13.05] Speaker A (A): . Or
+[05:12.97-05:14.03] Speaker B (B): ten
+[05:13.05-05:14.27] Speaker A (A): no this is ten indeed
+[05:14.03-05:15.29] Speaker B (B): yeah
+[05:14.27-05:15.36] Speaker A (A): , okay
+[05:15.29-05:15.60] Speaker B (B): . And
+[05:15.36-05:15.57] Speaker A (A): . Yeah.
+[05:15.60-05:16.89] Speaker B (B): then there's um
+[05:17.03-05:17.92] Speaker A (A): Yeah, this
+[05:17.52-05:18.02] Speaker C (C): Mm-hmm
+[05:17.92-05:18.75] Speaker A (A): one
+[05:18.02-05:18.02] Speaker C (C): .
+[05:18.75-05:20.35] Speaker A (A): , it's eleven
+[05:19.95-05:20.27] Speaker B (B): Okay.
+[05:20.35-05:20.86] Speaker A (A): , twelve
+[05:22.48-05:23.81] Speaker A (A): or fourteen seconds.
+[05:27.98-05:28.40] Speaker C (C): Okay.
+[05:30.64-05:32.50] Speaker A (A): Yeah, okay. Okay. Yeah, it's inside
+[05:32.21-05:33.93] Speaker B (B): Yes
+[05:32.50-05:34.64] Speaker A (A): and yeah
+[05:33.93-05:34.81] Speaker B (B): . And this one, yeah
+[05:34.64-05:35.72] Speaker A (A): . It's
+[05:34.81-05:36.84] Speaker B (B): , it's a dissolve
+[05:35.72-05:37.13] Speaker A (A): really a
+[05:36.84-05:37.56] Speaker B (B): it's a dissolve
+[05:37.13-05:37.67] Speaker A (A): dissolve
+[05:37.56-05:37.81] Speaker B (B): , so
+[05:37.67-05:37.86] Speaker A (A): or
+[05:37.81-05:37.93] Speaker B (B): it
+[05:37.86-05:37.96] Speaker A (A): is
+[05:37.93-05:38.27] Speaker B (B): doesn't
+[05:37.96-05:38.03] Speaker A (A): it
+[05:37.96-05:38.47] Speaker C (C): Okay
+[05:38.03-05:38.28] Speaker A (A): really
+[05:38.27-05:39.53] Speaker B (B): detect
+[05:38.28-05:38.57] Speaker A (A): like is
+[05:38.47-05:38.47] Speaker C (C): .
+[05:38.57-05:39.82] Speaker A (A): you have the feeling
+[05:39.53-05:40.23] Speaker B (B): yeah
+[05:39.82-05:41.16] Speaker A (A): that it's
+[05:40.23-05:41.38] Speaker B (B): , when I saw the M_
+[05:41.16-05:41.36] Speaker A (A): both
+[05:41.38-05:43.66] Speaker B (B): with M_ Player, it's a dissolve
+[05:42.85-05:43.23] Speaker A (A): Okay.
+[05:43.66-05:44.00] Speaker B (B): , yeah.
+[05:47.38-05:54.59] Speaker A (A): But it's it's it's not standard man-made movies, because I would say most of the time
+[05:54.48-05:54.85] Speaker C (C): Hmm
+[05:54.59-05:56.19] Speaker A (A): people
+[05:54.85-05:54.85] Speaker C (C): .
+[05:56.19-05:56.56] Speaker A (A): couldn
+[05:56.45-05:56.70] Speaker C (C): Mm
+[05:56.56-05:57.73] Speaker A (A): didn't
+[05:56.70-05:56.70] Speaker C (C): .
+[05:57.73-06:00.73] Speaker A (A): do any dissolve. Yeah, I could see here
+[06:00.70-06:01.90] Speaker B (B): Yeah
+[06:00.73-06:02.37] Speaker A (A): , I mean, that it was like
+[06:01.90-06:02.26] Speaker B (B): . Okay.
+[06:02.37-06:04.08] Speaker A (A): horse it was only one single
+[06:03.89-06:04.37] Speaker B (B): Yeah
+[06:04.08-06:04.36] Speaker A (A): one.
+[06:04.37-06:10.20] Speaker B (B): . I don't know if this one if we see was correctly uh, you see
+[06:09.70-06:10.71] Speaker A (A): N yeah, yeah
+[06:10.20-06:10.81] Speaker B (B): ? Yeah
+[06:10.71-06:10.89] Speaker A (A): . This
+[06:10.81-06:10.81] Speaker B (B): .
+[06:10.89-06:13.11] Speaker A (A): is the one I I had seen, yeah
+[06:12.71-06:12.87] Speaker B (B): Yeah.
+[06:13.11-06:19.11] Speaker A (A): . But as I said, I mean uh with even the motion detector, when it's black it's there is not s no structure, so
+[06:18.98-06:19.16] Speaker B (B): But
+[06:19.11-06:19.29] Speaker A (A): you
+[06:19.16-06:19.33] Speaker B (B): there
+[06:19.29-06:19.50] Speaker A (A): don't
+[06:19.33-06:19.51] Speaker B (B): is
+[06:19.50-06:20.44] Speaker A (A): esti
+[06:19.51-06:20.86] Speaker B (B): a moon
+[06:20.44-06:20.88] Speaker A (A): yeah, but you
+[06:20.86-06:22.19] Speaker B (B): . But
+[06:20.88-06:22.34] Speaker A (A): don't really estimate motion
+[06:22.19-06:22.44] Speaker B (B): okay
+[06:22.34-06:22.34] Speaker A (A): .
+[06:22.44-06:24.47] Speaker B (B): , because there is no motion in fact between
+[06:24.46-06:24.62] Speaker A (A): Well
+[06:24.47-06:24.76] Speaker B (B): the two
+[06:24.62-06:24.80] Speaker A (A): , there is
+[06:24.76-06:25.25] Speaker B (B): shots
+[06:24.80-06:26.69] Speaker A (A): no structure
+[06:25.25-06:25.25] Speaker B (B): .
+[06:26.69-06:27.59] Speaker A (A): . There is no texture
+[06:27.55-06:27.90] Speaker B (B): Yeah
+[06:27.59-06:28.04] Speaker A (A): , if you want
+[06:27.90-06:28.27] Speaker B (B): , okay
+[06:28.04-06:28.27] Speaker A (A): to say
+[06:28.27-06:28.27] Speaker B (B): ,
+[06:28.27-06:28.42] Speaker A (A): so
+[06:28.27-06:28.71] Speaker B (B): okay
+[06:28.42-06:28.71] Speaker A (A): , and this
+[06:28.71-06:28.71] Speaker B (B): .
+[06:28.71-06:46.22] Speaker A (A): is this is not so good for the motion. Uh but for instance of course between the horse and uh and um the c the c uh uh yeah. Uh the cows, yeah
+[06:44.16-06:45.70] Speaker B (B): The cow? Yeah.
+[06:46.22-06:49.68] Speaker A (A): , maybe we could have detected things. But it's not even sure, because
+[06:49.11-06:49.49] Speaker B (B): Mm-hmm.
+[06:49.68-06:54.36] Speaker A (A): the background is quite similar and uh it's it's it's not that sure.
+[06:54.36-07:03.87] Speaker B (B): Yeah, maybe to explain this method was using uh a simple uh uh distance between uh consecutive histograms
+[07:03.51-07:03.86] Speaker C (C): Okay.
+[07:03.87-07:06.81] Speaker B (B): , and we didn't use motion features at all
+[07:06.19-07:06.46] Speaker C (C): Mm.
+[07:06.81-07:08.13] Speaker B (B): for that, that's why i we
+[07:08.03-07:11.22] Speaker A (A): So it's yeah. The histogram, so we have
+[07:11.20-07:11.55] Speaker C (C): Yeah
+[07:11.22-07:11.82] Speaker A (A): experience
+[07:11.55-07:12.55] Speaker C (C): . Yeah
+[07:11.66-07:12.28] Speaker B (B): Yeah
+[07:11.82-07:12.43] Speaker A (A): with it
+[07:12.28-07:12.47] Speaker B (B): , okay
+[07:12.43-07:12.71] Speaker A (A): . So
+[07:12.47-07:12.47] Speaker B (B): .
+[07:12.55-07:12.55] Speaker C (C): .
+[07:12.71-07:17.19] Speaker A (A): it's it's scrambled, so you can scramble the image
+[07:16.85-07:17.21] Speaker C (C): Okay
+[07:17.19-07:17.49] Speaker A (A): and
+[07:17.21-07:17.21] Speaker C (C): .
+[07:17.49-07:19.30] Speaker A (A): you get the same histogram
+[07:19.13-07:19.34] Speaker C (C): Yeah
+[07:19.30-07:19.48] Speaker A (A): . So
+[07:19.34-07:19.34] Speaker C (C): .
+[07:19.48-07:21.64] Speaker A (A): there is no structure indeed
+[07:20.96-07:21.39] Speaker C (C): Okay.
+[07:21.64-07:33.81] Speaker A (A): , so of course when you look the horse and then you can see as a cow the cows, of course you have a black in the top and uh you have also uh maybe eighty percent of like green uh, which is even
+[07:33.53-07:33.96] Speaker C (C): Mm-hmm
+[07:33.81-07:34.04] Speaker A (A): not
+[07:33.96-07:33.96] Speaker C (C): .
+[07:34.04-07:47.85] Speaker A (A): green there but uh uh grass. You have stones and uh so there of course are differences, because on the one hand you have horse, but it's black, so you have more sky, which is black on the right, so you
+[07:47.82-07:48.11] Speaker C (C): Okay
+[07:47.85-07:48.11] Speaker A (A): don't
+[07:48.11-07:48.11] Speaker C (C): .
+[07:48.11-07:53.02] Speaker A (A): care about this. So it's a glo it's global it's a global histogram, so yeah.
+[07:53.39-07:53.67] Speaker C (C): 'Kay.
+[07:55.89-08:00.95] Speaker A (A): But it's when for this I would for this application I could imagine that it would
+[08:00.31-08:00.71] Speaker C (C): Hmm.
+[08:00.81-08:01.28] Speaker B (B): Enough
+[08:00.95-08:05.95] Speaker A (A): were quite high. Uh and it's a threshold but still it's adaptive, right
+[08:05.86-08:06.80] Speaker B (B): Yeah
+[08:05.95-08:06.81] Speaker A (A): , if I remember
+[08:06.80-08:07.69] Speaker B (B): . Yeah
+[08:06.81-08:07.38] Speaker A (A): well, yeah.
+[08:07.69-08:09.27] Speaker B (B): . With a sliding window
+[08:09.01-08:09.83] Speaker C (C): Yeah
+[08:09.27-08:09.27] Speaker B (B): .
+[08:09.83-08:10.21] Speaker C (C): . Okay.
+[08:10.32-08:13.85] Speaker A (A): So. Because of course if you just compute
+[08:13.76-08:13.88] Speaker B (B): I
+[08:13.85-08:14.88] Speaker A (A): the
+[08:13.88-08:14.97] Speaker B (B): can show you
+[08:14.88-08:15.09] Speaker A (A): yeah
+[08:14.97-08:15.30] Speaker B (B): uh
+[08:15.09-08:22.17] Speaker A (A): , if you have the report because if you compute the um distance between the two histograms, I think this was Bhattacharya
+[08:21.78-08:22.12] Speaker B (B): Yeah.
+[08:22.17-08:23.03] Speaker A (A): ? Right. So
+[08:22.85-08:23.59] Speaker C (C): Hmm
+[08:23.03-08:23.65] Speaker A (A): now we
+[08:23.59-08:25.08] Speaker C (C): . Okay
+[08:23.65-08:25.08] Speaker A (A): know.
+[08:25.08-08:25.08] Speaker C (C): .
+[08:25.64-08:39.55] Speaker A (A): And uh so if you take uh these two with the with the Bhattacharya uh then of course you should just do a threshold. When there is motion you will see a lot of things changing, so
+[08:39.44-08:39.62] Speaker C (C): Okay
+[08:39.55-08:39.70] Speaker A (A): by
+[08:39.62-08:39.62] Speaker C (C): .
+[08:39.70-08:49.43] Speaker A (A): using an L_R_T_T_ threshold, if you see that there is a continuous change of the d distance, you don't do a threshold. It's only if you have an identified peak
+[08:49.03-08:49.42] Speaker C (C): Okay.
+[08:49.43-09:02.52] Speaker A (A): , which is m fifty percent or maybe uh two times higher than the the next second value in the window, then you say it's it's a shot
+[09:01.41-09:02.80] Speaker B (B): Yeah
+[09:02.52-09:02.81] Speaker A (A): . Right
+[09:02.80-09:02.90] Speaker B (B): . I
+[09:02.81-09:03.05] Speaker A (A): , I don't
+[09:02.90-09:03.19] Speaker B (B): don't know
+[09:03.05-09:03.47] Speaker A (A): know
+[09:03.19-09:03.65] Speaker B (B): if we
+[09:03.47-09:03.47] Speaker A (A): .
+[09:03.65-09:14.10] Speaker B (B): c we want to make uh use the whiteboard or here it's uh it was uh to dis it's infra only the this
+[09:13.69-09:14.30] Speaker A (A): Yeah, yeah
+[09:14.10-09:14.34] Speaker B (B): part
+[09:14.30-09:14.30] Speaker A (A): .
+[09:14.34-09:18.43] Speaker B (B): about uh shot boundary detection is in French unfortunately, but uh
+[09:17.94-09:18.15] Speaker A (A): Yeah.
+[09:18.43-09:34.31] Speaker B (B): the this image shows the results using motion when you s use the motion features, and here on the right is when using the histogram uh distance. And
+[09:33.64-09:34.08] Speaker C (C): Okay.
+[09:34.31-09:59.53] Speaker B (B): the the motion features can better show what's going on when there is such a difficult uh transition, while with the histogram um, yeah, it just shows that there is a shot uh change at the end, but even for dissolves, I don't have examples here, but um there is not a strict uh transition
+[09:58.72-09:59.03] Speaker C (C): Mm-hmm.
+[09:59.53-10:00.66] Speaker B (B): . Uh
+[09:59.79-10:00.87] Speaker A (A): It's continuous
+[10:00.66-10:01.70] Speaker B (B): it's continuous
+[10:00.87-10:01.72] Speaker A (A): for dissolve
+[10:01.70-10:01.87] Speaker B (B): for
+[10:01.72-10:03.42] Speaker A (A): , yeah
+[10:01.81-10:02.98] Speaker C (C): Okay
+[10:01.87-10:03.60] Speaker B (B): dissolves
+[10:02.98-10:03.91] Speaker C (C): . Yeah, okay
+[10:03.42-10:03.71] Speaker A (A): . But
+[10:03.60-10:04.09] Speaker B (B): . Dissolves
+[10:03.71-10:04.84] Speaker A (A): an
+[10:03.91-10:04.88] Speaker C (C): . Yeah, I understand
+[10:04.09-10:04.87] Speaker B (B): is uh yeah
+[10:04.84-10:05.31] Speaker A (A): anyway
+[10:04.87-10:04.87] Speaker B (B): .
+[10:04.88-10:05.11] Speaker C (C): . Okay.
+[10:05.31-10:15.81] Speaker A (A): it's difficult, I mean in th in in in general, because sometimes you have some dissolve you could imagine they are part of of of a scene and uh
+[10:15.20-10:15.42] Speaker C (C): Yeah.
+[10:15.81-10:20.33] Speaker A (A): so, but of course when you have cuts you can see they are easy to detect, right, I mean like something
+[10:19.81-10:20.03] Speaker C (C): Yeah
+[10:19.95-10:20.21] Speaker B (B): Yeah
+[10:20.03-10:20.47] Speaker C (C): , okay
+[10:20.21-10:20.21] Speaker B (B): .
+[10:20.33-10:20.82] Speaker A (A): yeah
+[10:20.47-10:20.47] Speaker C (C): .
+[10:20.82-10:24.83] Speaker A (A): . So uh yeah, so with the motion
+[10:24.45-10:24.98] Speaker C (C): Okay
+[10:24.83-10:25.22] Speaker A (A): basically
+[10:24.98-10:24.98] Speaker C (C): .
+[10:25.22-10:29.56] Speaker A (A): the motion tried to estimate well the motion between two frames, right, if
+[10:29.24-10:29.61] Speaker C (C): Okay
+[10:29.56-10:29.67] Speaker A (A): my
+[10:29.61-10:29.61] Speaker C (C): .
+[10:29.67-10:34.95] Speaker A (A): image is there but after it's there, and it looks at how many points c are well matched
+[10:34.78-10:35.17] Speaker C (C): Okay
+[10:34.95-10:35.24] Speaker A (A): . So you
+[10:35.17-10:35.17] Speaker C (C): .
+[10:35.24-10:43.91] Speaker A (A): can see that like somebody speaking and so and so before the sh before the shot you can see that usually there are like ninety percent of the points at least, right
+[10:43.64-10:43.98] Speaker C (C): Hmm
+[10:43.91-10:43.99] Speaker A (A): , who
+[10:43.98-10:43.98] Speaker C (C): .
+[10:43.99-10:52.88] Speaker A (A): have some motion, so uh But then after suddenly if you go from one frame and you try to match all the points here with like a translation
+[10:52.60-10:52.92] Speaker C (C): Mm-hmm
+[10:52.88-10:53.11] Speaker A (A): , plus
+[10:52.92-10:52.92] Speaker C (C): .
+[10:53.11-10:55.03] Speaker A (A): the zoom plus maybe some rotation
+[10:54.51-10:54.88] Speaker C (C): Mm-hmm.
+[10:55.03-10:57.04] Speaker A (A): , you c you can find anything well
+[10:57.03-10:57.41] Speaker C (C): Hmm
+[10:57.04-10:57.55] Speaker A (A): , right
+[10:57.41-10:57.41] Speaker C (C): .
+[10:57.55-11:02.88] Speaker A (A): , so basically you would see that the number of points maybe only ten percent of the points you can match well
+[11:02.37-11:02.93] Speaker C (C): Okay
+[11:02.88-11:03.00] Speaker A (A): , so
+[11:02.93-11:02.93] Speaker C (C): .
+[11:03.00-11:11.27] Speaker A (A): it's easy to detect. And uh after you can see that indeed because it's a long shot and it's almost like a flat plane, you can do a
+[11:11.25-11:11.44] Speaker C (C): Yeah
+[11:11.27-11:11.66] Speaker A (A): very
+[11:11.44-11:11.44] Speaker C (C): .
+[11:11.66-11:14.76] Speaker A (A): good registration through the number of points
+[11:14.29-11:15.64] Speaker C (C): Okay
+[11:14.76-11:15.82] Speaker A (A): . Is very high, I mean
+[11:15.64-11:16.28] Speaker C (C): . We'll see
+[11:15.82-11:16.47] Speaker A (A): the number of points
+[11:16.28-11:16.68] Speaker C (C): . Okay
+[11:16.47-11:16.81] Speaker A (A): that are
+[11:16.68-11:16.68] Speaker C (C): .
+[11:16.81-11:28.50] Speaker A (A): matching. Uh and here you basically here with a histogram uh you can see it very flat, but of course you should go from this histogram to this which is essentially green. You have this big
+[11:28.27-11:28.55] Speaker C (C): see
+[11:28.50-11:28.86] Speaker A (A): uh
+[11:28.55-11:28.98] Speaker C (C): the cut
+[11:28.86-11:29.27] Speaker A (A): measure
+[11:28.98-11:28.98] Speaker C (C): .
+[11:29.27-11:34.48] Speaker A (A): , which is here uh the chi two I don't know whether this is what you implement is used in
+[11:34.44-11:34.90] Speaker B (B): No
+[11:34.48-11:34.94] Speaker A (A): the
+[11:34.90-11:34.97] Speaker B (B): no
+[11:34.94-11:35.36] Speaker A (A): no
+[11:34.97-11:35.36] Speaker B (B): , now
+[11:35.36-11:35.67] Speaker A (A): it's
+[11:35.36-11:39.73] Speaker B (B): it's uh well for the video you saw it wa it's Bhattacharya
+[11:39.32-11:40.29] Speaker A (A): It's Bhattacharya
+[11:39.73-11:39.73] Speaker B (B): .
+[11:40.29-11:40.58] Speaker A (A): . Okay.
+[11:41.03-11:41.44] Speaker C (C): Okay.
+[11:42.40-11:48.87] Speaker A (A): Yeah, so yeah, and you have maybe a one image with a um adaptive threshold, I think. You had something
+[11:48.54-11:48.84] Speaker B (B): Yeah.
+[11:48.87-11:51.91] Speaker A (A): like this, right? Just to explain uh how
+[11:52.66-11:53.80] Speaker B (B): Okay, set the beginning.
+[11:53.97-11:55.32] Speaker A (A): Yeah, uh
+[11:57.41-11:58.91] Speaker A (A): Yeah, you see like here. Yeah.
+[12:01.28-12:06.22] Speaker B (B): So there is the idea is having a sliding window
+[12:05.87-12:06.21] Speaker C (C): Mm-hmm.
+[12:06.22-12:12.19] Speaker B (B): . Um we have already all the data that is on the graph
+[12:12.03-12:12.39] Speaker C (C): Okay
+[12:12.19-12:12.82] Speaker B (B): . And then
+[12:12.39-12:12.39] Speaker C (C): .
+[12:12.82-12:32.38] Speaker B (B): to detect uh the the the the changes, we we do a calculation um with points under this sliding window within this sliding window. And uh we calculate so what do we here? Um
+[12:34.27-12:43.16] Speaker B (B): In fa we want to detect that uh this points in the middle is higher than uh
+[12:45.12-12:45.64] Speaker A (A): Alpha
+[12:45.47-12:45.69] Speaker B (B): Th
+[12:45.64-12:47.44] Speaker A (A): times the maximum of
+[12:47.31-12:49.34] Speaker C (C): Okay
+[12:47.44-12:48.97] Speaker A (A): the other ones
+[12:48.57-12:49.02] Speaker B (B): Exactly
+[12:48.97-12:49.15] Speaker A (A): . Of
+[12:49.02-12:49.61] Speaker B (B): , yeah
+[12:49.15-12:49.46] Speaker A (A): the other
+[12:49.34-12:49.34] Speaker C (C): .
+[12:49.46-12:49.88] Speaker A (A): ones
+[12:49.61-12:50.14] Speaker B (B): . Alpha
+[12:49.88-12:49.88] Speaker A (A): .
+[12:50.14-12:50.65] Speaker B (B): . Alpha times
+[12:50.60-12:51.27] Speaker C (C): Okay
+[12:50.65-12:51.35] Speaker B (B): the maximum of the
+[12:51.27-12:51.27] Speaker C (C): .
+[12:51.35-12:51.91] Speaker B (B): other ones.
+[12:52.17-13:01.36] Speaker A (A): So the of course if it's you are not a maximum, you are not going i inside the window you are not the max, anyway you are not going to be to
+[13:01.22-13:01.64] Speaker B (B): The
+[13:01.36-13:01.97] Speaker A (A): be above
+[13:01.64-13:01.95] Speaker B (B): c
+[13:01.97-13:04.95] Speaker A (A): uh alpha times the max of the others, right, uh
+[13:04.58-13:04.99] Speaker C (C): Okay
+[13:04.95-13:05.23] Speaker A (A): because
+[13:04.99-13:04.99] Speaker C (C): .
+[13:05.23-13:08.04] Speaker A (A): alpha is low lower than one. Uh
+[13:07.71-13:08.12] Speaker B (B): But if
+[13:08.04-13:08.04] Speaker A (A): .
+[13:08.12-13:19.74] Speaker B (B): you are in the maximum already and at this point we check simply if uh this value is alpha times the the max of the other points
+[13:19.66-13:19.76] Speaker A (A): Like
+[13:19.74-13:19.96] Speaker B (B): , let's
+[13:19.76-13:20.63] Speaker A (A): for instance
+[13:19.96-13:20.68] Speaker B (B): say these points
+[13:20.63-13:21.31] Speaker A (A): yeah
+[13:20.68-13:20.90] Speaker B (B): here.
+[13:21.31-13:21.81] Speaker A (A): . Like for instance
+[13:21.79-13:22.59] Speaker C (C): Okay
+[13:21.81-13:22.64] Speaker A (A): here I I see
+[13:22.59-13:23.06] Speaker C (C): . Okay
+[13:22.64-13:23.06] Speaker A (A): six,
+[13:23.06-13:23.06] Speaker C (C): .
+[13:23.06-13:27.64] Speaker A (A): but I don't know whether this was for Bhattacharya or for uh chi s
+[13:27.44-13:28.45] Speaker B (B): Um
+[13:27.64-13:27.96] Speaker A (A): chi two.
+[13:28.45-13:29.88] Speaker B (B): i maybe for chi it's it
+[13:29.80-13:30.28] Speaker A (A): Yeah
+[13:29.88-13:30.57] Speaker B (B): six but
+[13:30.28-13:30.28] Speaker A (A): .
+[13:30.57-13:37.72] Speaker B (B): uh, yeah, but uh for Bhattacharya it's for the tests I
+[13:37.65-13:37.83] Speaker A (A): Yeah
+[13:37.72-13:38.05] Speaker B (B): did
+[13:37.83-13:39.12] Speaker A (A): , yeah, yeah
+[13:38.05-13:39.69] Speaker B (B): it two point four
+[13:39.12-13:39.73] Speaker A (A): . Two point four
+[13:39.69-13:39.99] Speaker B (B): . Yeah
+[13:39.73-13:40.02] Speaker A (A): , yeah
+[13:39.99-13:39.99] Speaker B (B): .
+[13:40.02-13:42.26] Speaker A (A): , so it's a bit less because the amplitude is much
+[13:42.26-13:42.75] Speaker B (B): Yeah
+[13:42.26-13:42.87] Speaker A (A): smaller
+[13:42.75-13:42.75] Speaker B (B): .
+[13:42.87-13:44.62] Speaker A (A): , yeah
+[13:43.28-13:43.69] Speaker C (C): Hmm.
+[13:44.62-13:45.34] Speaker A (A): . uh
+[13:45.30-13:45.61] Speaker B (B): Okay
+[13:45.34-13:45.89] Speaker A (A): yeah
+[13:45.61-13:45.61] Speaker B (B): .
+[13:45.89-13:49.43] Speaker A (A): . So you can uh it was not so just I mean because
+[13:49.42-13:49.86] Speaker B (B): No
+[13:49.43-13:58.12] Speaker A (A): the motion I mean it was uh in the shot we've seen, f because f especially with chi two square it r the amplitude it's much bigger than with Bhattacharya
+[13:57.79-13:58.13] Speaker C (C): Yeah
+[13:58.12-13:58.46] Speaker A (A): , right
+[13:58.13-13:58.53] Speaker C (C): , okay
+[13:58.46-13:58.79] Speaker A (A): . Uh
+[13:58.53-13:58.53] Speaker C (C): .
+[13:58.79-14:01.49] Speaker A (A): you can see that it could go to seven hundred, and
+[14:01.35-14:01.72] Speaker B (B): Mm
+[14:01.49-14:01.88] Speaker A (A): when it's
+[14:01.72-14:01.72] Speaker B (B): .
+[14:01.88-14:06.65] Speaker A (A): there is nothing, it's can be zero. With Bhattacharya it's between zero and one, so you have not
+[14:06.52-14:06.89] Speaker C (C): Okay
+[14:06.65-14:07.07] Speaker A (A): so much
+[14:06.89-14:06.89] Speaker C (C): .
+[14:07.07-14:26.72] Speaker A (A): amplitude. Um but uh still uh in some of the v these videos for instance even if we gon go now if we want to, but now for the kayak case, I don't know. Uh at some point targeting two kayaks and it's moving quite fast towards to other people. I don't know what happened there, if it was detected as a shot
+[14:26.48-14:27.18] Speaker B (B): Uh
+[14:26.72-14:27.33] Speaker A (A): transition
+[14:27.18-14:27.80] Speaker B (B): i
+[14:27.33-14:27.66] Speaker A (A): or
+[14:27.80-14:29.70] Speaker B (B): in the the first shot
+[14:29.35-14:29.86] Speaker A (A): Yeah, yeah
+[14:29.70-14:30.00] Speaker B (B): ? Yeah
+[14:29.86-14:29.86] Speaker A (A): .
+[14:30.00-14:31.53] Speaker B (B): , I saw that it was detected
+[14:31.50-14:31.64] Speaker A (A): It
+[14:31.53-14:31.76] Speaker B (B): as
+[14:31.64-14:31.79] Speaker A (A): was
+[14:31.76-14:31.88] Speaker B (B): a
+[14:31.79-14:32.20] Speaker A (A): it
+[14:31.88-14:32.27] Speaker B (B): shot
+[14:32.20-14:32.39] Speaker A (A): as
+[14:32.27-14:33.92] Speaker B (B): , yeah
+[14:32.39-14:34.19] Speaker A (A): a shot, okay. I was uh wondering
+[14:33.92-14:34.23] Speaker B (B): . You want
+[14:34.19-14:35.21] Speaker A (A): yeah
+[14:34.23-14:35.87] Speaker B (B): to see now? Okay
+[14:35.21-14:35.97] Speaker A (A): yeah, maybe
+[14:35.87-14:36.08] Speaker B (B): . But
+[14:35.97-14:35.97] Speaker A (A): .
+[14:36.08-14:37.96] Speaker B (B): he didn't okay
+[14:37.52-14:38.00] Speaker A (A): But here for
+[14:37.96-14:37.96] Speaker B (B): .
+[14:38.00-14:42.38] Speaker A (A): instance you understand so we can show this tomorrow to uh to the people at
+[14:42.13-14:42.49] Speaker C (C): Yeah
+[14:42.38-14:42.75] Speaker A (A): the
+[14:42.49-14:42.97] Speaker C (C): , okay
+[14:42.75-14:43.27] Speaker A (A): ci CINETIS
+[14:42.97-14:42.97] Speaker C (C): .
+[14:43.27-14:44.37] Speaker A (A): meeting, I mean to
+[14:44.34-14:45.82] Speaker C (C): Okay. I will look to
+[14:45.71-14:46.13] Speaker A (A): Right
+[14:45.82-14:46.18] Speaker C (C): have a
+[14:46.13-14:46.13] Speaker A (A): .
+[14:46.18-14:48.53] Speaker C (C): connection
+[14:47.60-14:48.64] Speaker A (A): Yeah, okay, yeah, we need
+[14:48.53-14:49.77] Speaker C (C): . Okay
+[14:48.64-14:49.54] Speaker A (A): a connection, that's true.
+[14:49.77-14:51.16] Speaker C (C): . Yeah. And
+[14:51.10-14:51.28] Speaker A (A): Yeah
+[14:51.16-14:51.51] Speaker C (C): we need
+[14:51.28-14:53.05] Speaker A (A): , that's true
+[14:51.51-14:53.27] Speaker C (C): a laptop or you have yours
+[14:53.05-14:53.35] Speaker A (A): . Yeah
+[14:53.27-14:53.27] Speaker C (C): ?
+[14:53.35-14:55.36] Speaker A (A): , I can bring my laptop if necessary
+[14:55.02-14:55.55] Speaker C (C): Okay
+[14:55.36-14:55.57] Speaker A (A): , yeah
+[14:55.55-14:55.55] Speaker C (C): .
+[14:55.57-14:57.19] Speaker A (A): , yeah. I'll I'll bring it, okay, so
+[14:57.07-14:57.49] Speaker C (C): Okay
+[14:57.19-14:57.58] Speaker A (A): it's
+[14:57.49-14:57.49] Speaker C (C): .
+[14:57.58-14:58.50] Speaker A (A): it's done
+[14:58.17-14:58.50] Speaker B (B): It is
+[14:58.50-14:58.50] Speaker A (A): .
+[14:58.50-15:02.57] Speaker B (B): uh okay. This is IDIAP laptop, so you can u okay
+[15:02.20-15:02.41] Speaker C (C): Yeah.
+[15:02.57-15:11.14] Speaker B (B): . So here in fact after twelve um I don't know if it's I think it's twelve frames.
+[15:11.18-15:12.55] Speaker A (A): Well yeah, but normally there is
+[15:12.48-15:12.89] Speaker C (C): Uh
+[15:12.55-15:13.89] Speaker A (A): a a burning
+[15:12.89-15:13.29] Speaker C (C): okay.
+[15:13.89-15:16.09] Speaker A (A): if you c maybe you can play the shot or
+[15:16.69-15:17.01] Speaker B (B): Yeah.
+[15:17.91-15:18.52] Speaker A (A): It's strange I
+[15:18.44-15:18.61] Speaker B (B): Oh
+[15:18.52-15:20.19] Speaker A (A): mean
+[15:18.61-15:19.85] Speaker B (B): yeah, maybe you're burning, but
+[15:20.19-15:26.97] Speaker A (A): , maybe you play yeah, if you play the the video well, insi at the beginning, I don't know what's happening
+[15:26.66-15:27.09] Speaker B (B): Oh, there
+[15:26.97-15:26.97] Speaker A (A): .
+[15:27.09-15:31.46] Speaker B (B): is no ha ha. I didn't uh
+[15:31.05-15:31.53] Speaker A (A): Ah, you
+[15:31.46-15:31.57] Speaker B (B): ha I
+[15:31.53-15:31.82] Speaker A (A): didn't
+[15:31.57-15:31.83] Speaker B (B): didn't
+[15:31.82-15:32.31] Speaker A (A): generate
+[15:31.83-15:32.32] Speaker B (B): have time
+[15:32.31-15:32.97] Speaker A (A): the
+[15:32.32-15:33.22] Speaker B (B): to the
+[15:32.97-15:33.29] Speaker A (A): okay
+[15:33.22-15:33.32] Speaker B (B): the
+[15:33.29-15:33.47] Speaker A (A): , the
+[15:33.32-15:33.51] Speaker B (B): Real
+[15:33.47-15:33.73] Speaker A (A): Real
+[15:33.51-15:34.50] Speaker B (B): Media
+[15:33.73-15:34.53] Speaker A (A): Media. Okay
+[15:34.50-15:34.98] Speaker B (B): . But
+[15:34.53-15:34.53] Speaker A (A): .
+[15:34.98-15:37.77] Speaker B (B): um yeah, it's complicated.
+[15:38.02-15:43.91] Speaker A (A): Well no, I mean here I can see that it was it was detected as a single shot
+[15:42.50-15:44.17] Speaker B (B): Yeah, here we can see that, yeah
+[15:43.91-15:44.60] Speaker A (A): . Okay
+[15:44.17-15:44.17] Speaker B (B): .
+[15:44.60-15:46.06] Speaker A (A): . I was because here you can see
+[15:45.95-15:46.15] Speaker B (B): At
+[15:46.06-15:46.24] Speaker A (A): that
+[15:46.15-15:46.52] Speaker B (B): two point
+[15:46.24-15:46.76] Speaker A (A): the motion
+[15:46.52-15:46.81] Speaker B (B): four
+[15:46.76-15:47.03] Speaker A (A): uh
+[15:46.81-15:46.81] Speaker B (B): .
+[15:47.03-15:49.15] Speaker A (A): here is uh, you know, he is uh
+[15:48.81-15:49.37] Speaker B (B): Mm
+[15:49.15-15:49.39] Speaker A (A): doing
+[15:49.37-15:49.37] Speaker B (B): .
+[15:49.39-15:50.94] Speaker A (A): a zoom on the two
+[15:50.43-15:50.75] Speaker C (C): Yeah.
+[15:50.94-15:51.60] Speaker A (A): kayaks
+[15:51.24-15:51.61] Speaker B (B): And then
+[15:51.60-15:52.18] Speaker A (A): here
+[15:51.61-15:52.56] Speaker B (B): there is translation
+[15:52.18-15:52.78] Speaker A (A): . Yeah
+[15:52.56-15:53.10] Speaker B (B): on the right
+[15:52.78-15:53.11] Speaker A (A): , and then
+[15:53.10-15:53.65] Speaker B (B): , yeah
+[15:53.11-15:53.90] Speaker A (A): he's doing quite
+[15:53.65-15:53.65] Speaker B (B): .
+[15:53.90-15:56.68] Speaker A (A): a fast transition from these to another
+[15:56.60-15:56.81] Speaker B (B): Mm
+[15:56.68-15:57.56] Speaker A (A): one
+[15:56.81-15:57.13] Speaker B (B): mm
+[15:56.89-15:57.15] Speaker C (C): Mm
+[15:57.13-15:57.39] Speaker B (B): mm
+[15:57.15-15:57.43] Speaker C (C): 'kay
+[15:57.39-15:57.39] Speaker B (B): .
+[15:57.43-15:57.43] Speaker C (C): .
+[15:57.56-16:09.02] Speaker A (A): , and I was wondering whether so if you well though of course it's true that it's mainly water, so maybe the colour is indeed uh quite but you know, as a kayak is entering quite fast, I mean you
+[16:09.01-16:09.25] Speaker C (C): Hmm
+[16:09.02-16:09.64] Speaker A (A): can have
+[16:09.25-16:09.25] Speaker C (C): .
+[16:09.64-16:10.91] Speaker A (A): quite maybe
+[16:10.55-16:10.80] Speaker C (C): Hmm.
+[16:10.91-16:11.39] Speaker A (A): good
+[16:10.93-16:11.43] Speaker B (B): I can
+[16:11.39-16:13.41] Speaker A (A): distance
+[16:11.43-16:13.61] Speaker B (B): see uh there is another programme that
+[16:13.41-16:13.65] Speaker A (A): . But
+[16:13.61-16:13.84] Speaker B (B): can
+[16:13.65-16:13.97] Speaker A (A): I see
+[16:13.84-16:14.16] Speaker B (B): see
+[16:13.97-16:17.49] Speaker A (A): that it seems to be how many shots do you have indeed
+[16:17.05-16:17.63] Speaker B (B): Uh
+[16:17.49-16:17.65] Speaker A (A): de
+[16:17.63-16:17.85] Speaker B (B): the
+[16:17.65-16:18.41] Speaker A (A): de detected
+[16:17.85-16:18.70] Speaker B (B): N_ uh
+[16:18.41-16:18.41] Speaker A (A): ?
+[16:20.31-16:22.40] Speaker B (B): It's I think it's f there there are
+[16:22.37-16:23.14] Speaker A (A): Six
+[16:22.40-16:23.20] Speaker B (B): five normally
+[16:23.14-16:23.36] Speaker A (A): , yeah
+[16:23.20-16:23.20] Speaker B (B): .
+[16:23.36-16:24.49] Speaker A (A): , the one is uh
+[16:24.45-16:24.64] Speaker B (B): If
+[16:24.49-16:26.33] Speaker A (A): maybe
+[16:24.64-16:26.10] Speaker B (B): we put expand all
+[16:26.33-16:26.95] Speaker A (A): so you did it
+[16:26.79-16:28.77] Speaker C (C): Okay
+[16:26.95-16:29.25] Speaker A (A): with with what by the way
+[16:28.77-16:28.77] Speaker C (C): .
+[16:29.25-16:31.46] Speaker A (A): ? It's with the images I gave you or
+[16:30.98-16:31.35] Speaker B (B): Yeah.
+[16:31.46-16:31.70] Speaker A (A): okay.
+[16:32.82-16:40.36] Speaker B (B): The other one I had problems converting uh uh the video into
+[16:39.52-16:40.47] Speaker C (C): Hmm
+[16:40.36-16:41.01] Speaker B (B): D_V_X_
+[16:40.47-16:41.02] Speaker C (C): . Yeah
+[16:41.01-16:41.32] Speaker B (B): , and
+[16:41.02-16:41.02] Speaker C (C): .
+[16:41.32-16:46.96] Speaker B (B): then uh so I used the programme from uh software from Sebastien, P_ P_A_P_M_
+[16:46.66-16:47.09] Speaker A (A): Ah, to
+[16:46.96-16:47.28] Speaker B (B): to
+[16:47.09-16:47.76] Speaker A (A): regenerate
+[16:47.28-16:49.80] Speaker B (B): A_V_I_
+[16:47.76-16:49.11] Speaker A (A): an A_V_I_ file, okay
+[16:49.08-16:49.55] Speaker C (C): Hmm
+[16:49.11-16:49.51] Speaker A (A): , yeah, yeah.
+[16:49.55-16:49.55] Speaker C (C): .
+[16:49.80-17:00.65] Speaker B (B): . Because yeah, one thing uh maybe we will talk about that is the library uh, it's uh it doesn't uh compile anymore on Debian
+[17:00.56-17:00.97] Speaker A (A): Okay
+[17:00.65-17:01.32] Speaker B (B): machines
+[17:00.97-17:00.97] Speaker A (A): .
+[17:01.26-17:01.61] Speaker C (C): Hmm
+[17:01.32-17:01.87] Speaker B (B): and
+[17:01.61-17:01.61] Speaker C (C): .
+[17:01.87-17:21.97] Speaker B (B): , yeah, some maybe some work has to be done on this. I don't know why this uh image doesn't appear, this is the um um the frame that is uh uh extracted to be the shot key frame here. This one is this one, the middle one. So I don't know what why it doesn't appear, but it just uh
+[17:21.51-17:21.98] Speaker A (A): Okay, yeah
+[17:21.97-17:22.02] Speaker B (B): a
+[17:21.98-17:21.98] Speaker A (A): .
+[17:22.02-17:23.93] Speaker B (B): simple problem in the get frame
+[17:23.19-17:23.58] Speaker A (A): Yeah.
+[17:23.93-17:36.11] Speaker B (B): . But what I can show you now is a little programme if we want to be um very precise about so it's ma get frames
+[17:44.96-17:46.62] Speaker B (B): Okay, C_G_I_ here.
+[17:49.71-17:57.16] Speaker B (B): And we were interested in around what di do you want? Around six, seven seconds?
+[17:57.86-18:01.31] Speaker A (A): Yeah, I mean initially I don't know why there is a a shot detected.
+[18:01.59-18:05.09] Speaker B (B): Okay. Uh if we do next.
+[18:06.64-18:09.88] Speaker B (B): Oh. Yeah. There
+[18:08.83-18:10.01] Speaker C (C): Yeah, yeah
+[18:09.88-18:10.09] Speaker B (B): is
+[18:10.01-18:10.19] Speaker C (C): . Oh
+[18:10.09-18:10.42] Speaker B (B): something
+[18:10.19-18:10.52] Speaker C (C): yeah
+[18:10.42-18:11.40] Speaker B (B): wrong
+[18:10.52-18:10.52] Speaker C (C): .
+[18:11.40-18:12.00] Speaker B (B): . So
+[18:11.61-18:12.12] Speaker A (A): Ah okay
+[18:11.99-18:12.16] Speaker C (C): There
+[18:12.00-18:12.18] Speaker B (B): it
+[18:12.12-18:12.32] Speaker A (A): , so
+[18:12.16-18:12.33] Speaker C (C): was
+[18:12.18-18:12.65] Speaker B (B): detects
+[18:12.32-18:12.77] Speaker A (A): the
+[18:12.33-18:13.05] Speaker C (C): some burning
+[18:12.77-18:17.34] Speaker A (A): okay so the here is an image number
+[18:16.58-18:17.38] Speaker B (B): Yeah, in fact, yeah
+[18:17.34-18:17.44] Speaker A (A): . In
+[18:17.38-18:17.58] Speaker B (B): , that's
+[18:17.44-18:17.67] Speaker A (A): your
+[18:17.58-18:17.74] Speaker B (B): why
+[18:17.67-18:19.31] Speaker A (A): programme
+[18:17.74-18:19.35] Speaker B (B): I said it's it's a frame number
+[18:19.31-18:19.72] Speaker A (A): . Ah
+[18:19.35-18:19.87] Speaker B (B): . Uh w I don't
+[18:19.72-18:20.10] Speaker A (A): okay
+[18:19.87-18:20.27] Speaker B (B): know why
+[18:20.10-18:20.56] Speaker A (A): , okay
+[18:20.27-18:20.56] Speaker B (B): , yeah
+[18:20.56-18:20.56] Speaker A (A): ,
+[18:20.56-18:20.70] Speaker B (B): yeah
+[18:20.56-18:21.10] Speaker A (A): yeah
+[18:20.70-18:21.18] Speaker B (B): yeah. It's
+[18:21.10-18:21.96] Speaker A (A): . Okay
+[18:21.18-18:22.52] Speaker B (B): a frame number
+[18:21.96-18:22.58] Speaker A (A): , okay so then
+[18:22.52-18:22.75] Speaker B (B): . This
+[18:22.58-18:22.97] Speaker A (A): this
+[18:22.75-18:26.61] Speaker B (B): is a frame number, this is in second, but I I kept the frame number
+[18:26.35-18:27.04] Speaker A (A): So, but
+[18:26.61-18:26.61] Speaker B (B): .
+[18:27.04-18:29.53] Speaker A (A): it's in seconds or it's
+[18:29.61-18:32.11] Speaker B (B): It's twelve frames, zero
+[18:31.87-18:33.76] Speaker A (A): Okay
+[18:32.11-18:32.67] Speaker B (B): seconds.
+[18:33.76-18:34.22] Speaker A (A): . Okay
+[18:33.78-18:34.60] Speaker C (C): Okay
+[18:34.22-18:34.87] Speaker A (A): , yeah, okay
+[18:34.60-18:34.60] Speaker C (C): .
+[18:34.87-18:37.99] Speaker A (A): , okay, seconds plus number
+[18:36.28-18:36.54] Speaker C (C): And
+[18:36.29-18:36.67] Speaker B (B): Yeah
+[18:36.54-18:36.99] Speaker C (C): the next
+[18:36.67-18:36.67] Speaker B (B): .
+[18:36.99-18:38.01] Speaker C (C): is eleven seconds
+[18:37.99-18:38.28] Speaker A (A): . Okay
+[18:38.01-18:38.45] Speaker C (C): and
+[18:38.28-18:38.54] Speaker A (A): , so
+[18:38.45-18:38.71] Speaker C (C): twelve
+[18:38.54-18:39.08] Speaker A (A): basically
+[18:38.71-18:39.33] Speaker C (C): frames
+[18:39.08-18:39.45] Speaker A (A): what has
+[18:39.33-18:39.33] Speaker C (C): .
+[18:39.45-18:42.55] Speaker A (A): been uh yeah, extracted is yeah, this point rather than okay
+[18:42.47-18:43.45] Speaker B (B): Yeah
+[18:42.55-18:42.89] Speaker A (A): , so this
+[18:42.79-18:42.98] Speaker C (C): Hmm
+[18:42.89-18:43.37] Speaker A (A): is normal
+[18:42.98-18:42.98] Speaker C (C): .
+[18:43.37-18:43.66] Speaker A (A): , okay
+[18:43.45-18:43.87] Speaker B (B): . Yeah
+[18:43.66-18:43.66] Speaker A (A): .
+[18:43.87-18:54.76] Speaker B (B): . So if we do every second uh I d the middle frame is uh this one thousand
+[18:59.61-19:03.51] Speaker B (B): Okay. Do you thi it's another kind of browsing page, but uh to
+[19:03.44-19:04.02] Speaker C (C): Okay
+[19:03.51-19:04.45] Speaker B (B): be more precise
+[19:04.02-19:04.02] Speaker C (C): .
+[19:04.45-19:06.34] Speaker B (B): about uh
+[19:06.09-19:06.53] Speaker A (A): Okay
+[19:06.34-19:06.65] Speaker B (B): to to
+[19:06.53-19:06.53] Speaker A (A): .
+[19:06.65-19:10.10] Speaker B (B): check maybe the this
+[19:08.83-19:10.54] Speaker A (A): Okay, like transition, something
+[19:10.10-19:10.77] Speaker B (B): yeah, exactly
+[19:10.54-19:10.79] Speaker A (A): that
+[19:10.77-19:11.03] Speaker B (B): , yeah
+[19:10.79-19:11.13] Speaker A (A): is
+[19:11.03-19:11.65] Speaker B (B): , yeah
+[19:11.13-19:11.55] Speaker A (A): okay.
+[19:11.65-19:11.98] Speaker B (B): . Anyway
+[19:11.88-19:12.27] Speaker C (C): Hmm
+[19:11.98-19:12.28] Speaker B (B): , you
+[19:12.27-19:12.27] Speaker C (C): .
+[19:12.28-19:18.33] Speaker B (B): go back to one frame around f one sixty for instance, I don't know.
+[19:20.26-19:22.43] Speaker B (B): And and there is
+[19:21.88-19:22.48] Speaker C (C): Okay
+[19:22.43-19:22.76] Speaker B (B): yeah
+[19:22.48-19:22.90] Speaker C (C): . Ah
+[19:22.76-19:23.02] Speaker B (B): , that's
+[19:22.90-19:23.84] Speaker C (C): , okay
+[19:23.02-19:25.11] Speaker B (B): it, you know
+[19:23.84-19:24.24] Speaker C (C): . Understand.
+[19:25.11-19:33.14] Speaker B (B): . Prev Okay. You see that there is uh okay, it's not a shot change, it's a motion actually here
+[19:32.29-19:33.26] Speaker A (A): Yeah, it's motion yeah
+[19:33.14-19:33.47] Speaker B (B): . Yeah
+[19:33.26-19:33.47] Speaker A (A): , it's
+[19:33.47-19:33.47] Speaker B (B): ,
+[19:33.47-19:33.66] Speaker A (A): not
+[19:33.47-19:33.76] Speaker B (B): yeah
+[19:33.66-19:34.29] Speaker A (A): a cut
+[19:33.76-19:34.55] Speaker B (B): , yeah, yeah, yeah
+[19:34.29-19:34.72] Speaker A (A): . Yeah, but
+[19:34.55-19:34.55] Speaker B (B): .
+[19:34.72-19:36.85] Speaker A (A): I was thinking that maybe it could have been
+[19:36.46-19:37.33] Speaker B (B): Yeah
+[19:36.85-19:37.50] Speaker A (A): . But it's true that
+[19:37.33-19:40.16] Speaker B (B): , I s
+[19:37.50-19:40.21] Speaker A (A): it's mainly water when we see things, so it's, yeah, it's
+[19:40.16-19:40.41] Speaker B (B): yeah
+[19:40.21-19:40.71] Speaker A (A): not such
+[19:40.41-19:40.41] Speaker B (B): .
+[19:40.71-19:47.67] Speaker A (A): a big uh but yeah, sometimes I mean you can have various things hap I mean just think about more action movie and thing
+[19:47.53-19:47.68] Speaker C (C): Mm
+[19:47.67-19:47.82] Speaker A (A): like
+[19:47.68-19:48.03] Speaker C (C): 'kay
+[19:47.82-19:48.53] Speaker A (A): this
+[19:48.03-19:48.03] Speaker C (C): .
+[19:48.53-19:55.98] Speaker A (A): . Well sometimes it's very difficult, so focus, usually there is no problem, people say this is a cut, this is not a cut, but like
+[19:55.84-19:55.92] Speaker C (C): Mm.
+[19:55.98-20:03.16] Speaker A (A): for dissolve even sometimes, you know, people may it's people may have some trouble I mean this is a dissolve this
+[20:03.07-20:03.60] Speaker C (C): Yeah
+[20:03.16-20:03.84] Speaker A (A): is not
+[20:03.60-20:03.99] Speaker C (C): . Mm-hmm
+[20:03.84-20:03.99] Speaker A (A): this
+[20:03.99-20:03.99] Speaker C (C): .
+[20:03.99-20:18.27] Speaker A (A): should this should be labelled as a transition or not. Some people will say yeah, but it's part of the thing, or uh for instance in like in um also in uh, come on, uh advertising usually. Because the shots are very short in
+[20:18.27-20:18.69] Speaker B (B): Yeah
+[20:18.27-20:18.83] Speaker C (C): Okay
+[20:18.27-20:18.97] Speaker A (A): advertising
+[20:18.69-20:18.69] Speaker B (B): .
+[20:18.83-20:20.82] Speaker C (C): , mm-hmm
+[20:18.97-20:21.99] Speaker A (A): , usually it's uh very fast and
+[20:20.82-20:21.14] Speaker C (C): . Yeah.
+[20:21.99-20:31.05] Speaker A (A): so sometimes, yeah, when you have an incrustation like last time, what what should you say, it's it's, yeah, it's a change of But uh
+[20:31.13-20:31.33] Speaker B (B): When
+[20:31.21-20:31.54] Speaker C (C): Hmm
+[20:31.33-20:31.77] Speaker B (B): you have
+[20:31.54-20:31.54] Speaker C (C): .
+[20:31.77-20:35.16] Speaker B (B): yeah, the the goal results uh
+[20:34.60-20:34.95] Speaker C (C): Yeah.
+[20:35.16-20:42.05] Speaker B (B): then yeah, in fact it's not a shot change
+[20:39.52-20:40.70] Speaker A (A): Yeah, I mean
+[20:40.63-20:41.29] Speaker C (C): Yeah
+[20:40.70-20:41.59] Speaker A (A): it's a
+[20:41.29-20:41.29] Speaker C (C): .
+[20:41.59-20:42.10] Speaker A (A): so sometimes
+[20:42.05-20:42.33] Speaker B (B): . Yeah
+[20:42.10-20:42.66] Speaker A (A): very difficult
+[20:42.33-20:42.33] Speaker B (B): .
+[20:42.66-20:51.67] Speaker A (A): . A at least what I can see that currently like for CINETIS uh for instance if it's to do colour correction or for instance if it's too black
+[20:51.58-20:51.99] Speaker C (C): Hmm
+[20:51.67-20:52.16] Speaker A (A): , too a bit
+[20:51.99-20:51.99] Speaker C (C): .
+[20:52.16-20:54.98] Speaker A (A): whiter, I think this type of things should be fine
+[20:54.92-20:55.27] Speaker C (C): Hmm
+[20:54.98-20:54.98] Speaker A (A): .
+[20:55.27-20:55.27] Speaker C (C): .
+[20:55.38-20:59.78] Speaker A (A): Because basically it's even if they are not real shots, they are not so interested if it's not
+[20:59.62-21:00.09] Speaker B (B): Yeah
+[20:59.78-21:00.60] Speaker A (A): real shot
+[21:00.09-21:00.09] Speaker B (B): .
+[21:00.60-21:21.55] Speaker A (A): . Maybe after they have this and they may say okay, just by looking at least the summary, so maybe for the summary we could do better uh key frame extraction for instance, but by just looking at the key frames and so on they may say okay, from this shot to this shot we apply like uh specific um colour enhancement algorithm
+[21:21.26-21:21.49] Speaker C (C): Yeah.
+[21:21.55-21:28.70] Speaker A (A): or restoration algorithm or uh to improve uh the brightness and something like this right. And uh
+[21:28.48-21:28.70] Speaker C (C): Hmm.
+[21:28.70-21:32.10] Speaker A (A): so I think for them this is fine um
+[21:32.01-21:32.21] Speaker B (B): So
+[21:32.10-21:32.34] Speaker A (A): after
+[21:32.21-21:32.45] Speaker B (B): this
+[21:32.34-21:32.56] Speaker A (A): i
+[21:32.45-21:32.68] Speaker B (B): would
+[21:32.56-21:33.16] Speaker A (A): yeah
+[21:32.68-21:33.26] Speaker B (B): ma be
+[21:33.16-21:33.16] Speaker A (A): .
+[21:33.26-21:37.05] Speaker B (B): made uh manually actually. When you say from this shot to this shot
+[21:37.02-21:37.43] Speaker C (C): Hmm
+[21:37.05-21:37.57] Speaker B (B): is using
+[21:37.43-21:37.43] Speaker C (C): .
+[21:37.57-21:41.29] Speaker B (B): a graphical user interface someone who would do manually for each
+[21:41.27-21:41.49] Speaker A (A): Well
+[21:41.29-21:42.08] Speaker B (B): video
+[21:41.49-21:42.31] Speaker A (A): , maybe after
+[21:42.08-21:42.08] Speaker B (B): .
+[21:42.31-21:50.60] Speaker A (A): I mean they would sh okay, uh they would go directly and say select the shots from here to here, and they would say you apply this algorithm
+[21:49.82-21:50.78] Speaker B (B): Method, yeah
+[21:50.60-21:50.81] Speaker A (A): , yeah
+[21:50.78-21:50.78] Speaker B (B): .
+[21:50.81-21:50.81] Speaker A (A): .
+[21:51.41-21:51.68] Speaker C (C): Hmm.
+[21:53.41-21:58.17] Speaker A (A): So of course we could try to make scene clustering and so on, but I'm not even sure that this
+[21:58.06-21:58.39] Speaker C (C): Hmm
+[21:58.17-21:58.93] Speaker A (A): is necessary
+[21:58.39-21:58.39] Speaker C (C): .
+[21:58.93-22:03.57] Speaker A (A): for them at this point, because uh if they have a six minute movie, if they have
+[22:03.49-22:04.08] Speaker B (B): Yeah
+[22:03.57-22:04.17] Speaker A (A): thirty shots
+[22:04.08-22:04.39] Speaker B (B): , mm
+[22:04.17-22:04.53] Speaker A (A): , for them
+[22:04.39-22:04.39] Speaker B (B): .
+[22:04.53-22:07.54] Speaker A (A): it might be easier to look at from here to here
+[22:07.43-22:07.77] Speaker B (B): Yeah
+[22:07.54-22:08.07] Speaker A (A): I apply
+[22:07.77-22:07.77] Speaker B (B): .
+[22:08.07-22:17.27] Speaker A (A): this, and they can do it quite quickly. And they have to do it an to do it anyway, because what's going to take time might be uh to select the type of restoration algorithm
+[22:17.26-22:17.89] Speaker B (B): Ah
+[22:17.27-22:17.98] Speaker A (A): or the type of
+[22:17.89-22:18.36] Speaker B (B): , okay
+[22:17.98-22:18.45] Speaker A (A): things
+[22:18.06-22:18.21] Speaker C (C): Hmm.
+[22:18.36-22:18.36] Speaker B (B): .
+[22:18.45-22:20.37] Speaker A (A): . So this might take more time
+[22:20.18-22:20.52] Speaker B (B): Yeah, yeah
+[22:20.37-22:21.33] Speaker A (A): than
+[22:20.52-22:21.69] Speaker B (B): , yeah. Mm
+[22:21.33-22:21.69] Speaker A (A): having
+[22:21.69-22:21.69] Speaker B (B): .
+[22:21.69-22:23.82] Speaker A (A): to click two times on two shots rather
+[22:23.50-22:23.87] Speaker B (B): Okay
+[22:23.82-22:24.17] Speaker A (A): tha
+[22:23.87-22:23.87] Speaker B (B): .
+[22:24.17-22:34.80] Speaker A (A): tha than uh having directly a scene, right? So so I think for them uh this type of things is going to be useful uh, at least for this task.
+[22:35.76-22:36.07] Speaker C (C): Okay.
+[22:36.26-22:40.60] Speaker A (A): If they want to do stabilisation, it may not be sure of that
+[22:39.46-22:40.38] Speaker C (C): Hmm. Hmm.
+[22:40.60-22:42.84] Speaker A (A): . Uh this is the right segmentation
+[22:41.97-22:42.20] Speaker C (C): Hmm.
+[22:42.84-22:59.15] Speaker A (A): for some of these, but so but this is another point which for motion stabilisation, as I said several time, we are not we did not commit to provide anything, but of course if we can provide things, we'll do it, but
+[22:59.02-23:00.12] Speaker C (C): Hmm
+[22:59.15-23:01.34] Speaker A (A): uh yeah
+[23:00.12-23:00.12] Speaker C (C): .
+[23:01.34-23:03.51] Speaker A (A): . So do you have uh more question or uh
+[23:03.18-23:04.99] Speaker C (C): No. Uh
+[23:03.51-23:04.41] Speaker A (A): do you have a
+[23:04.99-23:10.88] Speaker C (C): I have look at the demo film, and it's about uh
+[23:12.82-23:16.32] Speaker C (C): forty minutes and about uh
+[23:18.09-23:25.04] Speaker C (C): hundred and seventy three different shots, so it's
+[23:23.34-23:26.02] Speaker B (B): This is the one in the D_V_D_
+[23:25.04-23:25.51] Speaker C (C): yeah.
+[23:26.02-23:30.54] Speaker B (B): ? Maybe okay, we can uh see a little bit if you want, to play
+[23:30.35-23:32.03] Speaker C (C): Yes
+[23:30.54-23:30.87] Speaker B (B): the
+[23:32.03-23:45.74] Speaker C (C): . And uh I don't know if this is a real sample D_V_D_, because uh this will make about uh five seconds for each shot, so I think it's very short
+[23:44.66-23:45.75] Speaker B (B): Well no, it's okay
+[23:45.69-23:45.99] Speaker A (A): Well
+[23:45.74-23:45.98] Speaker C (C): . No
+[23:45.75-23:45.75] Speaker B (B): .
+[23:45.98-23:46.03] Speaker C (C): ? I
+[23:45.99-23:46.06] Speaker A (A): I
+[23:46.03-23:46.12] Speaker C (C): if
+[23:46.06-23:46.44] Speaker A (A): just
+[23:46.12-23:47.43] Speaker C (C): this is
+[23:46.44-23:47.63] Speaker A (A): i i i it's I think
+[23:47.43-23:48.12] Speaker C (C): to
+[23:47.63-23:48.42] Speaker A (A): this is
+[23:48.12-23:55.95] Speaker C (C): r to to to make a change in the colour, light and uh they have a lot of uh shots.
+[23:57.00-24:03.74] Speaker A (A): Yeah, but after I mean it may be more like a guy um i
+[24:01.69-24:01.95] Speaker C (C): Hmm.
+[24:03.74-24:06.35] Speaker A (A): int i in an interface, a guy interface. I
+[24:06.34-24:06.89] Speaker C (C): Yeah
+[24:06.35-24:06.90] Speaker A (A): mean where I
+[24:06.89-24:07.16] Speaker C (C): , okay
+[24:06.90-24:07.24] Speaker A (A): mean if
+[24:07.16-24:07.16] Speaker C (C): .
+[24:07.24-24:10.18] Speaker A (A): second select from shot one to seven
+[24:08.87-24:11.40] Speaker C (C): Ah, okay. Yeah
+[24:10.18-24:11.56] Speaker A (A): , uh this is a same
+[24:11.40-24:12.18] Speaker C (C): , okay
+[24:11.56-24:12.51] Speaker A (A): seg they may do
+[24:12.18-24:12.18] Speaker C (C): .
+[24:12.51-24:16.73] Speaker A (A): the grouping by themselves quite by looking at this it may take w w
+[24:16.57-24:17.09] Speaker C (C): Okay
+[24:16.73-24:17.30] Speaker A (A): less one
+[24:17.09-24:17.87] Speaker C (C): , understand
+[24:17.30-24:18.26] Speaker A (A): one minutes
+[24:17.87-24:17.87] Speaker C (C): .
+[24:18.26-24:28.67] Speaker A (A): . And I think it's anyway, if it's too summarised after they may want to go inside uh to see whether there is not special things I mean, so
+[24:27.68-24:27.99] Speaker C (C): Yeah.
+[24:28.67-24:29.85] Speaker A (A): . Uh because after
+[24:29.59-24:29.94] Speaker C (C): Okay
+[24:29.85-24:29.94] Speaker A (A): it
+[24:29.94-24:29.94] Speaker C (C): .
+[24:29.94-24:36.63] Speaker A (A): depends, I mean if you give only one key frame per shot, after I mean it's one hundred seventy images, it's quite
+[24:36.48-24:36.94] Speaker C (C): Hmm
+[24:36.63-24:37.23] Speaker A (A): fast
+[24:36.94-24:36.94] Speaker C (C): .
+[24:37.23-24:43.52] Speaker A (A): , right, and so I think and the hierarchical thing is good, because still you can check if you have some ambiguities you are not sure, you
+[24:43.49-24:43.82] Speaker B (B): Okay
+[24:43.52-24:43.67] Speaker A (A): could
+[24:43.82-24:44.18] Speaker B (B): , uh
+[24:43.83-24:44.12] Speaker C (C): Okay.
+[24:44.18-24:51.08] Speaker B (B): in fact I didn't understand that, but now I understand better that CINETIS wants this kind of method to help them
+[24:50.93-24:51.75] Speaker A (A): Yeah
+[24:51.08-24:52.05] Speaker B (B): to restore
+[24:51.75-24:53.31] Speaker A (A): . Yeah
+[24:52.05-24:52.78] Speaker B (B): and to
+[24:52.76-24:54.22] Speaker C (C): Yeah
+[24:52.78-24:53.33] Speaker B (B): apply
+[24:53.31-24:53.66] Speaker A (A): . Yeah
+[24:53.33-24:54.30] Speaker B (B): the algori
+[24:53.66-24:54.29] Speaker A (A): , at least
+[24:54.22-24:54.99] Speaker C (C): , yes
+[24:54.29-24:54.71] Speaker A (A): yeah
+[24:54.30-24:55.52] Speaker B (B): some algorithms
+[24:54.71-24:55.08] Speaker A (A): , yeah
+[24:54.99-24:54.99] Speaker C (C): .
+[24:55.08-24:55.32] Speaker A (A): , yeah.
+[24:55.52-24:58.13] Speaker B (B): to to to make a better movie
+[24:58.11-24:58.47] Speaker A (A): Yeah
+[24:58.13-24:58.54] Speaker B (B): , okay
+[24:58.45-24:58.67] Speaker C (C): Yeah
+[24:58.47-24:58.82] Speaker A (A): , yeah
+[24:58.54-24:58.72] Speaker B (B): . It's
+[24:58.67-24:58.67] Speaker C (C): .
+[24:58.72-24:58.86] Speaker B (B): not
+[24:58.82-24:58.96] Speaker A (A): , yeah
+[24:58.86-24:59.06] Speaker B (B): for
+[24:58.96-24:58.96] Speaker A (A): .
+[24:59.06-25:00.95] Speaker B (B): the client, for the user
+[25:00.85-25:01.66] Speaker C (C): Hmm
+[25:00.95-25:02.03] Speaker B (B): who will uh
+[25:01.64-25:01.96] Speaker A (A): Well
+[25:01.66-25:01.96] Speaker C (C): . Oh
+[25:01.96-25:01.96] Speaker A (A): ,
+[25:01.96-25:01.96] Speaker C (C): .
+[25:01.96-25:02.55] Speaker A (A): ultim
+[25:01.96-25:03.89] Speaker C (C): Maybe
+[25:02.03-25:02.62] Speaker B (B): maybe
+[25:02.55-25:03.26] Speaker A (A): ultimately
+[25:02.62-25:04.69] Speaker B (B): okay
+[25:03.26-25:04.00] Speaker A (A): I think this is the
+[25:03.89-25:04.45] Speaker C (C): they
+[25:04.00-25:04.94] Speaker A (A): type of things
+[25:04.45-25:04.68] Speaker C (C): can
+[25:04.69-25:05.37] Speaker B (B): . Okay
+[25:04.94-25:05.46] Speaker A (A): , but at this
+[25:05.37-25:06.28] Speaker B (B): . Also
+[25:05.46-25:07.17] Speaker A (A): point we
+[25:06.28-25:07.00] Speaker B (B): but okay.
+[25:07.17-25:09.04] Speaker A (A): uh yeah. I I hope
+[25:08.92-25:09.07] Speaker C (C): Hmm
+[25:09.04-25:09.42] Speaker A (A): uh
+[25:09.07-25:09.07] Speaker C (C): .
+[25:09.42-25:16.92] Speaker A (A): that uh if it's a big success uh they will ask IDIAP to to provide something like this of course
+[25:16.81-25:17.15] Speaker B (B): Okay
+[25:16.92-25:17.47] Speaker A (A): with some
+[25:17.15-25:17.15] Speaker B (B): .
+[25:17.47-25:21.71] Speaker A (A): money or at least to pay a student or somebody for
+[25:21.50-25:21.77] Speaker B (B): Mm-hmm
+[25:21.71-25:21.97] Speaker A (A): doing
+[25:21.77-25:21.77] Speaker B (B): .
+[25:21.97-25:30.30] Speaker A (A): it, but uh yeah, of course this was ultimately I think one way of uh if you could provide like chapters or something like this
+[25:29.96-25:30.34] Speaker B (B): Mm-hmm
+[25:30.30-25:30.61] Speaker A (A): , indeed
+[25:30.34-25:30.34] Speaker B (B): .
+[25:30.61-25:39.86] Speaker A (A): you could provide like the A_V_I_ to the clients, and he may ask for special services or uh and even to just to watch the movie, to have direct access
+[25:39.67-25:39.80] Speaker C (C): Hmm.
+[25:39.86-25:41.18] Speaker A (A): to different parts and so
+[25:41.12-25:41.82] Speaker B (B): Mm-hmm
+[25:41.18-25:41.85] Speaker A (A): on. But
+[25:41.82-25:42.19] Speaker B (B): . Yeah
+[25:41.85-25:42.36] Speaker A (A): it's uh I
+[25:42.19-25:42.52] Speaker B (B): , uh
+[25:42.36-25:42.55] Speaker A (A): mean
+[25:42.52-25:42.86] Speaker B (B): okay
+[25:42.55-25:42.92] Speaker A (A): uh this
+[25:42.86-25:42.86] Speaker B (B): .
+[25:42.92-25:48.95] Speaker A (A): labelling might be more easy to do for the client by the client, because he knows what they're I mean he
+[25:48.85-25:50.66] Speaker B (B): Okay
+[25:48.95-25:49.17] Speaker A (A): we
+[25:49.11-25:49.53] Speaker C (C): Mm-hmm
+[25:49.17-25:49.56] Speaker A (A): wants to
+[25:49.53-25:49.53] Speaker C (C): .
+[25:49.56-25:50.69] Speaker A (A): have this and this and
+[25:50.66-25:51.11] Speaker B (B): . Ah
+[25:50.69-25:51.54] Speaker A (A): uh
+[25:51.11-25:51.45] Speaker B (B): , okay,
+[25:51.45-25:51.58] Speaker C (C): Mm
+[25:51.45-25:51.63] Speaker B (B): yeah
+[25:51.54-25:52.08] Speaker A (A): right
+[25:51.58-25:51.58] Speaker C (C): .
+[25:51.63-25:52.33] Speaker B (B): yeah yeah
+[25:52.08-25:52.43] Speaker A (A): , so
+[25:52.33-25:52.55] Speaker B (B): . Because
+[25:52.43-25:52.43] Speaker A (A): .
+[25:52.55-25:54.81] Speaker B (B): he did the movie, so he wants t okay
+[25:54.25-25:55.00] Speaker A (A): Yeah, yeah
+[25:54.81-25:55.60] Speaker B (B): , to archive
+[25:55.00-25:55.08] Speaker A (A): , he
+[25:55.08-25:55.15] Speaker C (C): Mm
+[25:55.08-25:55.23] Speaker A (A): may
+[25:55.15-25:55.15] Speaker C (C): .
+[25:55.23-25:56.21] Speaker A (A): want to organi
+[25:55.60-25:56.32] Speaker B (B): , he wants to
+[25:56.21-25:56.52] Speaker A (A): yeah
+[25:56.32-25:56.63] Speaker B (B): okay
+[25:56.52-25:56.82] Speaker A (A): , yeah
+[25:56.63-25:56.63] Speaker B (B): .
+[25:56.82-25:58.38] Speaker A (A): . Otherwise, I mean this but
+[25:58.33-25:58.50] Speaker B (B): This
+[25:58.38-25:59.23] Speaker A (A): of
+[25:58.50-25:59.32] Speaker B (B): is yeah
+[25:59.23-25:59.40] Speaker A (A): but
+[25:59.32-25:59.93] Speaker B (B): , another
+[25:59.40-26:00.10] Speaker A (A): of course it
+[25:59.93-26:00.32] Speaker B (B): mm
+[26:00.10-26:00.38] Speaker A (A): might be
+[26:00.32-26:00.32] Speaker B (B): .
+[26:00.38-26:08.07] Speaker A (A): easy to do a very simple software, which would allow the user to select just the shots and give names, and
+[26:07.94-26:08.28] Speaker C (C): Mm
+[26:08.07-26:08.37] Speaker A (A): after
+[26:08.28-26:08.28] Speaker C (C): .
+[26:08.37-26:11.38] Speaker A (A): it would generate automatically some index
+[26:11.21-26:11.88] Speaker B (B): Yeah
+[26:11.38-26:11.91] Speaker A (A): and
+[26:11.88-26:12.12] Speaker B (B): . Yeah
+[26:11.91-26:12.34] Speaker A (A): uh
+[26:12.12-26:12.12] Speaker B (B): .
+[26:12.34-26:13.19] Speaker A (A): as a I suppose
+[26:13.07-26:13.60] Speaker C (C): Mm
+[26:13.19-26:13.75] Speaker A (A): the client
+[26:13.60-26:13.60] Speaker C (C): .
+[26:13.75-26:14.99] Speaker A (A): might be interested in
+[26:14.95-26:16.21] Speaker B (B): Yeah
+[26:14.99-26:15.78] Speaker A (A): such a such
+[26:15.77-26:15.98] Speaker C (C): Mm
+[26:15.78-26:16.19] Speaker A (A): a things
+[26:15.98-26:15.98] Speaker C (C): .
+[26:16.19-26:16.35] Speaker A (A): if
+[26:16.21-26:16.76] Speaker B (B): . Okay
+[26:16.35-26:16.80] Speaker A (A): he could
+[26:16.76-26:16.76] Speaker B (B): .
+[26:16.80-26:26.97] Speaker A (A): uh generate automatically on the D_V_D_. But for and you could imagine that before sending in the D_V_D_, you could allow him to l to watch this type of interface, and
+[26:26.62-26:26.96] Speaker B (B): Mm-hmm.
+[26:26.97-26:30.22] Speaker A (A): he would be able to do the selection, say this is this, this
+[26:30.04-26:30.21] Speaker C (C): Mm.
+[26:30.22-26:32.33] Speaker A (A): is this, this is this, this is this, and when he would receive the
+[26:32.16-26:32.85] Speaker C (C): Yeah
+[26:32.33-26:33.19] Speaker A (A): D_V_D_
+[26:32.85-26:33.23] Speaker C (C): . Yeah
+[26:33.19-26:33.30] Speaker A (A): , he
+[26:33.23-26:33.23] Speaker C (C): .
+[26:33.30-26:37.75] Speaker A (A): would indeed uh get already the chapters that he decided to put there.
+[26:37.92-26:40.47] Speaker B (B): And this could be done by through internet.
+[26:40.75-26:43.13] Speaker A (A): Yeah, yeah, yeah. And I think this may
+[26:42.50-26:42.71] Speaker C (C): Mm-hmm.
+[26:43.13-26:44.31] Speaker A (A): it it's good that this is
+[26:44.19-26:44.85] Speaker B (B): Mm
+[26:44.31-26:44.87] Speaker A (A): a demo like
+[26:44.85-26:44.85] Speaker B (B): .
+[26:44.87-26:46.17] Speaker A (A): this, because I'm sure that
+[26:46.00-26:46.31] Speaker C (C): Mm
+[26:46.17-26:46.46] Speaker A (A): they might
+[26:46.31-26:46.31] Speaker C (C): .
+[26:46.46-26:47.99] Speaker A (A): be interested indeed
+[26:47.10-26:47.53] Speaker B (B): Mm-hmm.
+[26:47.99-26:48.31] Speaker A (A): , because
+[26:48.26-26:48.76] Speaker C (C): Yes
+[26:48.31-26:48.86] Speaker A (A): I imagine
+[26:48.76-26:48.76] Speaker C (C): .
+[26:48.86-26:49.06] Speaker A (A): that
+[26:49.02-26:49.27] Speaker B (B): From
+[26:49.06-26:49.69] Speaker A (A): some people
+[26:49.27-26:52.44] Speaker B (B): the client point of view and from the preparation
+[26:51.89-26:52.66] Speaker A (A): Yeah
+[26:52.44-26:52.71] Speaker B (B): of
+[26:52.66-26:53.04] Speaker A (A): . Yeah
+[26:52.71-26:53.68] Speaker B (B): the movie
+[26:53.04-26:53.71] Speaker A (A): , yeah, yeah
+[26:53.68-26:54.34] Speaker B (B): D_V_D_
+[26:53.71-26:53.71] Speaker A (A): .
+[26:54.34-26:54.79] Speaker B (B): , mm.
+[26:55.85-27:00.08] Speaker A (A): Uh yeah, so I think this is uh this is a very good uh and a yeah.
+[27:03.03-27:04.17] Speaker A (A): But uh
+[27:04.44-27:05.70] Speaker B (B): Okay, I will play, yeah.
+[27:09.05-27:13.59] Speaker A (A): So this is a kind of service, I don't know, either they give it for free and uh
+[27:15.70-27:16.19] Speaker A (A): But
+[27:16.04-27:16.35] Speaker B (B): We had
+[27:16.19-27:16.46] Speaker A (A): uh
+[27:16.35-27:17.43] Speaker B (B): an arrow here or what? It's
+[27:17.99-27:18.29] Speaker C (C): Sorry
+[27:18.25-27:18.40] Speaker A (A): But
+[27:18.29-27:18.29] Speaker C (C): ?
+[27:18.40-27:19.96] Speaker A (A): you see that sometimes even here it's
+[27:19.81-27:20.11] Speaker B (B): Th
+[27:19.96-27:27.15] Speaker A (A): a bit like uh it's for instance if people would like to have like some motion compensation, uh
+[27:26.37-27:27.24] Speaker C (C): Yeah
+[27:27.15-27:27.63] Speaker A (A): you
+[27:27.24-27:27.24] Speaker C (C): .
+[27:27.63-27:28.45] Speaker A (A): i
+[27:28.37-27:28.74] Speaker C (C): Mm-hmm
+[27:28.45-27:28.80] Speaker A (A): it could
+[27:28.74-27:28.74] Speaker C (C): .
+[27:28.80-27:40.42] Speaker A (A): be proposed. But for instance here it I wou it would be problematic to have motion. So i here it's fine to do motion compensation, but stabilisation rather than yeah.
+[27:45.20-27:49.67] Speaker A (A): But For instance here it's it's it's it's
+[27:53.58-27:54.09] Speaker C (C): Mm.
+[27:56.18-27:59.44] Speaker C (C): Yeah, uh I think I think they made some
+[27:59.26-28:00.59] Speaker A (A): Effects
+[27:59.44-28:00.71] Speaker C (C): uh special effect
+[28:00.59-28:01.11] Speaker A (A): ? Okay
+[28:00.71-28:01.74] Speaker C (C): in this
+[28:01.11-28:01.11] Speaker A (A): .
+[28:01.74-28:06.02] Speaker C (C): D_V_D_. Uh there is two or three time uh you
+[28:05.91-28:06.05] Speaker B (B): If
+[28:06.02-28:07.69] Speaker C (C): see
+[28:06.05-28:07.57] Speaker B (B): I go to menu there is something?
+[28:07.69-28:12.97] Speaker C (C): you see the same uh same kind of uh scene, uh just uh two or three
+[28:12.72-28:13.21] Speaker A (A): Ah okay
+[28:12.97-28:13.45] Speaker C (C): seconds
+[28:13.21-28:16.46] Speaker A (A): , so maybe like here for instance it is a just
+[28:16.20-28:16.61] Speaker C (C): Yeah
+[28:16.46-28:17.02] Speaker A (A): reproduced
+[28:16.61-28:16.61] Speaker C (C): .
+[28:17.02-28:17.85] Speaker A (A): two times uh.
+[28:18.21-28:18.52] Speaker C (C): Hmm.
+[28:19.23-28:22.56] Speaker B (B): Do you know what this is? No, old menu uh there is no menu in the
+[28:22.53-28:22.81] Speaker C (C): No
+[28:22.56-28:23.10] Speaker B (B): D_V_D_
+[28:22.81-28:23.25] Speaker C (C): , there's no
+[28:23.10-28:24.43] Speaker B (B): ? Okay
+[28:23.25-28:23.66] Speaker C (C): menu.
+[28:24.43-28:24.76] Speaker B (B): . Okay.
+[28:25.33-28:28.21] Speaker C (C): There is just one uh one chapter and no menu.
+[28:29.10-28:34.21] Speaker B (B): Okay. So this is the same video a the the A_V_I_ number
+[28:34.15-28:34.49] Speaker C (C): Yeah
+[28:34.21-28:34.93] Speaker B (B): one
+[28:34.49-28:35.70] Speaker C (C): , yes
+[28:34.93-28:34.93] Speaker B (B): ?
+[28:35.59-28:35.94] Speaker A (A): Yeah
+[28:35.70-28:36.68] Speaker C (C): . Yes
+[28:35.94-28:35.94] Speaker A (A): .
+[28:36.61-28:36.76] Speaker B (B): And
+[28:36.68-28:37.17] Speaker C (C): . Uh
+[28:36.76-28:39.41] Speaker B (B): on the on the D_V_D_ I saw that there are some other stuff.
+[28:42.73-28:44.66] Speaker B (B): I dunno. This one?
+[28:46.03-28:46.73] Speaker C (C): Uh I think
+[28:46.73-28:46.88] Speaker B (B): The
+[28:46.73-28:46.93] Speaker C (C): in
+[28:46.88-28:47.20] Speaker B (B): same
+[28:46.93-28:47.20] Speaker C (C): the
+[28:47.20-28:47.20] Speaker B (B): .
+[28:47.20-28:56.98] Speaker C (C): video there's two there's two video, one is a real video and the other is a just uh introduction when you have the menu.
+[28:57.17-28:57.54] Speaker B (B): Okay.
+[29:00.73-29:01.13] Speaker B (B): Oops.
+[29:02.46-29:06.38] Speaker A (A): So this is vi okay. This video is about four minutes, five minutes, right?
+[29:06.83-29:08.78] Speaker C (C): No, it's uh thirteen minutes.
+[29:09.35-29:11.18] Speaker A (A): Ah okay, so this is not the one that has been
+[29:11.13-29:11.56] Speaker C (C): No
+[29:11.18-29:11.82] Speaker A (A): uh
+[29:11.56-29:20.93] Speaker C (C): , but yes, this is the same, but uh there was a problem when do the grab from the D_V_D_ to the files
+[29:20.19-29:20.53] Speaker B (B): Ah,
+[29:20.53-29:20.94] Speaker A (A): Okay
+[29:20.53-29:21.26] Speaker B (B): okay
+[29:20.93-29:21.12] Speaker C (C): . So
+[29:20.94-29:20.94] Speaker A (A): .
+[29:21.12-29:21.31] Speaker C (C): this
+[29:21.26-29:22.10] Speaker B (B): . Uh
+[29:21.31-29:22.13] Speaker C (C): is why they have
+[29:22.10-29:22.22] Speaker B (B): . There
+[29:22.13-29:22.39] Speaker C (C): make
+[29:22.22-29:23.10] Speaker B (B): are two
+[29:22.39-29:23.12] Speaker C (C): two two
+[29:23.10-29:23.67] Speaker B (B): files
+[29:23.12-29:24.22] Speaker C (C): files
+[29:23.67-29:24.46] Speaker B (B): . Okay, I understand
+[29:24.22-29:25.87] Speaker C (C): . But
+[29:24.46-29:24.46] Speaker B (B): .
+[29:25.87-29:28.75] Speaker C (C): now I have one file also in the
+[29:28.61-29:28.92] Speaker B (B): Okay
+[29:28.75-29:28.98] Speaker C (C): so
+[29:28.92-29:28.92] Speaker B (B): .
+[29:28.98-29:31.02] Speaker C (C): you can
+[29:30.67-29:32.55] Speaker B (B): Run the
+[29:31.02-29:32.76] Speaker C (C): process again one time
+[29:32.46-29:32.92] Speaker A (A): Okay
+[29:32.55-29:33.03] Speaker B (B): okay
+[29:32.76-29:32.76] Speaker C (C): .
+[29:32.92-29:32.92] Speaker A (A): .
+[29:33.03-29:33.03] Speaker B (B): .
+[29:34.33-29:34.59] Speaker A (A): It's
+[29:34.38-29:34.76] Speaker B (B): Um
+[29:34.59-29:37.73] Speaker A (A): it's it's real time, right? I mean the
+[29:37.73-29:38.30] Speaker C (C): Mm
+[29:37.73-29:39.53] Speaker A (A): processing
+[29:38.30-29:38.30] Speaker C (C): .
+[29:38.96-29:39.61] Speaker B (B): Yeah
+[29:39.53-29:39.78] Speaker A (A): . Yeah
+[29:39.61-29:40.04] Speaker B (B): , almost
+[29:39.78-29:39.78] Speaker A (A): .
+[29:40.04-29:45.19] Speaker B (B): . I would maybe a less a little bit less than uh a bit more than real time maybe
+[29:44.82-29:45.28] Speaker A (A): A bit more
+[29:45.19-29:45.19] Speaker B (B): .
+[29:45.28-29:46.64] Speaker A (A): than real time? Well
+[29:46.61-29:46.68] Speaker B (B): I
+[29:46.64-29:47.87] Speaker A (A): anyway
+[29:46.68-29:47.93] Speaker B (B): will have to check, but if
+[29:47.87-29:48.33] Speaker A (A): , yeah
+[29:47.93-29:48.08] Speaker B (B): it's
+[29:48.04-29:48.36] Speaker C (C): Yeah
+[29:48.08-29:48.56] Speaker B (B): five minutes
+[29:48.33-29:48.33] Speaker A (A): .
+[29:48.36-29:48.36] Speaker C (C): .
+[29:48.56-29:50.81] Speaker B (B): videos, it's like done in yeah, quickly
+[29:50.61-29:50.91] Speaker A (A): Yeah
+[29:50.81-29:50.81] Speaker B (B): .
+[29:50.91-29:58.81] Speaker A (A): , normally it could it could go faster. But i probably it's probable that even for the project you would do some of the
+[29:58.76-29:59.09] Speaker C (C): Yeah
+[29:58.81-29:59.81] Speaker A (A): reprogramming
+[29:59.09-29:59.09] Speaker C (C): .
+[29:59.81-30:00.57] Speaker A (A): , I mean
+[30:00.52-30:00.90] Speaker C (C): Yes
+[30:00.57-30:01.83] Speaker A (A): to
+[30:00.90-30:00.90] Speaker C (C): .
+[30:01.23-30:01.62] Speaker B (B): Okay.
+[30:01.83-30:04.17] Speaker A (A): especially if uh we need to interface
+[30:04.05-30:04.37] Speaker C (C): Hmm
+[30:04.17-30:04.62] Speaker A (A): new
+[30:04.37-30:04.37] Speaker C (C): .
+[30:04.62-30:05.90] Speaker A (A): uh
+[30:05.30-30:06.67] Speaker B (B): Components
+[30:05.90-30:07.85] Speaker A (A): um
+[30:06.67-30:07.65] Speaker B (B): open C_V_.
+[30:07.85-30:10.45] Speaker A (A): yeah, or for just reading, I mean the
+[30:10.24-30:11.03] Speaker B (B): Yeah
+[30:10.45-30:11.13] Speaker A (A): the D_V_X_
+[30:11.03-30:11.27] Speaker B (B): . Yeah
+[30:11.13-30:11.51] Speaker A (A): and thing
+[30:11.27-30:11.27] Speaker B (B): .
+[30:11.51-30:11.95] Speaker A (A): like this
+[30:11.86-30:12.44] Speaker C (C): Yeah
+[30:11.95-30:13.27] Speaker A (A): , so it's uh
+[30:12.44-30:12.44] Speaker C (C): .
+[30:13.27-30:17.26] Speaker A (A): uh so tomor anyway for this we don't know exactly yet, because
+[30:17.20-30:17.58] Speaker B (B): Okay
+[30:17.26-30:17.59] Speaker A (A): it's
+[30:17.58-30:17.58] Speaker B (B): .
+[30:17.59-30:17.73] Speaker A (A): not
+[30:17.72-30:18.23] Speaker C (C): Yeah
+[30:17.73-30:18.62] Speaker A (A): sure
+[30:18.23-30:18.23] Speaker C (C): .
+[30:18.62-30:22.29] Speaker A (A): what they want to what the user's tools for reading D_V_D_ and so
+[30:22.04-30:22.43] Speaker C (C): Yes
+[30:22.29-30:23.60] Speaker A (A): on
+[30:22.43-30:22.43] Speaker C (C): .
+[30:23.60-30:27.28] Speaker A (A): , so. And s because I don't think this is so difficult
+[30:26.85-30:27.38] Speaker C (C): Hmm
+[30:27.28-30:28.29] Speaker A (A): , now
+[30:27.38-30:27.38] Speaker C (C): .
+[30:28.29-30:33.75] Speaker A (A): you have um already looked at the histograms
+[30:32.90-30:33.80] Speaker B (B): Open C_ yeah
+[30:33.75-30:33.96] Speaker A (A): and
+[30:33.80-30:33.80] Speaker B (B): .
+[30:33.96-30:34.18] Speaker A (A): open
+[30:34.03-30:34.84] Speaker C (C): Hmm
+[30:34.18-30:34.96] Speaker A (A): C_V_ computing
+[30:34.84-30:35.15] Speaker C (C): . Hmm
+[30:34.96-30:35.55] Speaker A (A): distances
+[30:35.15-30:35.15] Speaker C (C): .
+[30:35.55-30:41.17] Speaker A (A): and so on. So if we want to do a special thing that probably runs fast, it may be
+[30:41.11-30:41.56] Speaker C (C): Yeah
+[30:41.17-30:41.62] Speaker A (A): easier
+[30:41.56-30:41.56] Speaker C (C): .
+[30:41.62-30:44.76] Speaker A (A): to do it directly and uh yeah.
+[30:49.88-30:56.42] Speaker A (A): But uh but yeah, the interface is very so the interface uses the output of your programme. Essentially
+[30:55.59-30:56.48] Speaker B (B): Yeah. So
+[30:56.42-30:56.68] Speaker A (A): , okay
+[30:56.48-30:56.88] Speaker B (B): that we'll
+[30:56.68-30:56.68] Speaker A (A): .
+[30:56.88-30:59.88] Speaker B (B): use the whiteboard
+[30:58.68-31:00.04] Speaker A (A): Okay
+[30:59.88-31:00.10] Speaker B (B): . So
+[31:00.04-31:00.04] Speaker A (A): .
+[31:00.10-31:20.90] Speaker B (B): in fact, yeah, the interface is quite is quite simple to use. Um for instance you see um on the uh on the U_R_L_ I put okay, I I disco there is M_M_M_ dot IDIAP dot C_H_ slash V_C_G_I_ bin
+[31:22.69-31:24.31] Speaker B (B): slash video browser.
+[31:28.11-31:30.85] Speaker B (B): Okay, uh slash video browser three frames,
+[31:33.92-31:50.30] Speaker B (B): three frames dot H_T_M_L_. And then this C_G_I_ programme ask the mm parameter C_ video and M_ equals CINETIS okay, demo one.
+[31:52.24-31:57.27] Speaker B (B): In fact um I just explain how to put the data on M_M_M_, but
+[31:57.09-31:57.41] Speaker A (A): Mm
+[31:57.27-31:57.65] Speaker B (B): it's quite
+[31:57.41-31:57.41] Speaker A (A): .
+[31:57.65-31:58.10] Speaker B (B): simple.
+[31:59.64-32:11.78] Speaker B (B): When you log into M_M_M_ as with a C_ C_ S_S_H_ for instance, um so you just put it's working like this, M_M_M_ data
+[32:13.88-32:14.91] Speaker B (B): video browser.
+[32:22.43-32:24.97] Speaker B (B): Uh okay, slash. And then
+[32:27.04-32:31.24] Speaker B (B): This is the name of the new directory you will create.
+[32:34.05-32:34.80] Speaker B (B): Demo one.
+[32:36.64-32:41.99] Speaker B (B): And there stands there is couple of things well it's uh
+[32:43.51-32:48.64] Speaker B (B): this name so I will say this is video name, so video name
+[32:50.65-32:58.71] Speaker B (B): dot A_V_I_, you just because we need the A_V_I_ so that we can uh
+[32:59.24-33:00.69] Speaker A (A): You can do the get frame.
+[33:00.86-33:03.17] Speaker B (B): Yeah, we can do the the get frame
+[33:03.45-33:05.88] Speaker A (A): But otherwise it's not necessary. Oh yeah
+[33:05.76-33:06.26] Speaker B (B): Otherwise
+[33:05.88-33:06.96] Speaker A (A): , no no no
+[33:06.26-33:07.60] Speaker B (B): it's not necessary
+[33:06.96-33:08.33] Speaker A (A): . Ye okay
+[33:07.60-33:08.58] Speaker B (B): . Oh, uh f and
+[33:08.33-33:08.72] Speaker A (A): . Oh no no
+[33:08.58-33:09.13] Speaker B (B): also
+[33:08.72-33:09.15] Speaker A (A): , you need
+[33:09.13-33:09.59] Speaker B (B): for
+[33:09.15-33:09.69] Speaker A (A): you need to
+[33:09.59-33:10.33] Speaker B (B): the
+[33:09.69-33:11.51] Speaker A (A): generate these images, right? Okay.
+[33:12.08-33:15.85] Speaker B (B): Yeah, and this is no no no, uh this is done on the fly. With
+[33:15.78-33:16.53] Speaker A (A): Okay
+[33:15.85-33:18.18] Speaker B (B): get frame
+[33:16.53-33:17.15] Speaker A (A): . Okay, yeah.
+[33:17.40-33:17.97] Speaker C (C): Mm.
+[33:18.18-33:20.29] Speaker B (B): . So you need that
+[33:20.01-33:20.40] Speaker C (C): Okay
+[33:20.29-33:20.60] Speaker B (B): , you
+[33:20.40-33:20.40] Speaker C (C): .
+[33:20.60-33:25.32] Speaker B (B): need uh the X_M_L_ v so it's video name
+[33:28.13-33:38.24] Speaker B (B): And I could data dot X_M_L_, but in fact it's just a simple convention, I w could have put nothing, but I just put data. The it's a convention
+[33:38.11-33:38.76] Speaker C (C): Okay
+[33:38.24-33:38.86] Speaker B (B): . Data
+[33:38.76-33:38.76] Speaker C (C): .
+[33:38.86-33:46.91] Speaker B (B): , and then video name. Okay, it's R_M_ nine dot R_M_
+[33:46.09-33:47.65] Speaker C (C): Okay
+[33:46.91-33:47.77] Speaker B (B): for other stuff. But
+[33:47.65-33:49.43] Speaker C (C): . Okay
+[33:47.77-33:49.48] Speaker B (B): in fact, yeah, when I
+[33:49.43-33:49.62] Speaker C (C): . Yeah
+[33:49.48-33:49.81] Speaker B (B): think
+[33:49.62-33:49.62] Speaker C (C): .
+[33:49.81-33:51.48] Speaker B (B): now, we could have uh
+[33:53.01-33:53.64] Speaker B (B): Only with
+[33:53.37-33:53.63] Speaker A (A): Yeah
+[33:53.60-33:54.05] Speaker C (C): Yeah
+[33:53.63-33:53.63] Speaker A (A): .
+[33:53.64-33:54.39] Speaker B (B): uh extension
+[33:54.05-33:55.27] Speaker C (C): , okay
+[33:54.39-33:55.28] Speaker B (B): you can you can see
+[33:55.27-33:55.78] Speaker C (C): . But
+[33:55.28-33:55.28] Speaker B (B): .
+[33:55.78-33:59.86] Speaker C (C): the the name of the video file is video name
+[33:58.74-33:59.88] Speaker B (B): The name is no of in
+[33:59.86-34:00.20] Speaker C (C): is
+[33:59.88-34:00.38] Speaker B (B): fact
+[34:00.20-34:00.43] Speaker C (C): uh it's
+[34:00.38-34:00.53] Speaker B (B): yeah
+[34:00.43-34:00.53] Speaker C (C): the
+[34:00.53-34:00.76] Speaker B (B): , is
+[34:00.53-34:00.85] Speaker C (C): same
+[34:00.76-34:01.19] Speaker B (B): is
+[34:00.85-34:01.56] Speaker C (C): as a
+[34:01.10-34:01.42] Speaker A (A): As
+[34:01.19-34:02.10] Speaker B (B): yeah
+[34:01.42-34:02.36] Speaker A (A): a directory
+[34:01.56-34:03.52] Speaker C (C): directory
+[34:02.10-34:02.41] Speaker B (B): . Yeah, is
+[34:02.36-34:02.76] Speaker A (A): , yeah
+[34:02.41-34:02.84] Speaker B (B): the same as
+[34:02.76-34:02.98] Speaker A (A): , yeah
+[34:02.84-34:03.41] Speaker B (B): the directory
+[34:02.98-34:02.98] Speaker A (A): .
+[34:03.41-34:03.66] Speaker B (B): . It could
+[34:03.52-34:05.07] Speaker C (C): . Okay
+[34:03.66-34:05.77] Speaker B (B): have been video naming also
+[34:05.07-34:05.51] Speaker C (C): . Okay
+[34:05.24-34:05.52] Speaker A (A): Yeah
+[34:05.51-34:05.51] Speaker C (C): .
+[34:05.52-34:05.52] Speaker A (A): .
+[34:05.77-34:16.31] Speaker B (B): , but it's the same as a directory. And that's it actually. When you you u you do that I did the same for kayak you say kayak in fact now
+[34:16.26-34:16.39] Speaker A (A): Yeah
+[34:16.31-34:16.52] Speaker B (B): it's
+[34:16.39-34:17.14] Speaker A (A): , yeah
+[34:16.52-34:17.06] Speaker B (B): kayak
+[34:16.61-34:16.97] Speaker C (C): Okay.
+[34:17.06-34:17.23] Speaker B (B): , and
+[34:17.14-34:17.39] Speaker A (A): . Yeah
+[34:17.23-34:17.39] Speaker B (B): then
+[34:17.39-34:17.39] Speaker A (A): .
+[34:17.39-34:21.00] Speaker B (B): you can see. And this output yeah
+[34:20.89-34:21.71] Speaker A (A): X_M_L_
+[34:21.00-34:22.62] Speaker B (B): , as your
+[34:21.71-34:22.01] Speaker A (A): , yeah.
+[34:22.62-34:30.74] Speaker B (B): this output uh this file is an output from the mm the software, the
+[34:30.41-34:31.70] Speaker A (A): On the shot
+[34:30.74-34:32.02] Speaker B (B): shot boundary detection
+[34:31.70-34:31.70] Speaker A (A): .
+[34:31.75-34:32.80] Speaker C (C): Okay
+[34:32.02-34:32.52] Speaker B (B): software.
+[34:32.80-34:33.28] Speaker C (C): . Okay.
+[34:35.07-34:39.67] Speaker A (A): And it's a simple format I suppose, like uh
+[34:37.40-34:40.80] Speaker B (B): It's a very simple format
+[34:39.67-34:41.05] Speaker A (A): like you have scenes and
+[34:40.80-34:41.71] Speaker B (B): , yeah
+[34:41.05-34:42.40] Speaker A (A): shots
+[34:41.71-34:42.53] Speaker B (B): . Yeah
+[34:42.40-34:42.98] Speaker A (A): and
+[34:42.53-34:42.88] Speaker B (B): , uh
+[34:42.68-34:43.15] Speaker C (C): Yeah
+[34:42.88-34:43.26] Speaker B (B): actually
+[34:42.98-34:43.54] Speaker A (A): uh
+[34:43.15-34:44.00] Speaker C (C): , okay
+[34:43.26-34:43.76] Speaker B (B): we
+[34:43.54-34:44.13] Speaker A (A): key
+[34:44.00-34:44.43] Speaker C (C): . Okay
+[34:44.13-34:44.47] Speaker A (A): s some
+[34:44.43-34:44.43] Speaker C (C): .
+[34:44.47-34:46.41] Speaker A (A): time stamps. Yeah.
+[34:46.53-34:50.93] Speaker B (B): Uh yeah, I don't
+[34:50.84-34:51.30] Speaker C (C): Okay
+[34:50.93-34:51.56] Speaker B (B): yeah, we cannot
+[34:51.30-34:51.77] Speaker C (C): , yes
+[34:51.56-34:53.29] Speaker B (B): see
+[34:51.77-34:52.19] Speaker C (C): , okay.
+[34:52.76-34:53.34] Speaker A (A): So but you're
+[34:53.29-34:53.67] Speaker B (B): . It's
+[34:53.34-34:54.28] Speaker A (A): yeah
+[34:53.67-34:54.28] Speaker B (B): , yeah, it's
+[34:54.28-34:54.43] Speaker A (A): . Yeah
+[34:54.28-34:54.56] Speaker B (B): uh
+[34:54.43-34:54.63] Speaker A (A): , I mean
+[34:54.56-34:54.97] Speaker B (B): tha
+[34:54.63-34:55.05] Speaker A (A): it it
+[34:54.97-34:55.55] Speaker B (B): video
+[34:55.05-34:55.57] Speaker A (A): might be good
+[34:55.55-34:56.57] Speaker B (B): , scene
+[34:55.57-34:56.32] Speaker A (A): to
+[34:56.36-34:56.95] Speaker C (C): Yeah
+[34:56.57-34:58.17] Speaker B (B): , shot
+[34:56.95-34:57.36] Speaker C (C): , okay.
+[34:58.17-35:03.24] Speaker B (B): , it's hierarchical in X_M_L_ and key frame time stamp
+[35:02.80-35:03.76] Speaker C (C): Yeah, okay
+[35:03.24-35:04.08] Speaker B (B): and the and from
+[35:03.76-35:03.76] Speaker C (C): .
+[35:04.08-35:09.78] Speaker B (B): the time stamp and the video location he knows how to get the frame. Each of
+[35:09.62-35:10.56] Speaker C (C): Okay
+[35:09.78-35:11.32] Speaker B (B): these frames
+[35:10.56-35:10.90] Speaker C (C): . Mm.
+[35:11.32-35:13.06] Speaker B (B): . And if we do in fact I don't
+[35:12.97-35:13.66] Speaker C (C): Okay
+[35:13.06-35:13.69] Speaker B (B): know yeah, it's
+[35:13.66-35:15.47] Speaker C (C): , okay
+[35:13.69-35:17.11] Speaker B (B): Mozilla Firefox view page source
+[35:15.47-35:17.53] Speaker C (C): . So every
+[35:17.11-35:17.57] Speaker B (B): okay
+[35:17.53-35:17.82] Speaker C (C): every
+[35:17.57-35:18.08] Speaker B (B): , view frame
+[35:17.82-35:18.19] Speaker C (C): frame
+[35:18.08-35:18.49] Speaker B (B): source
+[35:18.19-35:18.83] Speaker C (C): on the f
+[35:18.49-35:18.49] Speaker B (B): .
+[35:18.83-35:21.02] Speaker C (C): page is uh online.
+[35:22.40-35:25.63] Speaker B (B): And every frame is stored into
+[35:25.40-35:26.35] Speaker C (C): Is
+[35:25.63-35:26.43] Speaker B (B): uh
+[35:26.35-35:27.04] Speaker C (C): is
+[35:26.43-35:28.21] Speaker B (B): a b a backup
+[35:27.04-35:27.20] Speaker C (C): a
+[35:28.21-35:36.19] Speaker B (B): in fact every frame um it's M_M_M_ who manage this automatically
+[35:35.79-35:36.33] Speaker C (C): Okay
+[35:36.19-35:36.39] Speaker B (B): , so
+[35:36.33-35:36.33] Speaker C (C): .
+[35:36.39-35:43.81] Speaker B (B): that um when uh you ask for this frame, in fact we can okay, I just view frame source
+[35:45.47-35:48.19] Speaker B (B): When I view image, when I say view image,
+[35:50.45-35:50.65] Speaker B (B): when
+[35:50.48-35:52.25] Speaker C (C): Yeah
+[35:50.65-35:53.40] Speaker B (B): I say view image on this frame
+[35:52.25-35:52.72] Speaker C (C): . Yes.
+[35:53.40-35:55.37] Speaker B (B): , up we go there
+[35:55.31-35:55.98] Speaker C (C): Okay
+[35:55.37-35:56.00] Speaker B (B): and this is
+[35:55.98-35:55.98] Speaker C (C): .
+[35:56.00-35:59.78] Speaker B (B): um in fact it's a Perl programme that
+[35:59.48-36:00.06] Speaker C (C): Okay
+[35:59.78-36:00.68] Speaker B (B): outputs
+[36:00.06-36:00.06] Speaker C (C): .
+[36:00.68-36:02.83] Speaker B (B): in fa instead of outputting
+[36:02.13-36:02.60] Speaker C (C): Okay.
+[36:02.83-36:06.65] Speaker B (B): H_T_M_L_ or text, it outputs uh J_ PEG.
+[36:07.09-36:08.15] Speaker C (C): Okay, understand.
+[36:08.46-36:10.09] Speaker B (B): From the video
+[36:09.68-36:10.34] Speaker C (C): Yes, okay
+[36:10.09-36:10.35] Speaker B (B): with a
+[36:10.34-36:10.68] Speaker C (C): . Okay
+[36:10.35-36:10.99] Speaker B (B): time stamp
+[36:10.68-36:12.27] Speaker C (C): . But on
+[36:10.99-36:12.71] Speaker B (B): it outputs a J_ PEG
+[36:12.27-36:12.92] Speaker C (C): the
+[36:12.71-36:13.06] Speaker B (B): . This is
+[36:12.92-36:13.08] Speaker C (C): on
+[36:13.06-36:13.46] Speaker B (B): quite
+[36:13.08-36:14.23] Speaker C (C): the
+[36:13.46-36:14.21] Speaker B (B): uh nice.
+[36:14.23-36:16.69] Speaker C (C): on the server the
+[36:16.54-36:17.00] Speaker B (B): And
+[36:16.69-36:19.95] Speaker C (C): original is a f video film
+[36:19.50-36:20.31] Speaker B (B): Yeah
+[36:19.95-36:20.39] Speaker C (C): . Okay
+[36:20.31-36:20.69] Speaker B (B): . And
+[36:20.39-36:20.39] Speaker C (C): .
+[36:20.69-36:24.24] Speaker B (B): this image is i this image is output uh
+[36:23.78-36:24.70] Speaker C (C): So for example
+[36:24.24-36:24.75] Speaker B (B): outputted
+[36:24.70-36:24.83] Speaker C (C): you
+[36:24.75-36:24.85] Speaker B (B): to
+[36:24.83-36:25.12] Speaker C (C): can
+[36:24.85-36:25.50] Speaker B (B): the client
+[36:25.12-36:25.66] Speaker C (C): change
+[36:25.50-36:25.50] Speaker B (B): .
+[36:25.66-36:27.08] Speaker C (C): you can change a number
+[36:27.02-36:27.22] Speaker B (B): Yeah
+[36:27.08-36:27.73] Speaker C (C): to
+[36:27.22-36:27.91] Speaker B (B): , exactly, yeah
+[36:27.73-36:28.52] Speaker C (C): take
+[36:27.91-36:28.67] Speaker B (B): , yeah. That's what
+[36:28.52-36:28.88] Speaker C (C): which one
+[36:28.67-36:29.17] Speaker B (B): I did
+[36:28.88-36:30.63] Speaker C (C): , okay
+[36:29.17-36:29.72] Speaker B (B): uh
+[36:30.63-36:31.86] Speaker C (C): . Okay, understand
+[36:31.43-36:32.57] Speaker B (B): here
+[36:31.86-36:32.69] Speaker C (C): . In the other
+[36:32.57-36:32.73] Speaker B (B): . In the
+[36:32.69-36:34.10] Speaker C (C): yeah
+[36:32.73-36:34.88] Speaker B (B): other application, yeah
+[36:34.10-36:35.24] Speaker C (C): yeah. Okay
+[36:34.88-36:35.45] Speaker B (B): . Yeah, I dunno
+[36:35.24-36:35.60] Speaker C (C): , perfect
+[36:35.45-36:35.45] Speaker B (B): .
+[36:35.60-36:35.60] Speaker C (C): .
+[36:37.05-36:37.68] Speaker A (A): And who has
+[36:37.60-36:37.76] Speaker B (B): Yeah
+[36:37.68-36:37.82] Speaker A (A): a
+[36:37.76-36:39.16] Speaker B (B): , here
+[36:37.82-36:38.13] Speaker A (A): right
+[36:37.94-36:38.27] Speaker C (C): In this
+[36:38.13-36:38.29] Speaker A (A): to
+[36:38.27-36:38.58] Speaker C (C): one
+[36:38.29-36:39.57] Speaker A (A): put
+[36:38.58-36:39.04] Speaker C (C): , okay.
+[36:39.16-36:39.16] Speaker B (B): .
+[36:39.57-36:42.42] Speaker A (A): who has a right to put data on the M_M_M_?
+[36:42.99-36:48.52] Speaker B (B): I f there are, yeah, the M_M_M_ developers, so I'm part of that
+[36:48.16-36:48.85] Speaker A (A): Okay
+[36:48.52-36:48.87] Speaker B (B): , but
+[36:48.85-36:48.85] Speaker A (A): .
+[36:48.87-36:50.97] Speaker B (B): uh we could we could
+[36:50.70-36:51.40] Speaker C (C): Yeah
+[36:50.97-36:52.93] Speaker B (B): uh
+[36:51.40-36:52.96] Speaker C (C): , I think it's not well done
+[36:52.93-36:53.18] Speaker B (B): yeah
+[36:52.93-36:53.80] Speaker A (A): Okay
+[36:52.96-36:53.20] Speaker C (C): , yeah
+[36:53.18-36:53.35] Speaker B (B): , it's
+[36:53.20-36:53.20] Speaker C (C): .
+[36:53.35-36:56.37] Speaker B (B): not a problem
+[36:53.80-36:54.01] Speaker A (A): , yeah.
+[36:55.91-36:56.33] Speaker C (C): Yeah.
+[36:56.37-37:04.35] Speaker B (B): . Um I wanted to saw to see to do s say something else. Um
+[37:02.95-37:03.52] Speaker C (C): Okay.
+[37:04.35-37:04.46] Speaker B (B): oh
+[37:04.37-37:04.71] Speaker C (C): But
+[37:04.46-37:04.75] Speaker B (B): yeah
+[37:04.71-37:05.57] Speaker C (C): um
+[37:04.75-37:05.71] Speaker B (B): , and the images are
+[37:05.57-37:05.57] Speaker C (C): .
+[37:05.71-37:07.96] Speaker B (B): sent to your browser, the client, to
+[37:07.91-37:08.20] Speaker C (C): Yeah
+[37:07.96-37:08.53] Speaker B (B): this browser
+[37:08.20-37:08.20] Speaker C (C): .
+[37:08.53-37:13.06] Speaker B (B): , but also kept in uh a directory in uh on
+[37:12.85-37:13.72] Speaker C (C): Okay
+[37:13.06-37:13.58] Speaker B (B): M_M_M_.
+[37:13.72-37:16.49] Speaker C (C): , okay, there is li local cache
+[37:15.46-37:16.64] Speaker B (B): Exactly, a cache
+[37:16.49-37:17.18] Speaker C (C): . Okay
+[37:16.64-37:17.54] Speaker B (B): . I say backup
+[37:17.18-37:18.21] Speaker C (C): , okay
+[37:17.54-37:18.31] Speaker B (B): , but it's a cache
+[37:18.21-37:18.69] Speaker C (C): . Okay
+[37:18.31-37:18.31] Speaker B (B): .
+[37:18.69-37:20.66] Speaker C (C): , okay
+[37:19.96-37:22.26] Speaker B (B): Um
+[37:20.66-37:21.07] Speaker C (C): . Okay.
+[37:22.26-37:23.93] Speaker B (B): that's that's how it works
+[37:23.92-37:24.10] Speaker C (C): So
+[37:23.93-37:23.93] Speaker B (B): .
+[37:24.10-37:38.50] Speaker C (C): if we for example now we have the c the the case that this video is not correct, because uh I have make uh event grabbing. So uh we need to remove the cache for this video or this is
+[37:38.41-37:38.64] Speaker B (B): No no
+[37:38.50-37:39.10] Speaker C (C): automatic
+[37:38.64-37:39.14] Speaker B (B): no
+[37:39.10-37:39.10] Speaker C (C): ?
+[37:39.14-37:42.68] Speaker B (B): , it's okay. Um for the cache uh
+[37:47.04-37:49.78] Speaker B (B): We have plenty of space on M_M_M_
+[37:49.37-37:49.70] Speaker C (C): Yeah.
+[37:49.78-37:53.00] Speaker B (B): , so the this is not a problem
+[37:51.30-37:53.08] Speaker C (C): Yeah, but what I mean is i
+[37:53.00-37:53.38] Speaker B (B): ah
+[37:53.08-37:53.43] Speaker C (C): i
+[37:53.38-37:53.62] Speaker B (B): , yeah
+[37:53.43-37:53.98] Speaker C (C): i
+[37:53.62-37:54.05] Speaker B (B): for a new
+[37:53.98-37:54.19] Speaker C (C): i
+[37:54.05-37:54.46] Speaker B (B): window
+[37:54.19-37:54.69] Speaker C (C): i if
+[37:54.46-37:54.46] Speaker B (B): .
+[37:54.69-37:57.04] Speaker C (C): I if I put the same video with the same
+[37:56.82-37:57.42] Speaker B (B): Yeah
+[37:57.04-37:58.39] Speaker C (C): name
+[37:57.42-37:58.07] Speaker B (B): , exactly, yeah.
+[37:58.39-38:01.00] Speaker C (C): instead of this one
+[38:00.05-38:01.94] Speaker B (B): And it detects okay
+[38:01.00-38:02.24] Speaker C (C): , they should uh
+[38:01.94-38:02.76] Speaker B (B): . Yeah
+[38:02.24-38:02.76] Speaker C (C): different
+[38:02.76-38:07.49] Speaker B (B): . So you go inside the get frame function, you see where it
+[38:07.21-38:08.10] Speaker C (C): Ah, okay
+[38:07.49-38:08.25] Speaker B (B): i it
+[38:08.10-38:08.53] Speaker C (C): . We need
+[38:08.25-38:08.67] Speaker B (B): saves
+[38:08.53-38:09.02] Speaker C (C): to remove
+[38:08.67-38:09.21] Speaker B (B): it
+[38:09.02-38:09.28] Speaker C (C): them
+[38:09.21-38:09.46] Speaker B (B): , and
+[38:09.28-38:09.28] Speaker C (C): .
+[38:09.46-38:11.83] Speaker B (B): then there is a special naming convention
+[38:11.77-38:12.02] Speaker C (C): Yeah
+[38:11.83-38:12.08] Speaker B (B): , and you
+[38:12.02-38:13.03] Speaker C (C): , okay
+[38:12.08-38:14.23] Speaker B (B): can remove the
+[38:13.03-38:14.23] Speaker C (C): . Okay, understand.
+[38:14.23-38:14.51] Speaker B (B): but
+[38:14.23-38:16.01] Speaker C (C): Okay
+[38:14.51-38:16.05] Speaker B (B): i it's c yeah, it's
+[38:16.01-38:16.41] Speaker C (C): . Yeah
+[38:16.05-38:16.48] Speaker B (B): true
+[38:16.41-38:16.62] Speaker C (C): , it's
+[38:16.48-38:16.48] Speaker B (B): .
+[38:16.62-38:19.42] Speaker C (C): not a real uh usi usage
+[38:18.71-38:18.93] Speaker B (B): No.
+[38:19.42-38:19.82] Speaker C (C): . Okay.
+[38:21.68-38:22.44] Speaker B (B): Because there it's
+[38:22.18-38:23.48] Speaker C (C): Okay
+[38:22.44-38:24.18] Speaker B (B): in cache
+[38:23.47-38:23.89] Speaker A (A): Yes
+[38:23.48-38:24.70] Speaker C (C): . Yes, understand
+[38:23.89-38:23.89] Speaker A (A): .
+[38:24.18-38:25.05] Speaker B (B): , so that
+[38:24.70-38:25.10] Speaker C (C): . Okay
+[38:25.05-38:25.39] Speaker B (B): if
+[38:25.10-38:25.10] Speaker C (C): .
+[38:25.39-38:28.77] Speaker B (B): I put another video with the same name
+[38:27.65-38:28.45] Speaker A (A): Ah, okay, yeah.
+[38:28.77-38:29.70] Speaker B (B): , they th they
+[38:29.56-38:30.01] Speaker C (C): Yeah
+[38:29.70-38:30.16] Speaker B (B): will happen
+[38:30.01-38:30.01] Speaker C (C): .
+[38:30.16-38:32.90] Speaker B (B): again. They will uh appear, this
+[38:32.12-38:32.69] Speaker C (C): Yes
+[38:32.54-38:33.08] Speaker A (A): Yeah
+[38:32.69-38:33.00] Speaker C (C): , bec
+[38:32.90-38:33.28] Speaker B (B): frames
+[38:33.00-38:33.33] Speaker C (C): because
+[38:33.08-38:33.37] Speaker A (A): , if yo
+[38:33.28-38:33.46] Speaker B (B): will
+[38:33.33-38:33.56] Speaker C (C): this
+[38:33.46-38:33.93] Speaker B (B): appear
+[38:33.56-38:34.01] Speaker C (C): one i
+[38:33.93-38:33.93] Speaker B (B): .
+[38:34.01-38:34.77] Speaker C (C): was uh
+[38:34.94-38:36.86] Speaker A (A): If you have the same uh decomposition
+[38:36.76-38:36.96] Speaker C (C): Th
+[38:36.81-38:37.25] Speaker B (B): Yeah
+[38:36.86-38:37.97] Speaker A (A): right
+[38:36.96-38:37.34] Speaker C (C): this one
+[38:37.25-38:37.37] Speaker B (B): , yeah
+[38:37.34-38:37.60] Speaker C (C): was
+[38:37.37-38:38.04] Speaker B (B): ex if you have
+[38:37.97-38:38.79] Speaker A (A): ? Yeah
+[38:38.04-38:39.19] Speaker B (B): the same decomposition
+[38:38.79-38:39.38] Speaker A (A): . Yeah, but
+[38:39.19-38:39.58] Speaker B (B): , but
+[38:39.20-38:39.57] Speaker C (C): Yeah
+[38:39.38-38:39.61] Speaker A (A): it may
+[38:39.57-38:39.57] Speaker C (C): .
+[38:39.61-38:46.57] Speaker A (A): happen that uh for ninety fra ninety percent of the frame it's different, so you see it fine, but suddenly you have one other frame, they don't know what it is
+[38:46.52-38:47.17] Speaker C (C): Right
+[38:46.57-38:47.35] Speaker A (A): and where it comes
+[38:47.17-38:48.06] Speaker C (C): , okay
+[38:47.35-38:47.77] Speaker A (A): from.
+[38:48.06-38:48.52] Speaker C (C): . Okay
+[38:48.17-38:48.56] Speaker B (B): But uh yeah
+[38:48.52-38:48.64] Speaker C (C): , but
+[38:48.56-38:48.81] Speaker B (B): , on
+[38:48.64-38:48.81] Speaker C (C): it's
+[38:48.81-38:49.40] Speaker B (B): M_M_M_
+[38:48.81-38:49.68] Speaker C (C): okay
+[38:49.40-38:49.84] Speaker B (B): f now
+[38:49.68-38:49.92] Speaker C (C): . It's
+[38:49.84-38:50.02] Speaker B (B): we
+[38:49.92-38:50.28] Speaker C (C): okay
+[38:50.02-38:50.39] Speaker B (B): don't have
+[38:50.28-38:50.28] Speaker C (C): .
+[38:50.39-38:51.94] Speaker B (B): such many videos
+[38:51.92-38:52.48] Speaker C (C): Okay
+[38:51.94-38:53.27] Speaker B (B): , so
+[38:52.09-38:52.55] Speaker A (A): Yeah, yeah
+[38:52.48-38:52.48] Speaker C (C): .
+[38:52.55-38:52.89] Speaker A (A): . Yeah, yeah.
+[38:53.27-38:57.15] Speaker B (B): . But if you put yeah, in another directory, uh then it would work
+[38:56.87-38:57.23] Speaker C (C): Yeah
+[38:57.15-38:58.19] Speaker B (B): or
+[38:57.23-38:57.70] Speaker C (C): , yeah.
+[38:58.19-39:00.87] Speaker B (B): or a new naming convention with uh
+[39:00.58-39:01.84] Speaker C (C): Hmm
+[39:00.87-39:01.89] Speaker B (B): special uh
+[39:01.84-39:02.07] Speaker C (C): . Hmm
+[39:01.89-39:02.31] Speaker B (B): , yeah
+[39:02.07-39:02.07] Speaker C (C): .
+[39:02.31-39:02.94] Speaker B (B): , code uh
+[39:02.90-39:03.09] Speaker A (A): Oh
+[39:02.94-39:02.94] Speaker B (B): .
+[39:03.09-39:07.45] Speaker A (A): , you mean bac because it's it's it's the M_M_M_ cache
+[39:06.71-39:07.82] Speaker B (B): Yeah, M_M_M_
+[39:07.43-39:07.61] Speaker C (C): Mm
+[39:07.45-39:08.24] Speaker A (A): ? Okay
+[39:07.61-39:07.61] Speaker C (C): .
+[39:07.82-39:08.22] Speaker B (B): cache.
+[39:08.24-39:16.41] Speaker A (A): . So this means that when it's done, if I go on my computer and I do the same, it's not going to enter in my cache, but it's going to be already there
+[39:16.06-39:16.40] Speaker B (B): Yeah.
+[39:16.41-39:17.18] Speaker A (A): , in M_M_M_
+[39:16.78-39:17.38] Speaker C (C): On the M_M_M_
+[39:17.18-39:19.04] Speaker A (A): , okay
+[39:17.38-39:17.82] Speaker C (C): , yeah.
+[39:18.53-39:19.06] Speaker B (B): But it it
+[39:19.04-39:19.17] Speaker A (A): . So
+[39:19.06-39:19.37] Speaker B (B): can
+[39:19.17-39:19.43] Speaker A (A): it's th
+[39:19.37-39:19.58] Speaker B (B): go
+[39:19.43-39:19.82] Speaker A (A): it's
+[39:19.58-39:19.83] Speaker B (B): in
+[39:19.82-39:19.92] Speaker A (A): so
+[39:19.83-39:20.01] Speaker B (B): the
+[39:19.92-39:20.17] Speaker A (A): it's
+[39:20.01-39:20.44] Speaker B (B): browser
+[39:20.17-39:20.56] Speaker A (A): not done
+[39:20.44-39:20.78] Speaker B (B): cache
+[39:20.56-39:21.05] Speaker A (A): on it's
+[39:20.78-39:21.16] Speaker B (B): also
+[39:20.81-39:20.97] Speaker C (C): Mm.
+[39:21.05-39:21.20] Speaker A (A): so
+[39:21.16-39:21.16] Speaker B (B): .
+[39:21.20-39:22.53] Speaker A (A): it's not done online.
+[39:23.48-39:24.51] Speaker B (B): The first time is done
+[39:24.31-39:24.76] Speaker A (A): The first
+[39:24.51-39:24.92] Speaker B (B): online
+[39:24.76-39:25.01] Speaker A (A): time
+[39:24.92-39:24.92] Speaker B (B): .
+[39:25.01-39:25.46] Speaker A (A): , yeah, but
+[39:25.43-39:26.29] Speaker C (C): Hmm
+[39:25.46-39:26.66] Speaker A (A): after it's
+[39:26.29-39:26.71] Speaker C (C): . Hmm
+[39:26.64-39:26.89] Speaker B (B): Yeah
+[39:26.66-39:26.86] Speaker A (A): it
+[39:26.71-39:26.71] Speaker C (C): .
+[39:26.86-39:27.05] Speaker A (A): take
+[39:26.89-39:27.19] Speaker B (B): , you can
+[39:27.05-39:28.17] Speaker A (A): okay
+[39:27.19-39:28.38] Speaker B (B): see here, yeah
+[39:28.17-39:28.74] Speaker A (A): . Okay
+[39:28.38-39:29.14] Speaker B (B): . Uh
+[39:28.74-39:29.73] Speaker A (A): , okay
+[39:29.14-39:29.75] Speaker B (B): the first time
+[39:29.73-39:29.83] Speaker A (A): . I
+[39:29.75-39:29.87] Speaker B (B): is
+[39:29.83-39:30.06] Speaker A (A): thought
+[39:29.87-39:30.37] Speaker B (B): done o
+[39:30.06-39:32.64] Speaker A (A): it was everything was generated on the fly th so
+[39:32.17-39:36.57] Speaker B (B): You know, you see that. Well here it's it was cache, because I already
+[39:36.44-39:36.87] Speaker C (C): Yeah
+[39:36.57-39:36.97] Speaker B (B): pressed
+[39:36.87-39:36.87] Speaker C (C): .
+[39:36.97-39:40.42] Speaker B (B): preview, but now it's on the fly
+[39:39.82-39:40.14] Speaker C (C): Yeah
+[39:39.88-39:40.34] Speaker A (A): Okay
+[39:40.14-39:40.65] Speaker C (C): , okay
+[39:40.34-39:40.34] Speaker A (A): .
+[39:40.42-39:40.71] Speaker B (B): . So it's
+[39:40.65-39:40.88] Speaker C (C): . Oh
+[39:40.71-39:41.53] Speaker B (B): quite
+[39:40.88-39:41.74] Speaker C (C): , it's Greek
+[39:41.53-39:42.41] Speaker B (B): quick
+[39:41.74-39:43.04] Speaker C (C): , but uh
+[39:42.41-39:42.41] Speaker B (B): .
+[39:43.04-39:43.46] Speaker C (C): okay.
+[39:44.82-39:45.13] Speaker B (B): This
+[39:44.95-39:45.32] Speaker C (C): Okay
+[39:45.13-39:45.13] Speaker B (B): .
+[39:45.32-39:47.47] Speaker C (C): , so i if you come back now, you
+[39:47.66-39:50.02] Speaker B (B): And then if you come yeah
+[39:49.25-39:50.39] Speaker C (C): Yeah, yeah
+[39:50.02-39:51.27] Speaker B (B): . Because
+[39:50.39-39:51.36] Speaker C (C): . Okay, but now
+[39:51.27-39:51.37] Speaker B (B): the
+[39:51.36-39:51.47] Speaker C (C): you
+[39:51.37-39:51.89] Speaker B (B): images
+[39:51.47-39:52.18] Speaker C (C): have s
+[39:51.89-39:52.60] Speaker B (B): are already
+[39:52.18-39:52.74] Speaker C (C): you have both
+[39:52.60-39:53.73] Speaker B (B): generated
+[39:52.74-39:53.76] Speaker C (C): cache. Yeah
+[39:53.73-39:53.91] Speaker B (B): . And
+[39:53.76-39:54.06] Speaker C (C): , okay
+[39:53.91-39:54.19] Speaker B (B): maybe
+[39:54.06-39:54.06] Speaker C (C): .
+[39:54.19-39:56.95] Speaker B (B): they are on the cache of this
+[39:56.27-39:57.21] Speaker C (C): Yes, computer
+[39:56.95-39:57.47] Speaker B (B): browser
+[39:57.21-39:57.57] Speaker C (C): too
+[39:57.47-39:57.62] Speaker B (B): , this
+[39:57.57-39:58.03] Speaker C (C): , yes
+[39:57.62-39:59.04] Speaker B (B): computer
+[39:58.03-39:59.04] Speaker C (C): to uh but
+[39:59.04-39:59.33] Speaker B (B): . So
+[39:59.04-40:00.48] Speaker C (C): okay
+[39:59.33-40:00.67] Speaker B (B): okay
+[40:00.48-40:00.67] Speaker C (C): . But
+[40:00.67-40:00.67] Speaker B (B): .
+[40:00.67-40:00.81] Speaker C (C): it's
+[40:00.67-40:00.87] Speaker B (B): That's
+[40:00.81-40:01.39] Speaker C (C): fast
+[40:00.87-40:02.29] Speaker B (B): why it's
+[40:01.39-40:01.39] Speaker C (C): .
+[40:02.29-40:10.37] Speaker B (B): yeah, it was uh used with uh yeah, Sebastien uh did the C_ function, and uh
+[40:10.35-40:10.79] Speaker C (C): Okay
+[40:10.37-40:11.46] Speaker B (B): , yeah
+[40:10.79-40:10.79] Speaker C (C): .
+[40:11.46-40:17.54] Speaker B (B): , and uh the the is calling this uh C_ uh executable
+[40:16.08-40:16.99] Speaker C (C): Yeah, understand.
+[40:17.54-40:21.50] Speaker B (B): and it was used with M_M_M_ server with Pierre, a and
+[40:21.24-40:21.95] Speaker A (A): Okay
+[40:21.50-40:22.37] Speaker B (B): the beginning when
+[40:21.95-40:22.25] Speaker A (A): , yeah.
+[40:22.37-40:22.50] Speaker B (B): , yeah.
+[40:22.95-40:23.31] Speaker C (C): Okay.
+[40:24.45-40:25.27] Speaker A (A): Okay, so
+[40:25.87-40:26.65] Speaker C (C): Okay. Uh i
+[40:26.53-40:27.10] Speaker B (B): Um
+[40:26.65-40:27.42] Speaker C (C): ju just
+[40:27.10-40:27.65] Speaker B (B): yeah
+[40:27.42-40:28.98] Speaker C (C): uh
+[40:27.65-40:27.90] Speaker B (B): , yeah.
+[40:28.98-40:50.36] Speaker C (C): a question on the the organisation of the M_M_M_. So you don't have uh a part for specific uh project. Every for example if we make a lot of uh film uh for CINETIS uh all are
+[40:50.26-40:50.63] Speaker A (A): Yeah
+[40:50.36-40:50.65] Speaker C (C): on the
+[40:50.63-40:50.63] Speaker A (A): .
+[40:50.65-40:51.01] Speaker C (C): top
+[40:52.70-40:54.92] Speaker C (C): I mean uh all the film are y
+[40:54.77-40:55.03] Speaker B (B): Oh, the
+[40:54.92-40:55.15] Speaker C (C): you
+[40:55.03-40:55.50] Speaker B (B): movies
+[40:55.15-40:55.57] Speaker C (C): you don't
+[40:55.47-40:55.66] Speaker A (A): Yeah
+[40:55.50-40:56.31] Speaker B (B): or
+[40:55.57-40:55.71] Speaker C (C): have
+[40:55.66-40:55.83] Speaker A (A): , yeah
+[40:55.71-40:56.34] Speaker C (C): a separation
+[40:55.83-40:56.21] Speaker A (A): , yeah.
+[40:56.34-40:59.18] Speaker C (C): for the film for CINETIS or for the project and s
+[41:02.35-41:05.76] Speaker B (B): In fact uh
+[41:03.65-41:06.89] Speaker C (C): Well you say video name equal
+[41:05.76-41:07.53] Speaker B (B): we we we could, you know
+[41:06.89-41:07.60] Speaker C (C): , all are on the
+[41:07.53-41:08.11] Speaker B (B): okay
+[41:07.60-41:08.31] Speaker C (C): same level
+[41:08.11-41:08.48] Speaker B (B): , you
+[41:08.31-41:08.31] Speaker C (C): .
+[41:08.48-41:12.69] Speaker B (B): know all these graphical user interface that you see uh
+[41:11.67-41:12.86] Speaker A (A): So could you say uh
+[41:12.69-41:13.72] Speaker B (B): okay
+[41:12.86-41:14.45] Speaker A (A): video name CINETIS
+[41:13.72-41:15.62] Speaker B (B): . In fact
+[41:14.45-41:17.05] Speaker A (A): slash something
+[41:15.62-41:18.31] Speaker B (B): okay. Mm yes
+[41:17.05-41:17.51] Speaker A (A): ? Or not?
+[41:18.31-41:19.08] Speaker B (B): . Yes
+[41:18.69-41:20.13] Speaker C (C): Okay
+[41:19.08-41:20.61] Speaker B (B): , we could do that
+[41:20.13-41:20.59] Speaker C (C): . Okay.
+[41:20.61-41:25.07] Speaker B (B): . We could put uh CINETIS slash here, and then a CINETIS slash
+[41:24.93-41:26.63] Speaker C (C): Okay
+[41:25.07-41:25.24] Speaker B (B): is
+[41:25.12-41:25.36] Speaker A (A): You
+[41:25.24-41:25.45] Speaker B (B): the sa
+[41:25.36-41:25.64] Speaker A (A): th
+[41:25.45-41:25.87] Speaker B (B): yeah, it
+[41:25.64-41:26.48] Speaker A (A): okay
+[41:25.87-41:27.64] Speaker B (B): works
+[41:26.48-41:26.79] Speaker A (A): . You think
+[41:26.63-41:27.08] Speaker C (C): . Okay
+[41:26.79-41:27.14] Speaker A (A): it would
+[41:27.08-41:27.08] Speaker C (C): .
+[41:27.14-41:27.81] Speaker A (A): work, okay
+[41:27.64-41:28.34] Speaker B (B): . But the
+[41:27.81-41:27.81] Speaker A (A): .
+[41:28.34-41:34.21] Speaker B (B): uh th the point is this interface is uh I think six or seven files only
+[41:34.10-41:34.62] Speaker C (C): Yeah
+[41:34.21-41:34.87] Speaker B (B): , X_M_L_
+[41:34.62-41:35.15] Speaker C (C): , okay
+[41:34.87-41:35.29] Speaker B (B): uh well
+[41:35.15-41:35.15] Speaker C (C): .
+[41:35.29-41:41.34] Speaker B (B): it's per C_G_I_, that output, X_M_L_ and X_S_L_. So it's it's not a big deal to
+[41:40.80-41:41.80] Speaker C (C): Ah. okay
+[41:41.34-41:42.31] Speaker B (B): to
+[41:41.80-41:42.27] Speaker C (C): . To make
+[41:42.31-41:45.04] Speaker B (B): to make a new, like a CINETIS browser or
+[41:44.92-41:45.83] Speaker C (C): Okay
+[41:45.04-41:46.14] Speaker B (B): , you know, video
+[41:45.83-41:46.16] Speaker C (C): . If we
+[41:46.14-41:47.99] Speaker B (B): browser
+[41:46.16-41:48.06] Speaker C (C): need to make some special thing on the
+[41:47.99-41:48.45] Speaker B (B): . Yeah
+[41:48.06-41:48.58] Speaker C (C): browser
+[41:48.45-41:48.64] Speaker B (B): , we
+[41:48.58-41:48.85] Speaker C (C): , it's
+[41:48.64-41:48.93] Speaker B (B): w
+[41:48.85-41:49.09] Speaker C (C): t
+[41:48.93-41:51.11] Speaker B (B): we copy all the files
+[41:51.01-41:51.43] Speaker A (A): Hmm
+[41:51.11-41:52.06] Speaker B (B): and
+[41:51.43-41:51.43] Speaker A (A): .
+[41:52.06-41:58.08] Speaker B (B): there is uh just one um one parameter, one uh string
+[41:57.31-41:57.90] Speaker C (C): Okay.
+[41:58.08-42:05.97] Speaker B (B): , that we need to know where this data is, and we could pr create a M_M_M_ data video browser uh CINETIS
+[42:05.94-42:06.33] Speaker C (C): Yeah
+[42:05.97-42:06.62] Speaker B (B): or something
+[42:06.33-42:06.87] Speaker C (C): , okay
+[42:06.62-42:07.44] Speaker B (B): else
+[42:06.87-42:07.51] Speaker C (C): , it's okay
+[42:07.44-42:08.28] Speaker B (B): . Y
+[42:07.51-42:07.51] Speaker C (C): .
+[42:08.28-42:10.98] Speaker B (B): it's uh ex extensible and uh
+[42:10.35-42:11.08] Speaker C (C): Okay
+[42:10.71-42:11.10] Speaker A (A): Mm
+[42:10.98-42:11.55] Speaker B (B): is
+[42:11.08-42:11.53] Speaker C (C): , great
+[42:11.10-42:11.59] Speaker A (A): even if
+[42:11.53-42:11.53] Speaker C (C): .
+[42:11.59-42:14.90] Speaker A (A): you would r change a C_G_I_ for instance. Let's
+[42:14.64-42:15.01] Speaker B (B): Yeah
+[42:14.90-42:15.24] Speaker A (A): assume
+[42:15.01-42:15.01] Speaker B (B): .
+[42:15.24-42:18.96] Speaker A (A): that we say we don't do any scene thing
+[42:18.90-42:19.92] Speaker C (C): Okay
+[42:18.96-42:19.43] Speaker A (A): , then we
+[42:19.41-42:19.79] Speaker B (B): Yeah
+[42:19.43-42:20.10] Speaker A (A): could remove
+[42:19.79-42:20.25] Speaker B (B): , exactly
+[42:19.92-42:19.96] Speaker C (C): . Mm.
+[42:20.10-42:20.27] Speaker A (A): like
+[42:20.25-42:21.30] Speaker B (B): , yeah
+[42:20.27-42:21.31] Speaker A (A): for instance the scenes
+[42:21.30-42:21.67] Speaker B (B): . Yeah
+[42:21.31-42:22.11] Speaker A (A): , right
+[42:21.67-42:21.67] Speaker B (B): .
+[42:21.76-42:22.12] Speaker C (C): Okay
+[42:22.11-42:22.15] Speaker A (A): ? I
+[42:22.12-42:22.12] Speaker C (C): .
+[42:22.15-42:27.84] Speaker A (A): was thinking that here it says that you have online video structure correction. Uh which means
+[42:27.83-42:28.17] Speaker B (B): Yeah
+[42:27.84-42:28.15] Speaker A (A): that
+[42:28.17-42:31.77] Speaker B (B): , but i it's not uh it was uh, you know
+[42:31.55-42:32.08] Speaker A (A): Okay
+[42:31.77-42:32.26] Speaker B (B): , thi this
+[42:32.08-42:32.08] Speaker A (A): .
+[42:32.26-42:34.37] Speaker B (B): is working, the expand all
+[42:33.83-42:34.13] Speaker A (A): Yeah.
+[42:34.37-42:36.74] Speaker B (B): but uh this is uh
+[42:36.96-42:38.48] Speaker A (A): Uh
+[42:37.66-42:38.52] Speaker C (C): Work in progress
+[42:38.48-42:38.68] Speaker A (A): . This
+[42:38.52-42:38.52] Speaker C (C): .
+[42:38.68-42:40.88] Speaker A (A): is wish wishable uh
+[42:40.43-42:41.03] Speaker B (B): Yeah, to do
+[42:40.88-42:42.43] Speaker A (A): functions
+[42:41.03-42:42.77] Speaker B (B): list or something
+[42:42.43-42:42.91] Speaker A (A): . Okay, to
+[42:42.77-42:42.99] Speaker B (B): . On
+[42:42.91-42:43.12] Speaker A (A): do
+[42:42.99-42:43.34] Speaker B (B): a video
+[42:43.12-42:43.55] Speaker A (A): this
+[42:43.34-42:43.89] Speaker B (B): annotation
+[42:43.55-42:43.55] Speaker A (A): .
+[42:43.89-42:46.77] Speaker B (B): , on a video structure co correction. But
+[42:46.33-42:46.72] Speaker A (A): Okay.
+[42:46.77-42:49.89] Speaker B (B): i it's not easy on the web
+[42:49.54-42:49.84] Speaker C (C): Yeah.
+[42:49.89-42:54.60] Speaker B (B): with H_ H_T_M_L_ pages to to do uh
+[42:54.47-42:54.87] Speaker C (C): Input
+[42:54.60-42:54.95] Speaker B (B): such
+[42:54.87-42:54.87] Speaker C (C): .
+[42:54.95-42:58.41] Speaker B (B): corrections like uh video structure corrections for instance
+[42:57.60-42:58.00] Speaker A (A): Okay
+[42:57.89-42:58.07] Speaker C (C): No
+[42:58.00-42:58.00] Speaker A (A): .
+[42:58.07-42:58.07] Speaker C (C): .
+[42:58.41-43:07.28] Speaker B (B): . For that you need it's possible maybe uh on interfaces like Flash or Java, uh
+[43:07.26-43:07.95] Speaker C (C): Yeah
+[43:07.28-43:08.14] Speaker B (B): but still uh
+[43:07.95-43:08.84] Speaker C (C): uh
+[43:08.14-43:10.16] Speaker B (B): i i i
+[43:08.84-43:09.18] Speaker C (C): . Mm.
+[43:09.71-43:10.19] Speaker A (A): Okay
+[43:10.16-43:10.40] Speaker B (B): there
+[43:10.19-43:10.19] Speaker A (A): .
+[43:10.40-43:11.07] Speaker B (B): is uh
+[43:10.79-43:11.44] Speaker C (C): Yeah, mainly
+[43:11.07-43:11.70] Speaker B (B): it takes bas
+[43:11.44-43:12.79] Speaker C (C): the
+[43:11.70-43:12.28] Speaker B (B): more work
+[43:11.99-43:12.87] Speaker A (A): Okay
+[43:12.28-43:13.17] Speaker B (B): and
+[43:12.79-43:12.91] Speaker C (C): t
+[43:12.87-43:12.97] Speaker A (A): . No
+[43:12.91-43:13.39] Speaker C (C): webpage
+[43:12.97-43:13.87] Speaker A (A): , I was thinking
+[43:13.17-43:14.16] Speaker B (B): but
+[43:13.39-43:14.33] Speaker C (C): or for output
+[43:14.16-43:14.65] Speaker B (B): i yeah
+[43:14.33-43:14.33] Speaker C (C): .
+[43:14.65-43:19.78] Speaker B (B): yeah, I mean it's good good point
+[43:16.49-43:20.08] Speaker A (A): No, because I was thinking if it's there, I mean we could use it uh
+[43:19.41-43:21.40] Speaker C (C): Yeah
+[43:19.78-43:19.78] Speaker B (B): .
+[43:20.08-43:21.49] Speaker A (A): uh we could uh you see
+[43:21.40-43:21.89] Speaker C (C): . Okay
+[43:21.49-43:22.60] Speaker A (A): but
+[43:21.89-43:21.89] Speaker C (C): .
+[43:22.60-43:23.03] Speaker A (A): uh yeah.
+[43:23.60-43:27.75] Speaker C (C): And all these uh file are only uh internal.
+[43:29.65-43:33.69] Speaker C (C): This mean uh if I go t on uh C CINTETIS CINETIS uh
+[43:35.35-43:37.26] Speaker A (A): No, no. Fro from outside we
+[43:37.19-43:37.51] Speaker C (C): From
+[43:37.26-43:37.75] Speaker A (A): can view
+[43:37.51-43:38.06] Speaker C (C): outside
+[43:37.75-43:38.39] Speaker A (A): them
+[43:38.06-43:38.59] Speaker C (C): of IDIAP
+[43:38.39-43:38.39] Speaker A (A): .
+[43:38.59-43:39.59] Speaker C (C): we can access this.
+[43:40.63-43:42.94] Speaker A (A): Yeah, from home I was able to access them.
+[43:43.20-43:44.50] Speaker C (C): With a password or
+[43:44.76-43:45.04] Speaker A (A): No
+[43:44.86-43:45.26] Speaker B (B): Well
+[43:45.04-43:45.04] Speaker A (A): .
+[43:45.26-43:50.92] Speaker B (B): uh you we can make for for instance for T_S_R_ T_S_R_
+[43:50.84-43:51.24] Speaker C (C): Mm
+[43:50.92-43:51.38] Speaker B (B): uh
+[43:51.24-43:51.24] Speaker C (C): .
+[43:51.38-43:53.34] Speaker B (B): videos. Alessandro
+[43:53.15-43:53.34] Speaker C (C): Yeah.
+[43:53.34-43:55.15] Speaker B (B): uh asked me to do the same thing,
+[43:55.15-43:55.36] Speaker C (C): Yeah
+[43:55.15-43:55.49] Speaker B (B): and
+[43:55.36-43:55.36] Speaker C (C): .
+[43:55.49-44:01.61] Speaker B (B): we I put uh we had uh like a password convention
+[44:00.57-44:01.15] Speaker C (C): Okay
+[44:01.12-44:01.45] Speaker A (A): Okay
+[44:01.15-44:01.53] Speaker C (C): , yes
+[44:01.45-44:01.45] Speaker A (A): .
+[44:01.53-44:03.02] Speaker C (C): , okay
+[44:01.61-44:03.44] Speaker B (B): . So this is possible to make
+[44:03.02-44:03.45] Speaker C (C): . Okay
+[44:03.44-44:03.70] Speaker B (B): for
+[44:03.45-44:03.45] Speaker C (C): .
+[44:03.70-44:09.02] Speaker B (B): these videos
+[44:07.78-44:09.41] Speaker A (A): Nobody
+[44:09.02-44:09.56] Speaker B (B): . So it's not
+[44:09.41-44:09.76] Speaker A (A): actually
+[44:09.56-44:10.77] Speaker B (B): uh
+[44:09.76-44:12.03] Speaker A (A): it has been downloaded several times and people
+[44:11.78-44:12.18] Speaker C (C): Yeah
+[44:12.03-44:12.50] Speaker A (A): there
+[44:12.18-44:12.18] Speaker C (C): .
+[44:12.50-44:13.36] Speaker A (A): are some lawyers that
+[44:13.35-44:13.71] Speaker B (B): Well
+[44:13.36-44:13.87] Speaker A (A): are putting
+[44:13.71-44:13.96] Speaker B (B): if
+[44:13.87-44:14.04] Speaker A (A): no
+[44:13.96-44:14.23] Speaker B (B): yeah
+[44:14.04-44:14.04] Speaker A (A): .
+[44:14.23-44:16.72] Speaker B (B): , it is there is no possible productions for these videos
+[44:16.29-44:16.92] Speaker A (A): But yeah
+[44:16.72-44:17.01] Speaker B (B): . Maybe
+[44:16.92-44:23.52] Speaker A (A): . Y
+[44:17.01-44:19.02] Speaker B (B): what I say I'm very
+[44:18.55-44:22.86] Speaker C (C): Yeah, okay
+[44:19.02-44:22.93] Speaker B (B): tired. But
+[44:22.86-44:22.86] Speaker C (C): .
+[44:22.93-44:27.20] Speaker B (B): uh if po yeah, it's demo and uh
+[44:27.10-44:27.31] Speaker C (C): Yeah
+[44:27.20-44:27.49] Speaker B (B): one
+[44:27.31-44:27.69] Speaker C (C): , okay
+[44:27.49-44:27.71] Speaker B (B): can
+[44:27.69-44:27.69] Speaker C (C): .
+[44:27.71-44:30.35] Speaker B (B): say you have to guess the name
+[44:30.21-44:30.87] Speaker C (C): Yeah
+[44:30.25-44:30.40] Speaker A (A): Yeah
+[44:30.35-44:30.94] Speaker B (B): to
+[44:30.40-44:31.05] Speaker A (A): yeah, yeah yeah
+[44:30.87-44:31.48] Speaker C (C): , yes
+[44:30.94-44:31.21] Speaker B (B): but
+[44:31.05-44:31.23] Speaker A (A): , no
+[44:31.21-44:31.67] Speaker B (B): uh
+[44:31.23-44:31.92] Speaker A (A): no, yeah
+[44:31.48-44:31.73] Speaker C (C): , yeah
+[44:31.67-44:32.21] Speaker B (B): yeah
+[44:31.73-44:32.24] Speaker C (C): , okay
+[44:31.92-44:31.92] Speaker A (A): .
+[44:32.21-44:32.21] Speaker B (B): .
+[44:32.24-44:33.89] Speaker C (C): . Okay
+[44:33.66-44:34.01] Speaker A (A): No
+[44:33.89-44:33.89] Speaker C (C): .
+[44:34.01-44:35.31] Speaker A (A): . But yeah, it's good to
+[44:35.28-44:37.38] Speaker B (B): Bu y yeah, a good point uh about password
+[44:37.18-44:37.44] Speaker C (C): Hmm
+[44:37.38-44:37.88] Speaker B (B): protection
+[44:37.44-44:37.44] Speaker C (C): .
+[44:37.88-44:39.20] Speaker B (B): issues uh
+[44:38.74-44:39.77] Speaker C (C): Yeah, okay
+[44:39.03-44:39.24] Speaker A (A): Yeah
+[44:39.20-44:39.30] Speaker B (B): or
+[44:39.24-44:39.47] Speaker A (A): , if
+[44:39.30-44:39.93] Speaker B (B): the privacy
+[44:39.47-44:41.40] Speaker A (A): we
+[44:39.77-44:39.77] Speaker C (C): .
+[44:39.93-44:40.59] Speaker B (B): issues uh
+[44:41.40-44:47.06] Speaker A (A): i yeah. It might be good indeed if we start d building some experiments like this still to have a password
+[44:47.01-44:48.24] Speaker B (B): Okay
+[44:47.06-44:48.00] Speaker A (A): . Right, yeah, yeah.
+[44:48.24-44:50.07] Speaker B (B): . Uh ha yeah, all the framework is
+[44:49.98-44:50.14] Speaker C (C): Uh
+[44:50.07-44:50.43] Speaker B (B): ready
+[44:50.14-44:50.14] Speaker C (C): .
+[44:50.43-44:53.16] Speaker B (B): with a T_R_S_ T_S_R_ videos
+[44:52.66-44:53.23] Speaker C (C): Yeah, yeah. Yeah
+[44:53.16-44:53.64] Speaker B (B): , so
+[44:53.23-44:53.97] Speaker C (C): , yeah, I understand
+[44:53.64-44:53.64] Speaker B (B): .
+[44:53.97-44:54.89] Speaker C (C): , yeah, yeah. Okay.
+[44:55.24-45:04.89] Speaker B (B): Usually what we do sometimes uh okay, just to say something about password protections. Sometimes
+[45:16.72-45:18.44] Speaker B (B): Instead of having um
+[45:20.93-45:31.35] Speaker B (B): a purely secure directory we p we we put a co code number like uh so that it's quite impossible to guess
+[45:30.53-45:30.94] Speaker C (C): Yeah.
+[45:31.35-45:39.08] Speaker B (B): instead of video m uh name equals kayak then we would have uh zero six seven uh five or
+[45:38.85-45:39.58] Speaker C (C): Yeah
+[45:38.90-45:39.41] Speaker A (A): Yeah yeah
+[45:39.08-45:39.69] Speaker B (B): , you know
+[45:39.41-45:39.64] Speaker A (A): , yeah
+[45:39.58-45:40.02] Speaker C (C): , okay
+[45:39.64-45:39.88] Speaker A (A): yeah
+[45:39.69-45:40.18] Speaker B (B): , two
+[45:39.88-45:39.88] Speaker A (A): .
+[45:40.02-45:40.02] Speaker C (C): .
+[45:40.18-46:07.45] Speaker B (B): . And then this directory from outside we have to take care that okay, not only the video name this U_R_L_ is not accessible, but also we should take care that in fact M_M_M_ it's in M_M_M_ data video browser and this is accessible from outside. We should take care that this directory or in fact this directory is not listable
+[46:07.20-46:07.51] Speaker C (C): Right
+[46:07.45-46:07.58] Speaker B (B): , you
+[46:07.51-46:09.03] Speaker C (C): , okay
+[46:07.58-46:07.77] Speaker B (B): know
+[46:07.64-46:07.94] Speaker A (A): Hmm
+[46:07.77-46:08.21] Speaker B (B): , you cannot
+[46:07.94-46:08.97] Speaker A (A): . Yeah
+[46:08.21-46:09.13] Speaker B (B): list from
+[46:08.97-46:09.35] Speaker A (A): , yeah
+[46:09.03-46:09.39] Speaker C (C): . Yeah
+[46:09.13-46:09.57] Speaker B (B): outside
+[46:09.35-46:09.84] Speaker A (A): what's
+[46:09.39-46:09.39] Speaker C (C): .
+[46:09.57-46:10.27] Speaker B (B): uh
+[46:09.84-46:10.48] Speaker A (A): , yeah, yeah
+[46:10.27-46:10.59] Speaker B (B): with uh
+[46:10.48-46:10.48] Speaker A (A): .
+[46:10.59-46:11.87] Speaker B (B): F_T_P_ or H_T_T_P_.
+[46:12.01-46:12.09] Speaker A (A): Hmm.
+[46:12.80-46:13.14] Speaker C (C): Okay.
+[46:13.60-46:20.33] Speaker B (B): Yeah, simple things with privacy issues, but uh i there are some methods and everything
+[46:19.70-46:19.99] Speaker C (C): Hmm.
+[46:20.33-46:21.90] Speaker B (B): is possible
+[46:21.29-46:21.69] Speaker C (C): Okay.
+[46:21.90-46:47.19] Speaker B (B): to make things private. I yeah, I don't know if you want to add anything, but I would say that for the C_ code uh, yeah, I I I just want would like to stress something, is that um, yeah, if you want want to use the new versions, etcetera, I think uh we need to go a little bit through the code and I would be happy to
+[46:46.00-46:46.26] Speaker C (C): Yeah.
+[46:47.19-46:47.91] Speaker B (B): to to help
+[46:47.84-46:48.22] Speaker C (C): Yes
+[46:47.91-46:49.32] Speaker B (B): to
+[46:48.22-46:48.22] Speaker C (C): .
+[46:49.32-46:51.72] Speaker B (B): to for instance the classes about video structure
+[46:51.48-46:52.47] Speaker C (C): Hmm
+[46:51.72-46:52.66] Speaker B (B): , etcetera, to put
+[46:52.47-46:52.98] Speaker C (C): . Okay
+[46:52.66-46:54.05] Speaker B (B): them yeah
+[46:52.98-46:53.21] Speaker C (C): , yeah.
+[46:54.05-46:54.76] Speaker B (B): . And
+[46:55.06-46:59.44] Speaker A (A): Yeah, it was done indeed f to be more general than just
+[46:59.14-46:59.38] Speaker C (C): Hmm.
+[46:59.44-47:01.17] Speaker A (A): to do the shot detection, so that's
+[47:01.02-47:01.41] Speaker C (C): Yes
+[47:01.17-47:01.43] Speaker A (A): why
+[47:01.41-47:01.41] Speaker C (C): .
+[47:01.43-47:03.51] Speaker A (A): the code is a bit more complex, I think
+[47:03.06-47:03.89] Speaker C (C): Yeah
+[47:03.51-47:04.79] Speaker A (A): , currently
+[47:03.89-47:05.37] Speaker C (C): , okay
+[47:04.79-47:06.14] Speaker A (A): . Uh
+[47:05.37-47:06.31] Speaker C (C): . And the code is based
+[47:06.14-47:06.68] Speaker A (A): but
+[47:06.31-47:06.82] Speaker C (C): on
+[47:06.68-47:07.27] Speaker A (A): uh
+[47:06.82-47:08.18] Speaker C (C): open C_V_.
+[47:09.12-47:13.42] Speaker B (B): Yeah, in fact it's not there is no tosh i it was called vision lib
+[47:13.33-47:13.50] Speaker A (A): Yeah
+[47:13.42-47:13.55] Speaker B (B): to
+[47:13.50-47:13.50] Speaker A (A): .
+[47:13.55-47:18.68] Speaker B (B): read uh to to extract one frame each frame of a video, you
+[47:18.62-47:18.69] Speaker C (C): Oh
+[47:18.68-47:19.16] Speaker B (B): know
+[47:18.69-47:19.18] Speaker C (C): okay
+[47:19.16-47:19.27] Speaker B (B): . So
+[47:19.18-47:19.18] Speaker C (C): .
+[47:19.27-47:23.30] Speaker B (B): it wa from Sebastien it was in the tosh library, but uh it's
+[47:23.27-47:23.44] Speaker A (A): Yeah
+[47:23.30-47:23.60] Speaker B (B): nothing
+[47:23.44-47:23.81] Speaker A (A): , yeah
+[47:23.60-47:23.86] Speaker B (B): w
+[47:23.81-47:23.81] Speaker A (A): .
+[47:23.86-47:25.03] Speaker B (B): to do with tosh
+[47:24.77-47:25.24] Speaker C (C): Okay
+[47:25.03-47:25.26] Speaker B (B): and
+[47:25.24-47:25.24] Speaker C (C): .
+[47:25.26-47:26.78] Speaker B (B): it's using uh
+[47:26.42-47:26.77] Speaker A (A): Just
+[47:26.78-47:27.65] Speaker B (B): uh
+[47:27.44-47:27.87] Speaker C (C): Okay
+[47:27.65-47:27.89] Speaker B (B): the
+[47:27.87-47:27.87] Speaker C (C): .
+[47:27.89-47:31.43] Speaker B (B): open C_V_ and uh some classes from uh Jean-Marc
+[47:31.06-47:31.40] Speaker A (A): Yeah.
+[47:31.43-47:33.86] Speaker B (B): uh for, yeah, Bhattacharya
+[47:33.77-47:34.29] Speaker C (C): Bhattacharya
+[47:33.86-47:34.45] Speaker B (B): distance
+[47:34.29-47:34.63] Speaker C (C): okay
+[47:34.45-47:34.98] Speaker B (B): , etcetera
+[47:34.63-47:35.31] Speaker C (C): , and so
+[47:34.98-47:34.98] Speaker B (B): .
+[47:35.26-47:35.49] Speaker A (A): Ah
+[47:35.31-47:35.63] Speaker C (C): on
+[47:35.49-47:35.81] Speaker A (A): okay
+[47:35.63-47:36.10] Speaker C (C): , okay
+[47:35.81-47:36.32] Speaker A (A): , yeah yeah
+[47:36.10-47:36.48] Speaker C (C): . Okay
+[47:36.27-47:36.62] Speaker B (B): Image
+[47:36.32-47:36.60] Speaker A (A): . Yeah
+[47:36.48-47:36.48] Speaker C (C): .
+[47:36.60-47:36.68] Speaker A (A): , it
+[47:36.62-47:37.21] Speaker B (B): processing
+[47:36.68-47:37.38] Speaker A (A): was the same
+[47:37.21-47:37.21] Speaker B (B): .
+[47:37.38-47:37.99] Speaker A (A): the same ones
+[47:37.98-47:38.94] Speaker C (C): Okay
+[47:37.99-47:39.12] Speaker A (A): as the one you saw
+[47:38.94-47:39.32] Speaker C (C): , okay
+[47:39.12-47:39.47] Speaker A (A): uh
+[47:39.32-47:39.32] Speaker C (C): .
+[47:39.44-47:39.78] Speaker B (B): Image
+[47:39.47-47:40.16] Speaker A (A): in my code
+[47:39.78-47:40.18] Speaker B (B): processing
+[47:40.16-47:40.36] Speaker A (A): , yeah
+[47:40.18-47:40.53] Speaker B (B): and stuff
+[47:40.36-47:40.36] Speaker A (A): .
+[47:40.45-47:40.61] Speaker C (C): So
+[47:40.53-47:40.53] Speaker B (B): .
+[47:40.61-47:44.55] Speaker C (C): we can forget tosh and uh use uh
+[47:44.05-47:44.68] Speaker A (A): Yeah
+[47:44.54-47:44.77] Speaker B (B): We
+[47:44.55-47:45.23] Speaker C (C): input
+[47:44.68-47:45.38] Speaker A (A): , yeah
+[47:44.77-47:45.92] Speaker B (B): can forget
+[47:45.23-47:45.57] Speaker C (C): se
+[47:45.38-47:45.62] Speaker A (A): . Yeah
+[47:45.57-47:45.72] Speaker C (C): the
+[47:45.62-47:45.62] Speaker A (A): .
+[47:45.72-47:46.17] Speaker C (C): input
+[47:45.92-47:47.16] Speaker B (B): tosh
+[47:46.17-47:47.22] Speaker C (C): reader for the
+[47:47.16-47:47.40] Speaker B (B): yeah
+[47:47.22-47:47.45] Speaker C (C): the
+[47:47.40-47:47.40] Speaker B (B): .
+[47:47.45-47:50.26] Speaker C (C): M_ PEG we can re lo use uh
+[47:50.09-47:50.58] Speaker B (B): Yeah
+[47:50.26-47:51.21] Speaker C (C): open C_V_
+[47:50.58-47:50.58] Speaker B (B): .
+[47:51.21-47:51.21] Speaker C (C): .
+[47:51.81-47:53.97] Speaker A (A): Yeah, yeah, yeah, yeah, yeah, definitely
+[47:53.26-47:53.60] Speaker C (C): Okay.
+[47:53.97-47:54.14] Speaker A (A): , yeah.
+[47:54.84-47:55.17] Speaker C (C): Okay.
+[47:56.80-47:56.97] Speaker C (C): Hmm.
+[47:57.45-48:03.19] Speaker A (A): Yeah
+[47:59.72-48:03.65] Speaker B (B): Um so it's four thirty, so
+[48:03.19-48:03.94] Speaker A (A): , uh okay
+[48:03.65-48:05.60] Speaker B (B): we need one
+[48:03.94-48:03.94] Speaker A (A): .
+[48:05.60-48:08.32] Speaker B (B): hour, it's it's good. Just if you want
+[48:07.62-48:08.33] Speaker A (A): Yeah, I think it's
+[48:08.32-48:09.84] Speaker B (B): yeah
+[48:08.33-48:09.25] Speaker A (A): it's good, yeah.
+[48:09.34-48:09.67] Speaker C (C): It's good.
+[48:09.84-48:12.37] Speaker B (B): . This is the
+[48:11.65-48:12.05] Speaker C (C): Yeah.
+[48:12.37-48:17.12] Speaker B (B): parameters of the of the C_ programme but uh
+[48:15.12-48:15.39] Speaker C (C): Yeah.
+[48:17.12-48:20.28] Speaker B (B): usage. Video in
+[48:19.97-48:20.45] Speaker C (C): Yes
+[48:20.28-48:20.88] Speaker B (B): , okay
+[48:20.45-48:20.45] Speaker C (C): .
+[48:20.88-48:22.55] Speaker B (B): . Uh the output
+[48:22.23-48:23.05] Speaker C (C): Output
+[48:22.55-48:23.50] Speaker B (B): file X_M_L_
+[48:23.05-48:23.19] Speaker C (C): , hmm.
+[48:23.50-48:29.48] Speaker B (B): . Output file dist, it's the distance um between each histogram
+[48:29.07-48:29.68] Speaker C (C): Uh yeah
+[48:29.48-48:30.34] Speaker B (B): , so that
+[48:29.68-48:29.68] Speaker C (C): .
+[48:30.34-48:41.54] Speaker B (B): if the X_M_L_ uh you feel there is not enough um uh shots, you can instead of reprocessing the video, you you reprocess this file
+[48:40.19-48:41.33] Speaker A (A): Okay, that's good, yeah.
+[48:41.54-48:41.93] Speaker B (B): . And
+[48:41.55-48:42.24] Speaker C (C): Okay
+[48:41.93-48:42.88] Speaker B (B): also
+[48:42.24-48:42.24] Speaker C (C): .
+[48:42.88-48:44.25] Speaker B (B): some other stuff s
+[48:44.09-48:44.62] Speaker C (C): Okay
+[48:44.25-48:44.86] Speaker B (B): for instance
+[48:44.62-48:44.62] Speaker C (C): .
+[48:44.86-48:49.34] Speaker B (B): alpha threshold we talked about is set to two point four
+[48:49.25-48:50.51] Speaker C (C): Okay
+[48:49.34-48:52.20] Speaker B (B): and uh
+[48:50.51-48:50.65] Speaker C (C): . Yeah.
+[48:52.20-48:52.80] Speaker B (B): yeah, so
+[48:52.78-48:53.43] Speaker C (C): Yeah
+[48:52.80-48:53.87] Speaker B (B): the uh the the
+[48:53.43-48:53.97] Speaker C (C): , yeah
+[48:53.87-48:55.01] Speaker B (B): step
+[48:53.97-48:55.05] Speaker C (C): , okay
+[48:55.01-48:55.39] Speaker B (B): we
+[48:55.05-48:55.05] Speaker C (C): .
+[48:55.39-48:58.62] Speaker B (B): always use one and it should be one, because otherwise
+[48:58.21-48:58.76] Speaker C (C): Ah, okay
+[48:58.62-48:58.87] Speaker B (B): it's
+[48:58.76-48:58.76] Speaker C (C): .
+[48:58.87-49:00.67] Speaker B (B): stuck between consecutive
+[49:00.20-49:01.47] Speaker C (C): Okay. We
+[49:00.67-49:01.17] Speaker B (B): frames.
+[49:01.47-49:03.10] Speaker C (C): can skip some frames
+[49:02.81-49:03.18] Speaker A (A): Yeah
+[49:03.10-49:04.57] Speaker C (C): . Okay
+[49:03.15-49:03.55] Speaker B (B): Yeah
+[49:03.18-49:03.18] Speaker A (A): .
+[49:03.55-49:05.00] Speaker B (B): , but uh
+[49:04.57-49:04.92] Speaker C (C): . Yeah.
+[49:05.00-49:07.22] Speaker B (B): it doesn't w yeah, it it's
+[49:07.21-49:07.41] Speaker C (C): Okay
+[49:07.22-49:07.47] Speaker B (B): better
+[49:07.41-49:07.41] Speaker C (C): .
+[49:07.47-49:13.58] Speaker B (B): to to keep it one
+[49:08.36-49:13.14] Speaker A (A): Yeah, but why is after, I mean if there is a shot you don't know between because you dropped one frame, you don't know where is the
+[49:13.06-49:13.41] Speaker C (C): Yeah
+[49:13.14-49:13.50] Speaker A (A): sh uh
+[49:13.41-49:13.76] Speaker C (C): , yeah
+[49:13.50-49:13.61] Speaker A (A): the
+[49:13.58-49:14.79] Speaker B (B): . Yeah
+[49:13.61-49:13.94] Speaker A (A): d
+[49:13.76-49:14.19] Speaker C (C): , yeah
+[49:13.94-49:15.22] Speaker A (A): the shot
+[49:14.19-49:14.19] Speaker C (C): .
+[49:14.79-49:15.42] Speaker B (B): . So detection
+[49:15.22-49:15.22] Speaker A (A): .
+[49:15.42-49:20.56] Speaker B (B): latency is about the um it's half of the windows
+[49:19.91-49:20.62] Speaker A (A): Sliding window
+[49:20.56-49:20.94] Speaker B (B): tha
+[49:20.62-49:20.62] Speaker A (A): .
+[49:20.94-49:22.75] Speaker B (B): yeah, sliding window
+[49:22.68-49:23.13] Speaker C (C): Mm-hmm
+[49:22.75-49:22.75] Speaker B (B): ,.
+[49:23.13-49:23.13] Speaker C (C): .
+[49:25.59-49:29.76] Speaker B (B): Option for key frame extraction, okay. Uh sub-threshold, yeah
+[49:29.59-49:29.90] Speaker A (A): Yeah
+[49:29.62-49:30.61] Speaker C (C): Okay
+[49:29.76-49:29.96] Speaker B (B): . Leave
+[49:29.90-49:30.44] Speaker A (A): , right
+[49:29.96-49:30.45] Speaker B (B): it to one
+[49:30.44-49:30.44] Speaker A (A): .
+[49:30.45-49:30.65] Speaker B (B): , yeah
+[49:30.61-49:31.11] Speaker C (C): . Okay
+[49:30.65-49:30.65] Speaker B (B): .
+[49:31.11-49:31.65] Speaker C (C): , it's perfect.
+[49:33.80-49:35.41] Speaker B (B): Uh
+[49:34.33-49:34.58] Speaker C (C): Hmm.
+[49:35.41-49:45.23] Speaker B (B): yeah. Maybe, I I will uh I will give you this file in uh as a rhy it's a kind of rhythmia, yeah. I just
+[49:45.14-49:45.51] Speaker C (C): Yes
+[49:45.23-49:45.92] Speaker B (B): for preparing
+[49:45.51-49:45.51] Speaker C (C): .
+[49:45.92-49:49.44] Speaker B (B): this uh nice discussion.
+[49:49.77-49:49.97] Speaker A (A): Yeah.
+[49:53.92-50:00.41] Speaker B (B): M um I'm quite happy to to to do that i it's good when you do uh something

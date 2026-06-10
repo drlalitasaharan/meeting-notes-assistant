@@ -1,0 +1,41 @@
+{
+  "id": "S01",
+  "title": "Pilot launch readiness check",
+  "category": "short",
+  "target_duration_minutes": 2.2,
+  "expected_decisions": [
+    "Limit the first pilot to ten users.",
+    "Limit pilot recordings to thirty minutes.",
+    "Keep single sign-on outside the pilot scope unless explicitly requested and approved."
+  ],
+  "expected_actions": [
+    {
+      "owner": "Priya",
+      "action": "Send the approved pricing table to the team.",
+      "deadline": "2026-06-18 17:00"
+    },
+    {
+      "owner": "Jordan",
+      "action": "Upload the final sample recording.",
+      "deadline": "2026-06-19 15:00"
+    },
+    {
+      "owner": "Alex",
+      "action": "Finish the storage and access-control security checks.",
+      "deadline": "2026-06-22 12:00"
+    }
+  ],
+  "expected_risks": [
+    "Delayed pricing approval could postpone the client follow-up."
+  ],
+  "expected_open_questions": [
+    "Whether the client requires single sign-on during the pilot."
+  ],
+  "must_not_invent": [
+    "Additional action-item owners",
+    "Additional deadlines",
+    "A commitment to deliver single sign-on",
+    "A product-processing failure"
+  ],
+  "audio_file": "S01_controlled_short_2min.m4a"
+}

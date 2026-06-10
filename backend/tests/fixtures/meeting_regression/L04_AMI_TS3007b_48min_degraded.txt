@@ -1,0 +1,1281 @@
+# L04 — AMI TS3007b, first 48 minutes, degraded audio
+
+Official speaker-role mapping:
+- A: Industrial Designer
+- B: Project Manager
+- C: User Interface Designer
+- D: Marketing Expert
+
+[00:02.16-00:02.43] Industrial Designer (A): Hello.
+[00:03.59-00:04.31] Marketing Expert (D): Hey guys.
+[00:04.52-00:06.64] User Interface Designer (C): Hi
+[00:04.94-00:05.50] Project Manager (B): Hi
+[00:05.44-00:05.91] Industrial Designer (A): Hi
+[00:05.50-00:05.50] Project Manager (B): .
+[00:05.91-00:05.91] Industrial Designer (A): .
+[00:06.64-00:08.94] User Interface Designer (C): . I see my bunny is still standing
+[00:08.34-00:08.73] Industrial Designer (A): Yeah.
+[00:08.94-00:09.75] User Interface Designer (C): . No one drawing
+[00:09.45-00:09.98] Industrial Designer (A): It's
+[00:09.75-00:10.68] User Interface Designer (C): it
+[00:09.98-00:10.73] Industrial Designer (A): too beautiful
+[00:10.16-00:10.83] Project Manager (B): Yeah
+[00:10.68-00:12.31] User Interface Designer (C): . Uh
+[00:10.73-00:10.73] Industrial Designer (A): .
+[00:10.83-00:11.11] Project Manager (B): , true.
+[00:12.31-00:14.55] User Interface Designer (C): I figured uh that much
+[00:13.83-00:14.43] Marketing Expert (D): Too wicked.
+[00:14.55-00:14.55] User Interface Designer (C): .
+[00:15.89-00:16.21] Project Manager (B): Mm.
+[00:22.67-00:26.32] Industrial Designer (A): A minute please, my uh laptop is uh oh, there it is, thank you.
+[00:44.88-01:21.25] Industrial Designer (A): So welcome back. At the functional design meeting um the plan is uh that uh each one of you, so not me but only you uh will uh present uh the the things you worked on uh the last uh half hour. I will uh take minutes and will put uh the minutes that I have uh at the end of the session in the shared folder. Also the minutes of the previous session are also in the shared folder now, so you can read that uh now or afterwards. Um
+[01:23.15-02:58.26] Industrial Designer (A): uh I had an email from the from the management board uh, I don't know if you a al also uh received it, but there were four points uh which uh I think are very important. First one is uh they think that uh teletext teletext becomes outdated uh and internet will be the the main uh focus. Uh second one is also important uh, because it's one of the discussion points of the previous session. Uh the remote control shou should onl only be used for the television, so it uh not gonna it's not gonna be a multi-purpose remote control, so uh that's one thing to keep in mind. Uh second, and I think that's important for the Marketing uh Expert, uh the current uh customers uh are in the age group group of uh forty years and older, but with this uh new remote uh they uh will uh would like to reach uh a group uh younger than uh forty. Uh and uh I think to keep in mind, but not really uh for now is that they uh want the the the slogan and the and the logo uh to uh to be recognised more in the remote. So, we have uh forty minutes, so I think uh not more than ten minutes uh uh per presentation uh each, and please uh use uh all the the the facilities so that you have either SMARTboards, the the Word files, what you uh whatever you want. So uh
+[02:59.82-03:00.69] Industrial Designer (A): Tim, can you start?
+[03:02.46-03:02.79] Marketing Expert (D): Okay.
+[03:02.93-03:03.16] Industrial Designer (A): Yeah?
+[03:29.52-03:36.70] Marketing Expert (D): 'Kay, welcome. I have some uh new findings on uh Marketing Expert
+[03:35.62-03:35.78] Project Manager (B): Mm-hmm.
+[03:36.70-03:37.21] Marketing Expert (D): level,
+[03:38.95-03:40.02] Marketing Expert (D): which I will show you.
+[03:42.15-03:57.22] Marketing Expert (D): The method I used was um giving orders to our usability lab uh to do a questionnaire. Um one hundred respondents were involved
+[03:58.84-04:04.78] Marketing Expert (D): and my marketing uh department generated a report with a lot of results.
+[04:06.48-04:06.94] Marketing Expert (D): Um,
+[04:09.27-05:08.62] Marketing Expert (D): these were a couple of findings, first page of three. Um, we have three audiences of two audiences, I'm sorry. Uh the first one, this scale, from sixteen to forty five age. Uh the second one is from sixty four uh forty six to sixty five. Um, as you can see here, the market share for the first audience is about sixty percent um sixty five. Uh second audience audience is uh thirty five percent. Mm and some interests from the from the age groups, uh it seems like the young users of remote controls really like the fancy uh new technology stuff, like uh an L_C_D_ screen on the remote control, um speech recognition.
+[05:10.63-05:17.83] Marketing Expert (D): I don't think that's uh really appropriate. Um, and when you see uh the audience,
+[05:19.56-05:21.57] Marketing Expert (D): the age is going up uh
+[05:23.20-05:27.73] Marketing Expert (D): Yeah, they don't really want it anymore, at least the new technologies.
+[05:29.80-05:55.23] Marketing Expert (D): Second findings out of the questionnaire um are the opinion the opinions uh of the audience about current remote controls. First point is, seventy five percent of the users find the most repo remote controls very ugly, uh and eighty percent of the users would spend more money when a remote control would look fancy.
+[05:57.15-06:01.73] Marketing Expert (D): So that's maybe something for the User Interface uh Designer.
+[06:04.59-06:33.35] Marketing Expert (D): Okay, third findings. According to the frequency of use versus importance investigation, um following buttons are most important. Um, I will tell something about the way this uh this test was, yeah, done. Um, persons were asked uh what the buttons were uh they use most
+[06:33.28-06:33.56] Industrial Designer (A): Mm-hmm
+[06:33.35-06:33.77] Marketing Expert (D): , how much
+[06:33.56-06:33.56] Industrial Designer (A): .
+[06:33.77-06:51.09] Marketing Expert (D): an hour, and uh in the second table the importance of those buttons. Um, when you multiply them, you get the these three points. Switching channels, um yeah, that's pretty uh
+[06:53.17-07:14.42] Marketing Expert (D): pretty normal, that's what you do with a remote control. Um the second, teletext, uh and the third, uh volume controls. Um, I think it's good uh that we know what the user want wants, uh at least the these three points have to be uh very
+[07:14.32-07:14.43] Industrial Designer (A): But
+[07:14.42-07:14.84] Marketing Expert (D): clear
+[07:14.43-07:15.03] Industrial Designer (A): it's strange
+[07:14.84-07:14.84] Marketing Expert (D): .
+[07:15.03-07:20.47] Industrial Designer (A): that the the manage board the management board said that the teletext will be uh outdated by the internet.
+[07:21.24-07:21.44] Marketing Expert (D): Yeah
+[07:21.27-07:21.50] Industrial Designer (A): So
+[07:21.44-07:21.74] Marketing Expert (D): , okay
+[07:21.50-07:21.99] Industrial Designer (A): that
+[07:21.74-07:21.74] Marketing Expert (D): .
+[07:21.99-07:22.61] Industrial Designer (A): that's strange.
+[07:22.92-07:27.83] Marketing Expert (D): Yeah, okay, but uh at the moment uh teletext is
+[07:29.41-07:32.72] Marketing Expert (D): Yeah, th the best thing you can get uh on T_V_
+[07:32.25-07:33.01] Industrial Designer (A): Yeah, okay
+[07:32.72-07:33.05] Marketing Expert (D): , like
+[07:33.01-07:33.01] Industrial Designer (A): .
+[07:33.05-07:35.22] Marketing Expert (D): getting information. So
+[07:34.64-07:34.86] Industrial Designer (A): Yeah.
+[07:35.22-07:38.33] Marketing Expert (D): uh, when you ask people, what do they use,
+[07:39.91-07:41.11] Marketing Expert (D): they use teletext and not
+[07:40.95-07:41.37] Industrial Designer (A): Okay
+[07:41.11-07:41.63] Marketing Expert (D): the internet
+[07:41.37-07:41.37] Industrial Designer (A): .
+[07:41.63-07:43.29] Marketing Expert (D): on a remote control
+[07:42.88-07:43.57] Industrial Designer (A): Yeah, okay
+[07:43.29-07:44.84] Marketing Expert (D): . That's ridiculous
+[07:43.57-07:44.65] Industrial Designer (A): . Yeah.
+[07:44.84-07:48.20] Marketing Expert (D): . That's a ne i it It's a new technology, but
+[07:48.05-07:48.38] Industrial Designer (A): Yeah
+[07:48.20-07:48.56] Marketing Expert (D): it's not
+[07:48.38-07:48.38] Industrial Designer (A): .
+[07:48.56-07:53.93] Marketing Expert (D): incorporated right now. Okay, my personal preferences. Um,
+[07:55.67-08:00.26] Marketing Expert (D): I think we should aim at the uh audience from sixteen to forty five.
+[08:01.95-08:54.74] Marketing Expert (D): Mm, first of all um it's the biggest share, the biggest audience, sixty five percent. Uh second, I think you will get the most revenue from i from it. Um, yeah, people from sixteen to forty five watch a lot of T_V_, more than uh people who are el uh elder. Um second point, we have to impro improve the most used functions, as I said here, switching channels, teletext and volume controls. Third point um that came out of the uh of the questionnaire, uh people used to uh get lost off the remote controller, so maybe it's an idea for us uh to design ex kind of placeholder
+[08:54.21-08:54.81] Industrial Designer (A): Yeah, that's
+[08:54.74-08:55.81] Marketing Expert (D): uh
+[08:54.81-08:55.41] Industrial Designer (A): a cool idea.
+[08:55.81-09:01.31] Marketing Expert (D): on side of the, yeah, of the T_V_ where you can put the the remote control in.
+[09:02.91-09:06.40] Marketing Expert (D): Um, that's about it, I think. Yeah.
+[09:06.90-09:11.07] User Interface Designer (C): When you mentioned uh improving functions, what uh what do you mean by that
+[09:11.03-09:11.23] Marketing Expert (D): Uh
+[09:11.07-09:11.71] User Interface Designer (C): what
+[09:11.23-09:11.88] Marketing Expert (D): not not
+[09:11.71-09:11.95] User Interface Designer (C): what are
+[09:11.88-09:12.16] Marketing Expert (D): the
+[09:11.95-09:12.23] User Interface Designer (C): you think
+[09:12.16-09:12.62] Marketing Expert (D): r
+[09:12.23-09:12.48] User Interface Designer (C): about?
+[09:12.62-09:14.24] Marketing Expert (D): not the functions, but
+[09:14.17-09:14.94] User Interface Designer (C): Uh, the
+[09:14.24-09:15.15] Marketing Expert (D): uh
+[09:14.94-09:15.78] User Interface Designer (C): funtionability
+[09:15.15-09:15.88] Marketing Expert (D): it came out that
+[09:15.78-09:15.78] User Interface Designer (C): .
+[09:15.88-09:26.54] Marketing Expert (D): a lot of buttons weren't even used uh on a remote control. So you can have a remote control full of buttons, a hundreds hundreds of buttons, but if you don't use them
+[09:26.41-09:26.66] Industrial Designer (A): Yeah
+[09:26.54-09:26.79] Marketing Expert (D): , yeah
+[09:26.66-09:26.66] Industrial Designer (A): .
+[09:26.79-09:27.09] Marketing Expert (D): it's
+[09:26.88-09:29.01] User Interface Designer (C): Ah okay, so focusing more on the used
+[09:28.95-09:29.35] Marketing Expert (D): Yeah
+[09:29.01-09:29.38] User Interface Designer (C): buttons
+[09:29.35-09:29.56] Marketing Expert (D): , they
+[09:29.38-09:29.38] User Interface Designer (C): .
+[09:29.56-09:30.87] Marketing Expert (D): have to be on it
+[09:30.73-09:31.02] User Interface Designer (C): Yeah
+[09:30.87-09:31.33] Marketing Expert (D): j just
+[09:31.02-09:31.02] User Interface Designer (C): .
+[09:31.33-09:39.39] Marketing Expert (D): to t to get it done if necessary, but um the most used buttons uh have to be bigger or
+[09:40.80-09:48.65] User Interface Designer (C): Could you use perhaps uh one button for multiple functions, like example pressing it in longer makes it switch to an different function for
+[09:48.53-09:48.88] Marketing Expert (D): Yeah
+[09:48.65-09:49.16] User Interface Designer (C): example
+[09:48.88-09:50.35] Marketing Expert (D): , perhaps
+[09:49.16-09:49.16] User Interface Designer (C): .
+[09:50.35-09:50.56] Marketing Expert (D): . Just
+[09:50.39-09:50.66] User Interface Designer (C): Thank you
+[09:50.56-09:50.72] Marketing Expert (D): for
+[09:50.66-09:50.66] User Interface Designer (C): .
+[09:50.72-09:52.01] Marketing Expert (D): the minor functions perhaps.
+[09:52.16-09:54.30] User Interface Designer (C): Yeah, ma perhaps, just just an idea.
+[09:54.59-09:59.14] Marketing Expert (D): Just to get less buttons on the remote control, to make it easier and quicker to learn.
+[09:59.51-09:59.87] User Interface Designer (C): Yeah.
+[10:00.32-10:00.46] Marketing Expert (D): Yeah?
+[10:02.64-10:03.15] Marketing Expert (D): 'Kay, that's it.
+[10:04.40-10:05.01] Industrial Designer (A): Thank you, Tim.
+[10:06.17-10:06.55] User Interface Designer (C): Uh
+[10:06.29-10:06.67] Industrial Designer (A): Janus, can
+[10:06.55-10:06.86] User Interface Designer (C): yeah
+[10:06.67-10:06.87] Industrial Designer (A): you
+[10:06.86-10:07.02] User Interface Designer (C): yeah
+[10:06.87-10:07.22] Industrial Designer (A): uh
+[10:07.02-10:07.72] User Interface Designer (C): , I'll go, sure.
+[10:24.23-12:32.88] User Interface Designer (C): Right uh, I'll be uh explaining a bit about uh working design about uh the project. Well uh what I did was I dissected uh uh current remote controls and um I viewed how how they w looked, how they worked, uh what kind of components are involved, and how they are connected together. And uh after that I put up a scheme about how uh these things are organised and I'll show it to you in in a in a few seconds. And I'll explain a bit about uh how it works and how we could uh build one and why I think several possibilities uh that we discussed in the earlier meeting falls off. Um right. Uh well what I did was uh I I checked uh remote controls and the uh remote controls of today are all infrared, not like all probably know. And the thing about that is um the remote controls uh have to act as a T_V_ or uh a stereo or something, and those uh have a transmitter that's also focused on infrared, so if we want to uh build uh mm a remote control uh with Bluetooth for instance then uh the T_V_ should have Bluetooth too in order to communicate, so that would mean extra cost for the user and thus uh that's that wouldn't mean a a cheap uh remote control for us. So that's probably why most controls are still infrared. Furthermore they all have uh a a very simple structure, so that would probably uh mean lower costs and uh i that could mean for us a good thing uh'cause uh well we we should be able to build a relatively cheap uh a cheap uh remote. Well uh as I mentioned ready, we have some Bluetooth Well it may be possible, but uh I figured it wouldn't be possible in within our budget, but that's not for me to decide, but that's maybe something for marketing to look into. F because uh well my personal opinion is uh is not to do uh Bluetooth or or radio waves, although
+[12:33.45-12:43.11] Marketing Expert (D): What do you think about uh incorporating Bluetooth or a radio uh receiver uh in the place-holder next to the T_V_, connected to the T_V_?
+[12:43.48-12:44.40] User Interface Designer (C): Yeah, actually
+[12:44.33-12:44.52] Marketing Expert (D): So
+[12:44.40-12:44.61] User Interface Designer (C): I have
+[12:44.52-12:44.68] Marketing Expert (D): it's
+[12:44.61-12:44.64] User Interface Designer (C): t
+[12:44.68-12:45.63] Marketing Expert (D): in the wrong product.
+[12:46.25-12:54.26] User Interface Designer (C): Yeah. Yeah, I actually I figured that would be that would be rather nice, but then you'd still have the uh the infrared function. So
+[12:54.06-12:54.36] Marketing Expert (D): Yeah
+[12:54.26-12:54.44] User Interface Designer (C): in
+[12:54.36-12:54.36] Marketing Expert (D): .
+[12:54.44-12:57.89] User Interface Designer (C): in theory you'd actually just move the problem
+[12:57.18-12:57.37] Marketing Expert (D): Yeah.
+[12:57.89-13:12.14] User Interface Designer (C): , but uh what I did uh think about was when you mentioned about the uh the cup-holder, is why not uh introduce a speech function like where is the remote. If somebody says, where is the remote, then it goes uh beep uh beep beep beep or something, I dunno, maybe uh
+[13:11.81-13:12.01] Marketing Expert (D): Yeah.
+[13:12.14-15:34.31] User Interface Designer (C): maybe something to look into, I dunno uh what the cost that something like that would be. But it may be uh may be something to explore. Uh I'll I'll just explain a bit of the components. Uh first you have the energy source. The energy source would be a battery, simple uh battery uh that you can find anywhere. I figured that would be best,'cause when the battery uh stops functioning uh we could just uh use you could just go out and buy a new one. So we didn't and we don't have to do all uh to be too complicated about that. Uh the energy source is connected to the infrared button, but uh the infrared button uh works only via the chip and the subcomponent to uh the switch there is a switch uh between these. When the switch is pressed in a w on this this case it switches a button, when a button is prush pushed in, uh a electric current goes through here, and in uh immediately, a l a bulb lights up uh displaying to the user that something has happened. That's uh that's so the h user won't be um thinking, well uh did the button be pressed, w what happened uh. Or I press button but nothing's happening on the T_V_, so is is something wrong or something. So that's just to uh to to explain the of to to uh make it clearer to the user. Uh w well the signal goes via chip that's translated into uh electric sig uh electronic signals and then it's processed and then it's sent to the infrared bulb where it will be uh uh received on the receiving end. And those uh interpreted by the device, well in this case the television. Uh well my personal preferences here, well we have to keep it simple. Not too many uh gadgets and functions, just like you said uh well the most users n uh you have a lot of buttons and you u u use you don't use them, so why why should we invent uh w spend more time on those. Uh I I think we should stick by with infrared transmitting and uh no receiving. So uh no input from the television. So I think we shouldn't be uh spending time on um teletext and st things like that, because when you uh want teletext on uh infrared you'd have to build in a receiver too, and so in order to receive the signals from uh what's on T_V_ and such. So I figure that would be uh spending too much money and time and
+[15:34.77-15:43.38] Marketing Expert (D): Um, yeah, maybe another problem uh, I think current T_V_s can even send
+[15:43.35-15:43.57] User Interface Designer (C): Yes
+[15:43.38-15:43.83] Marketing Expert (D): infrared
+[15:43.57-15:44.11] User Interface Designer (C): , but
+[15:43.83-15:43.83] Marketing Expert (D): .
+[15:44.11-15:47.43] User Interface Designer (C): what should we uh s I I I f I agree with you, but should
+[15:47.41-15:47.52] Marketing Expert (D): Huh
+[15:47.43-15:47.60] User Interface Designer (C): we
+[15:47.52-15:47.52] Marketing Expert (D): .
+[15:47.60-15:52.38] User Interface Designer (C): spend money or and time on building a receiver into the uh remote control
+[15:51.94-15:52.22] Marketing Expert (D): Mm-hmm.
+[15:52.38-15:54.61] User Interface Designer (C): ?'Cause that would be I mean extra components, extra
+[15:54.40-15:54.59] Marketing Expert (D): Yeah.
+[15:54.61-15:58.84] User Interface Designer (C): designs, um larger g uh remote control
+[15:58.52-15:58.69] Marketing Expert (D): Yeah.
+[15:58.84-16:07.60] User Interface Designer (C): . These all uh all stuff that we have to take in account. So I I my personal opinion is no no no receiver at all. Um
+[16:06.83-16:07.03] Marketing Expert (D): Yeah.
+[16:07.60-16:36.11] User Interface Designer (C): , well we should uh look into the design and the functionability. Like I said, uh use one button for instance for m multiple functions, or well uh just hide the few buttons o of switching it open or something, the usual uh stuff. And uh don't overbuild, we shouldn't make a big uh remote control for simple functions, but we we should stick to the basics. So that was my uh my personal opinion. And that was my uh my presentation uh
+[16:36.23-16:36.59] Project Manager (B): Okay
+[16:36.38-16:36.63] Industrial Designer (A): Okay
+[16:36.59-16:36.59] Project Manager (B): .
+[16:36.63-16:37.31] Industrial Designer (A): , thank you Janus.
+[16:37.60-16:38.46] Project Manager (B): Yes, I can go
+[16:38.32-16:39.17] Industrial Designer (A): You do
+[16:38.46-16:40.08] Project Manager (B): ahead
+[16:39.17-16:40.32] Industrial Designer (A): ? The last presentation
+[16:40.08-16:41.51] Project Manager (B): . Last presentation
+[16:40.32-16:41.77] Industrial Designer (A): . You have plenty of time
+[16:41.51-16:42.14] Project Manager (B): . Okay
+[16:41.77-16:42.22] Industrial Designer (A): , Tim and
+[16:42.14-16:42.14] Project Manager (B): .
+[16:42.22-16:46.97] Industrial Designer (A): uh Janus don't uh talk to ten minutes, so uh take your time.
+[16:48.87-16:53.75] Industrial Designer (A): If you take your time too long I will uh eventually uh warn you.
+[17:00.06-17:07.38] Project Manager (B): Well, I'm going to give a presentation abut some of the technical functions of these design and uh usability functions.
+[17:09.42-17:49.92] Project Manager (B): Um what's my opinion about what's most important to combine the design, technical possibilities and the user friendliness in one, so if you um going to design a remote that looks good, that shouldn't weigh over the uh if it's possible to make, of course, but also the user friendliness, so tha that's that's some of the main points. And another one is um the use um of many functions will will make it more difficult, so use as as little functions as possible or at least don't display them all at once on the same remote. If you have fifty functions
+[17:49.30-17:49.52] Marketing Expert (D): Hmm.
+[17:49.92-18:08.93] Project Manager (B): you don't want fifty buttons uh t uh to be shown at the same time,'cause when you visit an internet uh site you don't want fifty links uh to see, but maybe use a hierarch hierarchy uh structure. And uh well one of the ideas was maybe uh use touch screen, but s I don't know in how far
+[18:08.82-18:09.17] Marketing Expert (D): Hmm
+[18:08.93-18:09.18] Project Manager (B): that is
+[18:09.17-18:09.17] Marketing Expert (D): .
+[18:09.18-19:01.04] Project Manager (B): possible, since we are sticking to uh um infrared and and the remote cannot receive anything, but uh we might uh consider that. Um well, of course I I hope this is all clear to you. If you you can use remote like this with all the functions, many functions, but Well, your thumb is a little bigger than th it than this. You have to be very careful what you push, and um if you're looking for teletext you'll be uh searching for half an hour from uh um yeah well, where is it? Where the hell he here I guess and, yeah, when you have to uh use something else. So just keep it simple, make clear buttons, easy to use. For example if you want to use a play and back and stop, that's very important.
+[19:03.41-19:19.43] Project Manager (B): Um well this was because of our last discussion, if multiple machines are used, create easy switch between the machines, but um it's no longer uh applying. Well yeah, I prefer to use it only for T_V_ and um
+[19:20.96-19:29.85] Project Manager (B): n uh not to give too many options and and if possible, uh the buttons should give a dr direct action, not first select
+[19:30.45-19:38.30] Industrial Designer (A): Uh you you just said um uh you wanted to to combine more functions in one
+[19:38.15-19:38.67] Project Manager (B): Yeah
+[19:38.30-19:38.73] Industrial Designer (A): , so
+[19:38.67-19:38.84] Project Manager (B): , and
+[19:38.73-19:39.02] Industrial Designer (A): uh
+[19:38.84-19:39.05] Project Manager (B): so
+[19:38.92-19:39.06] User Interface Designer (C): Yeah
+[19:39.02-19:39.43] Industrial Designer (A): you
+[19:39.05-19:39.31] Project Manager (B): that's
+[19:39.06-19:39.26] User Interface Designer (C): , but
+[19:39.31-19:39.47] Project Manager (B): where
+[19:39.43-19:39.60] Industrial Designer (A): you
+[19:39.47-19:40.25] Project Manager (B): the difficulties
+[19:39.60-19:40.75] Industrial Designer (A): want to keep it simple
+[19:40.25-19:40.57] Project Manager (B): lie.
+[19:40.75-19:50.06] Industrial Designer (A): , but I think that if you want to do that, then you can't escape the the fact that there will be buttons uh which give s uh more options than one
+[19:50.05-19:50.32] Project Manager (B): Yeah
+[19:50.06-19:50.06] Industrial Designer (A): .
+[19:50.29-19:50.80] User Interface Designer (C): Yeah
+[19:50.32-19:50.84] Project Manager (B): , this so
+[19:50.80-19:51.01] User Interface Designer (C): . Yeah
+[19:50.84-19:51.04] Project Manager (B): that's
+[19:51.01-19:51.32] User Interface Designer (C): , but
+[19:51.04-19:58.24] Project Manager (B): the thing you have to weigh against each other. Do we want to use a few options and might not be so or original
+[19:58.11-19:58.37] Industrial Designer (A): Mm-hmm
+[19:58.24-19:58.59] Project Manager (B): , or
+[19:58.37-19:58.37] Industrial Designer (A): .
+[19:58.59-20:00.96] Project Manager (B): uh multi-purpose as we thought
+[20:00.45-20:00.86] Industrial Designer (A): Okay.
+[20:00.96-20:04.05] Project Manager (B): , or do we want to use um many buttons
+[20:04.03-20:04.28] Industrial Designer (A): Yeah
+[20:04.05-20:04.93] Project Manager (B): . So
+[20:04.28-20:04.28] Industrial Designer (A): .
+[20:04.93-20:06.97] Project Manager (B): um weighing those factors.
+[20:07.35-20:19.67] Marketing Expert (D): Hmm it's maybe an option uh if you use an L_C_D_ or a touch screen um, that in the middle are the the main keys, like displayed on the
+[20:21.75-20:22.09] Marketing Expert (D): Uh yeah.
+[20:22.72-20:23.78] Project Manager (B): The doesn't
+[20:23.62-20:23.62] Marketing Expert (D): .
+[20:23.78-20:23.78] Project Manager (B): .
+[20:24.69-20:32.26] Marketing Expert (D): Yeah, this? No? Yeah. Something like that. Okay, just uh in the middle the general functions, like play, uh
+[20:33.91-20:35.27] Marketing Expert (D): channel switching
+[20:35.03-20:35.29] Project Manager (B): Yeah
+[20:35.27-20:35.45] Marketing Expert (D): , and
+[20:35.29-20:35.29] Project Manager (B): .
+[20:35.45-20:42.78] Marketing Expert (D): then uh at the top or at the bottom, some menus like uh settings or that you can drop down.
+[20:42.96-20:53.27] Project Manager (B): Yeah, but when all the questions I had Do we want to use uh a menu display on the T_V_? Or um does have to f everything uh be in remotes?'Cause if you use
+[20:52.99-20:53.31] Marketing Expert (D): Mm
+[20:53.27-20:53.36] Project Manager (B): a
+[20:53.31-20:53.31] Marketing Expert (D): .
+[20:53.36-21:04.25] Project Manager (B): memory display on the T_V_, you can simply push uh a more menu and then select the options you want to have and press okay. Uh so that's my recommendation
+[21:03.76-21:04.09] Marketing Expert (D): Nah.
+[21:04.25-21:07.57] Project Manager (B): , if you use many options in one buttle button
+[21:06.68-21:06.93] Marketing Expert (D): Mm-hmm.
+[21:07.57-21:09.82] Project Manager (B): , um display the menu on the T_V_ and
+[21:09.71-21:09.92] Marketing Expert (D): Yeah
+[21:09.82-21:10.69] Project Manager (B): don't
+[21:09.92-21:09.92] Marketing Expert (D): .
+[21:10.69-21:17.43] Project Manager (B): um use combination of t of two buttons at the same time or pressing buttons three times for five seconds, is
+[21:17.22-21:17.54] Marketing Expert (D): Yeah
+[21:17.43-21:17.54] Project Manager (B): too
+[21:17.54-21:17.54] Marketing Expert (D): .
+[21:17.54-21:19.05] Project Manager (B): complicated for most users.
+[21:19.09-21:19.28] Marketing Expert (D): I
+[21:19.17-21:19.41] User Interface Designer (C): Yeah
+[21:19.28-21:19.56] Marketing Expert (D): think
+[21:19.41-21:19.56] User Interface Designer (C): , but
+[21:19.56-21:38.30] Marketing Expert (D): so too, but and that's partly because um uh a lot of T_V_s have different menus, and when you have a particular menu uh at your device, uh it could be that don't correspond to the menu what's actually on T_V_
+[21:38.29-21:38.77] Project Manager (B): Yeah
+[21:38.30-21:38.30] Marketing Expert (D): .
+[21:38.77-21:39.77] Project Manager (B): , that will be a problem.
+[21:39.86-21:40.09] Marketing Expert (D): Yeah.
+[21:40.19-21:55.67] User Interface Designer (C): Well you d you have to keep in mind that uh several T_V_s uh don't even have a menu structure, or they have a very simple menu structure, so you have to keep in mind that not all uh d not our remote won't be able to work on all televisions
+[21:55.30-21:55.82] Project Manager (B): Yes
+[21:55.67-21:55.96] User Interface Designer (C): . And that
+[21:55.82-21:55.82] Project Manager (B): .
+[21:55.96-21:57.24] User Interface Designer (C): would be uh a
+[21:56.96-21:57.45] Project Manager (B): So
+[21:57.24-21:57.85] User Interface Designer (C): considerable
+[21:57.45-21:58.36] Project Manager (B): if
+[21:57.85-21:58.28] User Interface Designer (C): problem.
+[21:58.36-22:01.54] Project Manager (B): we have to stick with current technologies and uh
+[22:03.06-22:09.30] Project Manager (B): um well yeah, the restrictions of what's uh is on the market today
+[22:08.60-22:08.98] User Interface Designer (C): Yeah.
+[22:09.30-22:22.11] Project Manager (B): , um you should keep it s at this. Use big clear buttons. Not too many. So maybe we'll loose a few option uh options, but I think i this is more important. Um
+[22:24.90-22:35.01] Project Manager (B): especially the important buttons, um if you want to switch channel, change your volume, uh use teletext, it uh it has to work at once and more advanced options may be
+[22:34.78-22:35.25] User Interface Designer (C): Not embed
+[22:35.01-22:38.02] Project Manager (B): put it s somewhere away on the remote, behind uh
+[22:37.75-22:38.03] User Interface Designer (C): Yeah
+[22:38.02-22:38.14] Project Manager (B): a
+[22:38.03-22:38.19] User Interface Designer (C): , but
+[22:38.14-22:38.57] Project Manager (B): little
+[22:38.19-22:38.78] User Interface Designer (C): then with something
+[22:38.57-22:39.18] Project Manager (B): uh
+[22:38.78-22:39.24] User Interface Designer (C): like a touch
+[22:39.18-22:39.40] Project Manager (B): little
+[22:39.24-22:39.55] User Interface Designer (C): screen
+[22:39.40-22:39.72] Project Manager (B): thing
+[22:39.55-22:39.92] User Interface Designer (C): could
+[22:39.72-22:39.92] Project Manager (B): or a
+[22:39.92-22:40.08] User Interface Designer (C): could
+[22:39.92-22:40.17] Project Manager (B): touch
+[22:40.08-22:40.30] User Interface Designer (C): make
+[22:40.17-22:40.70] Project Manager (B): screen
+[22:40.30-22:41.09] User Interface Designer (C): more menu
+[22:40.70-22:40.70] Project Manager (B): .
+[22:41.09-22:41.85] User Interface Designer (C): up pop up or
+[22:41.83-22:42.18] Project Manager (B): And
+[22:41.85-22:42.25] User Interface Designer (C): something
+[22:42.18-22:42.39] Project Manager (B): yeah
+[22:42.25-22:42.25] User Interface Designer (C): .
+[22:42.39-22:51.44] Project Manager (B): , if you want to uh uh s put on stand-by or change the channel, that should always be possible to do. Not first change menu options or
+[22:50.92-22:51.17] User Interface Designer (C): Yeah.
+[22:51.44-22:56.68] Project Manager (B): switch something. Um, well yeah, as you already told, give some feedback
+[22:56.25-22:56.56] User Interface Designer (C): Yeah.
+[22:56.68-23:27.57] Project Manager (B): . If the user is pushing a button he should know if the television or n at least remote is reacting and not just that the batteries may be low. And um, well, my conclusion is uh is uh less is more, keep it simple. So uh maybe we should just ease down on the functionality to uh to keep it accessible on t because you all know, if there are a lot of function on the the television, some you you'll never know uh and never use, and
+[23:27.25-23:27.41] Marketing Expert (D): Yeah.
+[23:27.57-23:48.72] Project Manager (B): therefore it's uh important if you want to change the volume or channel that is always accessible and easy and other functions um that are not so important um well you we should consider just not using them or at least putting them somewhere on the remote where they're not in the way for the for the most important functions.
+[23:49.07-24:21.60] Marketing Expert (D): Yeah. Uh, I think the idea uh about uh touch screen um is very good. Um, because recently uh I saw news item on T_V_ um about uh new telephones uh for elder people. Um, they have like a touch screen with uh really big pictures on it like uh uh call uh hang-up, um
+[24:23.22-24:30.18] Marketing Expert (D): and that's a big ad advantage I think, because one the one hand uh
+[24:31.84-24:40.12] Marketing Expert (D): you make the remote control compatible for elder users just by uh scaling up the pictures or something
+[24:39.89-24:40.18] Industrial Designer (A): Mm-hmm
+[24:40.12-24:40.79] Marketing Expert (D): . It's
+[24:40.18-24:40.18] Industrial Designer (A): .
+[24:40.79-24:44.99] Marketing Expert (D): uh very visual intended.
+[24:48.69-24:49.87] Marketing Expert (D): What was I to say more?
+[24:50.48-24:55.16] Project Manager (B): Maybe that's an option. Um keep the primary buttons visible
+[24:54.76-24:55.02] Marketing Expert (D): Yeah.
+[24:55.16-25:18.72] Project Manager (B): . Uh make a remote that fits easily in the hands and for some design issues uh well, put a logo on it and maybe use it uh in some aesthetic uh aesthetic form. But uh th the important buttons m make them always accessible and pushable and clear and maybe use a touch screen, or if that's uh will become too difficult just uh
+[25:20.30-25:32.54] Project Manager (B): like televi some o older telephones use a l uh maybe it's possible to to flip them open and uh just expand the number of options that are normally visible
+[25:32.19-25:32.77] Marketing Expert (D): Yeah okay
+[25:32.54-25:32.88] Project Manager (B): . Um
+[25:32.77-25:35.77] Marketing Expert (D): , but but if you pick the the idea, the left idea
+[25:36.16-25:36.43] Project Manager (B): Yeah.
+[25:36.87-25:40.14] Marketing Expert (D): then what's gonna be displayed on the touch screen?
+[25:40.56-25:41.54] User Interface Designer (C): The extra functions.
+[25:41.60-25:42.57] Project Manager (B): The extra functions
+[25:42.47-25:42.75] Marketing Expert (D): Yeah
+[25:42.57-25:42.75] Project Manager (B): , you
+[25:42.75-25:42.75] Marketing Expert (D): ,
+[25:42.75-25:42.87] Project Manager (B): uh
+[25:42.75-25:42.97] Marketing Expert (D): but
+[25:42.87-25:43.14] Project Manager (B): you
+[25:42.97-25:43.15] Marketing Expert (D): l
+[25:43.14-25:43.37] Project Manager (B): just
+[25:43.15-25:43.44] Marketing Expert (D): like
+[25:43.37-25:43.56] Project Manager (B): see
+[25:43.44-25:43.82] Marketing Expert (D): menu
+[25:43.56-25:44.12] Project Manager (B): a menu
+[25:43.82-25:44.30] Marketing Expert (D): functions
+[25:44.12-25:44.66] Project Manager (B): from
+[25:44.30-25:44.47] Marketing Expert (D): or
+[25:44.66-25:45.11] Project Manager (B): system
+[25:44.97-25:45.23] User Interface Designer (C): Yeah
+[25:45.11-25:45.78] Project Manager (B): functions
+[25:45.23-25:45.23] User Interface Designer (C): .
+[25:45.78-25:50.32] Project Manager (B): or teletext functions, and you just choose one, and then
+[25:50.16-25:50.35] Marketing Expert (D): Ah
+[25:50.32-25:50.65] Project Manager (B): all
+[25:50.35-25:50.63] Marketing Expert (D): okay.
+[25:50.65-25:55.18] Project Manager (B): all the options will become available and you just c s yeah t scroll through them.
+[25:55.87-25:59.17] User Interface Designer (C): Wouldn't it be better to make just one big touch screen
+[25:58.68-25:59.27] Marketing Expert (D): Yeah, I
+[25:59.17-25:59.47] User Interface Designer (C): , uh one
+[25:59.27-25:59.53] Marketing Expert (D): think
+[25:59.47-25:59.71] User Interface Designer (C): one
+[25:59.53-25:59.76] Marketing Expert (D): so
+[25:59.71-26:00.73] User Interface Designer (C): small
+[25:59.76-25:59.76] Marketing Expert (D): .
+[26:00.73-26:13.96] User Interface Designer (C): uh touch screen uh applet and uh I'll just make um uh let's say fifteen buttons on it, and uh we have three of those, uh actually just uh menus with sub-menus, with or sub-items
+[26:13.94-26:14.22] Marketing Expert (D): Yeah
+[26:13.96-26:14.73] User Interface Designer (C): , sub-functions
+[26:14.05-26:14.78] Project Manager (B): Well
+[26:14.22-26:14.22] Marketing Expert (D): .
+[26:14.73-26:14.73] User Interface Designer (C): .
+[26:14.78-26:16.70] Project Manager (B): um then I'd like to make a proposal.
+[26:21.14-26:23.02] Project Manager (B): If you make one big touch screen,
+[26:23.09-26:23.64] User Interface Designer (C): Yes.
+[26:24.21-26:26.82] Project Manager (B): use the same concept as here, keep the buttons
+[26:26.59-26:26.88] User Interface Designer (C): Yeah
+[26:26.82-26:27.22] Project Manager (B): always
+[26:26.88-26:26.88] User Interface Designer (C): .
+[26:27.22-26:28.79] Project Manager (B): available
+[26:27.90-26:28.19] Marketing Expert (D): Yeah.
+[26:28.79-26:32.41] Project Manager (B): and use the lower part of the touch screen for the rest.
+[26:32.52-26:32.91] User Interface Designer (C): Yeah
+[26:32.58-26:32.99] Marketing Expert (D): Yeah
+[26:32.91-26:33.15] User Interface Designer (C): , yeah
+[26:32.99-26:32.99] Marketing Expert (D): .
+[26:33.15-26:35.45] User Interface Designer (C): , like like the iPod idea that
+[26:35.19-26:35.49] Project Manager (B): Yeah
+[26:35.45-26:35.66] User Interface Designer (C): that
+[26:35.49-26:35.49] Project Manager (B): .
+[26:35.66-26:47.38] User Interface Designer (C): we just saw. You just have a f a few selected buttons and uh a few menus, and with this idea you could actually make uh several you can also improve uh later on.
+[26:47.93-26:48.28] Project Manager (B): Yes.
+[26:50.46-26:52.65] User Interface Designer (C): Uh uh I think that will be great.
+[26:52.82-26:53.28] Project Manager (B): Okay.
+[26:53.32-26:57.49] Industrial Designer (A): So you think it's will be better to have a t kinda total touch screen
+[26:57.47-26:57.76] Marketing Expert (D): Yeah
+[26:57.49-26:57.49] Industrial Designer (A): .
+[26:57.76-26:58.30] Marketing Expert (D): , I think so
+[26:58.26-26:58.53] User Interface Designer (C): Yeah
+[26:58.30-26:58.30] Marketing Expert (D): .
+[26:58.53-26:59.73] User Interface Designer (C): , I wou I would actually go for
+[26:59.72-27:00.03] Industrial Designer (A): Jirun
+[26:59.73-26:59.97] User Interface Designer (C): the
+[27:00.03-27:00.03] Industrial Designer (A): ?
+[27:00.08-27:11.13] Project Manager (B): Okay, I agree, but I think it's very important that they always um make the same buttons accessible, so use just for special options a part of the touch screen.
+[27:11.21-27:11.61] Marketing Expert (D): Yeah, of
+[27:11.53-27:11.86] Industrial Designer (A): Yeah
+[27:11.61-27:11.94] Marketing Expert (D): course
+[27:11.86-27:11.86] Industrial Designer (A): .
+[27:11.94-27:11.94] Marketing Expert (D): .
+[27:12.20-27:12.51] User Interface Designer (C): Yeah
+[27:12.27-27:12.72] Project Manager (B): And
+[27:12.51-27:12.51] User Interface Designer (C): .
+[27:12.72-27:18.19] Project Manager (B): so um an elder designer picks up th the of an elder parents or
+[27:18.02-27:18.21] Industrial Designer (A): Yeah
+[27:18.19-27:18.81] Project Manager (B): grandparent
+[27:18.21-27:18.75] Industrial Designer (A): yeah yeah.
+[27:18.81-27:33.69] Project Manager (B): picks up the remote from the little child and who's all in the systems functions, you'll have to have the possibility to turn off the T_V_ or to switch the channel without um well using all the menu structures to get back to the primary functions.
+[27:33.79-27:34.11] Industrial Designer (A): Yeah.
+[27:34.61-27:40.79] Marketing Expert (D): Yeah, I had another uh idea about maybe parental control
+[27:40.18-27:40.50] Project Manager (B): Mm-hmm.
+[27:40.79-27:41.39] Marketing Expert (D): . Um,
+[27:42.90-27:50.69] Marketing Expert (D): like building in uh some kind of PIN code uh which allows uh parents to switch to all channels
+[27:50.34-27:50.53] Project Manager (B): Yeah.
+[27:50.69-27:55.95] Marketing Expert (D): , uh but children uh if children don't don't know the PIN code
+[27:55.77-27:56.03] Project Manager (B): Yeah
+[27:55.95-27:56.06] Marketing Expert (D): , they
+[27:56.03-27:56.11] Project Manager (B): wh
+[27:56.06-27:58.28] Marketing Expert (D): can't switch to uh violent uh
+[27:57.91-27:59.01] Project Manager (B): Is that possible
+[27:58.28-27:58.88] Marketing Expert (D): channels or
+[27:59.01-27:59.48] Project Manager (B): to use
+[27:59.41-27:59.59] User Interface Designer (C): That
+[27:59.48-27:59.73] Project Manager (B): or no
+[27:59.59-27:59.73] User Interface Designer (C): is
+[27:59.73-27:59.73] Project Manager (B): ?
+[27:59.73-28:00.90] User Interface Designer (C): possible, that well
+[28:00.81-28:01.19] Marketing Expert (D): Th
+[28:00.90-28:01.34] User Interface Designer (C): that actually
+[28:01.19-28:01.36] Marketing Expert (D): there's
+[28:01.34-28:01.68] User Interface Designer (C): depends
+[28:01.36-28:01.66] Marketing Expert (D): just
+[28:01.68-28:02.74] User Interface Designer (C): on the television, but I
+[28:02.73-28:03.13] Project Manager (B): Well
+[28:02.74-28:03.15] User Interface Designer (C): think I
+[28:03.13-28:03.38] Project Manager (B): , yeah
+[28:03.15-28:03.42] User Interface Designer (C): figure
+[28:03.38-28:03.71] Project Manager (B): well
+[28:03.42-28:03.74] User Interface Designer (C): that would
+[28:03.71-28:04.00] Project Manager (B): , does
+[28:03.74-28:04.02] User Interface Designer (C): be
+[28:04.00-28:04.30] Project Manager (B): it have
+[28:04.20-28:04.43] Marketing Expert (D): Ju
+[28:04.30-28:04.75] Project Manager (B): to depend
+[28:04.43-28:05.20] Marketing Expert (D): just a simple
+[28:04.75-28:05.54] Project Manager (B): on the television
+[28:05.20-28:06.31] Marketing Expert (D): log-in
+[28:05.54-28:05.54] Project Manager (B): ?
+[28:06.31-28:06.74] Marketing Expert (D): , something
+[28:06.55-28:07.43] User Interface Designer (C): Well
+[28:06.74-28:07.07] Marketing Expert (D): like that.
+[28:07.24-28:07.54] Industrial Designer (A): Yeah
+[28:07.43-28:07.71] User Interface Designer (C): , y
+[28:07.54-28:07.54] Industrial Designer (A): .
+[28:07.71-28:13.79] User Interface Designer (C): you s you see the fi uh thing is when you buy a remote, you you set the uh channels
+[28:13.62-28:13.82] Marketing Expert (D): Yeah
+[28:13.79-28:14.22] User Interface Designer (C): , the
+[28:13.82-28:13.82] Marketing Expert (D): .
+[28:14.22-28:16.87] User Interface Designer (C): the channels are different on each te television, they
+[28:16.84-28:17.05] Marketing Expert (D): Yeah
+[28:16.87-28:17.15] User Interface Designer (C): aren't
+[28:17.05-28:17.05] Marketing Expert (D): .
+[28:17.15-28:23.06] User Interface Designer (C): set in a preset order, so uh if you uh lock on a remote, uh let's say channel fifteen
+[28:22.76-28:23.02] Marketing Expert (D): Mm-hmm.
+[28:23.06-28:26.54] User Interface Designer (C): , well channel fifteen on this television is different than channel fifteen on the other
+[28:26.34-28:26.68] Marketing Expert (D): Yeah
+[28:26.54-28:27.30] User Interface Designer (C): television
+[28:26.68-28:27.01] Marketing Expert (D): , okay.
+[28:27.30-28:28.58] User Interface Designer (C): , so that would be uh that would be
+[28:28.57-28:29.95] Industrial Designer (A): Yeah
+[28:28.58-28:29.82] User Interface Designer (C): actually the main concern
+[28:29.30-28:29.88] Project Manager (B): Well
+[28:29.82-28:29.82] User Interface Designer (C): .
+[28:29.88-28:30.01] Project Manager (B): , I
+[28:29.95-28:30.37] Industrial Designer (A): . Yeah
+[28:30.01-28:30.38] Project Manager (B): think that
+[28:30.37-28:30.37] Industrial Designer (A): .
+[28:30.38-28:47.47] Project Manager (B): he means that um maybe by some option uh make sure that um remote control and the T_V_ match, and then after that you can um use some s insert some passwords as being apparent that the children cannot use this uh
+[28:47.11-28:47.32] Marketing Expert (D): Yeah.
+[28:47.47-28:51.30] Project Manager (B): change the settings of the T_V_, like colour and then volume and uh
+[28:51.49-28:56.63] Marketing Expert (D): Yeah, th that kind of stuff, but maybe um if you log in first as
+[28:56.48-28:57.02] Project Manager (B): Mm-hmm
+[28:56.63-28:57.67] Marketing Expert (D): a parent
+[28:57.02-28:57.02] Project Manager (B): .
+[28:57.67-29:00.96] Marketing Expert (D): um, you address the the channels
+[29:00.68-29:01.03] User Interface Designer (C): Yes
+[29:00.96-29:01.20] Marketing Expert (D): and
+[29:01.03-29:01.03] User Interface Designer (C): .
+[29:01.20-29:06.99] Marketing Expert (D): like uh oh, that's channel fifteen, that's uh vi violent channel
+[29:06.80-29:07.10] Project Manager (B): Oh
+[29:06.92-29:07.22] User Interface Designer (C): Yes
+[29:06.99-29:07.25] Marketing Expert (D): , uh
+[29:07.10-29:07.54] Project Manager (B): , something
+[29:07.22-29:07.22] User Interface Designer (C): .
+[29:07.25-29:07.66] Marketing Expert (D): m my
+[29:07.54-29:07.68] Project Manager (B): like
+[29:07.66-29:07.97] Marketing Expert (D): ki
+[29:07.68-29:07.98] Project Manager (B): that
+[29:07.97-29:08.13] Marketing Expert (D): my
+[29:07.98-29:07.98] Project Manager (B): .
+[29:08.13-29:11.10] Marketing Expert (D): kids uh I don't want my kids to watch that
+[29:10.42-29:10.77] User Interface Designer (C): Yeah.
+[29:11.10-29:14.17] Marketing Expert (D): , then you set the priority to only parents,
+[29:14.28-29:15.38] User Interface Designer (C): Yeah
+[29:14.63-29:15.89] Industrial Designer (A): Okay, yeah
+[29:15.31-29:15.52] Project Manager (B): Well
+[29:15.38-29:15.71] User Interface Designer (C): . Yeah
+[29:15.52-29:16.46] Project Manager (B): b
+[29:15.61-29:15.76] Marketing Expert (D): for
+[29:15.71-29:16.04] User Interface Designer (C): , that
+[29:15.76-29:17.03] Marketing Expert (D): example
+[29:15.89-29:15.89] Industrial Designer (A): .
+[29:16.04-29:16.22] User Interface Designer (C): would b
+[29:16.46-29:17.24] Project Manager (B): but make
+[29:17.03-29:17.26] Marketing Expert (D): . But
+[29:17.24-29:19.51] Project Manager (B): it a separate option in the menu
+[29:18.89-29:19.56] User Interface Designer (C): Yeah
+[29:19.51-29:19.72] Project Manager (B): , so
+[29:19.56-29:19.85] User Interface Designer (C): , that
+[29:19.72-29:20.00] Project Manager (B): that
+[29:19.85-29:19.85] User Interface Designer (C): .
+[29:20.00-29:20.16] Project Manager (B): it's
+[29:20.15-29:20.35] Marketing Expert (D): Yeah
+[29:20.16-29:20.42] Project Manager (B): it's
+[29:20.35-29:20.62] Marketing Expert (D): okay
+[29:20.42-29:20.70] Project Manager (B): dif
+[29:20.62-29:21.07] Marketing Expert (D): , but
+[29:20.70-29:21.40] Project Manager (B): dis displayed
+[29:21.07-29:22.09] Marketing Expert (D): but
+[29:21.40-29:22.53] Project Manager (B): from uh
+[29:22.09-29:22.65] Marketing Expert (D): yeah, that's
+[29:22.53-29:23.01] Project Manager (B): displayed
+[29:22.65-29:22.95] Marketing Expert (D): just
+[29:23.01-29:24.03] Project Manager (B): here, so uh
+[29:23.97-29:24.16] Marketing Expert (D): that's
+[29:24.03-29:24.48] Project Manager (B): parents
+[29:24.16-29:24.58] Marketing Expert (D): an a
+[29:24.48-29:24.68] Project Manager (B): uh
+[29:24.58-29:24.95] Marketing Expert (D): an added
+[29:24.93-29:25.19] Industrial Designer (A): Yeah
+[29:24.95-29:25.50] Marketing Expert (D): feature
+[29:25.19-29:25.19] Industrial Designer (A): .
+[29:25.50-29:25.50] Marketing Expert (D): .
+[29:25.72-29:30.20] Industrial Designer (A): Okay. But let's not uh go too wide about the those things, that's
+[29:30.03-29:30.21] Marketing Expert (D): Yeah
+[29:30.20-29:30.35] Industrial Designer (A): that
+[29:30.21-29:30.54] Marketing Expert (D): , th
+[29:30.35-29:30.69] Industrial Designer (A): why we're
+[29:30.54-29:31.05] Marketing Expert (D): th
+[29:30.69-29:31.22] Industrial Designer (A): here
+[29:31.05-29:31.26] Marketing Expert (D): those
+[29:31.22-29:31.40] Industrial Designer (A): . It's
+[29:31.26-29:31.51] Marketing Expert (D): things
+[29:31.40-29:31.64] Industrial Designer (A): it's
+[29:31.51-29:31.69] Marketing Expert (D): are
+[29:31.64-29:31.99] Industrial Designer (A): a nice
+[29:31.69-29:32.83] Marketing Expert (D): nice
+[29:31.99-29:33.05] Industrial Designer (A): idea, but I think
+[29:32.83-29:32.83] Marketing Expert (D): .
+[29:33.05-29:41.66] Industrial Designer (A): that's we wel later in the stage. I've one little question about um a total touch screen or uh um
+[29:41.09-29:41.55] Marketing Expert (D): Partial.
+[29:41.66-29:54.74] Industrial Designer (A): a p yeah, a partial, uh because I think uh elderly people may be uh not used to uh a touch screen, so they want the the the normal functions like teletext, volume changing, um
+[29:53.61-29:53.78] Marketing Expert (D): Yeah.
+[29:54.74-30:02.62] Industrial Designer (A): uh to be uh, yeah, kinda traditionals uh and uh the the the the other functions, the more
+[30:02.42-30:02.69] Marketing Expert (D): Mm-hmm
+[30:02.62-30:03.02] Industrial Designer (A): difficult
+[30:02.69-30:02.69] Marketing Expert (D): .
+[30:03.02-30:10.50] Industrial Designer (A): functions uh to be uh maybe on the touch screen, but to keep this as uh normal as possible, to keep it
+[30:10.45-30:10.63] Marketing Expert (D): Yeah
+[30:10.50-30:11.10] Industrial Designer (A): accessible
+[30:10.63-30:11.27] Marketing Expert (D): , but
+[30:11.10-30:11.10] Industrial Designer (A): .
+[30:11.27-30:15.73] Marketing Expert (D): but if you display it on L_C_D_ screen with r r really big numbers
+[30:16.26-30:17.93] Project Manager (B): Yeah, you can de display it on
+[30:17.76-30:17.96] Marketing Expert (D): that's
+[30:17.93-30:18.13] Project Manager (B): the
+[30:17.96-30:18.25] Marketing Expert (D): just
+[30:18.13-30:18.33] Project Manager (B): on the
+[30:18.25-30:18.34] Marketing Expert (D): as
+[30:18.33-30:18.53] Project Manager (B): old
+[30:18.34-30:19.36] Marketing Expert (D): e
+[30:18.53-30:19.24] Project Manager (B): style
+[30:18.58-30:19.42] User Interface Designer (C): Uh. I
+[30:19.24-30:19.37] Project Manager (B): . You
+[30:19.36-30:19.61] Marketing Expert (D): just
+[30:19.37-30:19.56] Project Manager (B): can
+[30:19.42-30:19.67] User Interface Designer (C): I do
+[30:19.56-30:20.03] Project Manager (B): display
+[30:19.61-30:20.18] Marketing Expert (D): as easy
+[30:19.78-30:20.98] Industrial Designer (A): Yeah
+[30:20.03-30:20.41] Project Manager (B): actual
+[30:20.18-30:20.18] Marketing Expert (D): .
+[30:20.41-30:20.98] Project Manager (B): buttons on the
+[30:20.98-30:20.98] Industrial Designer (A): .
+[30:20.98-30:21.23] Project Manager (B): touch
+[30:20.98-30:21.36] Industrial Designer (A): Yeah
+[30:21.23-30:21.59] Project Manager (B): screens
+[30:21.36-30:21.70] Industrial Designer (A): , that's
+[30:21.54-30:21.78] User Interface Designer (C): Uh
+[30:21.55-30:21.80] Marketing Expert (D): Yeah
+[30:21.59-30:21.59] Project Manager (B): .
+[30:21.70-30:21.87] Industrial Designer (A): true
+[30:21.78-30:21.88] User Interface Designer (C): I
+[30:21.80-30:21.80] Marketing Expert (D): .
+[30:21.87-30:22.07] Industrial Designer (A): , that's
+[30:21.88-30:22.46] User Interface Designer (C): do agree
+[30:22.07-30:22.23] Industrial Designer (A): true.
+[30:22.46-30:25.76] User Interface Designer (C): , because well, it's just not the same when you touch a touch screen or when
+[30:25.63-30:25.99] Project Manager (B): Yeah
+[30:25.76-30:26.07] User Interface Designer (C): you touch
+[30:25.99-30:26.37] Project Manager (B): , okay
+[30:26.07-30:26.44] User Interface Designer (C): a button
+[30:26.37-30:26.37] Project Manager (B): .
+[30:26.44-30:27.08] User Interface Designer (C): , but
+[30:26.48-30:27.25] Marketing Expert (D): Yeah, it's different
+[30:27.08-30:27.35] User Interface Designer (C): well
+[30:27.25-30:27.25] Marketing Expert (D): .
+[30:27.35-30:30.70] User Interface Designer (C): we have to look at what's our target uh audience. W
+[30:30.61-30:30.86] Industrial Designer (A): Yeah
+[30:30.70-30:30.99] User Interface Designer (C): we
+[30:30.86-30:30.86] Industrial Designer (A): .
+[30:30.99-30:32.96] User Interface Designer (C): are aiming for younger people
+[30:32.92-30:33.19] Industrial Designer (A): Yeah
+[30:32.96-30:33.19] User Interface Designer (C): and
+[30:33.00-30:34.18] Marketing Expert (D): Yeah
+[30:33.19-30:33.19] Industrial Designer (A): ,
+[30:33.19-30:33.38] User Interface Designer (C): they
+[30:33.19-30:33.46] Industrial Designer (A): that's
+[30:33.38-30:33.63] User Interface Designer (C): they
+[30:33.46-30:34.02] Industrial Designer (A): true
+[30:33.63-30:34.11] User Interface Designer (C): chose
+[30:34.02-30:35.46] Industrial Designer (A): , yeah
+[30:34.18-30:35.48] Marketing Expert (D): , age b below forty
+[30:35.46-30:35.73] Industrial Designer (A): . Yeah
+[30:35.48-30:35.48] Marketing Expert (D): .
+[30:35.73-30:36.23] Industrial Designer (A): , yeah yeah
+[30:36.22-30:36.44] User Interface Designer (C): So
+[30:36.23-30:36.67] Industrial Designer (A): , yeah
+[30:36.44-30:36.75] User Interface Designer (C): that's
+[30:36.67-30:36.85] Industrial Designer (A): , that's
+[30:36.75-30:36.94] User Interface Designer (C): that's
+[30:36.85-30:37.14] Industrial Designer (A): a good
+[30:36.94-30:37.52] User Interface Designer (C): probably
+[30:37.14-30:38.06] Industrial Designer (A): point
+[30:37.52-30:39.36] User Interface Designer (C): uh a
+[30:38.06-30:38.30] Industrial Designer (A): . Yep.
+[30:38.58-30:40.82] Marketing Expert (D): And th those young people, yeah. Y you
+[30:40.77-30:41.06] Industrial Designer (A): Mm-hmm
+[30:40.82-30:41.11] Marketing Expert (D): saw
+[30:41.06-30:41.06] Industrial Designer (A): .
+[30:41.11-30:44.10] Marketing Expert (D): it in my marketing report, they like the new fancy
+[30:43.91-30:44.12] Industrial Designer (A): They
+[30:44.10-30:44.43] Marketing Expert (D): stuff
+[30:44.12-30:44.46] Industrial Designer (A): like the
+[30:44.43-30:44.71] Marketing Expert (D): , so
+[30:44.46-30:45.84] Industrial Designer (A): fancy stuff, yeah.
+[30:45.84-30:45.95] Marketing Expert (D): A
+[30:45.84-30:46.07] Industrial Designer (A): That's
+[30:45.95-30:46.18] Marketing Expert (D): touch
+[30:46.07-30:46.50] Industrial Designer (A): true
+[30:46.18-30:46.59] Marketing Expert (D): screen
+[30:46.50-30:46.50] Industrial Designer (A): .
+[30:46.59-30:49.97] Marketing Expert (D): , like Microsoft al already developed something like that for
+[30:49.66-30:50.25] Industrial Designer (A): Mm-hmm
+[30:49.97-30:50.94] Marketing Expert (D): uh
+[30:50.25-30:50.25] Industrial Designer (A): .
+[30:50.94-30:54.57] Marketing Expert (D): uh multi-media applications.
+[30:57.21-30:57.34] Marketing Expert (D): I
+[30:57.21-30:57.61] Industrial Designer (A): Mm
+[30:57.34-30:58.91] Marketing Expert (D): th I think we can do that too.
+[30:59.40-30:59.70] Industrial Designer (A): Yeah.
+[31:01.51-31:08.19] Industrial Designer (A): Okay, as you can see uh the minutes from the second meeting, this one, are uh are
+[31:07.21-31:07.46] Marketing Expert (D): Done.
+[31:08.19-31:08.54] Industrial Designer (A): done.
+[31:11.77-31:17.55] Industrial Designer (A): Uh I've uh added the this uh four things from the management board just to keep in mind
+[31:16.97-31:17.30] Project Manager (B): Mm-hmm.
+[31:17.55-31:34.91] Industrial Designer (A): . Um each time I uh I had a sort of uh summary on what you told and uh what you personal think. Uh so that can be uh can be read out. Uh a f a few things I uh I noticed uh were um
+[31:37.03-31:38.62] Industrial Designer (A): Moment. Ooh.
+[31:52.65-32:41.62] Industrial Designer (A): Uh th the the main points in uh this uh uh in this uh meeting is I think uh how uh it's going to look uh with uh we must keep it simple, but have the opportunity to uh have more options and have them uh hidden or something, so they don't uh you don't have a big uh thing full of uh buttons or uh um and uh the point that uh you uh wanna use one uh controller uh for uh uh hypothetically each television, so you must uh the the the the functions, know, like the menus or the the parental control must be all uh by the done by the remote control and not by the television. I think that's the point what uh
+[32:41.41-32:42.94] Project Manager (B): Mm-hmm. Yes
+[32:42.64-32:43.34] Industrial Designer (A): we discussed
+[32:42.90-32:43.36] Marketing Expert (D): Yeah
+[32:42.94-32:42.94] Project Manager (B): .
+[32:43.34-32:43.34] Industrial Designer (A): .
+[32:43.36-32:50.66] Marketing Expert (D): , yeah, some of them. The menus uh are not identical for all th for all T_V_s, so you have to display it on
+[32:50.65-32:51.00] Project Manager (B): Well
+[32:50.66-32:51.42] Marketing Expert (D): one uh T_V_
+[32:51.00-32:51.62] Project Manager (B): you can
+[32:51.42-32:51.42] Marketing Expert (D): .
+[32:51.62-33:00.09] Project Manager (B): use um when you uh how do you call it, s um synchronized, the um remote and the T_V_
+[32:59.27-33:00.11] Marketing Expert (D): Yeah, but that's not
+[33:00.09-33:00.45] Project Manager (B): , then
+[33:00.11-33:00.62] Marketing Expert (D): possible
+[33:00.45-33:00.69] Project Manager (B): there's
+[33:00.62-33:00.62] Marketing Expert (D): .
+[33:00.69-33:05.40] Project Manager (B): always, there are always uh possibilities to change the colour and the brightness and the
+[33:05.40-33:05.82] Marketing Expert (D): Mm-hmm
+[33:05.40-33:06.83] Project Manager (B): volume
+[33:05.82-33:06.37] Marketing Expert (D): , mm yeah.
+[33:06.83-33:20.38] Project Manager (B): and um well maybe we can look out if there's options that the remote um in its memory can see what kinda T_V_ it is, from ah, it's a Philips, this and this and that, and then give the options that are capable the capable
+[33:20.15-33:20.39] Industrial Designer (A): Yeah
+[33:20.38-33:20.55] Project Manager (B): from
+[33:20.39-33:20.67] Industrial Designer (A): , but you
+[33:20.55-33:20.76] Project Manager (B): the
+[33:20.67-33:20.91] Industrial Designer (A): have
+[33:20.76-33:20.92] Project Manager (B): t
+[33:20.77-33:20.96] Marketing Expert (D): Add
+[33:20.91-33:21.24] Industrial Designer (A): uh
+[33:20.96-33:21.50] Marketing Expert (D): th that
+[33:21.24-33:21.58] Industrial Designer (A): uh
+[33:21.50-33:21.75] Marketing Expert (D): that's
+[33:21.58-33:22.49] Industrial Designer (A): an
+[33:21.75-33:22.80] Marketing Expert (D): an opportunity
+[33:22.49-33:22.82] Industrial Designer (A): yeah, but
+[33:22.80-33:22.80] Marketing Expert (D): .
+[33:22.82-33:26.09] Industrial Designer (A): you have an international market range, so you have I think
+[33:26.05-33:26.22] Project Manager (B): Well
+[33:26.09-33:26.38] Industrial Designer (A): a
+[33:26.22-33:26.38] Project Manager (B): there
+[33:26.38-33:26.58] Industrial Designer (A): big
+[33:26.38-33:26.61] Project Manager (B): are
+[33:26.58-33:26.87] Industrial Designer (A): range
+[33:26.61-33:27.27] Project Manager (B): universal
+[33:26.87-33:27.19] Industrial Designer (A): of
+[33:27.27-33:30.41] Project Manager (B): d um um remotes
+[33:30.19-33:30.45] Industrial Designer (A): Yeah
+[33:30.41-33:30.62] Project Manager (B): and
+[33:30.45-33:30.45] Industrial Designer (A): .
+[33:30.62-33:34.59] Project Manager (B): they all have a functionality for all the T_V_s, uh so this
+[33:34.42-33:34.81] Marketing Expert (D): Yeah
+[33:34.59-33:34.95] Project Manager (B): wouldn't
+[33:34.63-33:35.07] Industrial Designer (A): Okay
+[33:34.81-33:34.81] Marketing Expert (D): .
+[33:34.95-33:35.25] Project Manager (B): be
+[33:35.07-33:35.07] Industrial Designer (A): .
+[33:35.25-33:35.38] Project Manager (B): a
+[33:35.37-33:35.54] User Interface Designer (C): But
+[33:35.38-33:35.77] Project Manager (B): extra
+[33:35.54-33:35.61] User Interface Designer (C): they
+[33:35.77-33:36.53] Project Manager (B): feature to
+[33:36.42-33:36.58] Marketing Expert (D): But
+[33:36.53-33:37.83] Project Manager (B): incorporate the men menus
+[33:37.50-33:38.01] Industrial Designer (A): And it's
+[33:37.83-33:38.21] Project Manager (B): of these
+[33:38.01-33:38.39] Industrial Designer (A): not too
+[33:38.21-33:38.21] Project Manager (B): .
+[33:38.39-33:39.31] Industrial Designer (A): complex to do it.
+[33:40.10-33:40.29] User Interface Designer (C): Well
+[33:40.24-33:40.44] Marketing Expert (D): No
+[33:40.29-33:40.69] User Interface Designer (C): they uh
+[33:40.44-33:40.44] Marketing Expert (D): .
+[33:40.69-33:43.91] User Interface Designer (C): they all have to be programmed to fit your T_V_
+[33:43.62-33:43.90] Industrial Designer (A): Yeah.
+[33:43.91-33:46.16] User Interface Designer (C): and that that is bit of a tricky job
+[33:46.13-33:46.47] Project Manager (B): Yeah
+[33:46.16-33:46.91] User Interface Designer (C): . I actually
+[33:46.47-33:46.47] Project Manager (B): .
+[33:46.91-34:03.40] User Interface Designer (C): use one of those when They are they are kinda kinda troublesome, but but the thing is whe when you uh start uh building something like this you have to build a receiver into the uh t into the remotes, because uh in order for the remote to process something from the T_V_
+[34:03.26-34:04.07] Project Manager (B): Yeah
+[34:03.40-34:04.60] User Interface Designer (C): , like uh
+[34:04.07-34:04.35] Project Manager (B): . Well
+[34:04.60-34:05.24] User Interface Designer (C): to synchronise
+[34:05.22-34:05.39] Project Manager (B): Yeah
+[34:05.24-34:05.45] User Interface Designer (C): and you
+[34:05.39-34:05.39] Project Manager (B): .
+[34:05.45-34:07.71] User Interface Designer (C): have to send and receive
+[34:06.88-34:07.83] Project Manager (B): Mm-hmm
+[34:07.71-34:07.93] User Interface Designer (C): , and
+[34:07.83-34:08.20] Project Manager (B): . Oh
+[34:07.93-34:08.54] User Interface Designer (C): that's well
+[34:08.20-34:09.07] Project Manager (B): um
+[34:08.63-34:09.27] Marketing Expert (D): No no no
+[34:09.07-34:09.38] Project Manager (B): mo
+[34:09.27-34:09.27] Marketing Expert (D): .
+[34:09.38-34:10.40] Project Manager (B): no, you can just
+[34:10.34-34:10.55] Industrial Designer (A): Just
+[34:10.36-34:10.54] Marketing Expert (D): He
+[34:10.40-34:10.81] Project Manager (B): say
+[34:10.54-34:10.85] Marketing Expert (D): he
+[34:10.55-34:10.83] Industrial Designer (A): build
+[34:10.81-34:11.53] Project Manager (B): uh
+[34:10.83-34:10.91] Industrial Designer (A): it
+[34:10.85-34:11.07] Marketing Expert (D): he
+[34:10.91-34:11.37] Industrial Designer (A): in
+[34:11.07-34:11.47] Marketing Expert (D): he me
+[34:11.37-34:11.37] Industrial Designer (A): .
+[34:11.47-34:11.62] Marketing Expert (D): he
+[34:11.53-34:11.66] Project Manager (B): the
+[34:11.62-34:11.83] Marketing Expert (D): means
+[34:11.66-34:11.93] Project Manager (B): c
+[34:11.83-34:13.90] Marketing Expert (D): just just one other thing
+[34:13.64-34:13.90] Project Manager (B): Yeah.
+[34:13.90-34:17.28] Marketing Expert (D): . Uh, with the current remote controls
+[34:16.98-34:17.29] User Interface Designer (C): Yeah
+[34:17.28-34:17.38] Marketing Expert (D): , the
+[34:17.29-34:17.29] User Interface Designer (C): .
+[34:17.38-34:18.97] Marketing Expert (D): universal ones
+[34:18.50-34:18.91] User Interface Designer (C): Yes.
+[34:18.97-34:22.24] Marketing Expert (D): , um you have to press
+[34:21.51-34:22.27] Project Manager (B): In codes, y
+[34:22.24-34:22.58] Marketing Expert (D): yeah
+[34:22.27-34:22.58] Project Manager (B): you
+[34:22.58-34:22.72] Marketing Expert (D): , you
+[34:22.58-34:22.75] Project Manager (B): you
+[34:22.72-34:22.89] Marketing Expert (D): have
+[34:22.75-34:23.00] Project Manager (B): get
+[34:22.89-34:23.24] Marketing Expert (D): to press
+[34:23.00-34:23.36] Project Manager (B): a
+[34:23.24-34:23.60] Marketing Expert (D): a code
+[34:23.36-34:23.76] Project Manager (B): b a book
+[34:23.60-34:23.87] Marketing Expert (D): for
+[34:23.76-34:24.01] Project Manager (B): with
+[34:23.87-34:24.34] Marketing Expert (D): T_V_
+[34:24.01-34:24.56] Project Manager (B): codes
+[34:24.34-34:24.34] Marketing Expert (D): .
+[34:24.56-34:26.89] Project Manager (B): . You look up, I have a Philips H_ fifty
+[34:26.80-34:27.00] User Interface Designer (C): Yeah
+[34:26.89-34:27.40] Project Manager (B): five
+[34:27.00-34:27.00] User Interface Designer (C): .
+[34:27.30-34:27.57] Marketing Expert (D): Yeah
+[34:27.40-34:27.62] Project Manager (B): and it
+[34:27.57-34:27.57] Marketing Expert (D): .
+[34:27.62-34:28.31] Project Manager (B): says press
+[34:28.31-34:28.37] User Interface Designer (C): Oh
+[34:28.31-34:28.57] Project Manager (B): code
+[34:28.37-34:28.95] User Interface Designer (C): , okay
+[34:28.57-34:29.18] Project Manager (B): four five
+[34:28.95-34:29.71] User Interface Designer (C): , yeah, sure
+[34:29.18-34:29.71] Project Manager (B): five and you
+[34:29.71-34:29.71] User Interface Designer (C): ,
+[34:29.71-34:30.02] Project Manager (B): press
+[34:29.71-34:30.03] User Interface Designer (C): uh
+[34:30.02-34:31.80] Project Manager (B): code four five five on the
+[34:31.40-34:31.88] User Interface Designer (C): Yeah yeah
+[34:31.80-34:31.95] Project Manager (B): uh
+[34:31.88-34:32.06] User Interface Designer (C): yeah
+[34:31.95-34:32.10] Project Manager (B): in the
+[34:32.06-34:32.06] User Interface Designer (C): .
+[34:32.10-34:34.58] Project Manager (B): remote and it displays all your uh menu options
+[34:34.56-34:34.89] User Interface Designer (C): Oh
+[34:34.58-34:34.58] Project Manager (B): .
+[34:34.89-34:36.65] User Interface Designer (C): , yeah yeah, sure, that would be possible
+[34:36.23-34:36.48] Marketing Expert (D): Yeah.
+[34:36.65-34:36.85] User Interface Designer (C): , yeah.
+[34:37.50-34:44.02] Marketing Expert (D): Now we uh just connect uh the T_V_ type uh to a set of
+[34:43.91-34:44.76] Project Manager (B): Memory
+[34:44.02-34:44.79] Marketing Expert (D): options
+[34:44.76-34:45.02] Project Manager (B): in
+[34:44.79-34:45.59] Marketing Expert (D): , in
+[34:45.02-34:45.37] Project Manager (B): the
+[34:45.31-34:45.76] Industrial Designer (A): Yep
+[34:45.37-34:45.70] Project Manager (B): in
+[34:45.59-34:45.96] Marketing Expert (D): just
+[34:45.70-34:45.84] Project Manager (B): the
+[34:45.76-34:45.76] Industrial Designer (A): .
+[34:45.84-34:46.22] Project Manager (B): remote
+[34:45.96-34:46.26] Marketing Expert (D): just
+[34:46.22-34:46.22] Project Manager (B): .
+[34:46.26-34:47.13] Marketing Expert (D): in the memory
+[34:46.69-34:47.18] User Interface Designer (C): Profiles
+[34:47.13-34:47.36] Marketing Expert (D): , so
+[34:47.18-34:47.18] User Interface Designer (C): .
+[34:47.36-34:54.53] Marketing Expert (D): that if you yeah, like profile, so that if you uh touch in like uh one four one zero
+[34:54.10-34:54.51] User Interface Designer (C): Yeah.
+[34:54.53-34:56.49] Marketing Expert (D): kind of T_V_ uh
+[34:58.16-35:02.64] Marketing Expert (D): the memory uh pops up the options.
+[35:03.02-35:03.72] User Interface Designer (C): Yeah. Yeah
+[35:03.59-35:03.95] Industrial Designer (A): Okay
+[35:03.72-35:04.02] User Interface Designer (C): , that would
+[35:03.95-35:03.95] Industrial Designer (A): .
+[35:04.02-35:05.25] User Interface Designer (C): be possible. Yeah, sure.
+[35:05.70-35:09.89] Marketing Expert (D): I th don't think that's uh that takes a lot of storage space or
+[35:09.87-35:10.25] User Interface Designer (C): No
+[35:09.89-35:10.59] Marketing Expert (D): some
+[35:10.25-35:10.65] User Interface Designer (C): , that wouldn't
+[35:10.59-35:10.88] Marketing Expert (D): just
+[35:10.65-35:10.92] User Interface Designer (C): be
+[35:10.88-35:11.43] Marketing Expert (D): varia
+[35:10.92-35:11.09] User Interface Designer (C): uh
+[35:11.43-35:12.19] Marketing Expert (D): variables.
+[35:12.38-35:12.96] User Interface Designer (C): Yeah
+[35:12.46-35:13.22] Project Manager (B): Yeah, well
+[35:12.96-35:13.35] User Interface Designer (C): , a few
+[35:13.22-35:13.90] Project Manager (B): um
+[35:13.35-35:14.08] User Interface Designer (C): variables
+[35:13.90-35:14.16] Project Manager (B): if you
+[35:14.08-35:14.08] User Interface Designer (C): .
+[35:14.16-35:19.29] Project Manager (B): look at the um manuals from universal uh remotes, there are
+[35:19.18-35:19.43] Marketing Expert (D): Mm-hmm
+[35:19.29-35:20.04] Project Manager (B): maybe
+[35:19.43-35:19.43] Marketing Expert (D): .
+[35:20.04-35:23.15] Project Manager (B): um three four hundreds T_V_s
+[35:22.96-35:23.18] Marketing Expert (D): Yeah
+[35:23.08-35:23.37] User Interface Designer (C): Yeah
+[35:23.15-35:23.30] Project Manager (B): at
+[35:23.18-35:23.18] Marketing Expert (D): .
+[35:23.30-35:24.03] Project Manager (B): maximum
+[35:23.37-35:23.37] User Interface Designer (C): .
+[35:24.03-35:31.20] Project Manager (B): . If you have all of them, all the old and new T_V_s summed up, so uh I think uh it is possible
+[35:30.51-35:31.33] User Interface Designer (C): Ah it is. It
+[35:31.16-35:31.75] Marketing Expert (D): But
+[35:31.20-35:31.20] Project Manager (B): .
+[35:31.33-35:32.08] User Interface Designer (C): is definitely
+[35:31.75-35:32.29] Marketing Expert (D): , on the other
+[35:32.08-35:32.15] User Interface Designer (C): po
+[35:32.29-35:34.29] Marketing Expert (D): hand
+[35:32.71-35:34.16] Industrial Designer (A): We have five minutes to go.
+[35:34.29-35:37.65] Marketing Expert (D): on the other hand, uh if you have a remote
+[35:37.45-35:37.75] Project Manager (B): Yeah
+[35:37.65-35:37.81] Marketing Expert (D): and
+[35:37.75-35:37.75] Project Manager (B): .
+[35:37.81-35:41.15] Marketing Expert (D): buy a new T_V_ that isn't incorporated in the remote
+[35:41.40-35:44.00] Project Manager (B): Well then you have to buy a new one, it's very good for marketing
+[35:43.68-35:44.45] Marketing Expert (D): New remote?
+[35:45.11-35:47.41] Project Manager (B): Maybe, or an update, software update
+[35:47.13-35:47.95] Marketing Expert (D): A firmware
+[35:47.41-35:47.41] Project Manager (B): .
+[35:47.95-35:48.50] Marketing Expert (D): upgrade or
+[35:48.40-35:48.75] Project Manager (B): Firmware
+[35:48.50-35:49.63] Marketing Expert (D): something
+[35:48.72-35:49.01] User Interface Designer (C): Yeah
+[35:48.75-35:49.20] Project Manager (B): update
+[35:49.01-35:49.43] User Interface Designer (C): , firmware
+[35:49.20-35:49.79] Project Manager (B): , you say
+[35:49.43-35:49.86] User Interface Designer (C): upgrade
+[35:49.63-35:50.08] Marketing Expert (D): , but from
+[35:49.79-35:49.79] Project Manager (B): .
+[35:49.86-35:49.86] User Interface Designer (C): .
+[35:50.08-35:54.10] Marketing Expert (D): where? Ah. Maybe
+[35:53.59-35:54.20] User Interface Designer (C): That's maybe the
+[35:54.10-35:54.17] Marketing Expert (D): w
+[35:54.20-35:55.91] User Interface Designer (C): cup holder
+[35:55.05-35:55.69] Marketing Expert (D): No m
+[35:55.60-35:55.92] Project Manager (B): Yeah
+[35:55.69-35:56.05] Marketing Expert (D): may
+[35:55.91-35:56.09] User Interface Designer (C): . Yeah
+[35:55.92-35:55.92] Project Manager (B): .
+[35:56.05-35:56.46] Marketing Expert (D): no
+[35:56.09-35:56.09] User Interface Designer (C): .
+[35:56.46-36:06.93] Marketing Expert (D): , maybe we can incorporate some kind of uh U_S_B_ or a firewire connection, so that you can uh connect it to the P_C_ and download the newest firmware from uh from the internet.
+[36:06.98-36:11.92] User Interface Designer (C): Well, not everybody has uh has uh a P_C_ at home. Well the most most people have
+[36:11.72-36:12.30] Project Manager (B): Well
+[36:11.92-36:12.49] User Interface Designer (C): , but not not
+[36:12.30-36:12.53] Project Manager (B): , at
+[36:12.49-36:12.90] User Interface Designer (C): everybody
+[36:12.53-36:13.07] Project Manager (B): uh you can
+[36:12.90-36:13.10] User Interface Designer (C): and
+[36:13.07-36:14.54] Project Manager (B): go back to the shop and
+[36:14.50-36:14.92] Marketing Expert (D): Yeah
+[36:14.54-36:14.95] Project Manager (B): uh
+[36:14.92-36:15.19] Marketing Expert (D): , like
+[36:14.95-36:15.23] Project Manager (B): they
+[36:15.11-36:15.52] User Interface Designer (C): Yeah
+[36:15.19-36:15.59] Marketing Expert (D): a s
+[36:15.52-36:15.52] User Interface Designer (C): .
+[36:15.59-36:16.75] Marketing Expert (D): kind of service centre
+[36:16.50-36:16.98] Project Manager (B): Yeah, ser
+[36:16.75-36:16.75] Marketing Expert (D): .
+[36:16.98-36:18.23] Project Manager (B): o
+[36:17.19-36:18.53] User Interface Designer (C): Yeah, maybe something like service
+[36:18.23-36:18.36] Project Manager (B): and
+[36:18.23-36:18.54] Marketing Expert (D): Yeah
+[36:18.36-36:18.66] Project Manager (B): they can
+[36:18.53-36:19.62] User Interface Designer (C): cen
+[36:18.54-36:18.54] Marketing Expert (D): .
+[36:18.66-36:19.60] Project Manager (B): download it for you.
+[36:19.62-36:23.63] User Interface Designer (C): Or you could well you could s actually look at the place-holder you talked about earlier, and
+[36:23.24-36:23.57] Project Manager (B): Mm-hmm.
+[36:23.63-36:27.96] User Interface Designer (C): you could probably uh make a connection to uh an telephone line or
+[36:27.73-36:28.25] Project Manager (B): Yeah
+[36:27.96-36:28.45] User Interface Designer (C): a
+[36:28.25-36:28.45] Project Manager (B): . Well
+[36:28.45-36:28.83] User Interface Designer (C): internet
+[36:28.45-36:29.13] Project Manager (B): already
+[36:28.83-36:29.18] User Interface Designer (C): connection
+[36:29.13-36:29.57] Project Manager (B): digital
+[36:29.18-36:29.18] User Interface Designer (C): .
+[36:29.57-36:34.35] Project Manager (B): information is sent t to the the standards, T_V_ uh
+[36:33.69-36:34.11] User Interface Designer (C): Yeah.
+[36:34.35-36:42.91] Project Manager (B): connections, you can see what's uh programme is on on the new uh channels, so maybe j they we can send that information along with standard T_V_ uh
+[36:43.08-36:46.55] User Interface Designer (C): Well then then it's be uh back to the
+[36:46.42-36:47.51] Project Manager (B): Receiving
+[36:46.55-36:48.38] User Interface Designer (C): building a receiving uh
+[36:47.51-36:48.00] Project Manager (B): . Oh yeah.
+[36:48.07-36:48.30] Marketing Expert (D): Yeah.
+[36:48.38-36:52.40] User Interface Designer (C): well uh if it's actually worth it to build it in, we could actually look
+[36:52.29-36:52.60] Project Manager (B): Yeah
+[36:52.40-36:52.60] User Interface Designer (C): at
+[36:52.60-36:52.60] Project Manager (B): .
+[36:52.60-36:55.45] User Interface Designer (C): into it, but I dunno, it it would be uh
+[36:55.32-36:55.71] Project Manager (B): Difficult
+[36:55.45-36:55.74] User Interface Designer (C): bringing
+[36:55.71-36:55.71] Project Manager (B): .
+[36:55.74-36:58.09] User Interface Designer (C): more costs uh with with it and
+[36:58.20-36:58.51] Project Manager (B): Yeah.
+[36:58.65-37:00.32] Marketing Expert (D): I I think it's uh
+[37:01.86-37:06.88] Marketing Expert (D): most cheap or cheapest to just do the updates uh at the service centre
+[37:06.75-37:07.09] User Interface Designer (C): Yeah
+[37:06.80-37:07.37] Project Manager (B): Yeah
+[37:06.88-37:07.43] Marketing Expert (D): or
+[37:07.09-37:07.51] User Interface Designer (C): , that would be
+[37:07.37-37:07.84] Project Manager (B): yeah
+[37:07.43-37:07.58] Marketing Expert (D): at
+[37:07.51-37:07.87] User Interface Designer (C): probably
+[37:07.58-37:07.96] Marketing Expert (D): the shop
+[37:07.84-37:08.07] Project Manager (B): , uh
+[37:07.87-37:08.20] User Interface Designer (C): best
+[37:07.96-37:07.96] Marketing Expert (D): .
+[37:08.07-37:08.53] Project Manager (B): s
+[37:08.20-37:08.53] User Interface Designer (C): , yeah
+[37:08.47-37:08.66] Industrial Designer (A): Yeah
+[37:08.53-37:08.53] User Interface Designer (C): .
+[37:08.53-37:08.66] Project Manager (B): I
+[37:08.66-37:08.66] Industrial Designer (A): .
+[37:08.66-37:09.70] Project Manager (B): think some I think
+[37:09.60-37:09.81] User Interface Designer (C): Like
+[37:09.70-37:09.82] Project Manager (B): it's
+[37:09.81-37:09.94] User Interface Designer (C): when
+[37:09.82-37:10.04] Project Manager (B): good
+[37:09.94-37:10.14] User Interface Designer (C): you when
+[37:10.04-37:10.23] Project Manager (B): idea
+[37:10.14-37:10.50] User Interface Designer (C): you buy
+[37:10.23-37:10.53] Project Manager (B): , yeah
+[37:10.50-37:10.53] User Interface Designer (C): a
+[37:10.53-37:10.53] Project Manager (B): .
+[37:10.53-37:11.63] User Interface Designer (C): T_V_ you just ask
+[37:11.43-37:11.77] Marketing Expert (D): It's
+[37:11.63-37:11.85] User Interface Designer (C): well
+[37:11.77-37:12.14] Marketing Expert (D): it's
+[37:11.85-37:11.95] User Interface Designer (C): I'll
+[37:12.14-37:16.83] Marketing Expert (D): it's not a lot of work, just one uh docking station where you put it in
+[37:16.44-37:16.75] User Interface Designer (C): Yeah.
+[37:16.83-37:18.99] Marketing Expert (D): , press start, bling bling, updated.
+[37:19.13-37:20.11] User Interface Designer (C): Yeah, that would be best
+[37:20.00-37:20.64] Project Manager (B): Yeah
+[37:20.11-37:20.36] User Interface Designer (C): , yeah
+[37:20.13-37:20.87] Marketing Expert (D): Yeah
+[37:20.36-37:20.36] User Interface Designer (C): .
+[37:20.64-37:20.84] Project Manager (B): . Yeah.
+[37:20.87-37:22.61] Marketing Expert (D): . You don't buy a T_V_ every week
+[37:22.21-37:22.81] Project Manager (B): Okay
+[37:22.60-37:22.95] User Interface Designer (C): No
+[37:22.61-37:22.96] Marketing Expert (D): , new
+[37:22.81-37:23.28] Project Manager (B): , let's
+[37:22.95-37:23.61] User Interface Designer (C): no
+[37:22.96-37:23.84] Marketing Expert (D): teev
+[37:23.28-37:23.83] Project Manager (B): uh save
+[37:23.61-37:24.26] User Interface Designer (C): . Exactly
+[37:23.83-37:24.09] Project Manager (B): this
+[37:23.84-37:24.06] Marketing Expert (D): so.
+[37:24.09-37:24.87] Project Manager (B): in the meanwhile
+[37:24.26-37:24.40] User Interface Designer (C): , so
+[37:24.87-37:25.07] Project Manager (B): uh
+[37:37.83-37:41.71] Project Manager (B): Um m for which one are we going? My mistake
+[37:41.65-37:41.88] Marketing Expert (D): Let's
+[37:41.71-37:41.71] Project Manager (B): .
+[37:41.88-37:42.20] Marketing Expert (D): vote.
+[37:43.36-37:44.59] Project Manager (B): That one or uh
+[37:45.02-37:46.65] User Interface Designer (C): Yeah, my vote goes out to the right.
+[37:47.49-37:48.83] Project Manager (B): Your vote and
+[37:48.18-37:48.72] Marketing Expert (D): My vote too.
+[37:48.83-37:49.94] Project Manager (B): your
+[37:49.41-37:49.69] Industrial Designer (A): Yeah.
+[37:49.94-37:50.32] Project Manager (B): Okay.
+[37:51.14-37:51.67] Marketing Expert (D): And your vote?
+[37:52.13-38:00.35] Project Manager (B): Well, I was uh doubting about which one to take, but uh you've convinced me that uh if you di display buttons
+[37:59.81-38:00.01] Marketing Expert (D): Yeah.
+[38:00.35-38:03.53] Project Manager (B): about the same as they would look on a normal um
+[38:02.76-38:03.05] Industrial Designer (A): Yeah.
+[38:03.53-38:06.52] Project Manager (B): remote all elderly people will know what to do.
+[38:06.67-38:13.04] Marketing Expert (D): And also like a clapping uh li like device that uh
+[38:12.76-38:13.13] Project Manager (B): Opens
+[38:13.04-38:13.32] Marketing Expert (D): pops
+[38:13.13-38:13.28] Project Manager (B): up
+[38:13.16-38:13.40] User Interface Designer (C): Flips
+[38:13.28-38:13.88] Project Manager (B): is
+[38:13.32-38:13.76] Marketing Expert (D): open
+[38:13.40-38:13.73] User Interface Designer (C): open.
+[38:13.76-38:13.76] Marketing Expert (D): .
+[38:13.88-38:15.07] Project Manager (B): too difficult or uh
+[38:15.08-38:19.87] Marketing Expert (D): Uh too difficult, um maybe uh it's easier to break it.
+[38:20.24-38:20.54] Industrial Designer (A): N yeah.
+[38:21.58-38:22.48] Project Manager (B): Break it, I don't
+[38:22.39-38:22.81] Marketing Expert (D): Yeah
+[38:22.48-38:22.64] Project Manager (B): get
+[38:22.81-38:24.56] Marketing Expert (D): , th th th that i uh
+[38:27.79-38:28.92] Industrial Designer (A): It's very sensitive.
+[38:29.01-38:29.41] Project Manager (B): Oh
+[38:29.02-38:29.34] Marketing Expert (D): Yeah.
+[38:29.41-38:30.33] Project Manager (B): so Yeah.
+[38:30.56-38:32.98] Marketing Expert (D): Like my telephone, it's uh it's sensitive too.
+[38:33.12-38:33.42] Industrial Designer (A): Yeah.
+[38:33.51-38:33.68] Project Manager (B): Yeah.
+[38:35.36-38:40.27] Industrial Designer (A): Okay well uh it's almost at the end. So we have now a lunch break, finally
+[38:39.46-38:40.07] Marketing Expert (D): Ah.
+[38:40.27-38:53.81] Industrial Designer (A): , yeah. Uh after the lunch break uh it's back to uh individual work, once again uh thirty minutes. Uh I will put my minutes uh I have updated them so uh s they're updated in the shared folder too.
+[38:53.86-38:54.77] Marketing Expert (D): Thirty minutes?
+[38:55.36-38:56.60] Industrial Designer (A): Thirty minutes, the
+[38:56.61-39:02.63] Marketing Expert (D): How minutes
+[39:00.29-39:03.00] Industrial Designer (A): Failure. Uh
+[39:02.63-39:02.63] Marketing Expert (D): ?
+[39:03.00-39:23.97] Industrial Designer (A): uh the specifi uh specific instructions for the next uh meeting you will all will receive uh at the uh the the email. I don't think I can uh say much about it, so uh uh wait for your email and uh hopefully you get it done uh in the in the thirty minutes, and I w will see you after the lunch break and the thirty minutes
+[39:23.27-39:24.51] Marketing Expert (D): One question
+[39:23.97-39:24.25] Industrial Designer (A): . Yeah?
+[39:24.51-39:28.29] Marketing Expert (D): , uh how late do we have to get back be back here?
+[39:29.40-39:33.18] Industrial Designer (A): Uh well uh thirty minutes.
+[39:33.95-39:35.04] Project Manager (B): A quarter to one
+[39:34.70-39:35.07] Industrial Designer (A): Uh
+[39:35.04-39:35.32] Project Manager (B): maybe
+[39:35.07-39:35.42] Industrial Designer (A): , yeah
+[39:35.32-39:35.32] Project Manager (B): ?
+[39:35.42-39:35.42] Industrial Designer (A): .
+[39:35.76-39:36.82] Marketing Expert (D): Thirty minutes lunch break?
+[39:37.20-39:38.43] Industrial Designer (A): Thirty minutes lunch break, yeah.
+[39:39.17-39:39.56] Project Manager (B): Okay.
+[39:39.56-39:40.13] Marketing Expert (D): I thought
+[39:39.63-39:39.95] Industrial Designer (A): Oh.
+[39:40.13-39:41.60] Marketing Expert (D): forty five
+[39:41.03-39:41.99] Industrial Designer (A): Forty five
+[39:41.60-39:41.81] Marketing Expert (D): . Yeah.
+[39:41.99-39:44.47] Industrial Designer (A): ? Uh then would it be uh one o'clock
+[39:43.83-39:44.81] Marketing Expert (D): Yeah
+[39:44.47-39:44.92] Industrial Designer (A): . Or we
+[39:44.81-39:45.10] Marketing Expert (D): . Okay
+[39:44.92-39:45.29] Industrial Designer (A): we ask
+[39:45.10-39:45.10] Marketing Expert (D): .
+[39:45.29-39:46.88] Industrial Designer (A): our personal coach
+[39:46.44-39:49.01] Marketing Expert (D): Yeah
+[39:46.88-39:49.15] Industrial Designer (A): . Okay. Thank you. Thank
+[39:49.01-39:49.01] Marketing Expert (D): .
+[39:49.15-39:51.91] Industrial Designer (A): you, uh that was a very uh good session I think
+[39:51.74-39:51.96] Project Manager (B): Yeah
+[39:51.91-39:52.06] Industrial Designer (A): , we
+[39:51.96-39:52.16] Project Manager (B): , is
+[39:52.06-39:52.35] Industrial Designer (A): uh
+[39:52.16-39:52.73] Project Manager (B): it possible
+[39:52.35-39:52.58] Industrial Designer (A): we
+[39:52.73-39:53.43] Project Manager (B): to store this on
+[39:53.37-39:53.55] Marketing Expert (D): Yeah
+[39:53.43-39:53.72] Project Manager (B): the share
+[39:53.55-39:53.76] Marketing Expert (D): , me too
+[39:53.72-39:54.30] Project Manager (B): documents
+[39:53.76-39:53.76] Marketing Expert (D): .
+[39:54.30-39:54.35] Project Manager (B): or
+[39:54.32-39:54.90] Industrial Designer (A): Uh
+[39:54.35-39:54.56] Project Manager (B): what
+[39:54.90-39:55.67] Industrial Designer (A): ye well
+[39:56.12-39:56.80] Marketing Expert (D): Save as.
+[39:57.39-40:02.74] Industrial Designer (A): Yeah, because uh all uh things are uh stored in smart board dot uh
+[40:02.36-40:02.73] Marketing Expert (D): Yeah, v
+[40:02.74-40:04.03] Industrial Designer (A): X_D_K_ and
+[40:04.00-40:04.49] Marketing Expert (D): But
+[40:04.03-40:04.81] Industrial Designer (A): that's in
+[40:04.49-40:06.68] Marketing Expert (D): but you can open a from your pr from
+[40:06.55-40:06.74] Project Manager (B): 'Kay
+[40:06.68-40:06.82] Marketing Expert (D): your
+[40:06.74-40:07.10] Project Manager (B): , save
+[40:06.82-40:07.84] Marketing Expert (D): laptop
+[40:07.10-40:07.84] Project Manager (B): it as an image
+[40:07.84-40:07.84] Marketing Expert (D): .
+[40:07.84-40:07.99] Project Manager (B): on
+[40:07.84-40:08.10] Marketing Expert (D): Yeah
+[40:07.99-40:08.12] Project Manager (B): the
+[40:08.10-40:08.76] Marketing Expert (D): , maybe
+[40:08.12-40:08.31] Project Manager (B): res
+[40:08.76-40:09.39] Marketing Expert (D): . Save as.
+[40:13.70-40:14.63] User Interface Designer (C): Export
+[40:13.80-40:13.98] Marketing Expert (D): No
+[40:13.81-40:14.10] Industrial Designer (A): No
+[40:13.98-40:13.98] Marketing Expert (D): .
+[40:14.10-40:14.10] Industrial Designer (A): .
+[40:14.63-40:16.04] User Interface Designer (C): . Maybe not export function
+[40:15.64-40:16.21] Marketing Expert (D): Export
+[40:16.04-40:16.04] User Interface Designer (C): .
+[40:16.21-40:16.21] Marketing Expert (D): .
+[40:17.44-40:17.81] Industrial Designer (A): Well I
+[40:17.79-40:18.94] Marketing Expert (D): Export
+[40:17.81-40:19.05] Industrial Designer (A): can I can uh
+[40:18.94-40:19.71] Marketing Expert (D): H_T_M_L_.
+[40:20.00-40:22.13] Project Manager (B): No, and use an image if possible.
+[40:22.83-40:23.87] Marketing Expert (D): Huh, image?
+[40:23.94-40:24.39] Project Manager (B): J_ PEG.
+[40:25.07-40:26.16] User Interface Designer (C): G_ yeah, J_ PEG.
+[40:26.32-40:28.12] Project Manager (B): J_ PEG. Yeah, it's better
+[40:28.61-40:34.47] Marketing Expert (D): Paper size A_ four. Uh screen size. In this
+[40:33.86-40:34.12] Project Manager (B): Yeah.
+[40:34.47-40:35.24] Marketing Expert (D): directory.
+[40:37.79-40:38.14] User Interface Designer (C): N oh.
+[40:38.73-40:40.75] Project Manager (B): Oh yeah, it's not connected to the
+[40:41.26-40:42.24] Industrial Designer (A): You all uh have
+[40:42.15-40:42.25] Project Manager (B): to
+[40:42.24-40:42.48] Industrial Designer (A): the
+[40:42.25-40:43.06] Project Manager (B): our P_C_s
+[40:42.48-40:43.38] Industrial Designer (A): the questionnaire
+[40:43.06-40:43.06] Project Manager (B): .
+[40:43.20-40:43.37] Marketing Expert (D): No?
+[40:43.38-40:45.54] Industrial Designer (A): again about uh the after work.
+[40:45.65-40:46.65] Marketing Expert (D): Yeah, it is connected.
+[40:46.96-40:47.63] Project Manager (B): It's connected?
+[40:47.73-40:49.36] Marketing Expert (D): Yeah, I think so.
+[40:50.02-40:50.32] User Interface Designer (C): To
+[40:50.09-40:50.89] Industrial Designer (A): Deskt
+[40:50.32-40:50.71] User Interface Designer (C): room.
+[40:50.89-40:52.24] Industrial Designer (A): Huh. No.
+[40:52.65-40:54.77] User Interface Designer (C): I'll just uh saved in my documents.
+[40:55.81-40:56.32] Marketing Expert (D): Oh.
+[40:56.66-40:59.82] User Interface Designer (C): Yeah in my own uh in my own messenger.
+[41:01.68-41:02.00] Project Manager (B): Yeah.
+[41:03.48-41:04.54] Industrial Designer (A): Project documents
+[41:04.53-41:04.72] User Interface Designer (C): Yeah
+[41:04.54-41:05.71] Industrial Designer (A): , yeah
+[41:04.72-41:04.72] User Interface Designer (C): .
+[41:05.33-41:05.76] Project Manager (B): It gives the
+[41:05.71-41:05.71] Industrial Designer (A): .
+[41:05.76-41:06.31] Project Manager (B): na Oh.
+[41:09.60-41:10.09] Project Manager (B): Yes
+[41:10.07-41:10.49] User Interface Designer (C): Okay
+[41:10.09-41:10.09] Project Manager (B): .
+[41:10.30-41:10.72] Industrial Designer (A): Okay
+[41:10.49-41:10.95] User Interface Designer (C): , nice
+[41:10.72-41:11.11] Industrial Designer (A): , thank you
+[41:10.95-41:10.95] User Interface Designer (C): .
+[41:11.11-41:11.11] Industrial Designer (A): .
+[41:11.98-41:15.29] Project Manager (B): The questionnaire, fill in uh we fill out d after lunch or uh
+[41:15.34-41:22.73] Industrial Designer (A): Uh well, it's it's simply filling oh no, it's uh it's also filling out no, I'd do it after lunch I think
+[41:21.15-41:21.66] Project Manager (B): Okay.
+[41:22.73-41:23.93] Industrial Designer (A): . I'm hungry, so do it after
+[41:23.89-41:26.53] User Interface Designer (C): Aye
+[41:23.93-41:25.31] Industrial Designer (A): lunch
+[41:24.69-41:25.20] Project Manager (B): Yes.
+[41:25.31-41:25.79] Industrial Designer (A): . Thank you all.
+[41:26.53-41:27.05] User Interface Designer (C): , cheers
+[41:26.96-41:27.24] Marketing Expert (D): Thank
+[41:27.05-41:27.05] User Interface Designer (C): .
+[41:27.24-41:27.43] Marketing Expert (D): you.
+[41:28.23-41:28.78] Industrial Designer (A): You're welcome.
+[41:28.87-41:31.47] Project Manager (B): We can leave the P_C_ on I think, yeah and
+[41:31.28-41:31.57] Marketing Expert (D): Yeah
+[41:31.47-41:31.74] Project Manager (B): return
+[41:31.57-41:31.98] Marketing Expert (D): , of
+[41:31.74-41:31.96] Project Manager (B): to
+[41:31.81-41:32.73] Industrial Designer (A): Yeah
+[41:31.96-41:32.22] Project Manager (B): the
+[41:31.98-41:32.22] Marketing Expert (D): course.
+[41:32.73-41:34.74] Industrial Designer (A): . Well I bring it to my uh personal room.
+[41:34.92-41:35.78] Project Manager (B): Yeah, bring
+[41:35.57-41:35.99] Marketing Expert (D): To my
+[41:35.78-41:36.11] Project Manager (B): to
+[41:35.99-41:36.65] Marketing Expert (D): exave
+[41:36.11-41:36.88] Project Manager (B): I gotta
+[41:36.65-41:37.39] Marketing Expert (D): executive
+[41:36.88-41:37.66] Project Manager (B): bring it home
+[41:37.52-41:37.84] Industrial Designer (A): My
+[41:37.66-41:37.66] Project Manager (B): .
+[41:37.84-41:40.48] Industrial Designer (A): executive uh big room with the
+[41:40.08-41:40.96] Project Manager (B): A big office
+[41:40.48-41:42.18] Industrial Designer (A): with the panting
+[41:40.96-41:40.96] Project Manager (B): .
+[41:42.18-41:42.18] Industrial Designer (A): .
+[41:59.68-42:00.40] Project Manager (B): Yes.
+[42:00.69-42:00.83] Marketing Expert (D): Aye.
+[42:13.72-42:13.82] Marketing Expert (D): Yeah.
+[42:19.16-42:19.43] Marketing Expert (D): Okay.

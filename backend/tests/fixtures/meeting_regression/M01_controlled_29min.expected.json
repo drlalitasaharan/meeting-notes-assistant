@@ -1,0 +1,106 @@
+{
+  "id": "M01",
+  "title": "Weekly client sync and pilot readiness review",
+  "category": "medium",
+  "target_duration_minutes": 29.07,
+  "audio_file": "M01_controlled_29min.m4a",
+  "transcript_file": "M01_controlled_29min.txt",
+  "source_type": "controlled",
+  "audio_quality": "clean",
+  "speakers": [
+    "Lalitaa",
+    "John",
+    "Kevin"
+  ],
+  "expected_decisions": [
+    "Meeting seventeen will be the current best backup demo example.",
+    "The ten-minute realistic recording will remain the main proof of quality.",
+    "The thirty-minute recording will be used as a stress test rather than the default live demo.",
+    "Logging visibility for processing-stage durations will be improved in a later pass.",
+    "The product will use practical positioning rather than a broad platform pitch.",
+    "The first pilot audience will be consultants, agencies, and small startup teams."
+  ],
+  "expected_actions": [
+    {
+      "owner": "Team",
+      "action": "Keep one backup meeting processed and ready before any live demo.",
+      "deadline": null
+    },
+    {
+      "owner": "Lalita",
+      "action": "Create the clean ten-minute audio test and run it through the product.",
+      "deadline": "today"
+    },
+    {
+      "owner": "Lalita",
+      "action": "Prepare the short live-demo recording.",
+      "deadline": null
+    },
+    {
+      "owner": "Team",
+      "action": "Review and finalize the landing page and outreach message.",
+      "deadline": "Friday"
+    },
+    {
+      "owner": "Team",
+      "action": "Add stage timing logs to the worker output.",
+      "deadline": null
+    },
+    {
+      "owner": "Lalita",
+      "action": "Package the final demo commands into one short runbook.",
+      "deadline": null
+    }
+  ],
+  "expected_owners": [
+    "Team",
+    "Lalita"
+  ],
+  "expected_deadlines": [
+    "today",
+    "Friday"
+  ],
+  "expected_risks": [
+    "Longer recordings may take significant processing time and may exceed the current timeout.",
+    "Processing a meeting before its raw media path is attached can cause a worker error.",
+    "Restarting services during an active job can interrupt processing and create uncertainty about job state."
+  ],
+  "expected_open_questions": [],
+  "resolved_questions": [
+    "Whether to rely only on a processed backup or also demonstrate a live upload was resolved by planning to show the backup first and upload a shorter file live if time allows."
+  ],
+  "expected_quality_concerns": [
+    "Some key points may remain repetitive because the model preserves meeting-framing language."
+  ],
+  "acceptable_additional_actions": [
+    {
+      "owner": "Lalita",
+      "action": "Save the strongest current output as the primary demo artifact and retain the older example only for internal comparison."
+    },
+    {
+      "owner": "Team",
+      "action": "Keep a short command checklist for meeting creation, upload, logs, JSON notes, and Markdown notes."
+    },
+    {
+      "owner": "Lalita",
+      "action": "Keep the current action-item cleanup and defer deeper summarization tuning until after the pilot."
+    }
+  ],
+  "deduplication_policy": {
+    "repeated_sections_count_once": true,
+    "overlapping_backup_actions_are_one_semantic_action": true,
+    "final_action_recap_is_primary": true
+  },
+  "must_not_invent": [
+    "Separate duplicate decisions from repeated transcript sections",
+    "Separate duplicate actions from repeated transcript sections",
+    "Deadlines for actions other than today and Friday",
+    "Action ownership assigned to John",
+    "Action ownership assigned to Kevin",
+    "The thirty-minute recording as the default live demonstration",
+    "An immediate public launch",
+    "A broad knowledge-management-platform positioning",
+    "Instant processing for long recordings",
+    "An unresolved question about the demo approach"
+  ]
+}

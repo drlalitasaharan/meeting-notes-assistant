@@ -1,0 +1,241 @@
+Lalitaa: Good morning everyone. Thanks for joining the weekly client sync. The purpose of today’s meeting is to review progress on the meeting notes assistant, confirm what we want to show in the next demo, discuss open risks, and agree on owners and deadlines for the week.
+John: Sounds good. I would also like us to confirm the pilot outreach approach, because once the demo flow is stable we should move quickly into a small pilot instead of waiting for a perfect product.
+Kevin: Agreed. By the end of the meeting, we should leave with a final demo plan, a small list of action items, and a decision on which use case we will lead with in conversations.
+Lalitaa: Let me summarize the agenda. First, product status. Second, demo flow. Third, pilot audience and landing page. Fourth, technical risks. Fifth, action items and deadlines.
+
+Lalitaa: Before we move on, I want to restate the main point so we stay aligned.
+
+Lalitaa: On product status, the good news is that the short smoke test works end to end. We can create a meeting, upload audio, process it, and retrieve notes in both JSON and Markdown. The more realistic ten-minute test also works and now produces a better summary, key points, and action items.
+John: That is strong progress. What changed in the last round?
+Lalitaa: The action item wording was rough in the earlier run, so we added a cleanup step before persistence. That removed filler phrases, normalized owner formatting, preserved due dates, and later we also improved splitting of combined tasks.
+Kevin: So we now have three useful examples. One minimal smoke test, one realistic test before cleanup, and one realistic test after cleanup.
+Lalitaa: Exactly. Meeting fourteen is the smoke test. Meeting fifteen is the realistic example before cleanup. Meeting seventeen is the strongest realistic example after cleanup.
+John: That means meeting seventeen should be our backup demo artifact.
+Lalitaa: Yes. Team will keep meeting seventeen as the primary backup demo example before the live client presentation.
+
+Kevin: That makes sense. Let me add one practical concern from a user perspective.
+
+Kevin: Let’s talk through the live demo flow in plain language. We start by checking that the services are healthy. Then we create a meeting. Then we upload the audio file. Then we watch the worker logs long enough to show that processing has started. After that, we fetch the AI notes in JSON and then show the Markdown output.
+Lalitaa: Correct. The most important thing in the demo is that the flow feels simple and reliable, not that we expose every technical detail.
+John: I agree. We should say something like: we built a meeting notes assistant that turns meeting recordings into structured summaries, key points, and action items, and then we should prove it with one realistic file.
+Kevin: Do we want to do a live ten-minute run or rely only on the backup?
+Lalitaa: My preference is to do both. First, show the already processed backup so the audience immediately sees value. Then, if time allows, upload a shorter file live to show that the process is real.
+John: That reduces demo risk. Team will keep one backup meeting already processed before any live demo.
+Kevin: Lalita will prepare the short-lived demo file and keep one backup processed meeting ready.
+
+John: I want to connect that back to pilot readiness and operational reliability.
+
+John: On the pilot audience, I think the best initial target is small agencies, consultants, and startup teams that run frequent client calls and do not want to write notes manually.
+Kevin: I agree. The positioning should stay practical. We are not selling a huge knowledge management platform yet. We are selling time saved after meetings.
+Lalitaa: Exactly. The landing page should lead with a simple promise: turn short meeting recordings into structured summaries, decisions, and action items.
+John: We should also be clear that the early pilot is best for teams that already record internal or client meetings and want a lightweight workflow rather than a heavy enterprise rollout.
+Kevin: For outreach, I suggest a small set of pilot messages with three hooks. First, save follow-up time. Second, reduce missed action items. Third, create shareable notes immediately after a meeting.
+Lalitaa: That works. Team will review and finalize the landing page and outreach message by Friday.
+John: Let’s also make sure the product examples on the page include both JSON and Markdown, because that makes the output feel more real.
+
+Lalitaa: Good. Let’s turn that into something actionable rather than keeping it abstract.
+
+Lalitaa: On technical risks, the biggest one we have observed is runtime on longer files. Ten-minute files are manageable on the current setup, but the total processing time is still significant. Longer files may run into the current timeout.
+John: That is important for expectation setting. We should not promise instant results on longer meetings if the infrastructure is not tuned for that yet.
+Kevin: Another issue is sequencing. If a meeting is processed before the raw media path is attached, the worker can throw an error because the meeting has no raw media path.
+Lalitaa: Right. The operational runbook needs to make the safe flow explicit: check services, create meeting, upload file, verify worker pickup, then retrieve notes.
+John: We should also add better timing logs so we can see how long transcription, OCR, and note generation each take.
+Kevin: Agreed. Team will add stage timing logs so that each major processing step has an elapsed duration in the worker logs.
+Lalitaa: Good. And for long files, we should treat the thirty-minute test as a stress test, not as the default live demo path.
+
+Lalitaa: Before we move on, I want to restate the main point so we stay aligned.
+
+Kevin: Let’s discuss note quality. The summary looks strong for the realistic examples, but some key points are still slightly repetitive because the model tends to preserve the meeting framing language.
+John: That is acceptable for now. A clear summary plus a few useful action items is already valuable. The main thing is to avoid weird or vague action items.
+Lalitaa: The recent cleanup helps. We now split long combined tasks and assign a default owner when missing. That gave us cleaner items such as Team review and finalize landing page and Lalita create the clean ten-minute audio test.
+Kevin: One further refinement later could be condensing the key points so they are more distilled and less close to the original wording.
+John: Yes, but I would prioritize reliability, runtime visibility, and demo packaging first. Quality tuning can continue after we start showing the product to real users.
+Lalitaa: Agreed. Lalita will keep action item cleanup in the current version and defer deeper summarization tuning until after the pilot.
+
+Kevin: That makes sense. Let me add one practical concern from a user perspective.
+
+John: Let’s make the runbook concrete. Before a demo, check backend, worker, database, Redis, and storage. Confirm health. Confirm the sample files are available. Keep one processed meeting ready. Keep one short live file ready. Keep the commands in a single note.
+Kevin: Also, do not restart services during an active job unless there is a real failure, because that can interrupt processing and create confusion about the current state.
+Lalitaa: Good point. We should also preface any live run by saying that longer audio may take several minutes and that a backup processed example is available.
+John: Team will keep a short command checklist for create, upload, logs, notes JSON, and notes Markdown.
+Kevin: Lalita will save the strongest current output as the primary demo artifact and keep the older example only as an internal comparison point.
+
+John: I want to connect that back to pilot readiness and operational reliability.
+
+Kevin: On the go to market side, I would avoid overcomplicating the message. The opening should be simple: after a meeting, teams want a clear summary, key points, and action items without manual note taking.
+John: Yes. And we can say that the current product is especially suitable for consultants, small agencies, founders, and delivery teams who handle frequent sync calls.
+Lalitaa: I also think the product story should mention that the output is useful in both machine readable and human readable formats. JSON is helpful for integrations. Markdown is helpful for sharing and documentation.
+Kevin: For the pilot, we should aim for a small number of high quality conversations instead of mass outreach.
+John: Team will keep the pilot audience focused on users with clear pain, short meetings, and high follow-up burden.
+
+Lalitaa: Good. Let’s turn that into something actionable rather than keeping it abstract.
+
+Lalitaa: Let’s capture decisions explicitly. Decision one: meeting seventeen will be the current best backup demo example. Decision two: the ten-minute realistic file remains the main proof of quality. Decision three: the thirty-minute file will be used as a stress test rather than a live default. Decision four: we will improve logging visibility for stage durations in a later pass.
+Kevin: Decision five: we will lead with a practical positioning message instead of a broad platform pitch.
+John: Decision six: the first pilot audience will be consultants, agencies, and small startup teams.
+Lalitaa: Good. Those decisions should also help the action extractor.
+
+Lalitaa: Before we move on, I want to restate the main point so we stay aligned.
+
+Lalitaa: Good morning everyone. Thanks for joining the weekly client sync. The purpose of today’s meeting is to review progress on the meeting notes assistant, confirm what we want to show in the next demo, discuss open risks, and agree on owners and deadlines for the week.
+John: Sounds good. I would also like us to confirm the pilot outreach approach, because once the demo flow is stable we should move quickly into a small pilot instead of waiting for a perfect product.
+Kevin: Agreed. By the end of the meeting, we should leave with a final demo plan, a small list of action items, and a decision on which use case we will lead with in conversations.
+Lalitaa: Let me summarize the agenda. First, product status. Second, demo flow. Third, pilot audience and landing page. Fourth, technical risks. Fifth, action items and deadlines.
+
+Kevin: That makes sense. Let me add one practical concern from a user perspective.
+
+Lalitaa: On product status, the good news is that the short smoke test works end to end. We can create a meeting, upload audio, process it, and retrieve notes in both JSON and Markdown. The more realistic ten-minute test also works and now produces a better summary, key points, and action items.
+John: That is strong progress. What changed in the last round?
+Lalitaa: The action item wording was rough in the earlier run, so we added a cleanup step before persistence. That removed filler phrases, normalized owner formatting, preserved due dates, and later we also improved splitting of combined tasks.
+Kevin: So we now have three useful examples. One minimal smoke test, one realistic test before cleanup, and one realistic test after cleanup.
+Lalitaa: Exactly. Meeting fourteen is the smoke test. Meeting fifteen is the realistic example before cleanup. Meeting seventeen is the strongest realistic example after cleanup.
+John: That means meeting seventeen should be our backup demo artifact.
+Lalitaa: Yes. Team will keep meeting seventeen as the primary backup demo example before the live client presentation.
+
+John: I want to connect that back to pilot readiness and operational reliability.
+
+Kevin: Let’s talk through the live demo flow in plain language. We start by checking that the services are healthy. Then we create a meeting. Then we upload the audio file. Then we watch the worker logs long enough to show that processing has started. After that, we fetch the AI notes in JSON and then show the Markdown output.
+Lalitaa: Correct. The most important thing in the demo is that the flow feels simple and reliable, not that we expose every technical detail.
+John: I agree. We should say something like: we built a meeting notes assistant that turns meeting recordings into structured summaries, key points, and action items, and then we should prove it with one realistic file.
+Kevin: Do we want to do a live ten-minute run or rely only on the backup?
+Lalitaa: My preference is to do both. First, show the already processed backup so the audience immediately sees value. Then, if time allows, upload a shorter file live to show that the process is real.
+John: That reduces demo risk. Team will keep one backup meeting already processed before any live demo.
+Kevin: Lalita will prepare the short-lived demo file and keep one backup processed meeting ready.
+
+Lalitaa: Good. Let’s turn that into something actionable rather than keeping it abstract.
+
+John: On the pilot audience, I think the best initial target is small agencies, consultants, and startup teams that run frequent client calls and do not want to write notes manually.
+Kevin: I agree. The positioning should stay practical. We are not selling a huge knowledge management platform yet. We are selling time saved after meetings.
+Lalitaa: Exactly. The landing page should lead with a simple promise: turn short meeting recordings into structured summaries, decisions, and action items.
+John: We should also be clear that the early pilot is best for teams that already record internal or client meetings and want a lightweight workflow rather than a heavy enterprise rollout.
+Kevin: For outreach, I suggest a small set of pilot messages with three hooks. First, save follow-up time. Second, reduce missed action items. Third, create shareable notes immediately after a meeting.
+Lalitaa: That works. Team will review and finalize the landing page and outreach message by Friday.
+John: Let’s also make sure the product examples on the page include both JSON and Markdown, because that makes the output feel more real.
+
+Lalitaa: Before we move on, I want to restate the main point so we stay aligned.
+
+Lalitaa: On technical risks, the biggest one we have observed is runtime on longer files. Ten-minute files are manageable on the current setup, but the total processing time is still significant. Longer files may run into the current timeout.
+John: That is important for expectation setting. We should not promise instant results on longer meetings if the infrastructure is not tuned for that yet.
+Kevin: Another issue is sequencing. If a meeting is processed before the raw media path is attached, the worker can throw an error because the meeting has no raw media path.
+Lalitaa: Right. The operational runbook needs to make the safe flow explicit: check services, create meeting, upload file, verify worker pickup, then retrieve notes.
+John: We should also add better timing logs so we can see how long transcription, OCR, and note generation each take.
+Kevin: Agreed. Team will add stage timing logs so that each major processing step has an elapsed duration in the worker logs.
+Lalitaa: Good. And for long files, we should treat the thirty-minute test as a stress test, not as the default live demo path.
+
+Kevin: That makes sense. Let me add one practical concern from a user perspective.
+
+Kevin: Let’s discuss note quality. The summary looks strong for the realistic examples, but some key points are still slightly repetitive because the model tends to preserve the meeting framing language.
+John: That is acceptable for now. A clear summary plus a few useful action items is already valuable. The main thing is to avoid weird or vague action items.
+Lalitaa: The recent cleanup helps. We now split long combined tasks and assign a default owner when missing. That gave us cleaner items such as Team review and finalize landing page and Lalita create the clean ten-minute audio test.
+Kevin: One further refinement later could be condensing the key points so they are more distilled and less close to the original wording.
+John: Yes, but I would prioritize reliability, runtime visibility, and demo packaging first. Quality tuning can continue after we start showing the product to real users.
+Lalitaa: Agreed. Lalita will keep action item cleanup in the current version and defer deeper summarization tuning until after the pilot.
+
+John: I want to connect that back to pilot readiness and operational reliability.
+
+John: Let’s make the runbook concrete. Before a demo, check backend, worker, database, Redis, and storage. Confirm health. Confirm the sample files are available. Keep one processed meeting ready. Keep one short live file ready. Keep the commands in a single note.
+Kevin: Also, do not restart services during an active job unless there is a real failure, because that can interrupt processing and create confusion about the current state.
+Lalitaa: Good point. We should also preface any live run by saying that longer audio may take several minutes and that a backup processed example is available.
+John: Team will keep a short command checklist for create, upload, logs, notes JSON, and notes Markdown.
+Kevin: Lalita will save the strongest current output as the primary demo artifact and keep the older example only as an internal comparison point.
+
+Lalitaa: Good. Let’s turn that into something actionable rather than keeping it abstract.
+
+Kevin: On the go to market side, I would avoid overcomplicating the message. The opening should be simple: after a meeting, teams want a clear summary, key points, and action items without manual note taking.
+John: Yes. And we can say that the current product is especially suitable for consultants, small agencies, founders, and delivery teams who handle frequent sync calls.
+Lalitaa: I also think the product story should mention that the output is useful in both machine readable and human readable formats. JSON is helpful for integrations. Markdown is helpful for sharing and documentation.
+Kevin: For the pilot, we should aim for a small number of high quality conversations instead of mass outreach.
+John: Team will keep the pilot audience focused on users with clear pain, short meetings, and high follow-up burden.
+
+Lalitaa: Before we move on, I want to restate the main point so we stay aligned.
+
+Lalitaa: Let’s capture decisions explicitly. Decision one: meeting seventeen will be the current best backup demo example. Decision two: the ten-minute realistic file remains the main proof of quality. Decision three: the thirty-minute file will be used as a stress test rather than a live default. Decision four: we will improve logging visibility for stage durations in a later pass.
+Kevin: Decision five: we will lead with a practical positioning message instead of a broad platform pitch.
+John: Decision six: the first pilot audience will be consultants, agencies, and small startup teams.
+Lalitaa: Good. Those decisions should also help the action extractor.
+
+Kevin: That makes sense. Let me add one practical concern from a user perspective.
+
+Lalitaa: Good morning everyone. Thanks for joining the weekly client sync. The purpose of today’s meeting is to review progress on the meeting notes assistant, confirm what we want to show in the next demo, discuss open risks, and agree on owners and deadlines for the week.
+John: Sounds good. I would also like us to confirm the pilot outreach approach, because once the demo flow is stable we should move quickly into a small pilot instead of waiting for a perfect product.
+Kevin: Agreed. By the end of the meeting, we should leave with a final demo plan, a small list of action items, and a decision on which use case we will lead with in conversations.
+Lalitaa: Let me summarize the agenda. First, product status. Second, demo flow. Third, pilot audience and landing page. Fourth, technical risks. Fifth, action items and deadlines.
+
+John: I want to connect that back to pilot readiness and operational reliability.
+
+Lalitaa: On product status, the good news is that the short smoke test works end to end. We can create a meeting, upload audio, process it, and retrieve notes in both JSON and Markdown. The more realistic ten-minute test also works and now produces a better summary, key points, and action items.
+John: That is strong progress. What changed in the last round?
+Lalitaa: The action item wording was rough in the earlier run, so we added a cleanup step before persistence. That removed filler phrases, normalized owner formatting, preserved due dates, and later we also improved splitting of combined tasks.
+Kevin: So we now have three useful examples. One minimal smoke test, one realistic test before cleanup, and one realistic test after cleanup.
+Lalitaa: Exactly. Meeting fourteen is the smoke test. Meeting fifteen is the realistic example before cleanup. Meeting seventeen is the strongest realistic example after cleanup.
+John: That means meeting seventeen should be our backup demo artifact.
+Lalitaa: Yes. Team will keep meeting seventeen as the primary backup demo example before the live client presentation.
+
+Lalitaa: Good. Let’s turn that into something actionable rather than keeping it abstract.
+
+Kevin: Let’s talk through the live demo flow in plain language. We start by checking that the services are healthy. Then we create a meeting. Then we upload the audio file. Then we watch the worker logs long enough to show that processing has started. After that, we fetch the AI notes in JSON and then show the Markdown output.
+Lalitaa: Correct. The most important thing in the demo is that the flow feels simple and reliable, not that we expose every technical detail.
+John: I agree. We should say something like: we built a meeting notes assistant that turns meeting recordings into structured summaries, key points, and action items, and then we should prove it with one realistic file.
+Kevin: Do we want to do a live ten-minute run or rely only on the backup?
+Lalitaa: My preference is to do both. First, show the already processed backup so the audience immediately sees value. Then, if time allows, upload a shorter file live to show that the process is real.
+John: That reduces demo risk. Team will keep one backup meeting already processed before any live demo.
+Kevin: Lalita will prepare the short-lived demo file and keep one backup processed meeting ready.
+
+Lalitaa: Before we move on, I want to restate the main point so we stay aligned.
+
+John: On the pilot audience, I think the best initial target is small agencies, consultants, and startup teams that run frequent client calls and do not want to write notes manually.
+Kevin: I agree. The positioning should stay practical. We are not selling a huge knowledge management platform yet. We are selling time saved after meetings.
+Lalitaa: Exactly. The landing page should lead with a simple promise: turn short meeting recordings into structured summaries, decisions, and action items.
+John: We should also be clear that the early pilot is best for teams that already record internal or client meetings and want a lightweight workflow rather than a heavy enterprise rollout.
+Kevin: For outreach, I suggest a small set of pilot messages with three hooks. First, save follow-up time. Second, reduce missed action items. Third, create shareable notes immediately after a meeting.
+Lalitaa: That works. Team will review and finalize the landing page and outreach message by Friday.
+John: Let’s also make sure the product examples on the page include both JSON and Markdown, because that makes the output feel more real.
+
+Kevin: That makes sense. Let me add one practical concern from a user perspective.
+
+Lalitaa: On technical risks, the biggest one we have observed is runtime on longer files. Ten-minute files are manageable on the current setup, but the total processing time is still significant. Longer files may run into the current timeout.
+John: That is important for expectation setting. We should not promise instant results on longer meetings if the infrastructure is not tuned for that yet.
+Kevin: Another issue is sequencing. If a meeting is processed before the raw media path is attached, the worker can throw an error because the meeting has no raw media path.
+Lalitaa: Right. The operational runbook needs to make the safe flow explicit: check services, create meeting, upload file, verify worker pickup, then retrieve notes.
+John: We should also add better timing logs so we can see how long transcription, OCR, and note generation each take.
+Kevin: Agreed. Team will add stage timing logs so that each major processing step has an elapsed duration in the worker logs.
+Lalitaa: Good. And for long files, we should treat the thirty-minute test as a stress test, not as the default live demo path.
+
+John: I want to connect that back to pilot readiness and operational reliability.
+
+Kevin: Let’s discuss note quality. The summary looks strong for the realistic examples, but some key points are still slightly repetitive because the model tends to preserve the meeting framing language.
+John: That is acceptable for now. A clear summary plus a few useful action items is already valuable. The main thing is to avoid weird or vague action items.
+Lalitaa: The recent cleanup helps. We now split long combined tasks and assign a default owner when missing. That gave us cleaner items such as Team review and finalize landing page and Lalita create the clean ten-minute audio test.
+Kevin: One further refinement later could be condensing the key points so they are more distilled and less close to the original wording.
+John: Yes, but I would prioritize reliability, runtime visibility, and demo packaging first. Quality tuning can continue after we start showing the product to real users.
+Lalitaa: Agreed. Lalita will keep action item cleanup in the current version and defer deeper summarization tuning until after the pilot.
+
+Lalitaa: Good. Let’s turn that into something actionable rather than keeping it abstract.
+
+John: Let’s make the runbook concrete. Before a demo, check backend, worker, database, Redis, and storage. Confirm health. Confirm the sample files are available. Keep one processed meeting ready. Keep one short live file ready. Keep the commands in a single note.
+Kevin: Also, do not restart services during an active job unless there is a real failure, because that can interrupt processing and create confusion about the current state.
+Lalitaa: Good point. We should also preface any live run by saying that longer audio may take several minutes and that a backup processed example is available.
+John: Team will keep a short command checklist for create, upload, logs, notes JSON, and notes Markdown.
+Kevin: Lalita will save the strongest current output as the primary demo artifact and keep the older example only as an internal comparison point.
+
+Lalitaa: Before we move on, I want to restate the main point so we stay aligned.
+
+Kevin: On the go to market side, I would avoid overcomplicating the message. The opening should be simple: after a meeting, teams want a clear summary, key points, and action items without manual note taking.
+John: Yes. And we can say that the current product is especially suitable for consultants, small agencies, founders, and delivery teams who handle frequent sync calls.
+Lalitaa: I also think the product story should mention that the output is useful in both machine readable and human readable formats. JSON is helpful for integrations. Markdown is helpful for sharing and documentation.
+Kevin: For the pilot, we should aim for a small number of high quality conversations instead of mass outreach.
+John: Team will keep the pilot audience focused on users with clear pain, short meetings, and high follow-up burden.
+
+Kevin: That makes sense. Let me add one practical concern from a user perspective.
+
+Lalitaa: Let’s capture decisions explicitly. Decision one: meeting seventeen will be the current best backup demo example. Decision two: the ten-minute realistic file remains the main proof of quality. Decision three: the thirty-minute file will be used as a stress test rather than a live default. Decision four: we will improve logging visibility for stage durations in a later pass.
+Kevin: Decision five: we will lead with a practical positioning message instead of a broad platform pitch.
+John: Decision six: the first pilot audience will be consultants, agencies, and small startup teams.
+Lalitaa: Good. Those decisions should also help the action extractor.
+
+John: I want to connect that back to pilot readiness and operational reliability.
+
+Lalitaa: Let’s close with concrete actions. Team will keep one backup meeting already processed before any live demo. Lalita will create the clean ten-minute audio test and run it through the product today. Lalita will prepare the short-lived demo file and keep one backup processed meeting ready. Team will review and finalize the landing page and outreach message by Friday. Team will add stage timing logs to the worker output. Lalita will package the final demo commands into one short runbook.
+Kevin: That captures the essentials.
+John: Agreed. Thank you everyone. The direction is clear and the product is moving in the right way.
+Lalitaa: Great. I’ll send a short written recap after this call.
