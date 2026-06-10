@@ -1,0 +1,104 @@
+{
+  "id": "S03",
+  "title": "AMI TS3003a kickoff, project plan, and tool training",
+  "category": "short",
+  "target_duration_minutes": 7.0,
+  "audio_file": "S03_AMI_TS3003a_7min_degraded.m4a",
+  "transcript_file": "S03_AMI_TS3003a_7min_degraded.txt",
+  "source_metadata_file": "S03_AMI_TS3003a_7min_degraded.source.json",
+  "source_type": "AMI",
+  "audio_quality": "degraded",
+  "meeting_id": "TS3003a",
+  "clip_start_seconds": 0.0,
+  "clip_end_seconds": 420.0,
+  "speakers": [
+    {
+      "speaker": "A",
+      "role": "Industrial Designer"
+    },
+    {
+      "speaker": "B",
+      "role": "Project Manager"
+    },
+    {
+      "speaker": "C",
+      "role": "User Interface Designer"
+    },
+    {
+      "speaker": "D",
+      "role": "Marketing Expert"
+    }
+  ],
+  "expected_context": [
+    "This is a project kickoff meeting.",
+    "The team is working for Real Reaction, an electronics company.",
+    "The project aim is to design a new remote control.",
+    "The remote control should be original, trendy, and user friendly.",
+    "The agenda includes opening acquaintance, tool training, project-plan description, and closing.",
+    "The project method has three phases: functional design, conceptual design, and detailed design.",
+    "The clip includes smart-board and whiteboard tool training."
+  ],
+  "expected_role_responsibilities": [
+    {
+      "role": "Industrial Designer",
+      "responsibilities": [
+        "Working design",
+        "Components design",
+        "Some look-and-feel design"
+      ]
+    },
+    {
+      "role": "User Interface Designer",
+      "responsibilities": [
+        "Technical function design",
+        "User-interface concept",
+        "User-interface design"
+      ]
+    },
+    {
+      "role": "Marketing Expert",
+      "responsibilities": [
+        "User-requirement specification",
+        "Trend watching",
+        "Product evaluation"
+      ]
+    }
+  ],
+  "expected_actions": [
+    {
+      "owner": "Marketing Expert",
+      "action": "Take minutes once in a while when something should be written down.",
+      "deadline": null
+    }
+  ],
+  "expected_issues": [
+    "The corporate information site appears to say Real Remote instead of Real Reaction."
+  ],
+  "expected_decisions": [],
+  "expected_owners": [
+    "Marketing Expert"
+  ],
+  "expected_deadlines": [],
+  "expected_risks": [],
+  "expected_open_questions": [],
+  "acceptable_behavior": [
+    "Summarize the kickoff context, project aim, project phases, roles, and tool training.",
+    "Mention the website naming issue as an issue or observation, not as a major business risk.",
+    "Capture the minute-taking request as a lightweight action if action items are extracted.",
+    "Leave decisions, deadlines, risks, and open questions empty or none-equivalent."
+  ],
+  "must_not_invent": [
+    "A final remote-control design decision",
+    "A selected product concept",
+    "A prototype decision",
+    "Customer requirements beyond original, trendy, and user friendly",
+    "Deadlines",
+    "Major risks",
+    "Open questions",
+    "Actions for the Project Manager",
+    "Actions for the User Interface Designer",
+    "Actions for the Industrial Designer beyond the role responsibilities stated",
+    "A decision to fix the website naming issue",
+    "Facts from outside the first seven-minute clip"
+  ]
+}

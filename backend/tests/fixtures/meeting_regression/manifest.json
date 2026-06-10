@@ -26,8 +26,8 @@
       "audio_file": "S03_AMI_TS3003a_7min_degraded.m4a",
       "source_type": "AMI",
       "audio_quality": "degraded",
-      "expected_fixture": null,
-      "ground_truth_status": "pending"
+      "expected_fixture": "S03_AMI_TS3003a_7min_degraded.expected.json",
+      "ground_truth_status": "complete"
     },
     {
       "id": "M01",

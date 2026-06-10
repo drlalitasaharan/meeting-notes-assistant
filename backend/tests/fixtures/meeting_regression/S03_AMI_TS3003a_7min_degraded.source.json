@@ -1,0 +1,26 @@
+{
+  "id": "S03",
+  "meeting_id": "TS3003a",
+  "clip_start_seconds": 0.0,
+  "clip_end_seconds": 420.0,
+  "audio_file": "S03_AMI_TS3003a_7min_degraded.m4a",
+  "transcript_file": "S03_AMI_TS3003a_7min_degraded.txt",
+  "annotation_release": "AMI manual annotations v1.6.2",
+  "annotation_format": "NXT XML",
+  "audio_quality": "degraded",
+  "speaker_role_map": {
+    "A": "Industrial Designer",
+    "B": "Project Manager",
+    "C": "User Interface Designer",
+    "D": "Marketing Expert"
+  },
+  "word_xml_files": [
+    "demo_media/regression/ami_annotations/manual_1.6.2/words/TS3003a.A.words.xml",
+    "demo_media/regression/ami_annotations/manual_1.6.2/words/TS3003a.B.words.xml",
+    "demo_media/regression/ami_annotations/manual_1.6.2/words/TS3003a.C.words.xml",
+    "demo_media/regression/ami_annotations/manual_1.6.2/words/TS3003a.D.words.xml"
+  ],
+  "word_count": 984,
+  "turn_count": 70,
+  "ground_truth_status": "review_required"
+}

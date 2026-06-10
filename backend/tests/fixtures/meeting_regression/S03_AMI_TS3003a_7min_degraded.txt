@@ -1,0 +1,78 @@
+# S03 — AMI TS3003a, first seven minutes, degraded audio
+
+Official speaker-role mapping:
+- A: Industrial Designer
+- B: Project Manager
+- C: User Interface Designer
+- D: Marketing Expert
+
+[00:13.46-00:16.73] Industrial Designer (A): So uh good morning
+[00:15.34-00:15.57] Project Manager (B): Morning
+[00:15.37-00:15.81] Marketing Expert (D): Morning
+[00:15.57-00:15.57] Project Manager (B): .
+[00:15.81-00:15.81] Marketing Expert (D): .
+[00:16.42-00:16.70] User Interface Designer (C): Morning.
+[00:16.73-00:19.97] Industrial Designer (A): . I see you all find your places. Is everybody
+[00:19.67-00:20.03] Marketing Expert (D): Yep
+[00:19.97-00:20.25] Industrial Designer (A): sitting
+[00:20.03-00:20.03] Marketing Expert (D): .
+[00:20.25-00:27.11] Industrial Designer (A): on the right place? Yeah? I guess so. So
+[00:32.64-00:33.37] Industrial Designer (A): Let's see.
+[00:35.95-00:40.81] Industrial Designer (A): First I will introduce myself. I don't know if uh if everybody knows me, so I'm
+[00:40.79-00:40.88] Marketing Expert (D): My
+[00:40.81-00:41.67] Industrial Designer (A): Bart
+[00:40.88-00:41.49] Marketing Expert (D): name's Frank.
+[00:41.67-00:43.81] Industrial Designer (A): , hello. Hello
+[00:42.99-00:43.62] Project Manager (B): I'm.
+[00:43.81-00:48.42] Industrial Designer (A): . Bart. Hello. Hello. Bart. Welcome
+[00:48.10-00:48.44] Marketing Expert (D): Thank you
+[00:48.42-00:48.42] Industrial Designer (A): .
+[00:48.44-00:48.44] Marketing Expert (D): .
+[00:50.14-00:58.01] Industrial Designer (A): Uh let's see. Uh let's start off um with a little presentation.
+[01:02.27-01:02.92] Industrial Designer (A): Uh
+[01:05.58-01:41.45] Industrial Designer (A): Now first I'll tell you a little bit about the setting. You can see there are a few cameras here. They'll record uh our actions and you'll have wires and microphones that will record your voice. Uh there are also some microphones there but th um you don't have to pay a lot of attention on those, because it will uh disappear when you don't attend to it. So is there a project documents folder? There are some notes in it already I see, some documents. Uh I'll start with the presentation kick off.
+[01:46.87-01:52.06] Industrial Designer (A): Is being modified by the administrator. Uh okay
+[01:51.31-01:52.57] Marketing Expert (D): Hmm
+[01:52.06-01:52.64] Industrial Designer (A): . Let's do it read
+[01:52.57-01:52.77] Marketing Expert (D): , that's
+[01:52.64-01:53.75] Industrial Designer (A): only
+[01:52.77-01:53.53] Marketing Expert (D): interesting.
+[01:53.75-01:53.75] Industrial Designer (A): .
+[01:56.66-02:18.65] Industrial Designer (A): Well I don't know if you've noticed, but uh we're working for Real Reaction. Uh it's a company in uh electronics. We put fashion in electronics, uh we make it work, uh we put a lot of effort in design and in the product itself. I'm Bart the project manager so I'll direct you through the project.
+[02:20.63-02:21.77] Industrial Designer (A): This is our agenda.
+[02:23.39-02:27.71] Industrial Designer (A): Uh we have our opening acquaintance, tool training, project plan description closing.
+[02:29.67-02:39.02] Industrial Designer (A): Uh maybe I can sit down, then I can take some notes or Let's see.
+[02:41.34-02:44.42] Industrial Designer (A): Maybe you can take the minutes once in a while
+[02:43.72-02:44.00] Marketing Expert (D): Sure.
+[02:44.42-03:03.14] Industrial Designer (A): . I dunno it's not a lot of work, but just uh if you hear something uh you can write down, just write it down. Uh as you can see uh it's the opening, aquaintance tool training. Aquaintance is a point we've done a bit. Um have you all seen the corporate website already
+[03:02.45-03:03.07] Marketing Expert (D): Yep
+[03:02.69-03:02.86] Project Manager (B): Yep.
+[03:03.07-03:03.35] Marketing Expert (D): . Visit
+[03:03.14-03:04.23] Industrial Designer (A): ? Yeah
+[03:03.35-03:03.53] Marketing Expert (D): it.
+[03:04.23-03:10.52] Industrial Designer (A): . Have you seen any flaws in it? I think I found one. No
+[03:09.69-03:09.83] Project Manager (B): Hmm?
+[03:10.52-03:10.52] Industrial Designer (A): ?
+[03:10.89-03:12.64] Marketing Expert (D): Can't say I paid much attention to it, but
+[03:13.52-03:13.96] Industrial Designer (A): I can
+[03:16.05-03:32.74] Industrial Designer (A): see if it works this way. No, it doesn't work here. Okay no problem. But um on the corporate information side there's a th uh there was Real Remote instead of Real Reaction
+[03:32.16-03:32.68] Marketing Expert (D): Oh yeah.
+[03:32.74-03:36.10] Industrial Designer (A): . Real Remote is not really the company we're we are, but
+[03:36.09-03:36.48] Project Manager (B): Okay
+[03:36.10-03:37.83] Industrial Designer (A): it's just a little
+[03:36.48-03:36.79] Project Manager (B): . Yeah.
+[03:37.83-03:58.40] Industrial Designer (A): fault. Um okay, what are we going to do? Uh our project aim is as you can see a new remote control. It has to be original, trendy, and user friendly. So these are uh the points why uh we also hired you. We've
+[03:58.31-03:58.61] Marketing Expert (D): Okay
+[03:58.40-03:59.76] Industrial Designer (A): got the
+[03:58.61-03:58.61] Marketing Expert (D): .
+[03:59.76-04:17.76] Industrial Designer (A): Marketing Expert for uh the trendy and user friendly look. And Industrial Designer uh there's also user friendly and a bit original. And we've got our User Interface Designer
+[04:17.20-04:17.32] Project Manager (B): Yep.
+[04:17.76-05:28.16] Industrial Designer (A): . He's also uh That's about the new remote control. Uh project method um is uh there are three phases we are going through. First is functional des uh design, individual work, meetings. After the functional design, then the conceptual design and the detailed design. I had some role indications on here. But I think you know it already by yourself. The Industrial Designer is going to work on the working design, uh components design and a bit of the look and feel design. Uh the User Interface Designer is going to do the technical function design, user interface concept and user interface design. And the marketing expert is doing a little bit of user requirement specification, trend watching and project uh product ev evaluation. So that's a bit what you're going to do. But that will be all worked out in uh other meetings.
+[05:32.18-06:20.35] Industrial Designer (A): Then we've got our first tool training. We are going to work with a lot of high-tech tools here, so it's ab it's handy if we have a little bit of training first. As you can see we've got the smart boards here and here in the white board. Um in the white board here there's a little tool bar on this side. Here are some functions. You can save. N uh these functions we don't have anything to do with, only undo, you can undo a little uh piece of drawing. A blank new document for each person. Uh select a pen, eraser. Capture we don't have to do anything with. Uh then we've got our pen. This pen. It's really
+[06:20.19-06:20.66] Marketing Expert (D): 'Kay
+[06:20.35-06:20.67] Industrial Designer (A): funny
+[06:20.66-06:20.66] Marketing Expert (D): .
+[06:20.67-06:33.05] Industrial Designer (A): because you can draw with it on this page um in the think it is form of. You can also select the current colour and the line width
+[06:32.63-06:32.76] Project Manager (B): Hmm.
+[06:33.05-06:50.81] Industrial Designer (A): . But then first you have to select the pen function. But we're going to work with it in a minute. So okay. Uh that's very simple and it's easy to uh draw your findings and drawings on there. Uh then
+[06:52.40-07:01.56] Industrial Designer (A): a short thing about documents. We've got our shared folder, uh project project what was it? Project documents
