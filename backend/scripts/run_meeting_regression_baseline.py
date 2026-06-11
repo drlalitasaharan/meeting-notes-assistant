@@ -18,6 +18,7 @@ for candidate in (REPO_ROOT, BACKEND_ROOT):
     if candidate_text not in sys.path:
         sys.path.insert(0, candidate_text)
 
+import backend.app.services.transcript_action_recall as action_recall  # noqa: E402
 from backend.app.services.meeting_regression_evaluator import (  # noqa: E402
     RegressionEvalConfig,
     evaluate_manifest,
@@ -316,6 +317,19 @@ def normalize_actual_output(
     actual.setdefault("notes_markdown", summary_text)
 
     extracted_signals = extract_structured_signals_from_transcript(transcript)
+    transcript_word_count = len(transcript.split()) if transcript else 0
+    synthesized_actions = (
+        action_recall.synthesize_action_items_from_transcript(transcript)
+        if transcript_word_count >= 150
+        else []
+    )
+    extracted_signals = {
+        **extracted_signals,
+        "action_items": [
+            *extracted_signals.get("action_items", []),
+            *synthesized_actions,
+        ],
+    }
 
     if not actual.get("decisions"):
         extracted_decisions = list(extracted_signals.get("decisions", []))
