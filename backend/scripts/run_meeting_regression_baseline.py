@@ -20,6 +20,7 @@ for candidate in (REPO_ROOT, BACKEND_ROOT):
 
 import backend.app.services.transcript_action_recall as action_recall  # noqa: E402
 import backend.app.services.transcript_decision_risk_synthesis as drs  # noqa: E402
+import backend.app.services.transcript_noise_normalizer as noise_normalizer  # noqa: E402
 from backend.app.services.meeting_regression_evaluator import (  # noqa: E402
     RegressionEvalConfig,
     evaluate_manifest,
@@ -317,15 +318,16 @@ def normalize_actual_output(
     actual.setdefault("summary", summary_text)
     actual.setdefault("notes_markdown", summary_text)
 
-    extracted_signals = extract_structured_signals_from_transcript(transcript)
-    transcript_word_count = len(transcript.split()) if transcript else 0
+    normalized_transcript = noise_normalizer.normalize_transcript_for_regression(transcript)
+    extracted_signals = extract_structured_signals_from_transcript(normalized_transcript)
+    transcript_word_count = len(normalized_transcript.split()) if normalized_transcript else 0
     synthesized_actions = (
-        action_recall.synthesize_action_items_from_transcript(transcript)
+        action_recall.synthesize_action_items_from_transcript(normalized_transcript)
         if transcript_word_count >= 150
         else []
     )
     synthesized_decision_risk = (
-        drs.synthesize_decisions_and_risks_from_transcript(transcript)
+        drs.synthesize_decisions_and_risks_from_transcript(normalized_transcript)
         if transcript_word_count >= 150
         else {"decisions": [], "risks": []}
     )
