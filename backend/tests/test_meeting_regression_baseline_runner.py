@@ -117,3 +117,20 @@ def test_normalize_output_uses_structured_decision_action_extraction() -> None:
     assert actual["action_items"][0]["owner"] == "Priya"
     assert "pricing table" in actual["action_items"][0]["action"].lower()
     assert "Short generated summary." in actual["action_items"]
+
+
+def test_normalize_output_uses_structured_risk_extraction_with_summary_fallback() -> None:
+    transcript = (
+        "Pricing confirmation may delay the client follow-up. "
+        "Old test files may reduce client confidence. "
+        "Over-promising custom reporting could create unrealistic expectations."
+    )
+
+    actual = normalize_actual_output("Short generated summary.", transcript=transcript)
+
+    assert isinstance(actual["risks"], list)
+    risk_text = " ".join(str(item) for item in actual["risks"])
+    assert "Pricing confirmation" in risk_text
+    assert "reduce client confidence" in risk_text
+    assert "unrealistic expectations" in risk_text
+    assert "Short generated summary." in actual["risks"]

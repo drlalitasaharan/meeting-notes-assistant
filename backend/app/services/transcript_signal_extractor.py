@@ -55,6 +55,51 @@ _ACTION_CUES = (
     "owner",
 )
 
+_RISK_CUES = (
+    "risk",
+    "risks",
+    "concern",
+    "concerns",
+    "blocker",
+    "blocked",
+    "blocking",
+    "delay",
+    "delays",
+    "delayed",
+    "dependency",
+    "dependencies",
+    "scope creep",
+    "over-promising",
+    "overpromising",
+    "unrealistic",
+    "stale",
+    "unprepared",
+    "pricing confirmation",
+    "pricing delay",
+    "miss",
+    "missed",
+    "missing",
+    "failure",
+    "failed",
+    "unstable",
+    "low confidence",
+    "quality issue",
+    "accuracy issue",
+    "compliance",
+    "privacy",
+    "security",
+    "may delay",
+    "may reduce",
+    "may create",
+    "might delay",
+    "could delay",
+    "could reduce",
+    "could create",
+    "without",
+    "unless",
+)
+
+
 _NAME_RE = re.compile(
     r"\b(Priya|Jordan|Alex|Morgan|Sam|Taylor|Casey|Riley|Avery|Speaker\s+[A-Z]|[A-Z][a-z]+)\b"
 )
@@ -209,14 +254,41 @@ def extract_actions_from_transcript(
     return deduped_actions[:max_actions]
 
 
+def _clean_risk(sentence: str) -> str:
+    cleaned = sentence.strip(" -•\t")
+    cleaned = re.sub(r"^(risk|risks|concern|concerns)\s*[:\-]\s*", "", cleaned, flags=re.I)
+    return cleaned.strip()
+
+
+def extract_risks_from_transcript(
+    transcript: str,
+    *,
+    max_risks: int = 16,
+) -> list[str]:
+    candidates: list[str] = []
+
+    for sentence in _sentences(transcript):
+        lowered = sentence.lower()
+
+        if "no risks" in lowered or "no risk" in lowered or "(none)" in lowered:
+            continue
+
+        if _contains_any(sentence, _RISK_CUES):
+            candidates.append(_clean_risk(sentence))
+
+    return _dedupe_keep_order(candidates)[:max_risks]
+
+
 def extract_structured_signals_from_transcript(transcript: str | None) -> dict[str, Any]:
     if not transcript:
         return {
             "decisions": [],
             "action_items": [],
+            "risks": [],
         }
 
     return {
         "decisions": extract_decisions_from_transcript(transcript),
         "action_items": extract_actions_from_transcript(transcript),
+        "risks": extract_risks_from_transcript(transcript),
     }
