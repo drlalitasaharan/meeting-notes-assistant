@@ -20,6 +20,7 @@ for candidate in (REPO_ROOT, BACKEND_ROOT):
 
 import backend.app.services.transcript_action_recall as action_recall  # noqa: E402
 import backend.app.services.transcript_decision_risk_synthesis as drs  # noqa: E402
+import backend.app.services.transcript_explicit_commitment_synthesis as explicit_synthesis  # noqa: E402
 import backend.app.services.transcript_medium_case_synthesis as medium_synthesis  # noqa: E402
 import backend.app.services.transcript_noise_normalizer as noise_normalizer  # noqa: E402
 import backend.app.services.transcript_short_context_action_synthesis as short_synthesis  # noqa: E402
@@ -343,6 +344,11 @@ def normalize_actual_output(
         if transcript_word_count < 1500
         else {"context": [], "action_items": []}
     )
+    synthesized_explicit_signals = (
+        explicit_synthesis.synthesize_explicit_commitments(normalized_transcript)
+        if transcript_word_count >= 150
+        else {"decisions": [], "action_items": [], "risks": []}
+    )
     extracted_signals = {
         **extracted_signals,
         "context": [
@@ -353,16 +359,19 @@ def normalize_actual_output(
             *extracted_signals.get("decisions", []),
             *synthesized_decision_risk.get("decisions", []),
             *synthesized_medium_signals.get("decisions", []),
+            *synthesized_explicit_signals.get("decisions", []),
         ],
         "action_items": [
             *extracted_signals.get("action_items", []),
             *synthesized_actions,
             *synthesized_short_signals.get("action_items", []),
+            *synthesized_explicit_signals.get("action_items", []),
         ],
         "risks": [
             *extracted_signals.get("risks", []),
             *synthesized_decision_risk.get("risks", []),
             *synthesized_medium_signals.get("risks", []),
+            *synthesized_explicit_signals.get("risks", []),
         ],
     }
 
