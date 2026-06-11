@@ -314,7 +314,6 @@ def normalize_actual_output(
     # evaluator the entire transcript as a decision/action candidate.
     actual.setdefault("summary", summary_text)
     actual.setdefault("notes_markdown", summary_text)
-    actual.setdefault("risks", summary_text)
 
     extracted_signals = extract_structured_signals_from_transcript(transcript)
 
@@ -340,6 +339,13 @@ def normalize_actual_output(
 
     if context_values:
         actual["context"] = context_values
+
+    if not actual.get("risks"):
+        extracted_risks = list(extracted_signals.get("risks", []))
+        if extracted_risks and summary_text:
+            actual["risks"] = [*extracted_risks, summary_text]
+        else:
+            actual["risks"] = extracted_risks or summary_text
 
     return actual
 

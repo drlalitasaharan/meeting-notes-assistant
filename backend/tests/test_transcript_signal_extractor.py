@@ -1,6 +1,7 @@
 from backend.app.services.transcript_signal_extractor import (
     extract_actions_from_transcript,
     extract_decisions_from_transcript,
+    extract_risks_from_transcript,
     extract_structured_signals_from_transcript,
 )
 
@@ -37,3 +38,18 @@ def test_extract_structured_signals_handles_missing_transcript() -> None:
 
     assert signals["decisions"] == []
     assert signals["action_items"] == []
+    assert signals["risks"] == []
+
+
+def test_extract_risks_from_risk_language() -> None:
+    transcript = (
+        "Pricing confirmation may delay the client follow-up. "
+        "Old test files may reduce client confidence. "
+        "Over-promising custom reporting could create unrealistic expectations."
+    )
+
+    risks = extract_risks_from_transcript(transcript)
+
+    assert any("pricing confirmation" in risk.lower() for risk in risks)
+    assert any("reduce client confidence" in risk.lower() for risk in risks)
+    assert any("unrealistic expectations" in risk.lower() for risk in risks)
