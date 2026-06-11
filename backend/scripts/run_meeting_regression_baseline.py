@@ -19,6 +19,7 @@ for candidate in (REPO_ROOT, BACKEND_ROOT):
         sys.path.insert(0, candidate_text)
 
 import backend.app.services.transcript_action_recall as action_recall  # noqa: E402
+import backend.app.services.transcript_decision_risk_synthesis as drs  # noqa: E402
 from backend.app.services.meeting_regression_evaluator import (  # noqa: E402
     RegressionEvalConfig,
     evaluate_manifest,
@@ -323,11 +324,24 @@ def normalize_actual_output(
         if transcript_word_count >= 150
         else []
     )
+    synthesized_decision_risk = (
+        drs.synthesize_decisions_and_risks_from_transcript(transcript)
+        if transcript_word_count >= 150
+        else {"decisions": [], "risks": []}
+    )
     extracted_signals = {
         **extracted_signals,
+        "decisions": [
+            *extracted_signals.get("decisions", []),
+            *synthesized_decision_risk.get("decisions", []),
+        ],
         "action_items": [
             *extracted_signals.get("action_items", []),
             *synthesized_actions,
+        ],
+        "risks": [
+            *extracted_signals.get("risks", []),
+            *synthesized_decision_risk.get("risks", []),
         ],
     }
 
