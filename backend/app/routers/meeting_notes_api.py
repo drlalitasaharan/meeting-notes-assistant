@@ -17,6 +17,7 @@ from app.jobs.meetings import enqueue_process_meeting
 from app.models.meeting import Meeting
 from app.models.meeting_notes import MeetingNotes
 from app.models.user import User
+from app.services.usage_limits import enforce_free_trial_upload_limit
 
 router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
 
@@ -155,6 +156,12 @@ async def upload_meeting_media(
     meeting = db.get(Meeting, meeting_id)
     if meeting is None or meeting.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Meeting not found")
+
+    enforce_free_trial_upload_limit(
+        db=db,
+        current_user=current_user,
+        meeting=meeting,
+    )
 
     raw_bytes = await file.read()
     if len(raw_bytes) > MAX_UPLOAD_BYTES:
