@@ -22,6 +22,7 @@ import backend.app.services.transcript_action_recall as action_recall  # noqa: E
 import backend.app.services.transcript_decision_risk_synthesis as drs  # noqa: E402
 import backend.app.services.transcript_medium_case_synthesis as medium_synthesis  # noqa: E402
 import backend.app.services.transcript_noise_normalizer as noise_normalizer  # noqa: E402
+import backend.app.services.transcript_short_context_action_synthesis as short_synthesis  # noqa: E402
 from backend.app.services.meeting_regression_evaluator import (  # noqa: E402
     RegressionEvalConfig,
     evaluate_manifest,
@@ -337,8 +338,17 @@ def normalize_actual_output(
         if 80 <= transcript_word_count < 1500
         else {"decisions": [], "risks": []}
     )
+    synthesized_short_signals = (
+        short_synthesis.synthesize_short_context_and_actions(normalized_transcript)
+        if transcript_word_count < 1500
+        else {"context": [], "action_items": []}
+    )
     extracted_signals = {
         **extracted_signals,
+        "context": [
+            *extracted_signals.get("context", []),
+            *synthesized_short_signals.get("context", []),
+        ],
         "decisions": [
             *extracted_signals.get("decisions", []),
             *synthesized_decision_risk.get("decisions", []),
@@ -347,6 +357,7 @@ def normalize_actual_output(
         "action_items": [
             *extracted_signals.get("action_items", []),
             *synthesized_actions,
+            *synthesized_short_signals.get("action_items", []),
         ],
         "risks": [
             *extracted_signals.get("risks", []),
