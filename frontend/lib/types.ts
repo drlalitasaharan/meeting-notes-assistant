@@ -66,3 +66,13 @@ export interface SignupRequest {
   last_name: string;
   organization_name?: string | null;
 }
+
+export interface UsageSummary {
+  plan: string;
+  is_pilot_override: boolean;
+  meetings_used: number;
+  meeting_upload_limit: number;
+  remaining_uploads: number;
+  max_duration_seconds: number;
+  max_duration_minutes: number;
+}

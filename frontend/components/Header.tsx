@@ -75,6 +75,16 @@ export default function Header() {
               >
                 Meetings
               </Link>
+              <Link
+                href="/usage"
+                style={{
+                  color: "#123326",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                }}
+              >
+                Usage
+              </Link>
               <button
                 onClick={handleLogout}
                 style={{
