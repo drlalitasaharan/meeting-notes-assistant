@@ -547,6 +547,11 @@ def _is_high_precision_action_task(task: str) -> bool:
         "schedule ",
         "follow up ",
         "escalate ",
+        "circulate ",
+        "complete ",
+        "verify ",
+        "document ",
+        "validate ",
     )
 
     if not lower.startswith(allowed_starts):
@@ -582,6 +587,14 @@ def _canonical_action_dedupe_key(task: str) -> str:
         return "check_upload_processing_markdown_safety"
     if lower.startswith("draft a short onboarding note"):
         return "draft_short_onboarding_note"
+    if lower.startswith("circulate the approved pilot pricing table"):
+        return "circulate_approved_pilot_pricing_table"
+    if lower.startswith("complete the storage and access-control security review"):
+        return "complete_storage_access_control_security_review"
+    if lower.startswith("verify recording deletion from storage"):
+        return "verify_recording_deletion_from_storage"
+    if lower.startswith("run the twelve-recording regression suite"):
+        return "run_twelve_recording_regression_suite"
 
     return lower
 
