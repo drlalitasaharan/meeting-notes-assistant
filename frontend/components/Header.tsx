@@ -9,8 +9,9 @@ const navLinkBaseStyle: CSSProperties = {
   color: "#2f6f4e",
   fontWeight: 600,
   textDecoration: "none",
-  paddingBottom: 3,
-  borderBottom: "2px solid transparent",
+  display: "inline-flex",
+  alignItems: "center",
+  lineHeight: 1,
 };
 
 function navLinkStyle(pathname: string, href: string): CSSProperties {
@@ -18,8 +19,7 @@ function navLinkStyle(pathname: string, href: string): CSSProperties {
 
   return {
     ...navLinkBaseStyle,
-    fontWeight: isActive ? 800 : 600,
-    borderBottomColor: isActive ? "#2f6f4e" : "transparent",
+    fontWeight: isActive ? 700 : 600,
   };
 }
 
@@ -97,14 +97,14 @@ export default function Header() {
               <button
                 onClick={handleLogout}
                 style={{
+                  ...navLinkBaseStyle,
                   background: "transparent",
                   border: "none",
                   padding: 0,
                   margin: 0,
-                  color: "#2f6f4e",
-                  fontWeight: 600,
                   cursor: "pointer",
                   font: "inherit",
+                  fontWeight: 600,
                 }}
               >
                 Logout
