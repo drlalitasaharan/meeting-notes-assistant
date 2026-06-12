@@ -6,10 +6,12 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.deps import get_current_user
 from app.models.meeting import Meeting
+from app.models.meeting_notes import MeetingNotes
 from app.models.note import Note
 from app.models.user import User
 from app.schemas.meetings import MeetingCreate, MeetingRead, MeetingUpdate
 from app.schemas.notes import NoteCreate, NoteRead
+from app.services.data_controls import delete_raw_media_best_effort
 
 router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
 
@@ -109,8 +111,18 @@ def delete_meeting(
     m = db.get(Meeting, meeting_id)
     if not m or m.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Meeting not found")
+
+    raw_media_path = m.raw_media_path
+
+    db.query(MeetingNotes).filter(MeetingNotes.meeting_id == meeting_id).delete(
+        synchronize_session=False
+    )
+    db.query(Note).filter(Note.meeting_id == meeting_id).delete(synchronize_session=False)
     db.delete(m)
     db.commit()
+
+    delete_raw_media_best_effort(raw_media_path)
+
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import ActionItemsCard from "../../../components/ActionItemsCard";
 import ErrorBanner from "../../../components/ErrorBanner";
 import KeyPointsCard from "../../../components/KeyPointsCard";
@@ -16,6 +16,7 @@ import {
   pillRowStyle,
 } from "../../../components/ui";
 import {
+  deleteMeeting,
   getJobStatus,
   getMeetingMarkdown,
   getMeetingNotes,
@@ -82,6 +83,7 @@ function formatLastUpdated(value: number | null) {
 export default function MeetingResultsPage() {
   const params = useParams<{ id: string }>();
   const meetingId = params.id;
+  const router = useRouter();
   const searchParams = useSearchParams();
   const jobId = searchParams.get("jobId");
 
@@ -90,6 +92,7 @@ export default function MeetingResultsPage() {
   const [markdown, setMarkdown] = useState("");
   const [error, setError] = useState("");
   const [loadingResults, setLoadingResults] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
   const loadNotes = useCallback(
@@ -142,6 +145,31 @@ export default function MeetingResultsPage() {
     },
     [loadNotes, meetingId],
   );
+
+  const handleDeleteMeeting = useCallback(async () => {
+    if (isDeleting) return;
+
+    const confirmed = window.confirm(
+      "Delete this meeting? This will remove the meeting, generated notes, and the uploaded recording reference. Download your notes first if you need a local copy.",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setError("");
+
+    try {
+      await deleteMeeting(Number(meetingId));
+      router.push("/meetings");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to delete meeting.";
+      setError(message);
+      setIsDeleting(false);
+    }
+  }, [isDeleting, meetingId, router]);
 
   const checkJob = useCallback(async () => {
     if (!jobId) return null;
@@ -348,6 +376,26 @@ export default function MeetingResultsPage() {
             >
               View all meetings
             </a>
+
+            <button
+              type="button"
+              onClick={handleDeleteMeeting}
+              disabled={isDeleting}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "11px 16px",
+                borderRadius: 10,
+                border: "1px solid #fecaca",
+                background: isDeleting ? "#fef2f2" : "#ffffff",
+                color: "#b91c1c",
+                cursor: isDeleting ? "not-allowed" : "pointer",
+                fontWeight: 700,
+              }}
+            >
+              {isDeleting ? "Deleting..." : "Delete meeting"}
+            </button>
           </div>
         </div>
       </section>
@@ -383,7 +431,8 @@ export default function MeetingResultsPage() {
           </span>
           <span>
             Review names, owners, deadlines, and important decisions before
-            sharing your notes.
+            sharing your notes. Download your Markdown export below before deleting this meeting
+            if you need a local copy.
           </span>
         </aside>
       ) : null}
