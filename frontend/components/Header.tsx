@@ -1,13 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, type CSSProperties } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { clearAuthToken, subscribeToAuthChanges } from "../lib/api";
+
+const navLinkBaseStyle: CSSProperties = {
+  color: "#2f6f4e",
+  fontWeight: 600,
+  textDecoration: "none",
+  paddingBottom: 3,
+  borderBottom: "2px solid transparent",
+};
+
+function navLinkStyle(pathname: string, href: string): CSSProperties {
+  const isActive = pathname === href || pathname.startsWith(`${href}/`);
+
+  return {
+    ...navLinkBaseStyle,
+    fontWeight: isActive ? 800 : 600,
+    borderBottomColor: isActive ? "#2f6f4e" : "transparent",
+  };
+}
 
 export default function Header() {
   const [loggedIn, setLoggedIn] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     function checkAuth() {
@@ -63,36 +82,16 @@ export default function Header() {
         <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
           {loggedIn ? (
             <>
-              <Link
-                href="/upload"
-                style={{ textDecoration: "none", color: "#2f6f4e", fontWeight: 500 }}
-              >
+              <Link href="/upload" style={navLinkStyle(pathname, "/upload")}>
                 New Upload
               </Link>
-              <Link
-                href="/meetings"
-                style={{ textDecoration: "none", color: "#2f6f4e", fontWeight: 500 }}
-              >
+              <Link href="/meetings" style={navLinkStyle(pathname, "/meetings")}>
                 Meetings
               </Link>
-              <Link
-                href="/usage"
-                style={{
-                  color: "#123326",
-                  fontWeight: 700,
-                  textDecoration: "none",
-                }}
-              >
+              <Link href="/usage" style={navLinkStyle(pathname, "/usage")}>
                 Usage
               </Link>
-              <Link
-                href="/support"
-                style={{
-                  color: "#123326",
-                  fontWeight: 700,
-                  textDecoration: "none",
-                }}
-              >
+              <Link href="/support" style={navLinkStyle(pathname, "/support")}>
                 Support
               </Link>
               <button
@@ -103,8 +102,9 @@ export default function Header() {
                   padding: 0,
                   margin: 0,
                   color: "#2f6f4e",
-                  fontWeight: 500,
+                  fontWeight: 600,
                   cursor: "pointer",
+                  font: "inherit",
                 }}
               >
                 Logout
@@ -112,10 +112,7 @@ export default function Header() {
             </>
           ) : (
             <>
-              <Link
-                href="/login"
-                style={{ textDecoration: "none", color: "#2f6f4e", fontWeight: 500 }}
-              >
+              <Link href="/login" style={navLinkStyle(pathname, "/login")}>
                 Login
               </Link>
               <Link
@@ -126,7 +123,7 @@ export default function Header() {
                   background: "#2f6f4e",
                   padding: "8px 14px",
                   borderRadius: "10px",
-                  fontWeight: 500,
+                  fontWeight: 700,
                 }}
               >
                 Create account
