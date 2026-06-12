@@ -2,31 +2,34 @@
 
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { clearAuthToken, subscribeToAuthChanges } from "../lib/api";
 
-const navLinkBaseStyle: CSSProperties = {
+const navItemStyle: CSSProperties = {
   color: "#2f6f4e",
-  fontWeight: 600,
+  fontFamily: "inherit",
+  fontSize: 16,
+  fontWeight: 700,
+  lineHeight: "20px",
   textDecoration: "none",
   display: "inline-flex",
   alignItems: "center",
-  lineHeight: 1,
 };
 
-function navLinkStyle(pathname: string, href: string): CSSProperties {
-  const isActive = pathname === href || pathname.startsWith(`${href}/`);
-
-  return {
-    ...navLinkBaseStyle,
-    fontWeight: isActive ? 700 : 600,
-  };
-}
+const logoutButtonStyle: CSSProperties = {
+  ...navItemStyle,
+  background: "transparent",
+  border: "none",
+  padding: 0,
+  margin: 0,
+  cursor: "pointer",
+  appearance: "none",
+  WebkitAppearance: "none",
+};
 
 export default function Header() {
   const [loggedIn, setLoggedIn] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     function checkAuth() {
@@ -82,37 +85,25 @@ export default function Header() {
         <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
           {loggedIn ? (
             <>
-              <Link href="/upload" style={navLinkStyle(pathname, "/upload")}>
+              <Link href="/upload" style={navItemStyle}>
                 New Upload
               </Link>
-              <Link href="/meetings" style={navLinkStyle(pathname, "/meetings")}>
+              <Link href="/meetings" style={navItemStyle}>
                 Meetings
               </Link>
-              <Link href="/usage" style={navLinkStyle(pathname, "/usage")}>
+              <Link href="/usage" style={navItemStyle}>
                 Usage
               </Link>
-              <Link href="/support" style={navLinkStyle(pathname, "/support")}>
+              <Link href="/support" style={navItemStyle}>
                 Support
               </Link>
-              <button
-                onClick={handleLogout}
-                style={{
-                  ...navLinkBaseStyle,
-                  background: "transparent",
-                  border: "none",
-                  padding: 0,
-                  margin: 0,
-                  cursor: "pointer",
-                  font: "inherit",
-                  fontWeight: 600,
-                }}
-              >
+              <button type="button" onClick={handleLogout} style={logoutButtonStyle}>
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" style={navLinkStyle(pathname, "/login")}>
+              <Link href="/login" style={navItemStyle}>
                 Login
               </Link>
               <Link
