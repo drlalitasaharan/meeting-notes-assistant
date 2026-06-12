@@ -89,6 +89,7 @@ def _synthesize_decisions(text: str) -> list[str]:
 
 def _synthesize_actions(text: str) -> list[dict[str, str | None]]:
     actions: list[dict[str, str | None]] = []
+    actions.extend(_synthesize_recap_actions(text))
 
     if "circulate the approved pilot pricing table" in text:
         actions.append(
@@ -181,6 +182,64 @@ def _synthesize_actions(text: str) -> list[dict[str, str | None]]:
         )
 
     return _dedupe_actions(actions)
+
+
+def _synthesize_recap_actions(text: str) -> list[dict[str, str | None]]:
+    """Extract final-recap actions from long controlled meeting transcripts.
+
+    This protects commitments that appear late in long recordings, especially
+    recap lines in the form:
+    Recap action: <task>. Owner: <owner>. Deadline: <deadline>.
+    """
+
+    actions: list[dict[str, str | None]] = []
+
+    pattern = re.compile(
+        r"recap action:\s*(?P<action>[^.]+)\.\s*"
+        r"owner:\s*(?P<owner>[^.]+)\.\s*"
+        r"deadline:\s*(?P<deadline>[^.]+)\.",
+        re.IGNORECASE,
+    )
+
+    for match in pattern.finditer(text):
+        action = _clean_recap_action(match.group("action"))
+        if not action:
+            continue
+
+        actions.append(
+            {
+                "owner": _clean_recap_owner(match.group("owner")),
+                "action": action,
+                "deadline": _clean_recap_deadline(match.group("deadline")),
+            }
+        )
+
+    return actions
+
+
+def _clean_recap_action(value: str | None) -> str:
+    text = " ".join((value or "").strip().split())
+    if not text:
+        return ""
+
+    text = text[0].upper() + text[1:]
+    return text.rstrip(".") + "."
+
+
+def _clean_recap_owner(value: str | None) -> str | None:
+    text = " ".join((value or "").strip().split())
+    if not text or text.lower() in {"none", "no owner", "unassigned"}:
+        return None
+
+    return text.title()
+
+
+def _clean_recap_deadline(value: str | None) -> str | None:
+    text = " ".join((value or "").strip().split())
+    if not text or text.lower() in {"none", "no deadline", "unassigned"}:
+        return None
+
+    return text
 
 
 def _synthesize_risks(text: str) -> list[str]:
