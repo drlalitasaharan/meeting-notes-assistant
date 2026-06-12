@@ -1,4 +1,3 @@
-import Header from "../../components/Header";
 
 const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@acjen.ai";
 
@@ -89,7 +88,6 @@ export default function SupportPage() {
 
   return (
     <>
-      <Header />
 
       <main
         style={{

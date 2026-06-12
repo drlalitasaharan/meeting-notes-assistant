@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import Header from "../../components/Header";
 import UsageSummaryCard from "../../components/UsageSummaryCard";
 import { getCurrentUser, getUsageSummary } from "../../lib/api";
 import type { UsageSummary } from "../../lib/types";
@@ -50,7 +49,6 @@ export default function UsagePage() {
 
   return (
     <>
-      <Header />
 
       <main
         style={{
