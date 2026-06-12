@@ -10,7 +10,9 @@ from app.models.meeting import Meeting
 from app.models.user import User
 from app.services.usage_limits import (
     count_uploaded_meeting_slots,
+    enforce_free_trial_duration_limit,
     enforce_free_trial_upload_limit,
+    max_duration_seconds_for_user,
     upload_limit_for_user,
 )
 
@@ -137,3 +139,47 @@ def test_pilot_override_allows_three_uploaded_meeting_slots(db_session, monkeypa
     )
 
     assert upload_limit_for_user(user) == 3
+
+
+def test_free_trial_blocks_recordings_over_30_minutes(db_session, monkeypatch):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+    monkeypatch.setenv("MEETIQ_FREE_TRIAL_MAX_DURATION_SECONDS", "1800")
+
+    user = _create_user(db_session)
+
+    with pytest.raises(HTTPException) as exc:
+        enforce_free_trial_duration_limit(
+            current_user=user,
+            duration_seconds=1800.5,
+        )
+
+    assert exc.value.status_code == 400
+    assert "current limit is 30 minutes" in exc.value.detail
+
+
+def test_free_trial_allows_recordings_at_or_under_30_minutes(db_session, monkeypatch):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+    monkeypatch.setenv("MEETIQ_FREE_TRIAL_MAX_DURATION_SECONDS", "1800")
+
+    user = _create_user(db_session)
+
+    enforce_free_trial_duration_limit(
+        current_user=user,
+        duration_seconds=1800,
+    )
+
+    assert max_duration_seconds_for_user(user) == 1800
+
+
+def test_pilot_override_allows_longer_duration(db_session, monkeypatch):
+    monkeypatch.setenv("MEETIQ_PILOT_OVERRIDE_EMAILS", "pilot@example.com")
+    monkeypatch.setenv("MEETIQ_PILOT_MAX_DURATION_SECONDS", "3600")
+
+    user = _create_user(db_session, email="pilot@example.com")
+
+    enforce_free_trial_duration_limit(
+        current_user=user,
+        duration_seconds=3599,
+    )
+
+    assert max_duration_seconds_for_user(user) == 3600

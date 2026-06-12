@@ -17,7 +17,11 @@ from app.jobs.meetings import enqueue_process_meeting
 from app.models.meeting import Meeting
 from app.models.meeting_notes import MeetingNotes
 from app.models.user import User
-from app.services.usage_limits import enforce_free_trial_upload_limit
+from app.services.media_metadata import probe_media_duration_seconds
+from app.services.usage_limits import (
+    enforce_free_trial_duration_limit,
+    enforce_free_trial_upload_limit,
+)
 
 router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
 
@@ -177,6 +181,15 @@ async def upload_meeting_media(
             detail="Unsupported file type. Please upload MP3, MP4, M4A, WAV, WEBM, OGG, or FLAC.",
         )
 
+    media_duration_seconds = probe_media_duration_seconds(
+        raw_bytes,
+        suffix=extension or ".bin",
+    )
+    enforce_free_trial_duration_limit(
+        current_user=current_user,
+        duration_seconds=media_duration_seconds,
+    )
+
     try:
         raw_path = _save_raw_media(str(meeting_id), file, raw_bytes)
     except Exception:
@@ -186,6 +199,10 @@ async def upload_meeting_media(
         )
 
     meeting.raw_media_path = raw_path
+    meeting.media_duration_seconds = media_duration_seconds
+    meeting.media_size_bytes = len(raw_bytes)
+    meeting.media_content_type = file.content_type
+    meeting.media_filename = file.filename
     meeting.status = "PROCESSING"
     meeting.last_error = None
 
@@ -200,6 +217,8 @@ async def upload_meeting_media(
         "meeting_id": meeting_id,
         "job_id": job.id,
         "raw_media_path": meeting.raw_media_path,
+        "media_duration_seconds": meeting.media_duration_seconds,
+        "media_size_bytes": meeting.media_size_bytes,
     }
 
 
