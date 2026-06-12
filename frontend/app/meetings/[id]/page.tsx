@@ -411,6 +411,33 @@ export default function MeetingResultsPage() {
 
       {error ? <ErrorBanner message={error} /> : null}
 
+      {error ? (
+        <aside
+          style={{
+            background: "#fff8ec",
+            border: "1px solid #f7d8a8",
+            borderRadius: 16,
+            color: "#6f4200",
+            fontSize: 14,
+            lineHeight: 1.6,
+            padding: "14px 16px",
+          }}
+        >
+          <strong>Need help with this meeting?</strong>{" "}
+          <a
+            href="/support"
+            style={{
+              color: "#2f6f4e",
+              fontWeight: 800,
+              textDecoration: "none",
+            }}
+          >
+            Contact support
+          </a>{" "}
+          and include Meeting ID {meetingId}.
+        </aside>
+      ) : null}
+
       {notes ? (
         <aside
           style={{

@@ -85,6 +85,16 @@ export default function Header() {
               >
                 Usage
               </Link>
+              <Link
+                href="/support"
+                style={{
+                  color: "#123326",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                }}
+              >
+                Support
+              </Link>
               <button
                 onClick={handleLogout}
                 style={{
