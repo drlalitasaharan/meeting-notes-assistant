@@ -10,7 +10,9 @@ from app.models.meeting import Meeting
 from app.models.user import User
 
 DEFAULT_FREE_TRIAL_UPLOAD_LIMIT = 1
+DEFAULT_FREE_TRIAL_MAX_DURATION_SECONDS = 30 * 60
 DEFAULT_PILOT_UPLOAD_LIMIT = 3
+DEFAULT_PILOT_MAX_DURATION_SECONDS = 60 * 60
 
 
 def _int_env(name: str, default: int) -> int:
@@ -30,18 +32,26 @@ def _csv_env(name: str) -> set[str]:
     return {item.strip().lower() for item in os.getenv(name, "").split(",") if item.strip()}
 
 
-def upload_limit_for_user(user: User) -> int:
-    """
-    Early commercial-readiness limit.
-
-    Public free trial users receive 1 uploaded meeting slot.
-    Selected pilot users can be allowlisted by email without a database migration.
-    """
+def _has_pilot_override(user: User) -> bool:
     pilot_override_emails = _csv_env("MEETIQ_PILOT_OVERRIDE_EMAILS")
-    if user.email.strip().lower() in pilot_override_emails:
+    return user.email.strip().lower() in pilot_override_emails
+
+
+def upload_limit_for_user(user: User) -> int:
+    if _has_pilot_override(user):
         return _int_env("MEETIQ_PILOT_UPLOAD_LIMIT", DEFAULT_PILOT_UPLOAD_LIMIT)
 
     return _int_env("MEETIQ_FREE_TRIAL_UPLOAD_LIMIT", DEFAULT_FREE_TRIAL_UPLOAD_LIMIT)
+
+
+def max_duration_seconds_for_user(user: User) -> int:
+    if _has_pilot_override(user):
+        return _int_env("MEETIQ_PILOT_MAX_DURATION_SECONDS", DEFAULT_PILOT_MAX_DURATION_SECONDS)
+
+    return _int_env(
+        "MEETIQ_FREE_TRIAL_MAX_DURATION_SECONDS",
+        DEFAULT_FREE_TRIAL_MAX_DURATION_SECONDS,
+    )
 
 
 def count_uploaded_meeting_slots(
@@ -67,17 +77,6 @@ def enforce_free_trial_upload_limit(
     current_user: User,
     meeting: Meeting,
 ) -> None:
-    """
-    Enforce the current public free-trial promise before upload/storage/processing.
-
-    Current public promise:
-    Free Trial = 1 meeting upload up to 30 minutes.
-
-    This first implementation enforces the 1-meeting upload slot.
-    Duration-specific enforcement should be added once reliable duration metadata exists.
-    """
-    # If this meeting already has media, treat it as the user's existing slot.
-    # This avoids blocking a same-meeting retry/replacement during early access.
     if meeting.raw_media_path:
         return
 
@@ -96,3 +95,28 @@ def enforce_free_trial_upload_limit(
                 "up to 30 minutes. Please upgrade or contact support to continue."
             ),
         )
+
+
+def enforce_free_trial_duration_limit(
+    *,
+    current_user: User,
+    duration_seconds: float | None,
+) -> None:
+    if duration_seconds is None:
+        return
+
+    max_seconds = max_duration_seconds_for_user(current_user)
+    if duration_seconds <= max_seconds:
+        return
+
+    max_minutes = max_seconds // 60
+    detected_minutes = round(duration_seconds / 60, 1)
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=(
+            f"This recording is about {detected_minutes} minutes. "
+            f"Your current limit is {max_minutes} minutes. "
+            "Please upload a shorter recording, upgrade, or contact support."
+        ),
+    )

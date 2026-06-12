@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import Base
@@ -26,6 +26,10 @@ class Meeting(Base):
     user: Mapped["User"] = relationship("User", back_populates="meetings")
 
     raw_media_path: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    media_duration_seconds: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    media_size_bytes: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
+    media_content_type: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    media_filename: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     last_error: Mapped[Optional[str]] = mapped_column(String(250), nullable=True)
 
     status: Mapped[str] = mapped_column(
