@@ -1,33 +1,268 @@
+import Header from "../../components/Header";
+
+const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@acjen.ai";
+
+function buildMailto(subject: string, body: string): string {
+  return `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
+    subject,
+  )}&body=${encodeURIComponent(body)}`;
+}
+
+const generalSupportBody = [
+  "Hi MeetIQ support,",
+  "",
+  "I need help with my MeetIQ account or meeting notes.",
+  "",
+  "Account email:",
+  "Meeting title or Meeting ID, if relevant:",
+  "Issue type: Upload / Processing / Notes quality / Usage limit / Billing / Other",
+  "",
+  "What happened:",
+  "",
+  "Expected result:",
+  "",
+  "Screenshot or extra context:",
+  "",
+  "Thanks.",
+].join("\n");
+
+const processingIssueBody = [
+  "Hi MeetIQ support,",
+  "",
+  "A meeting recording did not process as expected.",
+  "",
+  "Account email:",
+  "Meeting title:",
+  "Meeting ID:",
+  "Approximate recording length:",
+  "File type:",
+  "",
+  "What happened:",
+  "",
+  "Any error message shown:",
+  "",
+  "Thanks.",
+].join("\n");
+
+const limitRequestBody = [
+  "Hi MeetIQ support,",
+  "",
+  "I would like help with my MeetIQ upload limit or pilot access.",
+  "",
+  "Account email:",
+  "Current plan or access type:",
+  "Requested meeting volume:",
+  "Typical recording length:",
+  "",
+  "Use case:",
+  "",
+  "Thanks.",
+].join("\n");
+
+const notesQualityBody = [
+  "Hi MeetIQ support,",
+  "",
+  "I need help with the quality of generated meeting notes.",
+  "",
+  "Account email:",
+  "Meeting title:",
+  "Meeting ID:",
+  "",
+  "What looks incorrect or missing:",
+  "",
+  "Important names, owners, deadlines, or decisions to check:",
+  "",
+  "Thanks.",
+].join("\n");
+
 export default function SupportPage() {
+  const generalMailto = buildMailto("MeetIQ support request", generalSupportBody);
+  const processingMailto = buildMailto(
+    "MeetIQ processing issue",
+    processingIssueBody,
+  );
+  const limitMailto = buildMailto("MeetIQ upload limit request", limitRequestBody);
+  const notesQualityMailto = buildMailto(
+    "MeetIQ notes quality issue",
+    notesQualityBody,
+  );
+
   return (
-    <div style={{ display: "grid", gap: 20, maxWidth: 860 }}>
-      <section style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 28 }}>
-        <h1 style={{ marginTop: 0, marginBottom: 12, fontSize: 32, color: "#111827" }}>Support</h1>
-        <p style={{ margin: 0, color: "#4b5563", fontSize: 16, lineHeight: 1.6 }}>
-          Need help with MeetIQ? Contact us at <strong>support@acjen.ai</strong>.
-        </p>
-      </section>
+    <>
+      <Header />
 
-      <section style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 28 }}>
-        <h2 style={{ marginTop: 0, marginBottom: 12, fontSize: 24, color: "#111827" }}>When contacting support, please include:</h2>
-        <ul style={{ margin: "12px 0 0 20px", color: "#4b5563", fontSize: 16, lineHeight: 1.7 }}>
-          <li>Your account email address</li>
-          <li>The meeting filename (if applicable)</li>
-          <li>Approximate time of upload</li>
-          <li>A clear description of the issue or question</li>
-        </ul>
-      </section>
+      <main
+        style={{
+          background: "linear-gradient(180deg, #f7fbf8 0%, #ffffff 100%)",
+          minHeight: "100vh",
+          padding: "48px 20px 80px",
+        }}
+      >
+        <div style={{ margin: "0 auto", maxWidth: 980 }}>
+          <section
+            style={{
+              background: "#ffffff",
+              border: "1px solid #d7eadf",
+              borderRadius: 28,
+              boxShadow: "0 18px 45px rgba(18, 51, 38, 0.08)",
+              padding: "clamp(28px, 5vw, 48px)",
+            }}
+          >
+            <p
+              style={{
+                color: "#2f6f4e",
+                fontSize: 13,
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                margin: 0,
+                textTransform: "uppercase",
+              }}
+            >
+              MeetIQ support
+            </p>
 
-      <section style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 28 }}>
-        <h2 style={{ marginTop: 0, marginBottom: 12, fontSize: 24, color: "#111827" }}>We can help with:</h2>
-        <ul style={{ margin: "12px 0 0 20px", color: "#4b5563", fontSize: 16, lineHeight: 1.7 }}>
-          <li>Account access and password reset</li>
-          <li>Upload failures and file format questions</li>
-          <li>Meeting history and file recovery</li>
-          <li>Processing issues and job status</li>
-          <li>Privacy and data questions</li>
-        </ul>
-      </section>
-    </div>
+            <h1
+              style={{
+                color: "#123326",
+                fontSize: "clamp(34px, 6vw, 52px)",
+                letterSpacing: "-0.04em",
+                lineHeight: 1.05,
+                margin: "12px 0 14px",
+              }}
+            >
+              Need help with your meeting notes?
+            </h1>
+
+            <p
+              style={{
+                color: "#5d6f66",
+                fontSize: 18,
+                lineHeight: 1.65,
+                margin: 0,
+                maxWidth: 720,
+              }}
+            >
+              Email support for upload issues, processing errors, usage limits, billing
+              questions, or notes quality review. Please include your account email and
+              meeting title or ID when possible.
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 12,
+                marginTop: 26,
+              }}
+            >
+              <a
+                href={generalMailto}
+                style={{
+                  background: "#2f6f4e",
+                  borderRadius: 999,
+                  color: "#ffffff",
+                  display: "inline-flex",
+                  fontWeight: 800,
+                  padding: "13px 20px",
+                  textDecoration: "none",
+                }}
+              >
+                Email support
+              </a>
+
+              <a
+                href={`mailto:${SUPPORT_EMAIL}`}
+                style={{
+                  border: "1px solid #b8d8c5",
+                  borderRadius: 999,
+                  color: "#123326",
+                  display: "inline-flex",
+                  fontWeight: 800,
+                  padding: "13px 20px",
+                  textDecoration: "none",
+                }}
+              >
+                {SUPPORT_EMAIL}
+              </a>
+            </div>
+          </section>
+
+          <section
+            style={{
+              display: "grid",
+              gap: 16,
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              marginTop: 22,
+            }}
+          >
+            {[
+              {
+                title: "Upload or processing issue",
+                body: "Use this when a file upload fails, processing gets stuck, or results do not appear.",
+                href: processingMailto,
+              },
+              {
+                title: "Usage limit or pilot access",
+                body: "Use this to request a higher upload limit, pilot access, or account allowance review.",
+                href: limitMailto,
+              },
+              {
+                title: "Notes quality review",
+                body: "Use this when names, owners, deadlines, decisions, or action items need review.",
+                href: notesQualityMailto,
+              },
+            ].map((item) => (
+              <article
+                key={item.title}
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #d7eadf",
+                  borderRadius: 22,
+                  padding: 22,
+                }}
+              >
+                <h2 style={{ color: "#123326", fontSize: 20, margin: "0 0 8px" }}>
+                  {item.title}
+                </h2>
+                <p style={{ color: "#5d6f66", lineHeight: 1.6, margin: "0 0 16px" }}>
+                  {item.body}
+                </p>
+                <a
+                  href={item.href}
+                  style={{
+                    color: "#2f6f4e",
+                    fontWeight: 800,
+                    textDecoration: "none",
+                  }}
+                >
+                  Start email →
+                </a>
+              </article>
+            ))}
+          </section>
+
+          <section
+            style={{
+              background: "#f7fbf8",
+              border: "1px solid #d7eadf",
+              borderRadius: 22,
+              color: "#365342",
+              lineHeight: 1.7,
+              marginTop: 22,
+              padding: 22,
+            }}
+          >
+            <h2 style={{ color: "#123326", marginTop: 0 }}>What to include</h2>
+            <ul style={{ marginBottom: 0, paddingLeft: 20 }}>
+              <li>Your account email.</li>
+              <li>Meeting title or Meeting ID, if the issue is meeting-specific.</li>
+              <li>What happened and what you expected instead.</li>
+              <li>Screenshot or error text, if available.</li>
+              <li>Avoid sharing sensitive meeting details unless needed for support.</li>
+            </ul>
+          </section>
+        </div>
+      </main>
+    </>
   );
 }
