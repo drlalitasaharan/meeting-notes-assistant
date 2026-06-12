@@ -13,6 +13,7 @@ class Storage(Protocol):
     def put(self, key: str, body: BinaryIO, content_type: str) -> None: ...
     def presign_get(self, key: str, ttl: int = 3600) -> str: ...
     def exists(self, key: str) -> bool: ...
+    def delete(self, key: str) -> None: ...
 
 
 class FSStorage:
@@ -36,6 +37,9 @@ class FSStorage:
 
     def exists(self, key: str) -> bool:
         return self._path(key).exists()
+
+    def delete(self, key: str) -> None:
+        self._path(key).unlink(missing_ok=True)
 
 
 class S3Storage:
@@ -81,6 +85,9 @@ class S3Storage:
             return True
         except Exception:
             return False
+
+    def delete(self, key: str) -> None:
+        self.client.delete_object(Bucket=self.bucket, Key=key)
 
 
 def choose_storage() -> Storage:

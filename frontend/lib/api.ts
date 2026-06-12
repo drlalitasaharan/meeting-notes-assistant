@@ -291,3 +291,20 @@ export async function getMeetingMarkdown(meetingId: number): Promise<string> {
     cache: "no-store",
   });
 }
+
+
+export async function deleteMeeting(meetingId: number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/v1/meetings/${meetingId}`, {
+    method: "DELETE",
+    headers: buildHeaders(),
+  });
+
+  if (response.status === 401 || response.status === 403) {
+    clearAuthToken();
+  }
+
+  if (!response.ok) {
+    const message = await parseErrorResponse(response);
+    throw new ApiError(response.status, message);
+  }
+}
