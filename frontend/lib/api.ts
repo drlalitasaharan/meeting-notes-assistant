@@ -6,6 +6,7 @@ import type {
   MeetingListResponse,
   MeetingNotes,
   UploadMeetingResponse,
+  UsageSummary,
   UserRead,
 } from "./types";
 
@@ -209,6 +210,13 @@ export async function signupUser(
 
 export async function getCurrentUser(): Promise<UserRead> {
   return fetchWithAuth<UserRead>("/v1/auth/me");
+}
+
+export async function getUsageSummary(): Promise<UsageSummary> {
+  return fetchWithAuth<UsageSummary>("/v1/usage/me", {
+    method: "GET",
+    cache: "no-store",
+  });
 }
 
 export async function getMeetings(): Promise<MeetingListResponse> {
