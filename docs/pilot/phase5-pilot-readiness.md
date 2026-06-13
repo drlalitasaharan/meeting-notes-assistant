@@ -78,7 +78,12 @@ Status: Soon, but not required before first controlled pilot.
 
 ### M20. Prepare first pilot onboarding email and instructions
 
-Status: Do now.
+Status: Complete.
+
+Completed:
+
+- Pilot onboarding instructions added.
+- First pilot onboarding email draft added.
 
 ## Pilot User Guidance
 
