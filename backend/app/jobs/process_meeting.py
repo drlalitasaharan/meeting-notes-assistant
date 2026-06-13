@@ -84,6 +84,56 @@ def _read_raw_media_bytes(raw_media_path: str) -> bytes:
         return f.read()
 
 
+def _restore_publishable_actions_from_objects(notes: dict[str, Any]) -> dict[str, Any]:
+    """Ensure recovered action objects remain visible in persisted/API fields.
+
+    Some canonical normalization keeps action_item_objects but clears the
+    user-facing action_items and summary_slots.next_steps fields. For
+    transcript-recalled long-meeting actions, preserve the recovered objects as
+    publishable action lines and next steps.
+    """
+
+    action_items = list(notes.get("action_items") or [])
+    action_objects = list(notes.get("action_item_objects") or [])
+
+    if action_items or not action_objects:
+        return notes
+
+    restored_items: list[str] = []
+    restored_next_steps: list[str] = []
+
+    for item in action_objects:
+        if not isinstance(item, dict):
+            continue
+
+        owner = str(item.get("owner") or "").strip()
+        task = str(item.get("task") or "").strip()
+        due_date = str(item.get("due_date") or "").strip()
+
+        if not task:
+            continue
+
+        line = f"{owner} - {task}" if owner else task
+        if due_date:
+            line += f" (due: {due_date})"
+
+        restored_items.append(line)
+        restored_next_steps.append(task.rstrip(".") + ".")
+
+    if not restored_items:
+        return notes
+
+    notes = dict(notes)
+    notes["action_items"] = restored_items
+
+    summary_slots = dict(notes.get("summary_slots") or {})
+    if not summary_slots.get("next_steps"):
+        summary_slots["next_steps"] = restored_next_steps[:5]
+    notes["summary_slots"] = summary_slots
+
+    return notes
+
+
 def process_meeting(meeting_id: str) -> None:
     """
     Golden-path meeting processing job.
@@ -256,6 +306,7 @@ def process_meeting(meeting_id: str) -> None:
                 "decision_objects": decision_objects,
             }
         )
+        normalized_notes = _restore_publishable_actions_from_objects(normalized_notes)
 
         notes_row = MeetingNotes(
             meeting_id=meeting.id,
