@@ -336,3 +336,26 @@ def test_finalizes_dedupes_60min_action_variants():
     assert "unexpected output" not in joined
     assert "after more afternoon" not in joined
     assert joined.count("draft the client follow-up email") == 3
+
+def test_finalizes_uses_transcript_recall_when_pipeline_actions_empty():
+    transcript = (
+        "The team discussed a remote control and LCD screen cost. "
+        "The marketing expert will post the cost information in the project mail folder. "
+        "After lunch, the team will fill out the questionnaire."
+    )
+
+    cleaned_action_items, action_item_objects, summary_slots = _finalize_persisted_action_contract(
+        cleaned_action_items=[],
+        action_item_objects=[],
+        summary_slots={"next_steps": []},
+        raw_transcript_text=transcript,
+    )
+
+    joined_items = " ".join(cleaned_action_items).lower()
+    joined_tasks = " ".join(str(item.get("task") or "") for item in action_item_objects).lower()
+
+    assert "post or share lcd cost information" in joined_items
+    assert "fill out the questionnaire after lunch" in joined_items
+    assert "post or share lcd cost information" in joined_tasks
+    assert "fill out the questionnaire after lunch" in joined_tasks
+    assert summary_slots["next_steps"]

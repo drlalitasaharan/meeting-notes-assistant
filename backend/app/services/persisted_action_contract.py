@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from app.services.transcript_action_recall import synthesize_action_items_from_transcript
+
 ACTION_VERBS = (
     "update",
     "send",
@@ -552,6 +554,19 @@ def _is_high_precision_action_task(task: str) -> bool:
         "verify ",
         "document ",
         "validate ",
+        "post ",
+        "take ",
+        "do ",
+        "use ",
+        "save ",
+        "fill ",
+        "create ",
+        "provide ",
+        "continue ",
+        "spend ",
+        "investigate ",
+        "help ",
+        "explain ",
     )
 
     if not lower.startswith(allowed_starts):
@@ -680,6 +695,46 @@ def _clean_final_action_objects(
     return [by_key[key] for key in ordered_keys]
 
 
+def _transcript_recall_action_objects(raw_transcript_text: object) -> list[dict[str, object]]:
+    """Recover evidence-backed action objects directly from the transcript.
+
+    This is a fallback for long meetings where the primary summarizer produced
+    no usable actions even though transcript-specific recall can find them.
+    """
+
+    transcript = _textify(raw_transcript_text)
+    if not transcript:
+        return []
+
+    output: list[dict[str, object]] = []
+
+    for item in synthesize_action_items_from_transcript(transcript):
+        if not isinstance(item, dict):
+            continue
+
+        task = _collapse_spaces(item.get("action") or item.get("task") or item.get("text") or "")
+        if not task:
+            continue
+
+        owner = _collapse_spaces(item.get("owner") or "Team") or "Team"
+
+        due_date_raw = item.get("deadline") or item.get("due_date") or None
+        due_date = _collapse_spaces(due_date_raw) if due_date_raw is not None else None
+
+        output.append(
+            {
+                "owner": owner,
+                "task": task,
+                "due_date": due_date or None,
+                "status": "open",
+                "priority": "medium",
+                "confidence": item.get("confidence") or 0.65,
+            }
+        )
+
+    return output
+
+
 def _finalize_persisted_action_contract(
     cleaned_action_items: list[object] | None = None,
     action_item_objects: list[dict[str, object]] | None = None,
@@ -719,6 +774,11 @@ def _finalize_persisted_action_contract(
 
     final_objects = _dedupe_objects(candidates)
     final_objects = _clean_final_action_objects(final_objects)
+
+    if not final_objects:
+        transcript_recall_candidates = _transcript_recall_action_objects(raw_transcript_text)
+        final_objects = _dedupe_objects(transcript_recall_candidates)
+        final_objects = _clean_final_action_objects(final_objects)
 
     final_items = [f"{item['owner']} - {item['task']}" for item in final_objects]
 
