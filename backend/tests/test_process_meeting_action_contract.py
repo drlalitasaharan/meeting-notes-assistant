@@ -359,3 +359,39 @@ def test_finalizes_uses_transcript_recall_when_pipeline_actions_empty():
     assert "post or share lcd cost information" in joined_tasks
     assert "fill out the questionnaire after lunch" in joined_tasks
     assert summary_slots["next_steps"]
+
+def test_restores_publishable_actions_from_recovered_objects_after_normalization():
+    from app.jobs.process_meeting import _restore_publishable_actions_from_objects
+
+    notes = {
+        "summary": "Test",
+        "key_points": [],
+        "action_items": [],
+        "summary_slots": {
+            "purpose": "Test",
+            "outcome": "Test",
+            "risks": [],
+            "next_steps": [],
+        },
+        "decisions": [],
+        "action_item_objects": [
+            {
+                "owner": "Speaker C",
+                "task": "Create files from delimited segments or otherwise prepare data in a form that can be merged with the annotation structure",
+                "due_date": None,
+                "confidence": 0.65,
+                "status": "open",
+                "priority": "medium",
+            }
+        ],
+        "decision_objects": [],
+    }
+
+    restored = _restore_publishable_actions_from_objects(notes)
+
+    assert restored["action_items"] == [
+        "Speaker C - Create files from delimited segments or otherwise prepare data in a form that can be merged with the annotation structure"
+    ]
+    assert restored["summary_slots"]["next_steps"] == [
+        "Create files from delimited segments or otherwise prepare data in a form that can be merged with the annotation structure."
+    ]
