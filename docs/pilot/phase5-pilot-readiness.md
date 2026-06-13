@@ -65,12 +65,18 @@ Confirmed:
 
 ### M18. Add pilot feedback form or support intake tracking
 
-Status: Do now.
+Status: Complete.
 
-Recommended minimum version:
+Completed:
 
-- Add a simple feedback/support intake path.
-- Collect upload issues, note quality feedback, confusing UX areas, and pilot user comments.
+- Meetings page includes a pilot feedback/support path.
+- Support page provides issue-specific support email templates.
+- Pilot support triage and admin checklist added.
+
+Current decision:
+
+- Manual support/admin tracking is acceptable for controlled pilot.
+- A stronger admin dashboard should be added before broader public self-serve launch.
 
 ### M19. Add basic admin view for user uploads/errors
 
