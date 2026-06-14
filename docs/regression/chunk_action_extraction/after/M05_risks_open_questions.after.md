@@ -4,26 +4,53 @@
 - Meeting ID: 1
 - Status: DONE
 - Source endpoint: /v1/meetings/1/notes/ai
-- Source file: `/tmp/meetiq_capture_audio/M05_risks_open_questions_medium.mp3`
+- Source file: `/tmp/meetiq_capture_audio/M05_risks_open_questions.mp3`
 
 ## Action Items
 
-- None
+- Team - Obtain written pricing approval and circulate the approved pricing table to the team by 5pm on June 18th, 2026
+- Team - Send the completed security review summary covering storage access, administrator permissions and deletion controls by noon on June 22nd, 2026
 
 ## Action Item Objects
 
-- None
+- owner=Team; task=Obtain written pricing approval and circulate the approved pricing table to the team by 5pm on June 18th, 2026; due=by 5pm; source=transcript_action_recall; chunk=; confidence=0.9; context=
+- owner=Team; task=Send the completed security review summary covering storage access, administrator permissions and deletion controls by noon on June 22nd, 2026; due=No deadline stated; source=transcript_action_recall; chunk=; confidence=0.9; context=
 
 ## Summary next steps
 
-- None
+- Obtain written pricing approval and circulate the approved pricing table to the team by 5pm on June 18th, 2026.
+- Send the completed security review summary covering storage access, administrator permissions and deletion controls by noon on June 22nd, 2026.
 
 ## Raw capture JSON
 
 ```json
 {
-  "action_item_objects": [],
-  "action_items": [],
+  "action_item_objects": [
+    {
+      "confidence": 0.9,
+      "due_date": "by 5pm",
+      "owner": "Team",
+      "priority": "medium",
+      "source": "transcript_action_recall",
+      "status": "open",
+      "task": "Obtain written pricing approval and circulate the approved pricing table to the team by 5pm on June 18th, 2026",
+      "text": "Team: Obtain written pricing approval and circulate the approved pricing table to the team by 5pm on June 18th, 2026"
+    },
+    {
+      "confidence": 0.9,
+      "due_date": null,
+      "owner": "Team",
+      "priority": "medium",
+      "source": "transcript_action_recall",
+      "status": "open",
+      "task": "Send the completed security review summary covering storage access, administrator permissions and deletion controls by noon on June 22nd, 2026",
+      "text": "Team: Send the completed security review summary covering storage access, administrator permissions and deletion controls by noon on June 22nd, 2026"
+    }
+  ],
+  "action_items": [
+    "Team - Obtain written pricing approval and circulate the approved pricing table to the team by 5pm on June 18th, 2026",
+    "Team - Send the completed security review summary covering storage access, administrator permissions and deletion controls by noon on June 22nd, 2026"
+  ],
   "decision_objects": [
     {
       "confidence": 0.86,
@@ -66,7 +93,10 @@
   "status": "DONE",
   "summary": "Risk number one, delayed pricing approval could postpone the client follow-up and prevent confirmation of the commercial pilot. The meeting aligned on the main priorities and next steps",
   "summary_slots": {
-    "next_steps": [],
+    "next_steps": [
+      "Obtain written pricing approval and circulate the approved pricing table to the team by 5pm on June 18th, 2026.",
+      "Send the completed security review summary covering storage access, administrator permissions and deletion controls by noon on June 22nd, 2026."
+    ],
     "outcome": "The meeting aligned on the main priorities and next steps",
     "purpose": "Risk number one, delayed pricing approval could postpone the client follow-up and prevent confirmation of the commercial pilot",
     "risks": [

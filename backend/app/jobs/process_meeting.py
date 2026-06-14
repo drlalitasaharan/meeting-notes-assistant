@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -26,7 +27,10 @@ from app.services.notes_quality_pass import (
     apply_focused_30min_quality_pass,
 )
 from app.services.ocr import extract_slide_text_for_meeting
-from app.services.persisted_action_contract import _finalize_persisted_action_contract
+from app.services.persisted_action_contract import (
+    _finalize_persisted_action_contract,
+    align_action_items_with_objects,
+)
 from app.services.transcription import get_transcriber
 
 log = logging.getLogger(__name__)
@@ -280,17 +284,29 @@ def process_meeting(meeting_id: str) -> None:
         decisions = precision_payload.get("decisions") or []
         decision_objects = precision_payload.get("decision_objects") or []
 
-        cleaned_action_items, action_item_objects, summary_slots = (
-            _finalize_persisted_action_contract(
-                cleaned_action_items=cleaned_action_items,
-                action_item_objects=action_item_objects,
-                summary_slots=summary_slots,
-                raw_transcript_text=(
+        decision_action_recall_text = "\n".join(
+            str(item.get("text") or "") for item in decision_objects if isinstance(item, dict)
+        )
+        raw_action_recall_text = "\n".join(
+            part
+            for part in [
+                str(
                     locals().get("transcript_text")
                     or locals().get("transcript")
                     or locals().get("raw_transcript")
                     or ""
                 ),
+                decision_action_recall_text,
+            ]
+            if part.strip()
+        )
+
+        cleaned_action_items, action_item_objects, summary_slots = (
+            _finalize_persisted_action_contract(
+                cleaned_action_items=cleaned_action_items,
+                action_item_objects=action_item_objects,
+                summary_slots=summary_slots,
+                raw_transcript_text=raw_action_recall_text,
             )
         )
 
@@ -307,6 +323,44 @@ def process_meeting(meeting_id: str) -> None:
             }
         )
         normalized_notes = _restore_publishable_actions_from_objects(normalized_notes)
+
+        for action_obj in normalized_notes.get("action_item_objects", []) or []:
+            if not isinstance(action_obj, dict):
+                continue
+            task = str(action_obj.get("task") or "").strip()
+            for marker_text in (". Confirmed,", ". confirmed,"):
+                if marker_text in task:
+                    task = task.split(marker_text, 1)[0].strip()
+            task = re.sub(r"\s+that$", "", task, flags=re.I)
+            if task:
+                action_obj["task"] = task
+                action_obj["text"] = f"{action_obj.get('owner') or 'Team'}: {task}"
+
+        for action_obj in normalized_notes.get("action_item_objects", []) or []:
+            if not isinstance(action_obj, dict):
+                continue
+            task = str(action_obj.get("task") or "").strip()
+            for marker in (". Confirmed,", ". confirmed,"):
+                if marker in task:
+                    task = task.split(marker, 1)[0].strip()
+            task = re.sub(r"\s+that$", "", task, flags=re.I)
+            if task:
+                action_obj["task"] = task
+                action_obj["text"] = f"{action_obj.get('owner') or 'Team'}: {task}"
+
+        normalized_notes["action_items"] = align_action_items_with_objects(
+            normalized_notes.get("action_items") or [],
+            normalized_notes.get("action_item_objects") or [],
+        )
+
+        if normalized_notes.get("action_item_objects"):
+            summary_slots_for_publish = dict(normalized_notes.get("summary_slots") or {})
+            summary_slots_for_publish["next_steps"] = [
+                str(item.get("task") or "").rstrip(".") + "."
+                for item in normalized_notes.get("action_item_objects", [])[:5]
+                if isinstance(item, dict) and str(item.get("task") or "").strip()
+            ]
+            normalized_notes["summary_slots"] = summary_slots_for_publish
 
         notes_row = MeetingNotes(
             meeting_id=meeting.id,
