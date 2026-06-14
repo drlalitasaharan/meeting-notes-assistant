@@ -337,6 +337,7 @@ def test_finalizes_dedupes_60min_action_variants():
     assert "after more afternoon" not in joined
     assert joined.count("draft the client follow-up email") == 3
 
+
 def test_finalizes_uses_transcript_recall_when_pipeline_actions_empty():
     transcript = (
         "The team discussed a remote control and LCD screen cost. "
@@ -359,6 +360,7 @@ def test_finalizes_uses_transcript_recall_when_pipeline_actions_empty():
     assert "post or share lcd cost information" in joined_tasks
     assert "fill out the questionnaire after lunch" in joined_tasks
     assert summary_slots["next_steps"]
+
 
 def test_restores_publishable_actions_from_recovered_objects_after_normalization():
     from app.jobs.process_meeting import _restore_publishable_actions_from_objects
@@ -395,3 +397,61 @@ def test_restores_publishable_actions_from_recovered_objects_after_normalization
     assert restored["summary_slots"]["next_steps"] == [
         "Create files from delimited segments or otherwise prepare data in a form that can be merged with the annotation structure."
     ]
+
+
+def test_finalizes_uses_chunk_recovery_when_existing_actions_are_sparse():
+    cleaned_action_items, action_item_objects, summary_slots = _finalize_persisted_action_contract(
+        cleaned_action_items=[],
+        action_item_objects=[],
+        summary_slots={"next_steps": []},
+        raw_transcript_text=(
+            "The team discussed pricing context. "
+            "Priya should review the pricing assumptions next week. "
+            "The team discussed non-action background information. "
+            "Jordan should send launch notes tomorrow."
+        ),
+    )
+
+    joined_items = " ".join(cleaned_action_items).lower()
+    joined_tasks = " ".join(str(item.get("task") or "") for item in action_item_objects).lower()
+
+    assert "review the pricing assumptions" in joined_items
+    assert "send launch notes" in joined_items
+    assert "review the pricing assumptions" in joined_tasks
+    assert "send launch notes" in joined_tasks
+
+    owner_by_task = {
+        str(item.get("task") or "").lower(): item.get("owner") for item in action_item_objects
+    }
+
+    assert owner_by_task["review the pricing assumptions next week"] == "Priya"
+    assert owner_by_task["send launch notes tomorrow"] == "Jordan"
+
+    assert summary_slots is not None
+    assert summary_slots["next_steps"][:2] == [
+        "Review the pricing assumptions next week.",
+        "Send launch notes tomorrow.",
+    ]
+
+
+def test_finalizes_does_not_need_chunk_recovery_when_existing_actions_are_enough():
+    cleaned_action_items, action_item_objects, summary_slots = _finalize_persisted_action_contract(
+        cleaned_action_items=[],
+        action_item_objects=[
+            {"owner": "Priya", "task": "Review pricing assumptions", "status": "open"},
+            {"owner": "Jordan", "task": "Send launch notes", "status": "open"},
+            {"owner": "Morgan", "task": "Confirm pilot support plan", "status": "open"},
+        ],
+        summary_slots={"next_steps": []},
+        raw_transcript_text=("Alex should investigate a separate late-meeting idea tomorrow."),
+    )
+
+    joined_tasks = " ".join(str(item.get("task") or "") for item in action_item_objects).lower()
+
+    assert "review pricing assumptions" in joined_tasks
+    assert "send launch notes" in joined_tasks
+    assert "confirm pilot support plan" in joined_tasks
+    assert "investigate a separate late-meeting idea" not in joined_tasks
+    assert len(action_item_objects) == 3
+    assert len(cleaned_action_items) == 3
+    assert summary_slots is not None
