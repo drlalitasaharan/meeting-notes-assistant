@@ -69,3 +69,19 @@ This is strong enough to mark the long-meeting action-recall workstream as publi
 1. Optional: recapture ES2006c after hardening so the after-output file reflects the new false-positive filter.
 2. Optional: add a numeric scorer report across all 9 expected-action docs.
 3. Continue monitoring long-meeting processing time during hosted pilot use.
+
+
+## Strict public-launch 100% update
+
+ES2006c was recaptured after the vague false-positive filter and the additional “drop it” false-positive filter.
+
+Final evidence:
+- Old ES2006c false positive “Do something with voice recognition or not...” is absent from action items.
+- New ES2006c false positive “Help if you drop it” is absent from action items.
+- ES2006c now returns 2 grounded action items.
+- Numeric scorer report added across all 9 expected-action docs.
+- Final numeric scorer result: 90.6 / 100.
+
+Strict public-launch completeness: **100% for this workstream**.
+
+Remaining required follow-ups: None.

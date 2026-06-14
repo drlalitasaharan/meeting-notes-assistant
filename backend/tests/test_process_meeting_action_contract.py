@@ -1,4 +1,4 @@
-from app.services.persisted_action_contract import _finalize_persisted_action_contract
+from app.services.persisted_action_contract import _finalize_persisted_action_contract, _is_low_precision_task, _is_low_precision_task, _is_low_precision_task
 
 
 def test_finalizes_action_contract_from_malformed_action_object():
@@ -534,3 +534,27 @@ def test_finalizes_filters_vague_non_committal_actions_without_dropping_concrete
         "Take minutes and put updated minutes in the shared folder.",
         "Save the smartboard or session output into shared project documents as a JPEG.",
     ]
+
+
+def test_low_precision_filter_blocks_drop_it_false_positive():
+    assert _is_low_precision_task("Help if you drop it")
+    assert _is_low_precision_task("And it will help if you drop it")
+    assert _is_low_precision_task("Do something with voice recognition or not, but anyway, these are different options that we have")
+    assert not _is_low_precision_task("Take minutes and put updated minutes in the shared folder")
+    assert not _is_low_precision_task("Save the smartboard or session output into shared project documents as a JPEG")
+
+
+def test_low_precision_filter_blocks_drop_it_false_positive():
+    assert _is_low_precision_task("Help if you drop it")
+    assert _is_low_precision_task("And it will help if you drop it")
+    assert _is_low_precision_task("Do something with voice recognition or not, but anyway, these are different options that we have")
+    assert not _is_low_precision_task("Take minutes and put updated minutes in the shared folder")
+    assert not _is_low_precision_task("Save the smartboard or session output into shared project documents as a JPEG")
+
+
+def test_low_precision_filter_blocks_drop_it_false_positive():
+    assert _is_low_precision_task("Help if you drop it")
+    assert _is_low_precision_task("And it will help if you drop it")
+    assert _is_low_precision_task("Do something with voice recognition or not, but anyway, these are different options that we have")
+    assert not _is_low_precision_task("Take minutes and put updated minutes in the shared folder")
+    assert not _is_low_precision_task("Save the smartboard or session output into shared project documents as a JPEG")
