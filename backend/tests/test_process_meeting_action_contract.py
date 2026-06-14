@@ -455,3 +455,43 @@ def test_finalizes_does_not_need_chunk_recovery_when_existing_actions_are_enough
     assert len(action_item_objects) == 3
     assert len(cleaned_action_items) == 3
     assert summary_slots is not None
+
+def test_dedupe_preserves_chunk_recovery_metadata_from_action_objects():
+    cleaned_action_items, action_item_objects, summary_slots = _finalize_persisted_action_contract(
+        cleaned_action_items=[],
+        action_item_objects=[
+            {
+                "owner": "Priya",
+                "task": "Review pricing assumptions next week",
+                "due_date": "next week",
+                "confidence": 0.85,
+                "status": "open",
+                "priority": "medium",
+                "source": "chunk_action_recovery",
+                "source_chunk": 2,
+                "reason_context": "Pricing assumptions were discussed in the middle chunk.",
+                "related_risk": "Pricing uncertainty may delay launch.",
+            }
+        ],
+        summary_slots={"next_steps": []},
+        raw_transcript_text="",
+    )
+
+    assert cleaned_action_items == ["Priya - Review pricing assumptions next week"]
+    assert action_item_objects == [
+        {
+            "text": "Priya: Review pricing assumptions next week",
+            "owner": "Priya",
+            "task": "Review pricing assumptions next week",
+            "due_date": "next week",
+            "confidence": 0.85,
+            "status": "open",
+            "priority": "medium",
+            "source": "chunk_action_recovery",
+            "source_chunk": 2,
+            "reason_context": "Pricing assumptions were discussed in the middle chunk.",
+            "related_risk": "Pricing uncertainty may delay launch.",
+        }
+    ]
+    assert summary_slots is not None
+    assert summary_slots["next_steps"] == ["Review pricing assumptions next week."]

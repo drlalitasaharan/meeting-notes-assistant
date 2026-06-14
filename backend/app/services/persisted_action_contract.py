@@ -143,6 +143,58 @@ def _dedupe_key(task: str) -> str:
     return re.sub(r"\s+", " ", key).strip()
 
 
+_ACTION_METADATA_KEYS = (
+    "source",
+    "source_chunk",
+    "reason_context",
+    "related_decision",
+    "related_risk",
+)
+
+
+def _copy_action_metadata(target: dict[str, Any], source: object) -> dict[str, Any]:
+    for metadata_key in _ACTION_METADATA_KEYS:
+        value = None
+        if isinstance(source, dict):
+            value = source.get(metadata_key)
+        else:
+            value = getattr(source, metadata_key, None)
+
+        if value not in (None, "", [], {}):
+            target[metadata_key] = value
+
+    return target
+
+
+def _restore_action_metadata_from_candidates(
+    final_objects: list[dict[str, Any]],
+    candidates: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    metadata_by_key: dict[str, dict[str, Any]] = {}
+
+    for candidate in candidates:
+        task = _normalize_task(
+            candidate.get("task") or candidate.get("text") or "",
+            candidate.get("owner"),
+        )
+        key = _dedupe_key(task)
+        metadata = {
+            metadata_key: candidate.get(metadata_key)
+            for metadata_key in _ACTION_METADATA_KEYS
+            if candidate.get(metadata_key) not in (None, "", [], {})
+        }
+        if key and metadata and key not in metadata_by_key:
+            metadata_by_key[key] = metadata
+
+    for obj in final_objects:
+        key = _dedupe_key(str(obj.get("task") or obj.get("text") or ""))
+        for metadata_key, value in metadata_by_key.get(key, {}).items():
+            if obj.get(metadata_key) in (None, "", [], {}):
+                obj[metadata_key] = value
+
+    return final_objects
+
+
 def _object_from_any(item: object) -> dict[str, Any] | None:
     if item is None:
         return None
@@ -294,17 +346,28 @@ def _dedupe_objects(objects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             continue
 
         seen.add(key)
-        deduped.append(
-            {
-                "text": f"{owner}: {task}",
-                "owner": owner,
-                "task": task,
-                "due_date": _extract_due_date(task, obj.get("due_date")),
-                "confidence": float(obj.get("confidence") or 0.7),
-                "status": str(obj.get("status") or "open"),
-                "priority": str(obj.get("priority") or "medium"),
-            }
-        )
+        deduped_obj: dict[str, Any] = {
+            "text": f"{owner}: {task}",
+            "owner": owner,
+            "task": task,
+            "due_date": _extract_due_date(task, obj.get("due_date")),
+            "confidence": float(obj.get("confidence") or 0.7),
+            "status": str(obj.get("status") or "open"),
+            "priority": str(obj.get("priority") or "medium"),
+        }
+
+        for metadata_key in (
+            "source",
+            "source_chunk",
+            "reason_context",
+            "related_decision",
+            "related_risk",
+        ):
+            value = obj.get(metadata_key)
+            if value not in (None, "", [], {}):
+                deduped_obj[metadata_key] = value
+
+        deduped.append(deduped_obj)
 
     return deduped
 
@@ -803,12 +866,14 @@ def _finalize_persisted_action_contract(
     for item in action_item_objects or []:
         obj = _object_from_any(item)
         if obj:
+            _copy_action_metadata(obj, item)
             incoming_objects.append(obj)
 
     legacy_source = list(action_items if action_items is not None else cleaned_action_items or [])
     for item in legacy_source:  # type: ignore[assignment]
         obj = _object_from_any(item)
         if obj:
+            _copy_action_metadata(obj, item)
             incoming_objects.append(obj)
 
     transcript_recall_objects: list[dict[str, object]] = []
@@ -829,11 +894,15 @@ def _finalize_persisted_action_contract(
 
     final_objects = _dedupe_objects(candidates)
     final_objects = _clean_final_action_objects(final_objects)
+    final_objects = _restore_action_metadata_from_candidates(final_objects, candidates)
 
     if not final_objects:
         transcript_recall_candidates = _transcript_recall_action_objects(raw_transcript_text)
         final_objects = _dedupe_objects(transcript_recall_candidates)
         final_objects = _clean_final_action_objects(final_objects)
+        final_objects = _restore_action_metadata_from_candidates(
+            final_objects, transcript_recall_candidates
+        )
 
     final_items = [f"{item['owner']} - {item['task']}" for item in final_objects]
 
