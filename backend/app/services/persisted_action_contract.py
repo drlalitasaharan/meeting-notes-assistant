@@ -140,6 +140,9 @@ def _is_low_precision_task(task: str) -> bool:
         "maybe do",
         "perhaps do",
         "something around",
+        "help if you drop it",
+        "if you drop it",
+        "drop it",
         "whatever",
     )
 

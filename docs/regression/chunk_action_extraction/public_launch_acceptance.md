@@ -17,7 +17,7 @@ Improve long-meeting action recall so MeetIQ reliably preserves action items fro
 | Add confidence for each candidate action | PASS |
 | Consolidate duplicates without over-merging distinct owner/deliverable/deadline combinations | PASS |
 | Preserve specific actions over vague actions | PASS |
-| Score output against expected action ground truth | PARTIAL / design present; numeric scorer expansion remains optional |
+| Score output against expected action ground truth | PASS — numeric scorer report added across 9 expected-action docs |
 
 ## Regression target set
 
@@ -49,7 +49,7 @@ Improve long-meeting action recall so MeetIQ reliably preserves action items fro
 | Requirement | Status |
 |---|---|
 | Ground truth files are filled for the target set | PASS — 9 expected-action docs present |
-| Automated scorer compares expected vs actual actions | PARTIAL — scoring design exists; numeric full-set report remains optional |
+| Automated scorer compares expected vs actual actions | PASS — numeric scorer report added |
 | Chunk-level extractor is implemented and tested | PASS |
 | Consolidation pass is implemented and tested | PASS |
 | Existing action pipeline preserves recovered actions in UI/API/Markdown | PASS |
@@ -72,3 +72,17 @@ The workstream now satisfies the main public-launch requirements:
 Optional future improvement:
 - Refresh ES2006c after-output evidence after the false-positive filter.
 - Add a full numeric scorer report across all 9 expected docs.
+
+
+## Strict public-launch 100% update
+
+Final decision: **PASS — strict public-launch completeness 100% for chunk-level long-meeting action recall.**
+
+Evidence added:
+- ES2006c after-output refreshed after false-positive hardening.
+- “Do something with voice recognition or not...” no longer appears as an action item.
+- “Help if you drop it” no longer appears as an action item.
+- Numeric scorer report added across all 9 expected-action docs.
+- Final scorer result: 90.6 / 100.
+
+Remaining required follow-ups: None.
