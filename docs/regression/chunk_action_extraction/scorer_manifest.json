@@ -1,0 +1,49 @@
+{
+  "cases": [
+    {
+      "id": "ES2006c",
+      "expected": "docs/regression/chunk_action_extraction/expected/ES2006c.expected_actions.md",
+      "after": "docs/regression/chunk_action_extraction/after/ES2006c.after.md"
+    },
+    {
+      "id": "IB4001",
+      "expected": "docs/regression/chunk_action_extraction/expected/IB4001.expected_actions.md",
+      "after": "docs/regression/chunk_action_extraction/after/IB4001.after.md"
+    },
+    {
+      "id": "IN1016",
+      "expected": "docs/regression/chunk_action_extraction/expected/IN1016.expected_actions.md",
+      "after": "docs/regression/chunk_action_extraction/after/IN1016.after.md"
+    },
+    {
+      "id": "IS1000b",
+      "expected": "docs/regression/chunk_action_extraction/expected/IS1000b.expected_actions.md",
+      "after": "docs/regression/chunk_action_extraction/after/IS1000b.after.md"
+    },
+    {
+      "id": "L01_controlled_long_business_50min",
+      "expected": "docs/regression/chunk_action_extraction/expected/L01_controlled_long_business_50min.expected_actions.md",
+      "after": null
+    },
+    {
+      "id": "M01_controlled_29min",
+      "expected": "docs/regression/chunk_action_extraction/expected/M01_controlled_29min.expected_actions.md",
+      "after": null
+    },
+    {
+      "id": "M04_10min",
+      "expected": "docs/regression/chunk_action_extraction/expected/M04_10min.expected_actions.md",
+      "after": "docs/regression/chunk_action_extraction/after/M04_10min.after.md"
+    },
+    {
+      "id": "M05_risks_open_questions",
+      "expected": "docs/regression/chunk_action_extraction/expected/M05_risks_open_questions.expected_actions.md",
+      "after": null
+    },
+    {
+      "id": "S01",
+      "expected": "docs/regression/chunk_action_extraction/expected/S01.expected_actions.md",
+      "after": null
+    }
+  ]
+}
