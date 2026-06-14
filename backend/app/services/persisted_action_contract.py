@@ -811,14 +811,21 @@ def _finalize_persisted_action_contract(
         if obj:
             incoming_objects.append(obj)
 
+    transcript_recall_objects: list[dict[str, object]] = []
     chunk_recall_objects: list[dict[str, Any]] = []
+
     if len(marker_objects) + len(incoming_objects) < 3:
+        transcript_recall_objects = _transcript_recall_action_objects(raw_transcript_text)
+
+    if len(marker_objects) + len(incoming_objects) + len(transcript_recall_objects) < 3:
         chunk_recall_objects = _chunk_recall_action_objects(raw_transcript_text)
 
     if len(marker_objects) >= 3:
         candidates = marker_objects
     else:
-        candidates = marker_objects + incoming_objects + chunk_recall_objects
+        candidates = (
+            marker_objects + incoming_objects + transcript_recall_objects + chunk_recall_objects
+        )
 
     final_objects = _dedupe_objects(candidates)
     final_objects = _clean_final_action_objects(final_objects)
