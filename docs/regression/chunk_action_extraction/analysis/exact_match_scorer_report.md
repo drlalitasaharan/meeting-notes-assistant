@@ -6,11 +6,11 @@
 | IB4001 | 1 | 1 | 0 | 0 | 1.00 | 1.00 | 1.00 | PASS |
 | IN1016 | 3 | 3 | 0 | 0 | 1.00 | 1.00 | 1.00 | PASS |
 | IS1000b | 2 | 2 | 0 | 0 | 1.00 | 1.00 | 1.00 | PASS |
-| L01_controlled_long_business_50min | 0 | 0 | 0 | 0 | 1.00 | 1.00 | 1.00 | MISSING_AFTER_EVIDENCE |
-| M01_controlled_29min | 0 | 0 | 0 | 0 | 1.00 | 1.00 | 1.00 | MISSING_AFTER_EVIDENCE |
+| L01_controlled_long_business_50min | 10 | 0 | 10 | 2 | 0.00 | 0.00 | 0.00 | FAIL |
+| M01_controlled_29min | 6 | 1 | 5 | 0 | 1.00 | 0.17 | 0.29 | FAIL |
 | M04_10min | 0 | 0 | 0 | 0 | 1.00 | 1.00 | 1.00 | PASS |
-| M05_risks_open_questions | 0 | 0 | 0 | 0 | 1.00 | 1.00 | 1.00 | MISSING_AFTER_EVIDENCE |
-| S01 | 0 | 0 | 0 | 0 | 1.00 | 1.00 | 1.00 | MISSING_AFTER_EVIDENCE |
+| M05_risks_open_questions | 2 | 0 | 2 | 0 | 0.00 | 0.00 | 0.00 | FAIL |
+| S01 | 3 | 1 | 2 | 2 | 0.33 | 0.33 | 0.33 | FAIL |
 
 ## Details
 
@@ -56,20 +56,34 @@ Unexpected actual actions:
 
 ### L01_controlled_long_business_50min
 
-Status: **MISSING_AFTER_EVIDENCE**
+Status: **FAIL**
 
 Missing expected actions:
-- None
+- Circulate the approved pilot pricing table by 2026-06-18 17:00
+- Complete the storage and access-control security review by 2026-06-22 12:00
+- Confirm the first pilot customer participant list by 2026-06-24 12:00
+- Confirm whether regional data storage is required
+- Create the customer onboarding checklist
+- Prepare the pilot support-response templates by 2026-06-23 17:00
+- Review whether contractor accounts may join the pilot
+- Run the twelve-recording regression suite and document failures by 2026-06-25 17:00
+- Upload the final demonstration recording by 2026-06-19 15:00
+- Verify recording deletion from storage after the retention test
 
 Unexpected actual actions:
-- None
+- The Working Recommendation Is This, Use The Approved Sample Recording And Retain One Processed Backup Meeting For Demonstration Continuity, Before Confirming Anything, We - Test that recommendation against the pilot objective and current evidence
+- Unassigned - Use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected
 
 ### M01_controlled_29min
 
-Status: **MISSING_AFTER_EVIDENCE**
+Status: **FAIL**
 
 Missing expected actions:
-- None
+- Add stage timing logs to the worker output
+- Create the clean ten-minute audio test and run it through the product
+- Keep one backup meeting processed and ready before any live demo
+- Package the final demo commands into one short runbook
+- Prepare the short live-demo recording
 
 Unexpected actual actions:
 - None
@@ -86,20 +100,23 @@ Unexpected actual actions:
 
 ### M05_risks_open_questions
 
-Status: **MISSING_AFTER_EVIDENCE**
+Status: **FAIL**
 
 Missing expected actions:
-- None
+- Obtain written pricing approval and circulate the approved pricing table to the team by 5pm on June 18th, 2026
+- Send the completed security review summary covering storage access, administrator permissions, and deletion controls by noon on June 22nd, 2026
 
 Unexpected actual actions:
 - None
 
 ### S01
 
-Status: **MISSING_AFTER_EVIDENCE**
+Status: **FAIL**
 
 Missing expected actions:
-- None
+- Finish the remaining storage and access control checks by noon on June 22nd, 2026
+- Upload the final sample recording by 3pm on June 19th, 2026
 
 Unexpected actual actions:
-- None
+- Unassigned - Confirm score, pricing, the sample recording and the security review
+- Unassigned - Create owns the pricing table, Jordan owns the sample recording, and I own the security checklist

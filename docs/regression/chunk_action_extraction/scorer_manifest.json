@@ -23,12 +23,12 @@
     {
       "id": "L01_controlled_long_business_50min",
       "expected": "docs/regression/chunk_action_extraction/expected/L01_controlled_long_business_50min.expected_actions.md",
-      "after": null
+      "after": "docs/regression/chunk_action_extraction/after/L01_controlled_long_business_50min.after.md"
     },
     {
       "id": "M01_controlled_29min",
       "expected": "docs/regression/chunk_action_extraction/expected/M01_controlled_29min.expected_actions.md",
-      "after": null
+      "after": "docs/regression/chunk_action_extraction/after/M01_controlled_29min.after.md"
     },
     {
       "id": "M04_10min",
@@ -38,12 +38,12 @@
     {
       "id": "M05_risks_open_questions",
       "expected": "docs/regression/chunk_action_extraction/expected/M05_risks_open_questions.expected_actions.md",
-      "after": null
+      "after": "docs/regression/chunk_action_extraction/after/M05_risks_open_questions.after.md"
     },
     {
       "id": "S01",
       "expected": "docs/regression/chunk_action_extraction/expected/S01.expected_actions.md",
-      "after": null
+      "after": "docs/regression/chunk_action_extraction/after/S01.after.md"
     }
   ]
 }

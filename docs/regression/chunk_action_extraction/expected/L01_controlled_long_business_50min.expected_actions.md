@@ -1,4 +1,4 @@
-# L01 controlled long business 50-minute expected action evidence
+# L01 controlled long business expected action evidence
 
 ## File
 
@@ -10,40 +10,50 @@ Approximately 50 minutes.
 
 ## Regression purpose
 
-This controlled long business meeting validates long-meeting action recall across early, middle, and late sections.
+This controlled long business meeting validates action recall across a long commercial pilot readiness discussion with many decisions, risks, open questions, rejected proposals, and recap items.
 
-The expected behavior is that MeetIQ should preserve important assigned work across the whole meeting, not only the final recap.
+The expected behavior is that MeetIQ should preserve explicit assigned actions from the final recap and avoid converting recommendations, risks, rejected proposals, open questions, or discussion framing into action items.
 
-## Expected action behavior
+## Expected action items
 
-Expected action item count: 4–8
+- Circulate the approved pilot pricing table by 2026-06-18 17:00
+- Upload the final demonstration recording by 2026-06-19 15:00
+- Complete the storage and access-control security review by 2026-06-22 12:00
+- Prepare the pilot support-response templates by 2026-06-23 17:00
+- Confirm the first pilot customer participant list by 2026-06-24 12:00
+- Run the twelve-recording regression suite and document failures by 2026-06-25 17:00
+- Verify recording deletion from storage after the retention test
+- Create the customer onboarding checklist
+- Confirm whether regional data storage is required
+- Review whether contractor accounts may join the pilot
 
-Expected action qualities:
-- Actions from early, middle, and late sections should be preserved.
-- Owners should be preserved when stated.
-- Deadlines/timing should be preserved when explicitly stated.
-- Similar repeated actions should be deduplicated.
-- Distinct owners, deadlines, or deliverables should not be over-merged.
-- Vague or conversational statements should not become action items.
+## Must-capture actions
 
-## Must-capture categories
+| must_capture | owner | action | deadline | source/evidence | notes |
+|---|---|---|---|---|---|
+| yes | Priya | Circulate the approved pilot pricing table | 2026-06-18 17:00 | Recap action | Explicit recap action |
+| yes | Jordan | Upload the final demonstration recording | 2026-06-19 15:00 | Recap action | Explicit recap action |
+| yes | Alex | Complete the storage and access-control security review | 2026-06-22 12:00 | Recap action | Explicit recap action |
+| yes | Morgan | Prepare the pilot support-response templates | 2026-06-23 17:00 | Recap action | Explicit recap action |
+| yes | Priya | Confirm the first pilot customer participant list | 2026-06-24 12:00 | Recap action | Explicit recap action |
+| yes | Jordan | Run the twelve-recording regression suite and document failures | 2026-06-25 17:00 | Recap action | Explicit recap action |
+| yes | Alex | Verify recording deletion from storage after the retention test | No deadline stated | Recap action | Explicit recap action |
+| yes | Morgan | Create the customer onboarding checklist | No deadline stated | Recap action | Explicit recap action |
+| yes | Unassigned | Confirm whether regional data storage is required | No deadline stated | Recap action | Explicit unassigned action |
+| yes | Unassigned | Review whether contractor accounts may join the pilot | No deadline stated | Recap action | Explicit unassigned action |
 
-MeetIQ should capture actions related to:
-- Pilot/demo readiness work.
-- Upload or structured-notes workflow validation.
-- Client-facing messaging or onboarding preparation.
-- Quality checks for summary, decisions, risks, action items, and markdown/export behavior.
-- Any explicitly assigned owner-specific follow-up.
+## Should-not-capture / false-positive risks
 
-## Unacceptable output
-
-- Capturing only late-meeting recap actions while missing earlier assigned work.
-- Over-merging actions with different owners or deliverables.
-- Promoting vague discussion into action items.
-- Generic workflow actions such as “review summary” or “copy/export.”
+| action/topic | reason |
+|---|---|
+| Test that recommendation against the pilot objective and current evidence | Recommendation-framing language; not a final assigned action. |
+| Use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected | Meeting-process guidance; not a final assigned action. |
+| Proposed or rejected options | Transcript says rejected proposals must not appear as decisions, commitments, next steps, or promised capabilities. |
+| Risks without explicit owners | Risks should remain risks unless explicitly assigned. |
+| Open questions without explicit action language | Open questions should remain open questions unless explicitly assigned or intentionally unassigned. |
 
 ## Pass condition
 
-PASS if MeetIQ captures multiple concrete actions across the long meeting and keeps duplicates/noise low.
+PASS if MeetIQ captures the explicit recap actions, preserves owners/deadlines when stated, keeps unassigned actions unassigned, and avoids converting recommendation/framing language into action items.
 
-FAIL if early/middle actions are lost, owner-specific actions are merged incorrectly, or vague discussion is promoted.
+FAIL if expected recap actions are missing or discussion/recommendation text is promoted into unsupported action items.

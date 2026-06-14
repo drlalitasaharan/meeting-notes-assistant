@@ -57,30 +57,50 @@
       "unexpected_count": 0
     },
     {
-      "actual_count": 0,
+      "actual_count": 2,
       "case_id": "L01_controlled_long_business_50min",
-      "expected_count": 0,
-      "f1": 1.0,
+      "expected_count": 10,
+      "f1": 0.0,
       "matched_count": 0,
-      "missing_count": 0,
-      "missing_expected_actions": [],
-      "precision": 1.0,
-      "recall": 1.0,
-      "status": "MISSING_AFTER_EVIDENCE",
-      "unexpected_actual_actions": [],
-      "unexpected_count": 0
+      "missing_count": 10,
+      "missing_expected_actions": [
+        "Circulate the approved pilot pricing table by 2026-06-18 17:00",
+        "Complete the storage and access-control security review by 2026-06-22 12:00",
+        "Confirm the first pilot customer participant list by 2026-06-24 12:00",
+        "Confirm whether regional data storage is required",
+        "Create the customer onboarding checklist",
+        "Prepare the pilot support-response templates by 2026-06-23 17:00",
+        "Review whether contractor accounts may join the pilot",
+        "Run the twelve-recording regression suite and document failures by 2026-06-25 17:00",
+        "Upload the final demonstration recording by 2026-06-19 15:00",
+        "Verify recording deletion from storage after the retention test"
+      ],
+      "precision": 0.0,
+      "recall": 0.0,
+      "status": "FAIL",
+      "unexpected_actual_actions": [
+        "The Working Recommendation Is This, Use The Approved Sample Recording And Retain One Processed Backup Meeting For Demonstration Continuity, Before Confirming Anything, We - Test that recommendation against the pilot objective and current evidence",
+        "Unassigned - Use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected"
+      ],
+      "unexpected_count": 2
     },
     {
-      "actual_count": 0,
+      "actual_count": 1,
       "case_id": "M01_controlled_29min",
-      "expected_count": 0,
-      "f1": 1.0,
-      "matched_count": 0,
-      "missing_count": 0,
-      "missing_expected_actions": [],
+      "expected_count": 6,
+      "f1": 0.2857,
+      "matched_count": 1,
+      "missing_count": 5,
+      "missing_expected_actions": [
+        "Add stage timing logs to the worker output",
+        "Create the clean ten-minute audio test and run it through the product",
+        "Keep one backup meeting processed and ready before any live demo",
+        "Package the final demo commands into one short runbook",
+        "Prepare the short live-demo recording"
+      ],
       "precision": 1.0,
-      "recall": 1.0,
-      "status": "MISSING_AFTER_EVIDENCE",
+      "recall": 0.1667,
+      "status": "FAIL",
       "unexpected_actual_actions": [],
       "unexpected_count": 0
     },
@@ -101,30 +121,39 @@
     {
       "actual_count": 0,
       "case_id": "M05_risks_open_questions",
-      "expected_count": 0,
-      "f1": 1.0,
+      "expected_count": 2,
+      "f1": 0.0,
       "matched_count": 0,
-      "missing_count": 0,
-      "missing_expected_actions": [],
-      "precision": 1.0,
-      "recall": 1.0,
-      "status": "MISSING_AFTER_EVIDENCE",
+      "missing_count": 2,
+      "missing_expected_actions": [
+        "Obtain written pricing approval and circulate the approved pricing table to the team by 5pm on June 18th, 2026",
+        "Send the completed security review summary covering storage access, administrator permissions, and deletion controls by noon on June 22nd, 2026"
+      ],
+      "precision": 0.0,
+      "recall": 0.0,
+      "status": "FAIL",
       "unexpected_actual_actions": [],
       "unexpected_count": 0
     },
     {
-      "actual_count": 0,
+      "actual_count": 3,
       "case_id": "S01",
-      "expected_count": 0,
-      "f1": 1.0,
-      "matched_count": 0,
-      "missing_count": 0,
-      "missing_expected_actions": [],
-      "precision": 1.0,
-      "recall": 1.0,
-      "status": "MISSING_AFTER_EVIDENCE",
-      "unexpected_actual_actions": [],
-      "unexpected_count": 0
+      "expected_count": 3,
+      "f1": 0.3333,
+      "matched_count": 1,
+      "missing_count": 2,
+      "missing_expected_actions": [
+        "Finish the remaining storage and access control checks by noon on June 22nd, 2026",
+        "Upload the final sample recording by 3pm on June 19th, 2026"
+      ],
+      "precision": 0.3333,
+      "recall": 0.3333,
+      "status": "FAIL",
+      "unexpected_actual_actions": [
+        "Unassigned - Confirm score, pricing, the sample recording and the security review",
+        "Unassigned - Create owns the pricing table, Jordan owns the sample recording, and I own the security checklist"
+      ],
+      "unexpected_count": 2
     }
   ]
 }
