@@ -14,6 +14,17 @@
 - Public-launch acceptance criteria: complete.
 - Starter ground truth: complete for IB4001 and IN1016.
 - ES2006c: completion proof exists, but expected actions still need manual transcript validation.
-- Automated scoring: not started.
-- Chunk-level extraction: not started.
-- Consolidation pass: not started.
+- Automated scoring scaffold: complete.
+- Chunk-level extraction scaffold: complete.
+- Consolidation pass: complete.
+- Chunk action recovery orchestrator: complete.
+- Persisted action contract integration: complete.
+- Existing transcript-recall fallback is preserved before chunk recovery.
+- Broader action-recall safety tests passed: 36 passed.
+
+## Remaining before PR merge
+
+- Fill ground truth for S01, IS1000b, and ES2006c.
+- Run real long-meeting regression outputs through the new path.
+- Update actual Found/Recall/Owner/Deadline/False-positive columns.
+- Document remaining limitations.
