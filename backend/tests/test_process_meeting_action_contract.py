@@ -495,3 +495,42 @@ def test_dedupe_preserves_chunk_recovery_metadata_from_action_objects():
     ]
     assert summary_slots is not None
     assert summary_slots["next_steps"] == ["Review pricing assumptions next week."]
+
+
+def test_finalizes_filters_vague_non_committal_actions_without_dropping_concrete_work():
+    cleaned_action_items, action_item_objects, summary_slots = _finalize_persisted_action_contract(
+        cleaned_action_items=[],
+        action_item_objects=[
+            {
+                "owner": "Industrial Designer",
+                "task": "Take minutes and put updated minutes in the shared folder",
+                "status": "open",
+            },
+            {
+                "owner": "Team",
+                "task": "Save the smartboard or session output into shared project documents as a JPEG",
+                "status": "open",
+            },
+            {
+                "owner": "sample sender",
+                "task": "Do something with voice recognition or not, but anyway, these are different options that we have",
+                "status": "open",
+            },
+        ],
+        summary_slots={"next_steps": []},
+        raw_transcript_text="",
+    )
+
+    joined_tasks = " ".join(str(item.get("task") or "") for item in action_item_objects).lower()
+
+    assert "take minutes" in joined_tasks
+    assert "save the smartboard" in joined_tasks
+    assert "voice recognition" not in joined_tasks
+    assert "different options" not in joined_tasks
+    assert len(action_item_objects) == 2
+    assert len(cleaned_action_items) == 2
+    assert summary_slots is not None
+    assert summary_slots["next_steps"] == [
+        "Take minutes and put updated minutes in the shared folder.",
+        "Save the smartboard or session output into shared project documents as a JPEG.",
+    ]

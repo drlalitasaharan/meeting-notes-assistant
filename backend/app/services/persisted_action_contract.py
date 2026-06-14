@@ -121,6 +121,7 @@ def _is_low_precision_task(task: str) -> bool:
     low = task.lower().strip()
     if not low:
         return True
+
     blocked = (
         "if we send the proposal",
         "proposal flymate",
@@ -131,9 +132,21 @@ def _is_low_precision_task(task: str) -> bool:
         "review summary",
         "copy or export",
     )
-    if low.startswith("if "):
+    vague_non_commitment_phrases = (
+        "do something with",
+        "or not",
+        "different options",
+        "kind of do",
+        "maybe do",
+        "perhaps do",
+        "something around",
+        "whatever",
+    )
+
+    if low.startswith(("if ", "maybe ", "perhaps ")):
         return True
-    return any(phrase in low for phrase in blocked)
+
+    return any(phrase in low for phrase in blocked + vague_non_commitment_phrases)
 
 
 def _dedupe_key(task: str) -> str:
