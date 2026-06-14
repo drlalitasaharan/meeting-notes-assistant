@@ -9,8 +9,8 @@
 | L01_controlled_long_business_50min | 10 | 0 | 10 | 2 | 0.00 | 0.00 | 0.00 | FAIL |
 | M01_controlled_29min | 6 | 1 | 5 | 0 | 1.00 | 0.17 | 0.29 | FAIL |
 | M04_10min | 0 | 0 | 0 | 0 | 1.00 | 1.00 | 1.00 | PASS |
-| M05_risks_open_questions | 2 | 0 | 2 | 0 | 0.00 | 0.00 | 0.00 | FAIL |
-| S01 | 3 | 1 | 2 | 2 | 0.33 | 0.33 | 0.33 | FAIL |
+| M05_risks_open_questions | 2 | 2 | 0 | 0 | 1.00 | 1.00 | 1.00 | PASS |
+| S01 | 3 | 3 | 0 | 0 | 1.00 | 1.00 | 1.00 | PASS |
 
 ## Details
 
@@ -100,23 +100,20 @@ Unexpected actual actions:
 
 ### M05_risks_open_questions
 
-Status: **FAIL**
+Status: **PASS**
 
 Missing expected actions:
-- Obtain written pricing approval and circulate the approved pricing table to the team by 5pm on June 18th, 2026
-- Send the completed security review summary covering storage access, administrator permissions, and deletion controls by noon on June 22nd, 2026
+- None
 
 Unexpected actual actions:
 - None
 
 ### S01
 
-Status: **FAIL**
+Status: **PASS**
 
 Missing expected actions:
-- Finish the remaining storage and access control checks by noon on June 22nd, 2026
-- Upload the final sample recording by 3pm on June 19th, 2026
+- None
 
 Unexpected actual actions:
-- Unassigned - Confirm score, pricing, the sample recording and the security review
-- Unassigned - Create owns the pricing table, Jordan owns the sample recording, and I own the security checklist
+- None

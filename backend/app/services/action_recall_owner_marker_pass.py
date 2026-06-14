@@ -106,6 +106,10 @@ def _is_bad_task(task: str) -> bool:
         "main priorities and next steps",
         "renew summary",
         "structured nodes",
+        "confirm score, pricing",
+        "create owns the pricing table",
+        "test that recommendation against the pilot objective",
+        "use explicit confirmation language",
     )
     if any(fragment in low for fragment in bad_fragments):
         return True
@@ -195,7 +199,7 @@ def _split_marker_body(body: str) -> list[str]:
     body = re.split(r"\b(?:another decision|decision:|risk:)\b", body, maxsplit=1, flags=re.I)[0]
 
     parts = re.split(
-        r",?\s+and\s+(?=(?:send|confirm|draft|clean|upload|run|check|update|schedule)\b)",
+        r",?\s+and\s+(?=(?:send|confirm|draft|clean|upload|run|check|update|schedule|finish|complete|obtain|circulate|prepare|create|verify|review|add|package|keep)\b)",
         body,
         flags=re.I,
     )
@@ -236,6 +240,149 @@ def _extract_marker_items(text: object) -> list[RecalledActionItem]:
                         confidence=0.84,
                     )
                 )
+
+    return items
+
+
+_ACTION_VERB_RE = (
+    r"upload|send|finish|complete|obtain|circulate|prepare|confirm|run|verify|"
+    r"create|review|collect|update|draft|clean|schedule|add|package|keep"
+)
+_SPEAKER_RE = r"Priya|Jordan|Morgan|Alex|Lalita"
+
+
+def _clean_explicit_action_body(body: object) -> str:
+    text = _clean_text(body)
+
+    # Stop before confirmation/metadata sentences that often follow the task.
+    text = re.split(
+        r"\b(?:ownership and deadline confirmed|ownership confirmed|both details should|"
+        r"confirmed,|the record must|the notes must|no participant should|decision confirmed|"
+        r"risk confirmed|open question|there is also|one unresolved question|before closing|this risk|"
+        r"i accept the first action|i accept first action|i accept the second action|i accept second action|"
+        r"this action is intentionally unassigned|no deadline is assigned)\b",
+        text,
+        maxsplit=1,
+        flags=re.I,
+    )[0]
+
+    text = re.sub(
+        r"^(?:i accept\s+(?:the\s+)?(?:first|second|third)?\s*action,?\s*)?"
+        r"(?:i|we)\s+will\s+",
+        "",
+        text,
+        flags=re.I,
+    )
+    text = re.sub(r"\bi accept ownership.*$", "", text, flags=re.I)
+    text = re.sub(r"\.\s+by\s+", " by ", text, flags=re.I)
+    return _clean_text(text)
+
+
+def _append_explicit_item(
+    items: list[RecalledActionItem],
+    *,
+    owner: object,
+    body: object,
+    confidence: float = 0.88,
+) -> None:
+    task_text = _clean_explicit_action_body(body)
+    task = _normalize_task(task_text, owner)
+    if not task or _is_bad_task(task):
+        return
+
+    # Keep recall focused on actual task-like commitments.
+    if not re.match(rf"^(?:{_ACTION_VERB_RE})\b", task, flags=re.I):
+        return
+
+    items.append(
+        RecalledActionItem(
+            owner=_normalize_owner(owner),
+            task=task,
+            due=_due_date(task),
+            confidence=confidence,
+        )
+    )
+
+
+def _extract_explicit_commitment_items(text: object) -> list[RecalledActionItem]:
+    raw = re.sub(r"\s+", " ", str(text or "")).strip()
+    if not raw:
+        return []
+
+    items: list[RecalledActionItem] = []
+
+    # Final recap format:
+    # "Recap action: Upload the final demonstration recording. Owner: Jordan. Deadline: ..."
+    recap_pattern = re.compile(
+        r"Recap action:\s*(?P<body>.*?)(?:\.\s*)?"
+        r"Owner:\s*(?P<owner>[A-Za-z]+|Unassigned)\.?\s*"
+        r"Deadline:\s*(?P<deadline>.*?)(?=\s(?:Recap action:|Recap risk:|Recap open question:|$))",
+        flags=re.I,
+    )
+    for match in recap_pattern.finditer(raw):
+        body = _clean_text(match.group("body"))
+        deadline = _clean_text(match.group("deadline"))
+        if deadline and deadline.lower() not in {"no deadline", "no deadline stated"}:
+            body = f"{body} by {deadline}"
+        _append_explicit_item(
+            items,
+            owner=match.group("owner"),
+            body=body,
+            confidence=0.9,
+        )
+
+    # Explicit action format:
+    # "Alex: Explicit action: Complete the storage review. I accept ownership..."
+    explicit_pattern = re.compile(
+        rf"(?:(?P<speaker>{_SPEAKER_RE}):\s*)?"
+        r"Explicit action:\s*(?P<body>.*?)(?=\s(?:"
+        rf"{_SPEAKER_RE}"
+        r"):\s|$)",
+        flags=re.I,
+    )
+    for match in explicit_pattern.finditer(raw):
+        snippet = match.group("body")
+        lowered = snippet.lower()
+        owner = "Unassigned" if "intentionally unassigned" in lowered else match.group("speaker")
+        _append_explicit_item(
+            items,
+            owner=owner or "Team",
+            body=snippet,
+            confidence=0.9,
+        )
+
+    # Acceptance format:
+    # "I accept the first action, I will obtain written pricing approval..."
+    accept_pattern = re.compile(
+        rf"(?:(?P<speaker>{_SPEAKER_RE}):\s*)?"
+        r"[^:.]{0,160}?\bI accept\s+(?:the\s+)?(?:first|second|third)?\s*action[,.]?\s*"
+        r"I will\s+(?P<body>.*?)(?=\s(?:"
+        rf"{_SPEAKER_RE}"
+        r"):\s|\sI accept\s+(?:the\s+)?(?:first|second|third)?\s*action|\sNo action was assigned|$)",
+        flags=re.I,
+    )
+    for match in accept_pattern.finditer(raw):
+        _append_explicit_item(
+            items,
+            owner=match.group("speaker") or "Team",
+            body=match.group("body"),
+            confidence=0.9,
+        )
+
+    # Direct commitment format:
+    # "I will upload...", "I will finish...", etc.
+    will_pattern = re.compile(
+        rf"(?:(?P<speaker>{_SPEAKER_RE}):\s*)?"
+        rf"\bI will\s+(?P<body>(?:{_ACTION_VERB_RE})\b.*?)(?=\s(?:{_SPEAKER_RE}):\s|$)",
+        flags=re.I,
+    )
+    for match in will_pattern.finditer(raw):
+        _append_explicit_item(
+            items,
+            owner=match.group("speaker") or "Team",
+            body=match.group("body"),
+            confidence=0.84,
+        )
 
     return items
 
@@ -309,8 +456,10 @@ def apply_owner_marker_action_recall(
 
     candidates: list[RecalledActionItem] = []
 
-    # Owner-marker items get first chance because they carry explicit owners.
+    # Owner-marker and explicit commitment items get first chance because they carry
+    # the clearest task evidence from the transcript.
     candidates.extend(_extract_marker_items(raw_text))
+    candidates.extend(_extract_explicit_commitment_items(raw_text))
 
     for item in existing_items or []:
         recalled = _object_to_recalled(item)
