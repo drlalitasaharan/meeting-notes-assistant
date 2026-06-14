@@ -154,10 +154,13 @@ def _extract_owner_and_action(statement: str) -> tuple[str, str]:
         flags=re.IGNORECASE,
     )
     if named_owner_match:
-        return (
-            named_owner_match.group("owner").strip(),
-            _clean_action(named_owner_match.group("action")),
-        )
+        owner = named_owner_match.group("owner").strip()
+        action = _clean_action(named_owner_match.group("action"))
+
+        if owner.lower() in {"we", "they", "someone", "somebody", "everyone", "team"}:
+            return "Unassigned", action
+
+        return owner, action
 
     unassigned_match = re.search(
         r"\b(?:we need to|we should|need to|needs to|action item:?|follow up to)\s+"
