@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from app.services.chunk_action_recovery import recover_chunk_level_actions
 from app.services.transcript_action_recall import synthesize_action_items_from_transcript
 
 ACTION_VERBS = (
@@ -695,6 +696,49 @@ def _clean_final_action_objects(
     return [by_key[key] for key in ordered_keys]
 
 
+def _chunk_recall_action_objects(raw_transcript_text: object) -> list[dict[str, object]]:
+    transcript = _textify(raw_transcript_text)
+    if not transcript:
+        return []
+
+    objects: list[dict[str, object]] = []
+
+    for item in recover_chunk_level_actions(transcript, max_actions=12):
+        task = _normalize_task(item.action, item.owner)
+        if _is_low_precision_task(task):
+            continue
+
+        due_date = None
+        if item.deadline and item.deadline.lower() != "no deadline stated":
+            due_date = item.deadline
+
+        confidence_by_label = {
+            "low": 0.55,
+            "medium": 0.7,
+            "high": 0.85,
+        }
+        confidence = confidence_by_label.get(item.confidence.lower(), 0.7)
+
+        owner = _normalize_owner(item.owner, task)
+
+        objects.append(
+            {
+                "text": f"{owner}: {task}",
+                "owner": owner,
+                "task": task,
+                "due_date": due_date,
+                "confidence": confidence,
+                "status": "open",
+                "priority": "medium",
+                "source": "chunk_action_recovery",
+                "source_chunk": item.source_chunk,
+                "reason_context": item.reason_context,
+            }
+        )
+
+    return objects
+
+
 def _transcript_recall_action_objects(raw_transcript_text: object) -> list[dict[str, object]]:
     """Recover evidence-backed action objects directly from the transcript.
 
@@ -767,10 +811,14 @@ def _finalize_persisted_action_contract(
         if obj:
             incoming_objects.append(obj)
 
+    chunk_recall_objects: list[dict[str, Any]] = []
+    if len(marker_objects) + len(incoming_objects) < 3:
+        chunk_recall_objects = _chunk_recall_action_objects(raw_transcript_text)
+
     if len(marker_objects) >= 3:
         candidates = marker_objects
     else:
-        candidates = marker_objects + incoming_objects
+        candidates = marker_objects + incoming_objects + chunk_recall_objects
 
     final_objects = _dedupe_objects(candidates)
     final_objects = _clean_final_action_objects(final_objects)
