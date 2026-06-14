@@ -11,6 +11,13 @@ def normalize_action(value: str) -> str:
     text = value.strip().lower()
     text = re.sub(r"^\s*[-*]\s*", "", text)
     text = re.sub(r"^\[[ xX]\]\s*", "", text)
+
+    # Exact-match scoring compares the task sentence, not display owner labels.
+    # Product output may prefix actions as "Unassigned - task",
+    # "Jordan: task", or "**Jordan** — task". Strip that prefix first.
+    text = re.sub(r"^\*\*[^*]{1,80}\*\*\s*[—–:-]\s+", "", text)
+    text = re.sub(r"^[a-z0-9][a-z0-9 ._'()/&]{0,80}\s*[—–:-]\s+", "", text)
+
     text = text.replace("—", " ").replace("–", " ").replace("-", " ").replace(":", " ")
     text = re.sub(r"[^a-z0-9]+", " ", text)
     return re.sub(r"\s+", " ", text).strip()

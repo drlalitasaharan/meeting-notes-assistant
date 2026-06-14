@@ -14,34 +14,34 @@ This controlled medium meeting focuses on risks, open questions, and unresolved 
 
 The expected behavior is that MeetIQ should distinguish risks/open questions from true action items.
 
-## Expected action behavior
+## Expected action items
 
-Expected action item count: 1–4
+- Obtain written pricing approval and circulate the approved pricing table to the team by 5pm on June 18th, 2026
+- Send the completed security review summary covering storage access, administrator permissions, and deletion controls by noon on June 22nd, 2026
 
-Expected action qualities:
-- Only explicit follow-up work should become action items.
-- Risks should remain risks unless someone is clearly assigned to resolve them.
-- Open questions should not become action items unless paired with an owner and task.
-- Owners should be preserved when stated.
-- Deadlines should be preserved only when explicitly stated.
+## Must-capture actions
 
-## Must-capture categories
+| must_capture | owner | action | deadline | source/evidence | notes |
+|---|---|---|---|---|---|
+| yes | Priya | Obtain written pricing approval and circulate the approved pricing table to the team | by 5pm on June 18th, 2026 | "I will obtain written pricing approval and circulate the approved pricing table to the team. by five PM on June eighteenth, twenty twenty-six." | Direct commitment |
+| yes | Alex | Send the completed security review summary covering storage access, administrator permissions, and deletion controls | by noon on June 22nd, 2026 | "I will send the completed security review summary covering storage access, administrator permissions, and deletion controls. by noon on June twenty-second, twenty twenty-six." | Direct commitment |
 
-MeetIQ should capture actions related to:
-- Resolving or following up on clearly assigned open questions.
-- Confirming risk mitigation steps when assigned.
-- Preparing or sharing specific follow-up material when stated as work.
-- Checking unclear assumptions only when assigned to a person/team.
+## Should-not-capture / false-positive risks
 
-## Unacceptable output
-
-- Converting every risk into an action item.
-- Converting every open question into an action item.
-- Vague “follow up on risks” items without owner or concrete task.
-- Generic summary/review/copy/export actions.
+| action/topic | reason |
+|---|---|
+| Delayed pricing approval could postpone the client follow-up | Risk only; not an action unless tied to Priya's explicit pricing-approval commitment. |
+| Unclear data-retention requirements could delay legal and privacy approval | Risk only; no owner or deadline assigned. |
+| Unconfirmed pilot user count could create inaccurate capacity and pricing assumptions | Risk only; no owner or deadline assigned. |
+| Low-quality or unsupported recordings could cause processing failures | Risk only; no owner or deadline assigned. |
+| Whether the client requires single sign-on during the pilot | Open question; no owner or deadline assigned. |
+| Whether recordings must remain in a specific geographic region | Open question; no owner or deadline assigned. |
+| Whether external contractors will be included in the pilot | Open question; no owner or deadline assigned. |
+| Whether sixty-minute recordings must be supported in the initial pilot | Open question; no owner or deadline assigned. |
+| Action assigned to Jordan or Morgan | Transcript explicitly says no action was assigned to Jordan or Morgan. |
 
 ## Pass condition
 
-PASS if MeetIQ keeps risks/open questions separate and captures only clearly assigned follow-up work.
+PASS if MeetIQ captures the two explicit assigned actions and does not convert risks/open questions into extra action items.
 
-FAIL if the output creates many unsupported action items from risk discussion.
+FAIL if the output misses the assigned actions or creates unsupported action items from risks/open questions.
