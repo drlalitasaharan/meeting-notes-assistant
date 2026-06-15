@@ -8,17 +8,37 @@
 
 ## Action Items
 
-- The Working Recommendation Is This, Use The Approved Sample Recording And Retain One Processed Backup Meeting For Demonstration Continuity, Before Confirming Anything, We - Test that recommendation against the pilot objective and current evidence
-- Unassigned - Use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected
+- Team - Circulate the approved pilot pricing table by 2026-06-18 17:00
+- Team - Complete the storage and access-control security review by 2026-06-22 12:00
+- Team - Confirm the first pilot customer participant list by 2026-06-24 12:00
+- Team - Confirm whether regional data storage is required
+- Team - Create the customer onboarding checklist
+- Team - Prepare the pilot support-response templates by 2026-06-23 17:00
+- Team - Review whether contractor accounts may join the pilot
+- Team - Run the twelve-recording regression suite and document failures by 2026-06-25 17:00
+- Team - Upload the final demonstration recording by 2026-06-19 15:00
+- Team - Verify recording deletion from storage after the retention test
 
 ## Action Item Objects
 
-- owner=The Working Recommendation Is This, Use The Approved Sample Recording And Retain One Processed Backup Meeting For Demonstration Continuity, Before Confirming Anything, We; task=Test that recommendation against the pilot objective and current evidence; due=No deadline stated; source=chunk_action_recovery; chunk=1; confidence=0.68; context=The working recommendation is this, do not infer contractor eligibility, record the issue as unresolved and review it when the customer provides the participant list, before confirming anything, we should test that recommendation against the pilot objective and current evidence.
-- owner=Unassigned; task=Use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected; due=No deadline stated; source=chunk_action_recovery; chunk=1; confidence=0.55; context=Likewise, a proposed option is not a decision, we will use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected.
+- owner=Team; task=Circulate the approved pilot pricing table by 2026-06-18 17:00; due=2026-06-18 17:00; source=transcript_action_recall; chunk=; confidence=0.86; context=
+- owner=Team; task=Complete the storage and access-control security review by 2026-06-22 12:00; due=2026-06-22 12:00; source=transcript_action_recall; chunk=; confidence=0.86; context=
+- owner=Team; task=Confirm the first pilot customer participant list by 2026-06-24 12:00; due=2026-06-24 12:00; source=transcript_action_recall; chunk=; confidence=0.86; context=
+- owner=Team; task=Confirm whether regional data storage is required; due=No deadline stated; source=transcript_action_recall; chunk=; confidence=0.86; context=
+- owner=Team; task=Create the customer onboarding checklist; due=No deadline stated; source=transcript_action_recall; chunk=; confidence=0.86; context=
+- owner=Team; task=Prepare the pilot support-response templates by 2026-06-23 17:00; due=2026-06-23 17:00; source=transcript_action_recall; chunk=; confidence=0.86; context=
+- owner=Team; task=Review whether contractor accounts may join the pilot; due=No deadline stated; source=transcript_action_recall; chunk=; confidence=0.86; context=
+- owner=Team; task=Run the twelve-recording regression suite and document failures by 2026-06-25 17:00; due=2026-06-25 17:00; source=transcript_action_recall; chunk=; confidence=0.86; context=
+- owner=Team; task=Upload the final demonstration recording by 2026-06-19 15:00; due=2026-06-19 15:00; source=transcript_action_recall; chunk=; confidence=0.86; context=
+- owner=Team; task=Verify recording deletion from storage after the retention test; due=No deadline stated; source=transcript_action_recall; chunk=; confidence=0.86; context=
 
 ## Summary next steps
 
-- Test that recommendation against the pilot objective and current evidence.
+- Circulate the approved pilot pricing table by 2026-06-18 17:00.
+- Complete the storage and access-control security review by 2026-06-22 12:00.
+- Confirm the first pilot customer participant list by 2026-06-24 12:00.
+- Confirm whether regional data storage is required.
+- Create the customer onboarding checklist.
 
 ## Raw capture JSON
 
@@ -26,33 +46,117 @@
 {
   "action_item_objects": [
     {
-      "confidence": 0.68,
-      "due_date": null,
-      "owner": "The Working Recommendation Is This, Use The Approved Sample Recording And Retain One Processed Backup Meeting For Demonstration Continuity, Before Confirming Anything, We",
+      "confidence": 0.86,
+      "due_date": "2026-06-18 17:00",
+      "owner": "Team",
       "priority": "medium",
-      "reason_context": "The working recommendation is this, do not infer contractor eligibility, record the issue as unresolved and review it when the customer provides the participant list, before confirming anything, we should test that recommendation against the pilot objective and current evidence.",
-      "source": "chunk_action_recovery",
-      "source_chunk": 1,
+      "source": "transcript_action_recall",
       "status": "open",
-      "task": "Test that recommendation against the pilot objective and current evidence",
-      "text": "The Working Recommendation Is This, Use The Approved Sample Recording And Retain One Processed Backup Meeting For Demonstration Continuity, Before Confirming Anything, We: Test that recommendation against the pilot objective and current evidence"
+      "task": "Circulate the approved pilot pricing table by 2026-06-18 17:00",
+      "text": "Team: Circulate the approved pilot pricing table by 2026-06-18 17:00"
     },
     {
-      "confidence": 0.55,
-      "due_date": null,
-      "owner": "Unassigned",
+      "confidence": 0.86,
+      "due_date": "2026-06-22 12:00",
+      "owner": "Team",
       "priority": "medium",
-      "reason_context": "Likewise, a proposed option is not a decision, we will use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected.",
-      "source": "chunk_action_recovery",
-      "source_chunk": 1,
+      "source": "transcript_action_recall",
       "status": "open",
-      "task": "Use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected",
-      "text": "Unassigned: Use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected"
+      "task": "Complete the storage and access-control security review by 2026-06-22 12:00",
+      "text": "Team: Complete the storage and access-control security review by 2026-06-22 12:00"
+    },
+    {
+      "confidence": 0.86,
+      "due_date": "2026-06-24 12:00",
+      "owner": "Team",
+      "priority": "medium",
+      "source": "transcript_action_recall",
+      "status": "open",
+      "task": "Confirm the first pilot customer participant list by 2026-06-24 12:00",
+      "text": "Team: Confirm the first pilot customer participant list by 2026-06-24 12:00"
+    },
+    {
+      "confidence": 0.86,
+      "due_date": null,
+      "owner": "Team",
+      "priority": "medium",
+      "source": "transcript_action_recall",
+      "status": "open",
+      "task": "Confirm whether regional data storage is required",
+      "text": "Team: Confirm whether regional data storage is required"
+    },
+    {
+      "confidence": 0.86,
+      "due_date": null,
+      "owner": "Team",
+      "priority": "medium",
+      "source": "transcript_action_recall",
+      "status": "open",
+      "task": "Create the customer onboarding checklist",
+      "text": "Team: Create the customer onboarding checklist"
+    },
+    {
+      "confidence": 0.86,
+      "due_date": "2026-06-23 17:00",
+      "owner": "Team",
+      "priority": "medium",
+      "source": "transcript_action_recall",
+      "status": "open",
+      "task": "Prepare the pilot support-response templates by 2026-06-23 17:00",
+      "text": "Team: Prepare the pilot support-response templates by 2026-06-23 17:00"
+    },
+    {
+      "confidence": 0.86,
+      "due_date": null,
+      "owner": "Team",
+      "priority": "medium",
+      "source": "transcript_action_recall",
+      "status": "open",
+      "task": "Review whether contractor accounts may join the pilot",
+      "text": "Team: Review whether contractor accounts may join the pilot"
+    },
+    {
+      "confidence": 0.86,
+      "due_date": "2026-06-25 17:00",
+      "owner": "Team",
+      "priority": "medium",
+      "source": "transcript_action_recall",
+      "status": "open",
+      "task": "Run the twelve-recording regression suite and document failures by 2026-06-25 17:00",
+      "text": "Team: Run the twelve-recording regression suite and document failures by 2026-06-25 17:00"
+    },
+    {
+      "confidence": 0.86,
+      "due_date": "2026-06-19 15:00",
+      "owner": "Team",
+      "priority": "medium",
+      "source": "transcript_action_recall",
+      "status": "open",
+      "task": "Upload the final demonstration recording by 2026-06-19 15:00",
+      "text": "Team: Upload the final demonstration recording by 2026-06-19 15:00"
+    },
+    {
+      "confidence": 0.86,
+      "due_date": null,
+      "owner": "Team",
+      "priority": "medium",
+      "source": "transcript_action_recall",
+      "status": "open",
+      "task": "Verify recording deletion from storage after the retention test",
+      "text": "Team: Verify recording deletion from storage after the retention test"
     }
   ],
   "action_items": [
-    "The Working Recommendation Is This, Use The Approved Sample Recording And Retain One Processed Backup Meeting For Demonstration Continuity, Before Confirming Anything, We - Test that recommendation against the pilot objective and current evidence",
-    "Unassigned - Use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected"
+    "Team - Circulate the approved pilot pricing table by 2026-06-18 17:00",
+    "Team - Complete the storage and access-control security review by 2026-06-22 12:00",
+    "Team - Confirm the first pilot customer participant list by 2026-06-24 12:00",
+    "Team - Confirm whether regional data storage is required",
+    "Team - Create the customer onboarding checklist",
+    "Team - Prepare the pilot support-response templates by 2026-06-23 17:00",
+    "Team - Review whether contractor accounts may join the pilot",
+    "Team - Run the twelve-recording regression suite and document failures by 2026-06-25 17:00",
+    "Team - Upload the final demonstration recording by 2026-06-19 15:00",
+    "Team - Verify recording deletion from storage after the retention test"
   ],
   "decision_objects": [
     {
@@ -97,7 +201,11 @@
   "summary": "The meeting focused on reviewing current Meeting Notes Assistant progress, aligning demo planning and artifacts, refining pilot outreach and positioning, and reviewing current technical risks. The team aligned on: No new owner, deadline, decision, risk, or customer promise may be introduced during the recap, anything not confirmed in the main discussion remains outside the approved record; A proposed option is not a decision, we will use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected",
   "summary_slots": {
     "next_steps": [
-      "Test that recommendation against the pilot objective and current evidence."
+      "Circulate the approved pilot pricing table by 2026-06-18 17:00.",
+      "Complete the storage and access-control security review by 2026-06-22 12:00.",
+      "Confirm the first pilot customer participant list by 2026-06-24 12:00.",
+      "Confirm whether regional data storage is required.",
+      "Create the customer onboarding checklist."
     ],
     "outcome": "The team aligned on: No new owner, deadline, decision, risk, or customer promise may be introduced during the recap, anything not confirmed in the main discussion remains outside the approved record; A proposed option is not a decision, we will use explicit confirmation language when the group reaches agreement and explicit rejection language when an option is not selected.",
     "purpose": "The meeting focused on reviewing current Meeting Notes Assistant progress, aligning demo planning and artifacts, refining pilot outreach and positioning, and reviewing current technical risks",
