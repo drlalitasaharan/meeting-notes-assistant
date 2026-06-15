@@ -12,6 +12,7 @@ from app.models.user import User
 from app.schemas.meetings import MeetingCreate, MeetingRead, MeetingUpdate
 from app.schemas.notes import NoteCreate, NoteRead
 from app.services.data_controls import delete_raw_media_best_effort
+from app.services.usage_limits import enforce_can_create_meeting
 
 router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
 
@@ -27,6 +28,8 @@ def create_meeting(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    enforce_can_create_meeting(db=db, current_user=current_user)
+
     m = Meeting(
         title=payload.title,
         scheduled_at=payload.scheduled_at,

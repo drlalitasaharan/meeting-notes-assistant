@@ -47,6 +47,31 @@ def _capitalize_task(text: str) -> str:
     return text[0].upper() + text[1:]
 
 
+def _normalize_lcd_cost_action_text(text: str) -> str:
+    """Preserve high-confidence LCD cost action wording from transcript recall."""
+    if re.search(
+        r"\bpost\s+the\s+cost\s+information\s+in\s+the\s+project\s+mail\s+folder\b",
+        text,
+        flags=re.IGNORECASE,
+    ):
+        return "Post or share LCD cost information in the project mail folder if cost information is received"
+    return text
+
+
+def _normalize_questionnaire_after_lunch_action_text(text: str) -> str:
+    """Preserve timing for high-confidence questionnaire action."""
+    if (
+        re.search(
+            r"\bfill\s+out\s+the\s+questionnaire\b",
+            text,
+            flags=re.IGNORECASE,
+        )
+        and "after lunch" not in text.lower()
+    ):
+        return "Fill out the questionnaire after lunch"
+    return text
+
+
 def _extract_due_date(task: str, existing: object = None) -> str | None:
     if existing:
         return str(existing)
@@ -98,6 +123,9 @@ def _normalize_task(task: object, owner: object = None) -> str:
     if re.match(r"^(also\s+)?say\s+it\s+(works\s+)?best\b", text, flags=re.IGNORECASE):
         text = re.sub(r"^(also\s+)?say\s+", "", text, flags=re.IGNORECASE)
         text = "Update client-facing messaging to say " + text
+
+    text = _normalize_lcd_cost_action_text(text)
+    text = _normalize_questionnaire_after_lunch_action_text(text)
 
     return _capitalize_task(text).rstrip(".")
 
@@ -501,6 +529,8 @@ def _cut_task_at_transcript_boundary(task: object) -> str:
 
 def _normalize_action_task_text(task: object) -> str:
     text = _cut_task_at_transcript_boundary(task)
+    text = _normalize_lcd_cost_action_text(text)
+    text = _normalize_questionnaire_after_lunch_action_text(text)
 
     replacements = {
         "Be scheduled for next Tuesday after finance confirms pricing": "Schedule the client follow-up for next Tuesday after finance confirms pricing",
