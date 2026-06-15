@@ -1,32 +1,66 @@
 export default function TermsPage() {
   return (
-    <div style={{ display: "grid", gap: 20, maxWidth: 860 }}>
-      <section style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 28 }}>
-        <h1 style={{ marginTop: 0, marginBottom: 12, fontSize: 32, color: "#111827" }}>Terms of Service</h1>
-        <p style={{ margin: 0, color: "#4b5563", fontSize: 16, lineHeight: 1.6 }}>
-          By using MeetIQ by Acjen AI, you agree to use the service responsibly and to upload recordings only when you have permission to do so.
-        </p>
-      </section>
+    <main className="mx-auto max-w-3xl px-6 py-12">
+      <p className="text-sm text-gray-500">Last updated: June 15, 2026</p>
 
-      <section style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 28 }}>
-        <h2 style={{ marginTop: 0, marginBottom: 12, fontSize: 24, color: "#111827" }}>Usage requirements</h2>
-        <p style={{ color: "#4b5563", fontSize: 16, lineHeight: 1.7 }}>
-          <strong>Permission:</strong> Upload recordings only if you own them or have explicit permission from all participants. Do not upload private, confidential, or proprietary content unless you are authorized to do so.
-        </p>
-        <p style={{ color: "#4b5563", fontSize: 16, lineHeight: 1.7 }}>
-          <strong>AI-generated content:</strong> Generated meeting notes, summaries, and action items require human review before use. AI-generated content may contain mistakes or omissions and should not be relied upon as authoritative without verification.
-        </p>
-        <p style={{ color: "#4b5563", fontSize: 16, lineHeight: 1.7 }}>
-          <strong>Not a transcript system:</strong> MeetIQ is not a legal, regulatory, compliance, evidentiary, or official transcript service. For official records or sensitive applications, use certified human transcription services.
-        </p>
-      </section>
+      <h1 className="mt-3 text-3xl font-bold">Terms of Use</h1>
 
-      <section style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 28 }}>
-        <h2 style={{ marginTop: 0, marginBottom: 12, fontSize: 24, color: "#111827" }}>Service availability</h2>
-        <p style={{ color: "#4b5563", fontSize: 16, lineHeight: 1.7 }}>
-          During early access, MeetIQ may experience downtime, changes, or temporary unavailability. We are not responsible for data loss or service interruptions during this period. Users are responsible for maintaining their own backups.
-        </p>
-      </section>
-    </div>
+      <p className="mt-6">
+        These Terms of Use describe the rules for using MeetIQ. By using the
+        product, you agree to use it responsibly and only with recordings you are
+        authorized to upload and process.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">Authorized use</h2>
+      <p className="mt-3">
+        You are responsible for ensuring that you have the right to upload,
+        process, store, and generate notes from any recording you submit to
+        MeetIQ. You should follow applicable consent, privacy, employment, and
+        recording laws.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">AI-generated outputs</h2>
+      <p className="mt-3">
+        MeetIQ uses automated systems to generate summaries, decisions, risks,
+        action items, and related notes. Outputs may be incomplete or inaccurate.
+        You are responsible for reviewing and verifying outputs before relying
+        on them.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">No professional advice</h2>
+      <p className="mt-3">
+        MeetIQ does not provide legal, financial, medical, compliance, or other
+        professional advice. Meeting notes are informational and should not be
+        treated as a substitute for professional judgment.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">Prohibited use</h2>
+      <p className="mt-3">
+        Do not use MeetIQ to process unlawful content, violate privacy rights,
+        upload content you do not have permission to use, reverse engineer the
+        service, abuse usage limits, or interfere with product security.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">Availability</h2>
+      <p className="mt-3">
+        MeetIQ may change, limit, suspend, or discontinue features as the product
+        evolves. During pilot or early access periods, some functionality may be
+        experimental.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">Limitation of liability</h2>
+      <p className="mt-3">
+        To the maximum extent permitted by law, MeetIQ is provided without
+        warranties of any kind, and the product owner is not liable for indirect,
+        incidental, consequential, or special damages arising from use of the
+        service.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">Contact</h2>
+      <p className="mt-3">
+        For questions about these terms, contact the support email listed on the
+        Support page.
+      </p>
+    </main>
   );
 }
