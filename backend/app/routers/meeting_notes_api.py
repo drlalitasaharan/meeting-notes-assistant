@@ -21,6 +21,7 @@ from app.services.media_metadata import probe_media_duration_seconds
 from app.services.usage_limits import (
     enforce_free_trial_duration_limit,
     enforce_free_trial_upload_limit,
+    record_upload_ledger_entry,
 )
 
 router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
@@ -197,6 +198,16 @@ async def upload_meeting_media(
             status_code=500,
             detail="We couldn't process this file. Please try a shorter recording or upload a supported audio/video format.",
         )
+
+    record_upload_ledger_entry(
+        db=db,
+        current_user=current_user,
+        meeting=meeting,
+        original_filename=file.filename,
+        file_size_bytes=len(raw_bytes),
+        content_type=file.content_type,
+        storage_key=raw_path,
+    )
 
     meeting.raw_media_path = raw_path
     meeting.media_duration_seconds = media_duration_seconds

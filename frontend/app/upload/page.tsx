@@ -170,7 +170,12 @@ export default function UploadPage() {
       }
 
       console.error(err);
-      setError("Upload failed. Please try again.");
+      const message = err instanceof Error ? err.message : "Upload failed. Please try again.";
+      setError(
+        message.includes("free-trial upload") || message.includes("Free trial")
+          ? message
+          : "Upload failed. Please try again.",
+      );
     } finally {
       setIsUploading(false);
     }
