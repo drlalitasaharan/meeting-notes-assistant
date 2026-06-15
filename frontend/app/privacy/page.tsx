@@ -1,39 +1,66 @@
 export default function PrivacyPage() {
   return (
-    <div style={{ display: "grid", gap: 20, maxWidth: 860 }}>
-      <section style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 28 }}>
-        <h1 style={{ marginTop: 0, marginBottom: 12, fontSize: 32, color: "#111827" }}>Privacy</h1>
-        <p style={{ margin: 0, color: "#4b5563", fontSize: 16, lineHeight: 1.6 }}>
-          MeetIQ by Acjen AI stores meeting recordings and generated notes for your account only.
-        </p>
-      </section>
+    <main className="mx-auto max-w-3xl px-6 py-12">
+      <p className="text-sm text-gray-500">Last updated: June 15, 2026</p>
 
-      <section style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 28 }}>
-        <h2 style={{ marginTop: 0, marginBottom: 12, fontSize: 24, color: "#111827" }}>How we use your data</h2>
-        <p style={{ color: "#4b5563", fontSize: 16, lineHeight: 1.7 }}>
-          You upload meeting audio or video recordings to MeetIQ. We process these recordings to generate structured meeting notes, summaries, action items, and other analysis. Files are stored in your account and are not shared with other users.
-        </p>
-        <p style={{ color: "#4b5563", fontSize: 16, lineHeight: 1.7 }}>
-          <strong>Important:</strong> Only upload recordings that you own or have explicit permission to upload. Do not upload private, confidential, or proprietary content unless you are authorized to do so.
-        </p>
-      </section>
+      <h1 className="mt-3 text-3xl font-bold">Privacy Policy</h1>
 
-      <section style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 28 }}>
-        <h2 style={{ marginTop: 0, marginBottom: 12, fontSize: 24, color: "#111827" }}>AI-generated content</h2>
-        <p style={{ color: "#4b5563", fontSize: 16, lineHeight: 1.7 }}>
-          AI-generated summaries, action items, decisions, and other analysis may contain mistakes, omissions, or inaccuracies. Always review generated content before relying on it for decisions.
-        </p>
-        <p style={{ color: "#4b5563", fontSize: 16, lineHeight: 1.7 }}>
-          MeetIQ is not a legal, regulatory, compliance, or official transcript system. For sensitive or official records, use human transcription or certified recording services.
-        </p>
-      </section>
+      <p className="mt-6">
+        MeetIQ helps users turn meeting recordings into structured notes,
+        decisions, risks, and action items. This Privacy Policy explains what
+        information may be collected, how it is used, and how users can request
+        support or deletion.
+      </p>
 
-      <section style={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 28 }}>
-        <h2 style={{ marginTop: 0, marginBottom: 12, fontSize: 24, color: "#111827" }}>Questions?</h2>
-        <p style={{ color: "#4b5563", fontSize: 16, lineHeight: 1.7 }}>
-          If you have questions about how your recordings are stored, processed, or shared, contact us at <strong>support@acjen.ai</strong>.
-        </p>
-      </section>
-    </div>
+      <h2 className="mt-8 text-xl font-semibold">Information we process</h2>
+      <p className="mt-3">
+        When you use MeetIQ, we may process account information, uploaded meeting
+        recordings, generated notes, transcript text, file metadata, usage
+        activity, and support requests.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">How we use information</h2>
+      <p className="mt-3">
+        We use this information to provide the service, process recordings,
+        generate notes, troubleshoot issues, prevent abuse, improve reliability,
+        and respond to support requests.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">AI processing</h2>
+      <p className="mt-3">
+        Uploaded recordings may be processed by transcription and AI systems to
+        generate meeting notes. AI-generated outputs should be reviewed by the
+        user before being relied on, shared, or used for decisions.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">Storage and deletion</h2>
+      <p className="mt-3">
+        Meeting files and generated outputs may be stored so users can access,
+        review, export, or delete their meetings. When a user deletes a meeting,
+        MeetIQ is designed to remove the related meeting record and associated
+        stored media from active storage. Temporary logs, backups, or provider
+        retention systems may persist for a limited time.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">Third-party providers</h2>
+      <p className="mt-3">
+        MeetIQ may use trusted service providers for hosting, storage,
+        authentication, email, analytics, transcription, and AI processing. These
+        providers are used only to operate and support the product.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">Sensitive information</h2>
+      <p className="mt-3">
+        Do not upload recordings that contain highly sensitive, regulated, or
+        legally restricted information unless you are authorized to do so and
+        have confirmed that MeetIQ is appropriate for that use case.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">Support and requests</h2>
+      <p className="mt-3">
+        For privacy, deletion, or support requests, contact the support email
+        listed on the Support page.
+      </p>
+    </main>
   );
 }
