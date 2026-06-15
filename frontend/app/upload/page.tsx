@@ -68,6 +68,81 @@ const labelStyle = {
   color: "#123326",
 };
 
+
+function UploadGuidanceCard() {
+  return (
+    <section
+      style={{
+        ...cardStyle,
+        marginBottom: 22,
+        padding: 24,
+      }}
+    >
+      <p
+        style={{
+          color: "#2f6f4e",
+          fontSize: 12,
+          fontWeight: 800,
+          letterSpacing: "0.08em",
+          margin: 0,
+          textTransform: "uppercase",
+        }}
+      >
+        How MeetIQ works
+      </p>
+
+      <h2 style={{ color: "#123326", margin: "10px 0 10px" }}>
+        Upload a meeting recording. Get structured notes.
+      </h2>
+
+      <div
+        style={{
+          display: "grid",
+          gap: 14,
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          marginTop: 18,
+        }}
+      >
+        {[
+          {
+            title: "1. Upload",
+            body: "Choose a clear meeting recording and add a short title.",
+          },
+          {
+            title: "2. Process",
+            body: "MeetIQ transcribes and prepares summary, decisions, risks, and action items.",
+          },
+          {
+            title: "3. Review",
+            body: "Check names, owners, deadlines, and decisions before sharing.",
+          },
+        ].map((step) => (
+          <article
+            key={step.title}
+            style={{
+              background: "#ffffff",
+              border: "1px solid #d7eadf",
+              borderRadius: 16,
+              padding: 16,
+            }}
+          >
+            <strong style={{ color: "#123326" }}>{step.title}</strong>
+            <p style={{ color: "#5d6f66", lineHeight: 1.55, margin: "8px 0 0" }}>
+              {step.body}
+            </p>
+          </article>
+        ))}
+      </div>
+
+      <p style={{ color: "#5d6f66", lineHeight: 1.6, margin: "18px 0 0" }}>
+        Best results come from real meetings with clear audio, limited background
+        noise, and visible decision or action-item discussion. The free trial is
+        designed for one meeting up to 30 minutes.
+      </p>
+    </section>
+  );
+}
+
 export default function UploadPage() {
   const router = useRouter();
 

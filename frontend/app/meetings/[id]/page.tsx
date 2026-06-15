@@ -84,6 +84,36 @@ function formatLastUpdated(value: number | null) {
   });
 }
 
+
+function ResultsGuidanceCard({ hasNotes }: { hasNotes: boolean }) {
+  return (
+    <aside
+      style={{
+        background: hasNotes ? "#f0fdf4" : "#f8fbf8",
+        border: hasNotes ? "1px solid #bbf7d0" : "1px solid #d7eadf",
+        borderRadius: 16,
+        color: "#365342",
+        fontSize: 14,
+        lineHeight: 1.6,
+        padding: "14px 16px",
+      }}
+    >
+      {hasNotes ? (
+        <>
+          <strong>Before sharing:</strong> review names, owners, deadlines,
+          decisions, and action items. Use the edit controls to make corrections,
+          then copy or download the Markdown export.
+        </>
+      ) : (
+        <>
+          <strong>Processing tip:</strong> you can leave this page while MeetIQ
+          prepares your notes. Return from the Meetings page to check status.
+        </>
+      )}
+    </aside>
+  );
+}
+
 export default function MeetingResultsPage() {
   const params = useParams<{ id: string }>();
   const meetingId = params.id;
@@ -468,7 +498,7 @@ export default function MeetingResultsPage() {
         isPolling={Boolean(jobId && isPollingStatus(status) && !notes)}
       />
 
-      {error ? <ErrorBanner message={error} /> : null}
+      {!error ? <ResultsGuidanceCard hasNotes={Boolean(notes)} /> : null}\n\n      {error ? <ErrorBanner message={error} /> : null}
 
       {error ? (
         <aside
@@ -529,7 +559,7 @@ export default function MeetingResultsPage() {
             Loading results
           </h2>
           <p style={mutedTextStyle}>
-            We will refresh this page state automatically while the backend job is still running.
+            We will refresh this page automatically while MeetIQ is preparing your notes.
           </p>
         </section>
       ) : null}

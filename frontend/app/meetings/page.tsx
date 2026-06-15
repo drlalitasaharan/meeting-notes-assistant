@@ -53,6 +53,59 @@ function formatMeetingDate(value?: string | null): string {
   return `Created ${new Date(value).toLocaleString()}`;
 }
 
+
+function HowItWorksCard() {
+  return (
+    <section
+      style={{
+        background: "#ffffff",
+        border: "1px solid #d7eadf",
+        borderRadius: 24,
+        color: "#5d6f66",
+        lineHeight: 1.6,
+        marginTop: 22,
+        padding: 24,
+      }}
+    >
+      <h2 style={{ color: "#123326", margin: "0 0 12px" }}>
+        What to expect from your first upload
+      </h2>
+
+      <div
+        style={{
+          display: "grid",
+          gap: 14,
+          gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+        }}
+      >
+        <div>
+          <strong style={{ color: "#123326" }}>Use a meeting recording</strong>
+          <p style={{ margin: "6px 0 0" }}>
+            MeetIQ works best for real conversations with updates, decisions,
+            risks, owners, or next steps.
+          </p>
+        </div>
+
+        <div>
+          <strong style={{ color: "#123326" }}>Wait for processing</strong>
+          <p style={{ margin: "6px 0 0" }}>
+            While a meeting is processing, you can leave the page and return from
+            your meetings list.
+          </p>
+        </div>
+
+        <div>
+          <strong style={{ color: "#123326" }}>Review before sharing</strong>
+          <p style={{ margin: "6px 0 0" }}>
+            Edit names, owners, dates, and decisions before using notes as the
+            final meeting record.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function MeetingsPage() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -198,7 +251,7 @@ export default function MeetingsPage() {
           </div>
         </section>
 
-        {isLoading ? (
+        <HowItWorksCard />\n\n        {isLoading ? (
           <section
             style={{
               background: "#ffffff",
