@@ -7,6 +7,32 @@ import UsageSummaryCard from "../../components/UsageSummaryCard";
 import { getCurrentUser, getUsageSummary } from "../../lib/api";
 import type { UsageSummary } from "../../lib/types";
 
+
+function UsageGuidanceCard() {
+  return (
+    <section
+      style={{
+        background: "#ffffff",
+        border: "1px solid #d7eadf",
+        borderRadius: 24,
+        color: "#5d6f66",
+        lineHeight: 1.6,
+        marginTop: 22,
+        padding: 24,
+      }}
+    >
+      <h2 style={{ color: "#123326", margin: "0 0 8px" }}>
+        How to use your trial well
+      </h2>
+      <p style={{ margin: 0 }}>
+        Use your first upload for a real meeting with clear audio and concrete
+        decisions or action items. After processing, review the notes, edit any
+        names or deadlines, and download the Markdown export if you need a local copy.
+      </p>
+    </section>
+  );
+}
+
 export default function UsagePage() {
   const [usage, setUsage] = useState<UsageSummary | null>(null);
   const [status, setStatus] = useState<"loading" | "authenticated" | "unauthenticated">(
@@ -124,7 +150,7 @@ export default function UsagePage() {
             </section>
           ) : null}
 
-          {usage ? <UsageSummaryCard usage={usage} /> : null}
+          {usage ? <UsageSummaryCard usage={usage} /> : null}\n\n          {usage ? <UsageGuidanceCard /> : null}
 
           {usage ? (
             <div style={{ display: "flex", gap: 12, marginTop: 22, flexWrap: "wrap" }}>
