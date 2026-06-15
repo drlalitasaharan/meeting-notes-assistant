@@ -258,6 +258,20 @@ export async function getJobStatus(jobId: string): Promise<JobStatus> {
   });
 }
 
+
+export async function retryMeetingProcessing(
+  meetingId: number,
+): Promise<{ status: string; meeting_id: number; job_id?: string | null }> {
+  return fetchWithAuth<{ status: string; meeting_id: number; job_id?: string | null }>(
+    `/v1/meetings/${meetingId}/retry-processing`,
+    {
+      method: "POST",
+      cache: "no-store",
+    },
+  );
+}
+
+
 export async function getMeetingNotes(meetingId: number): Promise<MeetingNotes> {
   return fetchWithAuth<MeetingNotes>(`/v1/meetings/${meetingId}/notes/ai`, {
     method: "GET",

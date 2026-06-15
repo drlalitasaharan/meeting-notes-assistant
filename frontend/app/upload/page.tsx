@@ -91,6 +91,31 @@ export default function UploadPage() {
     return false;
   }
 
+
+  function getUploadFailureMessage(err: unknown): string {
+    const status = typeof err === "object" && err !== null ? (err as any).status : undefined;
+    const message = err instanceof Error ? err.message : "";
+
+    if (message.includes("free-trial upload") || message.includes("Free trial")) {
+      return message;
+    }
+
+    if (status === 400 || status === 413 || /unsupported file|file type|too large|30 minutes|duration/i.test(message)) {
+      return message || "This recording could not be uploaded. Please check the file type, size, and duration.";
+    }
+
+    if (status === 402) {
+      return message || "Your current plan limit has been reached.";
+    }
+
+    if (status === 503 || /queue|storage|network|fetch failed/i.test(message)) {
+      return "MeetIQ could not start processing right now. Please try again in a few minutes.";
+    }
+
+    return "Upload failed. Please check your connection and try again. If it keeps happening, contact support with the file type and recording length.";
+  }
+
+
   useEffect(() => {
     let active = true;
 
@@ -170,12 +195,7 @@ export default function UploadPage() {
       }
 
       console.error(err);
-      const message = err instanceof Error ? err.message : "Upload failed. Please try again.";
-      setError(
-        message.includes("free-trial upload") || message.includes("Free trial")
-          ? message
-          : "Upload failed. Please try again.",
-      );
+      setError(getUploadFailureMessage(err));
     } finally {
       setIsUploading(false);
     }

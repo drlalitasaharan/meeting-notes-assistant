@@ -18,6 +18,7 @@ import {
 import {
   deleteMeeting,
   getJobStatus,
+  retryMeetingProcessing,
   getMeetingMarkdown,
   getMeetingNotes,
   updateMeetingNotesSection,
@@ -32,6 +33,9 @@ type MeetingNotes = {
   key_points: string[];
   action_items: string[];
 };
+
+const PROCESSING_FAILED_MESSAGE =
+  "Processing failed. You can retry processing now. If it fails again, contact support and include this Meeting ID.";
 
 type JobResponse = {
   id?: string;
@@ -93,6 +97,7 @@ export default function MeetingResultsPage() {
   const [error, setError] = useState("");
   const [loadingResults, setLoadingResults] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isRetryingProcessing, setIsRetryingProcessing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
   const loadNotes = useCallback(
@@ -171,6 +176,37 @@ export default function MeetingResultsPage() {
     }
   }, [isDeleting, meetingId, router]);
 
+
+  const handleRetryProcessing = useCallback(async () => {
+    if (isRetryingProcessing) return;
+
+    setIsRetryingProcessing(true);
+    setError("");
+
+    try {
+      const retry = await retryMeetingProcessing(Number(meetingId));
+      const nextJobId = retry.job_id ?? "";
+      const jobQuery = nextJobId ? `?jobId=${encodeURIComponent(nextJobId)}` : "";
+
+      setNotes(null);
+      setMarkdown("");
+      setStatus("queued");
+      setLoadingResults(false);
+      setLastUpdated(Date.now());
+
+      router.replace(`/meetings/${meetingId}${jobQuery}`);
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "We could not restart processing right now. Please try again later.";
+      setError(message);
+    } finally {
+      setIsRetryingProcessing(false);
+    }
+  }, [isRetryingProcessing, meetingId, router]);
+
+
   const checkJob = useCallback(async () => {
     if (!jobId) return null;
     return getJobStatus(jobId);
@@ -206,7 +242,7 @@ export default function MeetingResultsPage() {
         if (nextStatus === "succeeded") {
           await loadNotes(true);
         } else if (nextStatus === "failed") {
-          setError("Processing failed. Check worker logs and try again.");
+          setError(PROCESSING_FAILED_MESSAGE);
           setLoadingResults(false);
         } else {
           setLoadingResults(false);
@@ -246,7 +282,7 @@ export default function MeetingResultsPage() {
         if (nextStatus === "succeeded") {
           await loadNotes(true);
         } else if (nextStatus === "failed") {
-          setError("Processing failed. Check worker logs and try again.");
+          setError(PROCESSING_FAILED_MESSAGE);
           setLoadingResults(false);
         }
       } catch (err) {
@@ -376,6 +412,29 @@ export default function MeetingResultsPage() {
             >
               View all meetings
             </a>
+
+
+            {status === "failed" ? (
+              <button
+                type="button"
+                onClick={handleRetryProcessing}
+                disabled={isRetryingProcessing}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "11px 16px",
+                  borderRadius: 10,
+                  border: "1px solid #166534",
+                  background: isRetryingProcessing ? "#d9eadf" : "#ffffff",
+                  color: "#166534",
+                  cursor: isRetryingProcessing ? "not-allowed" : "pointer",
+                  fontWeight: 700,
+                }}
+              >
+                {isRetryingProcessing ? "Retrying..." : "Retry processing"}
+              </button>
+            ) : null}
 
             <button
               type="button"

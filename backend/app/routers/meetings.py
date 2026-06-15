@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.deps import get_current_user
+from app.jobs.meetings import enqueue_process_meeting
 from app.models.meeting import Meeting
 from app.models.meeting_notes import MeetingNotes
 from app.models.note import Note
@@ -103,6 +104,50 @@ def update_meeting(
     db.commit()
     db.refresh(m)
     return m
+
+
+@router.post("/{meeting_id}/retry-processing", response_model=dict[str, Any])
+def retry_meeting_processing(
+    meeting_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    m = db.get(Meeting, meeting_id)
+    if not m or m.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    if not getattr(m, "raw_media_path", None):
+        raise HTTPException(
+            status_code=400,
+            detail="This meeting does not have an uploaded recording to retry.",
+        )
+
+    m.status = "PROCESSING"
+    if hasattr(m, "last_error"):
+        m.last_error = None
+
+    db.add(m)
+    db.commit()
+    db.refresh(m)
+
+    try:
+        job = enqueue_process_meeting(meeting_id=meeting_id)
+    except Exception:
+        m.status = "ERROR"
+        if hasattr(m, "last_error"):
+            m.last_error = "Unable to start processing. Please try again later."
+        db.add(m)
+        db.commit()
+        raise HTTPException(
+            status_code=503,
+            detail="We could not restart processing right now. Please try again later or contact support.",
+        )
+
+    return {
+        "status": "processing",
+        "meeting_id": meeting_id,
+        "job_id": getattr(job, "id", None),
+    }
 
 
 @router.delete("/{meeting_id}", status_code=status.HTTP_204_NO_CONTENT)
