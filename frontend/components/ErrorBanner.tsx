@@ -1,8 +1,14 @@
 type ErrorBannerProps = {
   message: string;
+  actionHref?: string;
+  actionLabel?: string;
 };
 
-export default function ErrorBanner({ message }: ErrorBannerProps) {
+export default function ErrorBanner({
+  message,
+  actionHref,
+  actionLabel,
+}: ErrorBannerProps) {
   return (
     <div
       style={{
@@ -14,7 +20,22 @@ export default function ErrorBanner({ message }: ErrorBannerProps) {
         marginTop: 12,
       }}
     >
-      {message}
+      <span>{message}</span>
+      {actionHref && actionLabel ? (
+        <>
+          {" "}
+          <a
+            href={actionHref}
+            style={{
+              color: "#991b1b",
+              fontWeight: 800,
+              textDecoration: "underline",
+            }}
+          >
+            {actionLabel}
+          </a>
+        </>
+      ) : null}
     </div>
   );
 }
