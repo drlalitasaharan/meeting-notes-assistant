@@ -498,7 +498,9 @@ export default function MeetingResultsPage() {
         isPolling={Boolean(jobId && isPollingStatus(status) && !notes)}
       />
 
-      {!error ? <ResultsGuidanceCard hasNotes={Boolean(notes)} /> : null}\n\n      {error ? <ErrorBanner message={error} /> : null}
+      {!error ? <ResultsGuidanceCard hasNotes={Boolean(notes)} /> : null}
+
+      {error ? <ErrorBanner message={error} /> : null}
 
       {error ? (
         <aside
