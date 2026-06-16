@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
@@ -13,6 +14,11 @@ from app.services.billing import (
     cancel_manual_paid_access,
     get_billing_status,
     grant_manual_paid_access,
+)
+from app.services.paypal_webhooks import (
+    PayPalWebhookVerificationError,
+    process_paypal_webhook_event,
+    verify_paypal_webhook_signature,
 )
 
 router = APIRouter(tags=["billing"])
@@ -27,6 +33,47 @@ class ManualUpgradeRequest(BaseModel):
 
 class ManualCancelRequest(BaseModel):
     user_email: EmailStr
+
+
+@router.post("/v1/billing/paypal/webhook")
+async def paypal_billing_webhook(
+    request: Request,
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    raw_body = await request.body()
+
+    try:
+        payload = json.loads(raw_body.decode("utf-8"))
+    except json.JSONDecodeError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid PayPal webhook JSON payload.",
+        ) from None
+
+    if not isinstance(payload, dict):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid PayPal webhook payload.",
+        )
+
+    try:
+        verified = verify_paypal_webhook_signature(
+            headers=request.headers,
+            webhook_event=payload,
+        )
+    except PayPalWebhookVerificationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        ) from exc
+
+    if not verified:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="PayPal webhook signature verification failed.",
+        )
+
+    return process_paypal_webhook_event(db=db, payload=payload)
 
 
 @router.get("/v1/billing/status")
