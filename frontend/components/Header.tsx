@@ -94,6 +94,9 @@ export default function Header() {
               <Link href="/usage" style={navItemStyle}>
                 Usage
               </Link>
+              <Link href="/pricing" style={navItemStyle}>
+                Pricing
+              </Link>
               <Link href="/support" style={navItemStyle}>
                 Support
               </Link>
@@ -103,6 +106,9 @@ export default function Header() {
             </>
           ) : (
             <>
+              <Link href="/pricing" style={navItemStyle}>
+                Pricing
+              </Link>
               <Link href="/login" style={navItemStyle}>
                 Login
               </Link>
