@@ -34,7 +34,16 @@ export default function DataRetentionPage() {
       <p className="mt-3">
         Some limited technical records may remain temporarily in logs, backups,
         or infrastructure provider systems for security, reliability, debugging,
-        and legal purposes.
+        abuse prevention, and legal purposes. These records are not intended to
+        be used as the active product copy of a deleted meeting.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">Support troubleshooting</h2>
+      <p className="mt-3">
+        For support, MeetIQ may use operational metadata such as account email,
+        Meeting ID, processing status, timestamps, and last error. Users should
+        avoid sending full transcripts, confidential meeting content, or
+        sensitive recordings unless needed for troubleshooting.
       </p>
 
       <h2 className="mt-8 text-xl font-semibold">Account deletion requests</h2>
