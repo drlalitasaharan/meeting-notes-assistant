@@ -38,7 +38,7 @@ Expected behavior:
 
 Set these in the Render backend API service, not in the frontend:
 
-PAYPAL_MODE=sandbox-or-live
+PAYPAL_ENV=sandbox-or-live
 PAYPAL_CLIENT_ID=
 PAYPAL_CLIENT_SECRET=
 PAYPAL_WEBHOOK_ID=
