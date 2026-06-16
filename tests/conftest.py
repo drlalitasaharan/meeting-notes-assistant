@@ -48,7 +48,18 @@ def _create_schema():
 
     # Drop & recreate from metadata (whatever models are registered)
     Base.metadata.drop_all(bind=engine)
+    # Billing models are new and must be present in the SQLite test DB.
+    # Some older test setup paths only create the previously imported model tables.
+    from app.models.billing import (  # noqa: F401
+        BillingEvent,
+        BillingSubscription,
+        ManualBillingOverride,
+    )
+
     Base.metadata.create_all(bind=engine)
+    BillingSubscription.__table__.create(bind=engine, checkfirst=True)
+    BillingEvent.__table__.create(bind=engine, checkfirst=True)
+    ManualBillingOverride.__table__.create(bind=engine, checkfirst=True)
 
     insp = inspect(engine)
     tables = insp.get_table_names()
@@ -127,6 +138,7 @@ def api_headers(client):
         "app.models.meeting_notes",
         "app.models.note",
         "app.models.upload_ledger",
+        "app.models.billing",
     ):
         try:
             importlib.import_module(module_name)
