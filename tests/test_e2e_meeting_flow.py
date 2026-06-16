@@ -18,21 +18,24 @@ def test_e2e_meeting_flow_creates_notes(
       - Notes are persisted and exposed via /notes/ai and /notes.md
     """
     from app.routers import meeting_notes_api
-    from app.services import transcription, notes as notes_svc
     from app.jobs import process_meeting as process_mod
 
     # --- Fakes / stubs -----------------------------------------------------
 
-    def fake_save_raw_media_stub(meeting_id: str, file, data: bytes) -> str:
+    def fake_save_raw_media(meeting_id: str, file, data: bytes) -> str:
         path = tmp_path / f"{meeting_id}.mp4"
         path.write_bytes(data)
         return str(path)
 
-    def fake_transcribe_audio(audio_bytes: bytes) -> Dict[str, Any]:
-        return {
-            "text": "This is a fake transcript for the E2E flow.",
-            "segments": [],
-        }
+    class FakeTranscription:
+        text = "This is a fake transcript for the E2E flow."
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {"text": self.text, "segments": []}
+
+    class FakeTranscriber:
+        def transcribe(self, audio_path: str) -> FakeTranscription:
+            return FakeTranscription()
 
     def fake_generate_meeting_notes(transcript: Dict[str, Any]) -> Dict[str, Any]:
         return {
@@ -45,18 +48,19 @@ def test_e2e_meeting_flow_creates_notes(
     # Apply monkeypatches
     monkeypatch.setattr(
         meeting_notes_api,
-        "_save_raw_media_stub",
-        fake_save_raw_media_stub,
+        "_save_raw_media",
+        fake_save_raw_media,
         raising=True,
     )
     monkeypatch.setattr(
-        transcription,
-        "transcribe_audio",
-        fake_transcribe_audio,
+        process_mod,
+        "get_transcriber",
+        lambda: FakeTranscriber(),
         raising=True,
     )
+    monkeypatch.setattr(process_mod.settings, "NOTES_STRATEGY", "local_rules", raising=False)
     monkeypatch.setattr(
-        notes_svc,
+        process_mod,
         "generate_meeting_notes",
         fake_generate_meeting_notes,
         raising=True,
@@ -142,7 +146,17 @@ def test_e2e_meeting_flow_includes_slide_ocr_in_notes(
 
     SLIDE_TEXT = "SLIDE_OCR_TEXT"
 
-    def fake_save_raw_media_stub(meeting_id: str, file, data: bytes) -> str:
+    class FakeTranscription:
+        text = "This is a fake transcript for the slide OCR E2E flow."
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {"text": self.text, "segments": []}
+
+    class FakeTranscriber:
+        def transcribe(self, audio_path: str) -> FakeTranscription:
+            return FakeTranscription()
+
+    def fake_save_raw_media(meeting_id: str, file, data: bytes) -> str:
         path = tmp_path / f"{meeting_id}.mp4"
         path.write_bytes(data)
         return str(path)
@@ -168,10 +182,17 @@ def test_e2e_meeting_flow_includes_slide_ocr_in_notes(
     # Apply monkeypatches
     monkeypatch.setattr(
         meeting_notes_api,
-        "_save_raw_media_stub",
-        fake_save_raw_media_stub,
+        "_save_raw_media",
+        fake_save_raw_media,
         raising=True,
     )
+    monkeypatch.setattr(
+        process_mod,
+        "get_transcriber",
+        lambda: FakeTranscriber(),
+        raising=True,
+    )
+    monkeypatch.setattr(process_mod.settings, "NOTES_STRATEGY", "local_rules", raising=False)
     # Patch the names that process_meeting actually calls
     monkeypatch.setattr(
         process_mod,
@@ -214,7 +235,7 @@ def test_e2e_meeting_flow_includes_slide_ocr_in_notes(
     # 4) Reload notes from the DB and assert *some* summary has the OCR text
     db = SessionLocal()
     try:
-        notes_rows = db.query(MeetingNotes).filter(MeetingNotes.meeting_id == str(meeting_id)).all()
+        notes_rows = db.query(MeetingNotes).filter(MeetingNotes.meeting_id == meeting_id).all()
     finally:
         db.close()
 
