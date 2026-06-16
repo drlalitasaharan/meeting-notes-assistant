@@ -155,6 +155,26 @@ def _cors_allowed_origins() -> list[str]:
     return list(dict.fromkeys(origins))
 
 
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    """
+    Add conservative HTTP security headers for launch.
+
+    These headers do not change product behavior, auth, billing, storage,
+    uploads, or processing. They reduce accidental browser exposure and make the
+    hosted API safer behind the frontend.
+    """
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault(
+        "Permissions-Policy",
+        "camera=(), microphone=(), geolocation=(), payment=()",
+    )
+    return response
+
+
 # ---------------------------------------------------------------------------
 # API routers
 # ---------------------------------------------------------------------------
@@ -165,8 +185,13 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_allowed_origins(),
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Accept",
+        "Authorization",
+        "Content-Type",
+        "X-API-Key",
+    ],
 )
 
 app.include_router(admin.router)

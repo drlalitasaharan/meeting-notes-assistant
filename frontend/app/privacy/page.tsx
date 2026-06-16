@@ -33,6 +33,22 @@ export default function PrivacyPage() {
         user before being relied on, shared, or used for decisions.
       </p>
 
+
+      <h2 className="mt-8 text-xl font-semibold">Security practices</h2>
+      <p className="mt-3">
+        MeetIQ uses authenticated account access, admin-only operational views,
+        and infrastructure controls intended to limit access to customer data.
+        Operational dashboards are designed to expose support metadata such as
+        status, timestamps, and errors rather than full meeting content.
+      </p>
+
+      <h2 className="mt-8 text-xl font-semibold">User control</h2>
+      <p className="mt-3">
+        Users can review, edit, export, and delete meeting notes from the
+        product. Before deleting a meeting, users should download any Markdown
+        export they want to keep locally.
+      </p>
+
       <h2 className="mt-8 text-xl font-semibold">Storage and deletion</h2>
       <p className="mt-3">
         Meeting files and generated outputs may be stored so users can access,

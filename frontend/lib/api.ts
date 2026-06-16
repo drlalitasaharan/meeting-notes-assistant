@@ -146,6 +146,7 @@ async function handleTextResponse(response: Response): Promise<string> {
 
 async function fetchWithAuth<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
+    cache: "no-store",
     ...options,
     headers: buildHeaders(options?.headers),
   });
@@ -159,6 +160,7 @@ async function fetchWithAuth<T>(path: string, options?: RequestInit): Promise<T>
 
 async function fetchTextWithAuth(path: string, options?: RequestInit): Promise<string> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
+    cache: "no-store",
     ...options,
     headers: buildHeaders(options?.headers),
   });
