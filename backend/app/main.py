@@ -14,13 +14,16 @@ from app.logging_utils import (
     get_logger,
 )
 from app.metrics import render_all_metrics_prometheus, track_http_request
-from app.routers import admin, auth, jobs, meetings, slides, usage
+from app.routers import admin, auth, billing, jobs, meetings, slides, usage
 
 app = FastAPI(title="Meeting Notes Assistant")
 
 # Configure structured logging for the API once at startup
 configure_logging("api")
 logger = get_logger(__name__)
+
+
+app.include_router(billing.router)
 
 
 @app.exception_handler(Exception)
