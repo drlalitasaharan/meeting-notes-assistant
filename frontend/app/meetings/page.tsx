@@ -251,7 +251,9 @@ export default function MeetingsPage() {
           </div>
         </section>
 
-        <HowItWorksCard />\n\n        {isLoading ? (
+        <HowItWorksCard />
+
+        {isLoading ? (
           <section
             style={{
               background: "#ffffff",
