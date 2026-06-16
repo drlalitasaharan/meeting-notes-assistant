@@ -102,9 +102,65 @@ def client():
         yield c
 
 
-@pytest.fixture()
-def api_headers():
-    return {"X-API-Key": os.getenv("API_KEY", "dev-secret-123")}
+@pytest.fixture
+def api_headers(client):
+    """
+    Return auth headers for tests that exercise authenticated API routes.
+
+    User-owned meeting routes now require bearer-token auth. Keep X-API-Key as
+    a compatibility header for legacy/system-test routes that still read it.
+    """
+    import importlib
+    import os
+    import uuid
+
+    from app.models import Base
+
+    try:
+        from app.core.db import engine
+    except ImportError:
+        from app.db import engine
+
+    for module_name in (
+        "app.models.user",
+        "app.models.meeting",
+        "app.models.meeting_notes",
+        "app.models.note",
+        "app.models.upload_ledger",
+    ):
+        try:
+            importlib.import_module(module_name)
+        except ModuleNotFoundError:
+            pass
+
+    from sqlalchemy import inspect
+
+    inspector = inspect(engine)
+    if "meetings" in inspector.get_table_names():
+        meeting_columns = {column["name"] for column in inspector.get_columns("meetings")}
+        if "user_id" not in meeting_columns:
+            Base.metadata.drop_all(bind=engine)
+
+    Base.metadata.create_all(bind=engine)
+
+    email = f"test-user-{uuid.uuid4().hex}@example.com"
+    response = client.post(
+        "/v1/auth/signup",
+        json={
+            "email": email,
+            "password": "TestPassword123!",
+            "first_name": "Test",
+            "last_name": "User",
+            "organization_name": "MeetIQ Tests",
+        },
+    )
+    assert response.status_code in (200, 201), response.text
+
+    token = response.json()["access_token"]
+    return {
+        "Authorization": f"Bearer {token}",
+        "X-API-Key": os.getenv("API_KEY") or os.getenv("X_API_KEY") or "dev-secret-123",
+    }
 
 
 # --- Golden-flow: ensure meeting_notes table exists for test DB ---------
