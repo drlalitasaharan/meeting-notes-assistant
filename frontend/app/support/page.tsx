@@ -259,6 +259,32 @@ export default function SupportPage() {
               <li>Avoid sharing sensitive meeting details unless needed for support.</li>
             </ul>
           </section>
+
+          <section
+            style={{
+              background: "#ffffff",
+              border: "1px solid #d7eadf",
+              borderRadius: 22,
+              color: "#365342",
+              lineHeight: 1.7,
+              marginTop: 22,
+              padding: 22,
+            }}
+          >
+            <h2 style={{ color: "#123326", marginTop: 0 }}>What happens next</h2>
+            <p style={{ marginTop: 0 }}>
+              We review support requests using the account email, Meeting ID, visible
+              error message, and admin processing status. For privacy, avoid sending
+              full transcripts, confidential meeting details, or sensitive recordings
+              unless we specifically ask for them.
+            </p>
+            <p style={{ marginBottom: 0 }}>
+              If your meeting is stuck or failed, include the Meeting ID shown on the
+              results page so we can check processing status, last error, and whether
+              the job needs to be retried.
+            </p>
+          </section>
+
         </div>
       </main>
     </>

@@ -176,6 +176,128 @@ function Metric({
   );
 }
 
+
+function AdminSupportTriageCard({
+  overview,
+}: {
+  overview: AdminOverview;
+}) {
+  const hasFailures = overview.failed > 0;
+  const hasStuck = overview.stuck > 0;
+
+  return (
+    <section
+      style={{
+        ...cardStyle,
+        background: "#f8fbf8",
+        borderColor: hasFailures || hasStuck ? "#f7d8a8" : "#d7e5db",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 18,
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ maxWidth: 760 }}>
+          <p
+            style={{
+              margin: 0,
+              color: "#2f6f4e",
+              fontSize: 12,
+              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            Support triage
+          </p>
+
+          <h2 style={{ color: "#123326", margin: "8px 0 10px" }}>
+            Use this page to investigate customer support requests.
+          </h2>
+
+          <p style={{ color: "#4f6b5b", lineHeight: 1.6, margin: 0 }}>
+            Search by customer email or meeting title, then review status, stuck
+            state, timestamps, and last error. Do not ask customers to send
+            full transcripts or recordings unless the issue cannot be diagnosed
+            from operational metadata.
+          </p>
+        </div>
+
+        <Link
+          href="/support"
+          style={{
+            ...secondaryButtonStyle,
+            display: "inline-flex",
+            textDecoration: "none",
+            whiteSpace: "nowrap",
+          }}
+        >
+          View support page
+        </Link>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gap: 14,
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+          marginTop: 20,
+        }}
+      >
+        <article
+          style={{
+            background: "#ffffff",
+            border: "1px solid #d7eadf",
+            borderRadius: 16,
+            padding: 16,
+          }}
+        >
+          <strong style={{ color: "#123326" }}>Failed processing</strong>
+          <p style={{ color: "#5d6f66", lineHeight: 1.55, margin: "8px 0 0" }}>
+            Filter or search for failed meetings, review the last error, and ask
+            the customer to retry only after confirming the issue is temporary.
+          </p>
+        </article>
+
+        <article
+          style={{
+            background: "#ffffff",
+            border: "1px solid #d7eadf",
+            borderRadius: 16,
+            padding: 16,
+          }}
+        >
+          <strong style={{ color: "#123326" }}>Stuck jobs</strong>
+          <p style={{ color: "#5d6f66", lineHeight: 1.55, margin: "8px 0 0" }}>
+            Stuck means queued or processing for over {overview.stuck_after_minutes}
+            minutes. Refresh health checks before escalating infrastructure issues.
+          </p>
+        </article>
+
+        <article
+          style={{
+            background: "#ffffff",
+            border: "1px solid #d7eadf",
+            borderRadius: 16,
+            padding: 16,
+          }}
+        >
+          <strong style={{ color: "#123326" }}>Customer reply</strong>
+          <p style={{ color: "#5d6f66", lineHeight: 1.55, margin: "8px 0 0" }}>
+            Reply with what happened, whether retry is available, and whether the
+            user should upload a clearer supported recording.
+          </p>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 export default function AdminPage() {
   const router = useRouter();
 
@@ -453,6 +575,8 @@ export default function AdminPage() {
           {error}
         </section>
       ) : null}
+
+      <AdminSupportTriageCard overview={overview} />
 
       <section
         style={{
