@@ -52,6 +52,7 @@ def _create_schema():
     # Some older test setup paths only create the previously imported model tables.
     from app.models.billing import (  # noqa: F401
         BillingEvent,
+        BillingPaymentAttempt,
         BillingSubscription,
         ManualBillingOverride,
     )
@@ -59,6 +60,7 @@ def _create_schema():
     Base.metadata.create_all(bind=engine)
     BillingSubscription.__table__.create(bind=engine, checkfirst=True)
     BillingEvent.__table__.create(bind=engine, checkfirst=True)
+    BillingPaymentAttempt.__table__.create(bind=engine, checkfirst=True)
     ManualBillingOverride.__table__.create(bind=engine, checkfirst=True)
 
     insp = inspect(engine)

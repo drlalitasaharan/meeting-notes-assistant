@@ -76,6 +76,59 @@ class BillingEvent(Base):
     user = relationship("User")
 
 
+class BillingPaymentAttempt(Base):
+    __tablename__ = "billing_payment_attempts"
+    __table_args__ = (
+        UniqueConstraint(
+            "provider",
+            "attempt_reference",
+            name="uq_billing_payment_attempts_provider_reference",
+        ),
+        UniqueConstraint(
+            "provider",
+            "provider_order_id",
+            name="uq_billing_payment_attempts_provider_order",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
+
+    provider: Mapped[str] = mapped_column(String(40), nullable=False, default="paypal", index=True)
+    attempt_reference: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+
+    provider_order_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
+    provider_capture_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    provider_payment_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    checkout_url: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+
+    plan_code: Mapped[str] = mapped_column(String(80), nullable=False, default="paid_pro")
+    amount_cents: Mapped[int] = mapped_column(Integer, nullable=False, default=1000)
+    currency_code: Mapped[str] = mapped_column(String(3), nullable=False, default="USD")
+
+    status: Mapped[str] = mapped_column(String(40), nullable=False, default="created", index=True)
+    payload_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        server_default=func.now(),
+    )
+
+    user = relationship("User")
+
+
 class ManualBillingOverride(Base):
     __tablename__ = "manual_billing_overrides"
 
