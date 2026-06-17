@@ -15,6 +15,11 @@ from app.services.billing import (
     get_billing_status,
     grant_manual_paid_access,
 )
+from app.services.paypal_checkout import (
+    PayPalCheckoutConfigError,
+    PayPalCheckoutProviderError,
+    create_paypal_checkout,
+)
 from app.services.paypal_webhooks import (
     PayPalWebhookVerificationError,
     process_paypal_webhook_event,
@@ -38,6 +43,37 @@ class ManualUpgradeRequest(BaseModel):
 
 class ManualCancelRequest(BaseModel):
     user_email: EmailStr
+
+
+@router.post("/v1/billing/paypal/create-checkout")
+def paypal_create_checkout(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict[str, Any]:
+    try:
+        attempt = create_paypal_checkout(db=db, user=current_user)
+    except PayPalCheckoutConfigError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        ) from exc
+    except PayPalCheckoutProviderError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(exc),
+        ) from exc
+
+    return {
+        "status": "created",
+        "provider": "paypal",
+        "payment_attempt_id": attempt.id,
+        "attempt_reference": attempt.attempt_reference,
+        "provider_order_id": attempt.provider_order_id,
+        "approval_url": attempt.checkout_url,
+        "plan_code": attempt.plan_code,
+        "amount_cents": attempt.amount_cents,
+        "currency_code": attempt.currency_code,
+    }
 
 
 @router.post("/v1/billing/square/webhook")
