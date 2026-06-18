@@ -1,5 +1,6 @@
 import type {
   AuthResponse,
+  BillingStatus,
   CreateMeetingResponse,
   EditableNotesSection,
   JobStatus,
@@ -216,6 +217,13 @@ export async function getCurrentUser(): Promise<UserRead> {
 
 export async function getUsageSummary(): Promise<UsageSummary> {
   return fetchWithAuth<UsageSummary>("/v1/usage/me", {
+    method: "GET",
+    cache: "no-store",
+  });
+}
+
+export async function getBillingStatus(): Promise<BillingStatus> {
+  return fetchWithAuth<BillingStatus>("/v1/billing/status", {
     method: "GET",
     cache: "no-store",
   });
