@@ -261,12 +261,36 @@ export default function PayPalCaptureClient() {
             </div>
           ) : null}
 
+          <section
+            style={{
+              background: "#fbfffb",
+              border: "1px solid #d7eadf",
+              borderRadius: 18,
+              color: "#416153",
+              lineHeight: 1.6,
+              marginTop: 22,
+              padding: 16,
+            }}
+          >
+            <strong style={{ color: "#123326" }}>Need billing help?</strong>
+            <p style={{ margin: "6px 0 0" }}>
+              If your PayPal payment completed but paid access does not appear,
+              contact support with your account email and payment date. During
+              early access, billing changes, cancellation requests, and refund
+              questions are reviewed manually.
+            </p>
+          </section>
+
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 28 }}>
             <Link href="/usage" style={primaryButtonStyle}>
               Check usage
             </Link>
             <Link href="/meetings" style={secondaryButtonStyle}>
               Go to meetings
+            </Link>
+
+            <Link href="/support" style={secondaryButtonStyle}>
+              Billing support
             </Link>
           </div>
         </section>
