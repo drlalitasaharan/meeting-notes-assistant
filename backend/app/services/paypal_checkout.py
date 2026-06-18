@@ -148,8 +148,8 @@ def create_paypal_checkout(
                 "landing_page": "LOGIN",
                 "shipping_preference": "NO_SHIPPING",
                 "user_action": "PAY_NOW",
-                "return_url": f"{frontend_base_url}/usage",
-                "cancel_url": f"{frontend_base_url}/pricing",
+                "return_url": f"{frontend_base_url}/billing/success",
+                "cancel_url": f"{frontend_base_url}/billing/cancel",
             },
         }
 
