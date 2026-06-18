@@ -7,7 +7,7 @@ import UsageSummaryCard from "../../components/UsageSummaryCard";
 import { getBillingStatus, getCurrentUser, getUsageSummary } from "../../lib/api";
 import type { BillingStatus, UsageSummary } from "../../lib/types";
 
-function UsageGuidanceCard() {
+function UsageGuidanceCard({ paidAccess }: { paidAccess: boolean }) {
   return (
     <section
       style={{
@@ -21,12 +21,12 @@ function UsageGuidanceCard() {
       }}
     >
       <h2 style={{ color: "#123326", margin: "0 0 8px" }}>
-        How to use your trial well
+        {paidAccess ? "How to use paid access well" : "How to use your trial well"}
       </h2>
       <p style={{ margin: 0 }}>
-        Use your first upload for a real meeting with clear audio and concrete decisions
-        or action items. After processing, review the notes, edit any names or deadlines,
-        and download the Markdown export if you need a local copy.
+        {paidAccess
+          ? "Continue uploading real meetings with clear audio and concrete decisions or action items. After processing, review the notes, edit any names or deadlines, and download the Markdown export if you need a local copy."
+          : "Use your first upload for a real meeting with clear audio and concrete decisions or action items. After processing, review the notes, edit any names or deadlines, and download the Markdown export if you need a local copy."}
       </p>
     </section>
   );
@@ -75,6 +75,9 @@ export default function UsagePage() {
     "loading",
   );
   const [error, setError] = useState<string | null>(null);
+  const paidAccess =
+    billingStatus?.plan_code === "paid_pro" &&
+    ["active", "trialing", "paid"].includes(billingStatus.billing_status);
 
   useEffect(() => {
     let isMounted = true;
@@ -191,7 +194,7 @@ export default function UsagePage() {
 
         {usage ? <UsageSummaryCard usage={usage} billingStatus={billingStatus} /> : null}
         {usage ? <UpgradeCard /> : null}
-        {usage ? <UsageGuidanceCard /> : null}
+        {usage ? <UsageGuidanceCard paidAccess={paidAccess} /> : null}
 
         {usage ? (
           <div style={{ display: "flex", gap: 12, marginTop: 22, flexWrap: "wrap" }}>

@@ -201,8 +201,8 @@ export default function PricingPage() {
             features={[
               "More meeting uploads",
               "Priority pilot support",
-              "PayPal primary checkout path",
-              "Square backup checkout path",
+              "PayPal checkout",
+              "Square checkout coming soon",
               "Manual invoice/payment request option",
             ]}
           >
