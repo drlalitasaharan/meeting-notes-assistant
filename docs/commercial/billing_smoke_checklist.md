@@ -239,3 +239,39 @@ Mark the smoke test as PASS only if all are true:
 - Add Square checkout backup path
 - Improve admin billing deduplication for repeated sandbox tests
 - Add self-serve billing portal later
+
+## Early-access pricing limits and Business / Team request flow
+
+Run this check after updating pricing copy, support copy, or Business / Team request guidance.
+
+Pricing page checks:
+
+- Free Trial card is visible with 1 meeting upload up to 30 minutes.
+- Starter plan is visible at $23/month.
+- Starter copy says up to 20 meeting uploads per month during early access.
+- Pro Pilot plan is visible at $49/month.
+- Pro Pilot copy says up to 100 meeting uploads per month during early access.
+- Business / Team is visible as custom pricing.
+- Business / Team is request-based, not automated checkout-only.
+- Copy says Starter and Pro Pilot usage allowances may be reviewed manually during early access.
+- Copy says Business / Team access is activated after expected usage, team size, recording volume, billing method, and support needs are reviewed.
+
+Support page checks:
+
+- Business / Team access card is visible.
+- Team access email asks for team or company name.
+- Team access email asks for number of users.
+- Team access email asks for expected meetings per month.
+- Team access email asks for typical recording length.
+- Team access email asks about export or deletion support.
+- Team access email asks about internal privacy or security review.
+- Team access email asks for preferred billing method.
+
+Copy safety checks:
+
+- Do not promise HIPAA compliance.
+- Do not promise SOC 2 readiness.
+- Do not promise SSO.
+- Do not promise unlimited uploads.
+- Do not promise 24/7 support.
+- Keep Business / Team positioned as manually reviewed during early access.

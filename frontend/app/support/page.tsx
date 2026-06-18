@@ -14,7 +14,7 @@ const generalSupportBody = [
   "",
   "Account email:",
   "Meeting title or Meeting ID, if relevant:",
-  "Issue type: Upload / Processing / Notes quality / Usage limit / Billing / Other",
+  "Issue type: Upload / Processing / Notes quality / Usage limit / Team access / Billing / Other",
   "",
   "What happened:",
   "",
@@ -58,6 +58,27 @@ const limitRequestBody = [
   "Thanks.",
 ].join("\n");
 
+const teamAccessBody = [
+  "Hi MeetIQ support,",
+  "",
+  "I would like to request Business / Team access for MeetIQ.",
+  "",
+  "Account email:",
+  "Team or company name:",
+  "Number of users:",
+  "Expected meetings per month:",
+  "Typical recording length:",
+  "File types used:",
+  "Need for export or deletion support:",
+  "Any internal privacy or security review needed:",
+  "Preferred billing method:",
+  "Expected start date:",
+  "",
+  "Use case:",
+  "",
+  "Thanks.",
+].join("\\n");
+
 const notesQualityBody = [
   "Hi MeetIQ support,",
   "",
@@ -81,6 +102,10 @@ export default function SupportPage() {
     processingIssueBody,
   );
   const limitMailto = buildMailto("MeetIQ upload limit request", limitRequestBody);
+  const teamAccessMailto = buildMailto(
+    "MeetIQ Business / Team access request",
+    teamAccessBody,
+  );
   const billingMailto = `mailto:${SUPPORT_EMAIL}?subject=MeetIQ%20billing%20support&body=Account%20email:%0A%0APayment%20or%20billing%20question:%0A%0APayPal%20payment%20date%20or%20order%20details,%20if%20available:%0A%0AWhat%20you%20need%20help%20with:%0A`;
 const notesQualityMailto = buildMailto(
     "MeetIQ notes quality issue",
@@ -141,9 +166,9 @@ const notesQualityMailto = buildMailto(
                 maxWidth: 720,
               }}
             >
-              Email support for upload issues, processing errors, usage limits, billing
-              questions, or notes quality review. Please include your account email and
-              meeting title or ID when possible.
+              Email support for upload issues, processing errors, usage limits, team
+              access, billing questions, or notes quality review. Please include your
+              account email and meeting title or ID when possible.
             </p>
 
             <div
@@ -215,6 +240,11 @@ const notesQualityMailto = buildMailto(
                 body: "Use this for PayPal payment confirmation issues, manual invoice requests, cancellation requests, or refund questions during early access.",
                 href: billingMailto,
               },
+              {
+                title: "Business / Team access",
+                body: "Use this to request custom pricing, team onboarding, higher usage allowances, or privacy-conscious workflow review during early access.",
+                href: teamAccessMailto,
+              },
             ].map((item) => (
               <article
                 key={item.title}
@@ -281,8 +311,9 @@ const notesQualityMailto = buildMailto(
               Billing, cancellation, and refund questions
             </h2>
             <p style={{ marginTop: 0 }}>
-              During early access, billing changes are handled manually by the
-              MeetIQ team. Contact support if your PayPal payment completed but
+              During early access, billing changes, usage allowance reviews, and
+              Business / Team requests are handled manually by the MeetIQ team. Contact
+              support if your PayPal payment completed but
               paid access is not active, if you need help with a manual invoice
               or payment request, or if you want to request cancellation of paid
               access.
