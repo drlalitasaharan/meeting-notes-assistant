@@ -49,6 +49,50 @@ export type AdminMeetingsResponse = {
   offset: number;
 };
 
+export type AdminBillingSubscription = {
+  id: number;
+  user_id: number;
+  user_email: string | null;
+  provider: string;
+  plan_code: string;
+  status: string;
+  provider_subscription_id: string | null;
+  provider_payment_id: string | null;
+  current_period_end: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+export type AdminBillingPaymentAttempt = {
+  id: number;
+  user_id: number;
+  user_email: string | null;
+  provider: string;
+  plan_code: string;
+  status: string;
+  amount_cents: number;
+  currency_code: string;
+  provider_order_id: string | null;
+  provider_capture_id: string | null;
+  provider_payment_id: string | null;
+  completed_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  error_message: string | null;
+};
+
+export type AdminBillingOverview = {
+  generated_at: string;
+  active_paid_users: number;
+  active_subscriptions: number;
+  total_subscriptions: number;
+  total_payment_attempts: number;
+  successful_payment_attempts: number;
+  failed_payment_attempts: number;
+  recent_subscriptions: AdminBillingSubscription[];
+  recent_payment_attempts: AdminBillingPaymentAttempt[];
+};
+
 export type AdminSystemHealth = {
   generated_at: string;
   status: string;
@@ -117,6 +161,10 @@ export function getAdminOverview(): Promise<AdminOverview> {
 
 export function getAdminSystemHealth(): Promise<AdminSystemHealth> {
   return requestAdmin<AdminSystemHealth>("/v1/admin/system-health");
+}
+
+export function getAdminBillingOverview(): Promise<AdminBillingOverview> {
+  return requestAdmin<AdminBillingOverview>("/v1/admin/billing/overview");
 }
 
 export async function getAdminMeetings(options?: {
