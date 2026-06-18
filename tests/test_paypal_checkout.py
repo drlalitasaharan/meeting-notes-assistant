@@ -70,11 +70,11 @@ def test_paypal_create_checkout_returns_approval_url_and_records_attempt(
             assert order_request["intent"] == "CAPTURE"
             assert (
                 order_request["application_context"]["return_url"]
-                == "https://meetiq.example.com/usage"
+                == "https://meetiq.example.com/billing/success"
             )
             assert (
                 order_request["application_context"]["cancel_url"]
-                == "https://meetiq.example.com/pricing"
+                == "https://meetiq.example.com/billing/cancel"
             )
 
             purchase_unit = order_request["purchase_units"][0]
