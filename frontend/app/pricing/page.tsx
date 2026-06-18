@@ -138,8 +138,7 @@ export default function PricingPage() {
           </h1>
           <p style={{ color: "#5d6f66", fontSize: 18, lineHeight: 1.65, margin: 0 }}>
             MeetIQ turns meeting recordings into clear summaries, decisions, risks, and
-            action items. Paid access is activated only after a verified payment webhook
-            from PayPal or Square.
+            action items. PayPal paid access activates after payment confirmation. Webhooks remain a backup verification path.
           </p>
         </div>
 
@@ -225,9 +224,7 @@ export default function PricingPage() {
         >
           <h2 style={{ color: "#123326", margin: "0 0 8px" }}>Payment activation note</h2>
           <p style={{ margin: 0 }}>
-            Clicking a payment link does not directly grant paid access. MeetIQ upgrades an
-            account only after a verified PayPal or Square webhook records the payment. Stripe
-            checkout is coming soon.
+            PayPal checkout activates paid access after payment confirmation. Webhooks remain a backup verification path. Square checkout is coming soon.
           </p>
         </section>
       </div>
