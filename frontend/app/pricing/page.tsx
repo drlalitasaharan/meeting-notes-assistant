@@ -138,7 +138,8 @@ export default function PricingPage() {
           </h1>
           <p style={{ color: "#5d6f66", fontSize: 18, lineHeight: 1.65, margin: 0 }}>
             MeetIQ turns meeting recordings into clear summaries, decisions, risks, and
-            action items. PayPal paid access activates after payment confirmation. Webhooks remain a backup verification path.
+            action items. Early-access plans are available for individuals, pilots, and
+            selected teams while billing automation continues to improve.
           </p>
         </div>
 
@@ -152,12 +153,13 @@ export default function PricingPage() {
           <PlanCard
             title="Free trial"
             price="$0"
-            description="Best for testing MeetIQ with one short meeting before upgrading."
+            description="Best for first-time users testing MeetIQ before upgrading."
             features={[
               "1 meeting upload",
               "Up to 30 minutes per recording",
-              "AI-generated notes, decisions, risks, and action items",
-              "Markdown download",
+              "Structured summaries, decisions, risks, and action items",
+              "Copy-ready notes and Markdown download",
+              "Basic email support",
             ]}
           >
             <Link
@@ -193,20 +195,80 @@ export default function PricingPage() {
           </PlanCard>
 
           <PlanCard
-            title="Paid access"
-            price="Early-access pricing"
-            description="For users who want continued uploads while the full billing portal is being finalized."
+            title="Starter"
+            price="$23/month"
+            description="Best for individuals, founders, consultants, and small teams."
             highlighted
             features={[
-              "More meeting uploads",
-              "Priority pilot support",
+              "Up to 20 meeting uploads per month during early access",
+              "AI-generated summaries, decisions, risks, and action items",
+              "Copy-ready notes and Markdown download",
+              "Email support",
               "PayPal checkout",
-              "Square checkout coming soon",
-              "Manual invoice/payment request option",
             ]}
           >
             <PayPalCheckoutButton />
             <PaymentLink href={squareUrl}>Pay with Square</PaymentLink>
+            <PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
+          </PlanCard>
+
+          <PlanCard
+            title="Pro Pilot"
+            price="$49/month"
+            description="Best for frequent meeting users, consultants, operators, and small teams that need more capacity."
+            features={[
+              "Up to 100 meeting uploads per month during early access",
+              "AI-generated summaries, decisions, risks, and action items",
+              "Copy-ready notes and Markdown download",
+              "Priority email support during early access",
+              "Manual activation while billing automation improves",
+            ]}
+          >
+            <Link
+              href="/support"
+              style={{
+                background: "#2f6f4e",
+                borderRadius: 999,
+                color: "#ffffff",
+                display: "inline-flex",
+                fontWeight: 800,
+                justifyContent: "center",
+                padding: "12px 18px",
+                textDecoration: "none",
+              }}
+            >
+              Request Pro Pilot access
+            </Link>
+            <PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
+          </PlanCard>
+
+          <PlanCard
+            title="Business / Team"
+            price="Custom pricing"
+            description="Best for teams with higher usage, privacy-conscious workflows, or internal review needs."
+            features={[
+              "Custom meeting upload allowances",
+              "Team onboarding during early access",
+              "Export and deletion support",
+              "Priority email support",
+              "Request-based approval before activation",
+            ]}
+          >
+            <Link
+              href="/support"
+              style={{
+                background: "#2f6f4e",
+                borderRadius: 999,
+                color: "#ffffff",
+                display: "inline-flex",
+                fontWeight: 800,
+                justifyContent: "center",
+                padding: "12px 18px",
+                textDecoration: "none",
+              }}
+            >
+              Request team access
+            </Link>
             <PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
           </PlanCard>
         </div>
@@ -222,9 +284,12 @@ export default function PricingPage() {
             padding: 24,
           }}
         >
-          <h2 style={{ color: "#123326", margin: "0 0 8px" }}>Payment activation note</h2>
-          <p style={{ margin: 0 }}>
+          <h2 style={{ color: "#123326", margin: "0 0 8px" }}>Early-access billing and limits</h2>
+          <p style={{ margin: "0 0 12px" }}>
             PayPal checkout activates paid access after payment confirmation. Webhooks remain a backup verification path. Square checkout is coming soon.
+          </p>
+          <p style={{ margin: 0 }}>
+            During early access, Starter and Pro Pilot usage allowances may be reviewed manually. Business / Team plans are request-based; we confirm expected usage, team size, recording volume, billing method, and support needs before activating team access.
           </p>
         </section>
       </div>
