@@ -210,3 +210,48 @@ def cancel_manual_paid_access(
     db.add(override)
     db.commit()
     return True
+
+
+def grant_paypal_paid_access(
+    db: Session,
+    *,
+    user: User,
+    provider_order_id: str,
+    provider_capture_id: str | None,
+    plan_code: str = PAID_PRO_PLAN,
+) -> BillingSubscription:
+    existing = (
+        db.query(BillingSubscription)
+        .filter(
+            BillingSubscription.provider == "paypal",
+            BillingSubscription.user_id == user.id,
+            BillingSubscription.provider_subscription_id == provider_order_id,
+        )
+        .first()
+    )
+
+    if existing is not None:
+        existing.plan_code = plan_code
+        existing.status = "active"
+        existing.provider_payment_id = provider_capture_id or existing.provider_payment_id
+        existing.current_period_start = existing.current_period_start or _utc_now()
+        existing.current_period_end = None
+        db.add(existing)
+        db.commit()
+        db.refresh(existing)
+        return existing
+
+    subscription = BillingSubscription(
+        user_id=user.id,
+        provider="paypal",
+        provider_subscription_id=provider_order_id,
+        provider_payment_id=provider_capture_id,
+        plan_code=plan_code,
+        status="active",
+        current_period_start=_utc_now(),
+        current_period_end=None,
+    )
+    db.add(subscription)
+    db.commit()
+    db.refresh(subscription)
+    return subscription
