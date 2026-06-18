@@ -67,6 +67,15 @@ export interface SignupRequest {
   organization_name?: string | null;
 }
 
+
+export interface BillingStatus {
+  plan_code: string;
+  billing_status: string;
+  provider?: string | null;
+  current_period_end?: string | null;
+  source?: string;
+}
+
 export interface UsageSummary {
   plan: string;
   is_pilot_override: boolean;

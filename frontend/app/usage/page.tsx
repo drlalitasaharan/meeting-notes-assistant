@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import UsageSummaryCard from "../../components/UsageSummaryCard";
-import { getCurrentUser, getUsageSummary } from "../../lib/api";
-import type { UsageSummary } from "../../lib/types";
+import { getBillingStatus, getCurrentUser, getUsageSummary } from "../../lib/api";
+import type { BillingStatus, UsageSummary } from "../../lib/types";
 
 function UsageGuidanceCard() {
   return (
@@ -48,7 +48,7 @@ function UpgradeCard() {
       <h2 style={{ color: "#123326", margin: "0 0 8px" }}>Need more uploads?</h2>
       <p style={{ margin: "0 0 16px" }}>
         View early-access pricing and choose PayPal, Square, or a manual payment request.
-        Paid access is activated only after the payment webhook is verified.
+        PayPal paid access activates after payment confirmation. Webhooks remain a backup verification path.
       </p>
       <Link
         href="/pricing"
@@ -70,6 +70,7 @@ function UpgradeCard() {
 
 export default function UsagePage() {
   const [usage, setUsage] = useState<UsageSummary | null>(null);
+  const [billingStatus, setBillingStatus] = useState<BillingStatus | null>(null);
   const [status, setStatus] = useState<"loading" | "authenticated" | "unauthenticated">(
     "loading",
   );
@@ -81,13 +82,17 @@ export default function UsagePage() {
     async function loadUsage() {
       try {
         await getCurrentUser();
-        const usageData = await getUsageSummary();
+        const [usageData, billingData] = await Promise.all([
+          getUsageSummary(),
+          getBillingStatus(),
+        ]);
 
         if (!isMounted) {
           return;
         }
 
         setUsage(usageData);
+        setBillingStatus(billingData);
         setStatus("authenticated");
         setError(null);
       } catch (err) {
@@ -96,6 +101,7 @@ export default function UsagePage() {
         }
 
         setUsage(null);
+        setBillingStatus(null);
         setStatus("unauthenticated");
         setError(err instanceof Error ? err.message : "Unable to load usage.");
       }
@@ -183,7 +189,7 @@ export default function UsagePage() {
           </section>
         ) : null}
 
-        {usage ? <UsageSummaryCard usage={usage} /> : null}
+        {usage ? <UsageSummaryCard usage={usage} billingStatus={billingStatus} /> : null}
         {usage ? <UpgradeCard /> : null}
         {usage ? <UsageGuidanceCard /> : null}
 

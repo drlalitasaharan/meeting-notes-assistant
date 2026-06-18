@@ -1,12 +1,35 @@
 import Link from "next/link";
 
-import type { UsageSummary } from "../lib/types";
+import type { BillingStatus, UsageSummary } from "../lib/types";
 
 type UsageSummaryCardProps = {
   usage: UsageSummary;
+  billingStatus?: BillingStatus | null;
 };
 
-function formatPlanLabel(usage: UsageSummary): string {
+function isPaidAccess(billingStatus?: BillingStatus | null): boolean {
+  return (
+    billingStatus?.plan_code === "paid_pro" &&
+    ["active", "trialing", "paid"].includes(billingStatus.billing_status)
+  );
+}
+
+function formatProvider(provider?: string | null): string {
+  if (!provider) {
+    return "Manual";
+  }
+
+  return provider.charAt(0).toUpperCase() + provider.slice(1);
+}
+
+function formatPlanLabel(
+  usage: UsageSummary,
+  billingStatus?: BillingStatus | null,
+): string {
+  if (isPaidAccess(billingStatus)) {
+    return "Paid access";
+  }
+
   if (usage.is_pilot_override || usage.plan === "pilot") {
     return "Pilot access";
   }
@@ -14,9 +37,10 @@ function formatPlanLabel(usage: UsageSummary): string {
   return "Free trial";
 }
 
-export default function UsageSummaryCard({ usage }: UsageSummaryCardProps) {
-  const usedText = `${usage.meetings_used} of ${usage.meeting_upload_limit}`;
-  const hasRemainingUploads = usage.remaining_uploads > 0;
+export default function UsageSummaryCard({ usage, billingStatus }: UsageSummaryCardProps) {
+  const paidAccess = isPaidAccess(billingStatus);
+  const usedText = paidAccess ? `${usage.meetings_used}` : `${usage.meetings_used} of ${usage.meeting_upload_limit}`;
+  const hasRemainingUploads = paidAccess || usage.remaining_uploads > 0;
 
   return (
     <section
@@ -51,10 +75,10 @@ export default function UsageSummaryCard({ usage }: UsageSummaryCardProps) {
             Usage
           </p>
           <h2 style={{ color: "#123326", fontSize: 28, margin: "8px 0 6px" }}>
-            {formatPlanLabel(usage)}
+            {formatPlanLabel(usage, billingStatus)}
           </h2>
           <p style={{ color: "#5d6f66", margin: 0 }}>
-            Track your early-access meeting upload allowance.
+            {paidAccess ? "Your MeetIQ paid access is active." : "Track your early-access meeting upload allowance."}
           </p>
         </div>
 
@@ -69,7 +93,7 @@ export default function UsageSummaryCard({ usage }: UsageSummaryCardProps) {
             whiteSpace: "nowrap",
           }}
         >
-          {usage.remaining_uploads} remaining
+          {paidAccess ? "Active" : `${paidAccess ? "Active" : usage.remaining_uploads} remaining`}
         </span>
       </div>
 
@@ -91,24 +115,24 @@ export default function UsageSummaryCard({ usage }: UsageSummaryCardProps) {
 
         <div style={{ background: "#f7fbf8", borderRadius: 18, padding: 18 }}>
           <p style={{ color: "#5d6f66", fontSize: 13, margin: "0 0 6px" }}>
-            Remaining uploads
+            {paidAccess ? "Access status" : "Remaining uploads"}
           </p>
           <p style={{ color: "#123326", fontSize: 30, fontWeight: 800, margin: 0 }}>
-            {usage.remaining_uploads}
+            {paidAccess ? "Active" : usage.remaining_uploads}
           </p>
         </div>
 
         <div style={{ background: "#f7fbf8", borderRadius: 18, padding: 18 }}>
           <p style={{ color: "#5d6f66", fontSize: 13, margin: "0 0 6px" }}>
-            Max recording length
+            {paidAccess ? "Provider" : "Max recording length"}
           </p>
           <p style={{ color: "#123326", fontSize: 30, fontWeight: 800, margin: 0 }}>
-            {usage.max_duration_minutes} min
+            {paidAccess ? formatProvider(billingStatus?.provider) : `${usage.max_duration_minutes} min`}
           </p>
         </div>
       </div>
 
-      {!hasRemainingUploads ? (
+      {!paidAccess && !hasRemainingUploads ? (
         <div
           style={{
             background: "#fff8ec",
