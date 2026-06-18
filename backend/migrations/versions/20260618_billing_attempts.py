@@ -1,6 +1,6 @@
 """add billing payment attempts
 
-Revision ID: 20260618_billing_payment_attempts
+Revision ID: 20260618_billing_attempts
 Revises: 9fc26ee281f2
 Create Date: 2026-06-18
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 from alembic import op
 
-revision = "20260618_billing_payment_attempts"
+revision = "20260618_billing_attempts"
 down_revision = "9fc26ee281f2"
 branch_labels = None
 depends_on = None
