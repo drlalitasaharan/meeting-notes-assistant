@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { PayPalCheckoutButton } from "./PayPalCheckoutButton";
 
-const paypalUrl = process.env.NEXT_PUBLIC_PAYPAL_CHECKOUT_URL || "";
 const squareUrl = process.env.NEXT_PUBLIC_SQUARE_CHECKOUT_URL || "";
 const manualPaymentUrl = process.env.NEXT_PUBLIC_MANUAL_PAYMENT_REQUEST_URL || "";
 
@@ -206,9 +206,7 @@ export default function PricingPage() {
               "Manual invoice/payment request option",
             ]}
           >
-            <PaymentLink href={paypalUrl} primary>
-              Pay with PayPal
-            </PaymentLink>
+            <PayPalCheckoutButton />
             <PaymentLink href={squareUrl}>Pay with Square</PaymentLink>
             <PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
           </PlanCard>
