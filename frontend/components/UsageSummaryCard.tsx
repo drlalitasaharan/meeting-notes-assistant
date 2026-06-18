@@ -7,10 +7,14 @@ type UsageSummaryCardProps = {
   billingStatus?: BillingStatus | null;
 };
 
+const ACTIVE_BILLING_STATUSES = new Set(["active", "trialing", "paid"]);
+const PAID_PLAN_CODES = new Set(["paid_pro", "starter", "pro_pilot"]);
+
 function isPaidAccess(billingStatus?: BillingStatus | null): boolean {
-  return (
-    billingStatus?.plan_code === "paid_pro" &&
-    ["active", "trialing", "paid"].includes(billingStatus.billing_status)
+  return Boolean(
+    billingStatus?.plan_code &&
+      PAID_PLAN_CODES.has(billingStatus.plan_code) &&
+      ACTIVE_BILLING_STATUSES.has(billingStatus.billing_status),
   );
 }
 
@@ -27,7 +31,11 @@ function formatPlanLabel(
   billingStatus?: BillingStatus | null,
 ): string {
   if (isPaidAccess(billingStatus)) {
-    return "Paid access";
+    if (billingStatus?.plan_code === "pro_pilot") {
+      return "Pro Pilot";
+    }
+
+    return "Starter";
   }
 
   if (usage.is_pilot_override || usage.plan === "pilot") {
@@ -39,8 +47,8 @@ function formatPlanLabel(
 
 export default function UsageSummaryCard({ usage, billingStatus }: UsageSummaryCardProps) {
   const paidAccess = isPaidAccess(billingStatus);
-  const usedText = paidAccess ? `${usage.meetings_used}` : `${usage.meetings_used} of ${usage.meeting_upload_limit}`;
-  const hasRemainingUploads = paidAccess || usage.remaining_uploads > 0;
+  const usedText = `${usage.meetings_used} of ${usage.meeting_upload_limit}`;
+  const hasRemainingUploads = usage.remaining_uploads > 0;
 
   return (
     <section
@@ -78,7 +86,9 @@ export default function UsageSummaryCard({ usage, billingStatus }: UsageSummaryC
             {formatPlanLabel(usage, billingStatus)}
           </h2>
           <p style={{ color: "#5d6f66", margin: 0 }}>
-            {paidAccess ? "Your MeetIQ paid access is active." : "Track your early-access meeting upload allowance."}
+            {paidAccess
+              ? "Track your monthly paid meeting upload allowance."
+              : "Track your early-access meeting upload allowance."}
           </p>
         </div>
 
@@ -93,7 +103,7 @@ export default function UsageSummaryCard({ usage, billingStatus }: UsageSummaryC
             whiteSpace: "nowrap",
           }}
         >
-          {paidAccess ? "Active" : `${paidAccess ? "Active" : usage.remaining_uploads} remaining`}
+          {usage.remaining_uploads} remaining
         </span>
       </div>
 
@@ -115,16 +125,16 @@ export default function UsageSummaryCard({ usage, billingStatus }: UsageSummaryC
 
         <div style={{ background: "#f7fbf8", borderRadius: 18, padding: 18 }}>
           <p style={{ color: "#5d6f66", fontSize: 13, margin: "0 0 6px" }}>
-            {paidAccess ? "Access status" : "Remaining uploads"}
+            Remaining uploads
           </p>
           <p style={{ color: "#123326", fontSize: 30, fontWeight: 800, margin: 0 }}>
-            {paidAccess ? "Active" : usage.remaining_uploads}
+            {usage.remaining_uploads}
           </p>
         </div>
 
         <div style={{ background: "#f7fbf8", borderRadius: 18, padding: 18 }}>
           <p style={{ color: "#5d6f66", fontSize: 13, margin: "0 0 6px" }}>
-            {paidAccess ? "Provider" : "Max recording length"}
+            {paidAccess ? "Billing provider" : "Max recording length"}
           </p>
           <p style={{ color: "#123326", fontSize: 30, fontWeight: 800, margin: 0 }}>
             {paidAccess ? formatProvider(billingStatus?.provider) : `${usage.max_duration_minutes} min`}
@@ -132,7 +142,7 @@ export default function UsageSummaryCard({ usage, billingStatus }: UsageSummaryC
         </div>
       </div>
 
-      {!paidAccess && !hasRemainingUploads ? (
+      {!hasRemainingUploads ? (
         <div
           style={{
             background: "#fff8ec",
@@ -148,7 +158,7 @@ export default function UsageSummaryCard({ usage, billingStatus }: UsageSummaryC
           <Link href="/support" style={{ color: "#2f6f4e", fontWeight: 800 }}>
             Contact support
           </Link>{" "}
-          to request pilot access or a higher limit.
+          to request a higher limit or Business / Team access.
         </div>
       ) : null}
     </section>

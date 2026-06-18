@@ -76,8 +76,9 @@ export default function UsagePage() {
   );
   const [error, setError] = useState<string | null>(null);
   const paidAccess =
-    billingStatus?.plan_code === "paid_pro" &&
-    ["active", "trialing", "paid"].includes(billingStatus.billing_status);
+    Boolean(billingStatus?.plan_code) &&
+    ["paid_pro", "starter", "pro_pilot"].includes(billingStatus?.plan_code || "") &&
+    ["active", "trialing", "paid"].includes(billingStatus?.billing_status || "");
 
   useEffect(() => {
     let isMounted = true;

@@ -10,9 +10,12 @@ from sqlalchemy.orm import Session
 from app.db import SessionLocal
 from app.deps import get_current_user
 from app.models.user import User
+from app.services.billing import get_effective_plan
 from app.services.usage_limits import (
+    count_monthly_uploaded_meeting_slots,
     count_uploaded_meeting_slots,
     max_duration_seconds_for_user,
+    monthly_upload_limit_for_plan,
     upload_limit_for_user,
 )
 
@@ -54,14 +57,24 @@ def get_my_usage(
     db: Session = Depends(_get_db),
     current_user: User = Depends(get_current_user),
 ) -> UsageRead:
-    upload_limit = upload_limit_for_user(current_user)
-    meetings_used = count_uploaded_meeting_slots(db, user_id=current_user.id)
-    remaining_uploads = max(0, upload_limit - meetings_used)
-    max_duration_seconds = max_duration_seconds_for_user(current_user)
+    effective_plan = get_effective_plan(db=db, user=current_user)
+    monthly_limit = monthly_upload_limit_for_plan(effective_plan)
     is_pilot = _is_pilot_user(current_user)
 
+    if monthly_limit is not None:
+        upload_limit = monthly_limit
+        meetings_used = count_monthly_uploaded_meeting_slots(db, user_id=current_user.id)
+        plan = effective_plan
+    else:
+        upload_limit = upload_limit_for_user(current_user)
+        meetings_used = count_uploaded_meeting_slots(db, user_id=current_user.id)
+        plan = "pilot" if is_pilot else "free_trial"
+
+    remaining_uploads = max(0, upload_limit - meetings_used)
+    max_duration_seconds = max_duration_seconds_for_user(current_user)
+
     return UsageRead(
-        plan="pilot" if is_pilot else "free_trial",
+        plan=plan,
         is_pilot_override=is_pilot,
         meetings_used=meetings_used,
         meeting_upload_limit=upload_limit,
