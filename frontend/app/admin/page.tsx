@@ -13,11 +13,13 @@ import type { CSSProperties } from "react";
 
 import {
   AdminApiError,
+  getAdminBillingOverview,
   getAdminMeetings,
   getAdminOverview,
   getAdminSystemHealth,
 } from "../../lib/admin-api";
 import type {
+  AdminBillingOverview,
   AdminMeeting,
   AdminMeetingsResponse,
   AdminOverview,
@@ -177,6 +179,185 @@ function Metric({
 }
 
 
+
+function formatMoney(amountCents: number, currencyCode: string): string {
+  return new Intl.NumberFormat(undefined, {
+    currency: currencyCode || "USD",
+    style: "currency",
+  }).format(amountCents / 100);
+}
+
+function AdminBillingOverviewCard({
+  billing,
+}: {
+  billing: AdminBillingOverview;
+}) {
+  return (
+    <section style={cardStyle}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 18,
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+        }}
+      >
+        <div>
+          <p
+            style={{
+              margin: 0,
+              color: "#2f6f4e",
+              fontSize: 12,
+              fontWeight: 800,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            Billing operations
+          </p>
+
+          <h2 style={{ color: "#123326", margin: "8px 0 10px" }}>
+            Paid access and payment attempts
+          </h2>
+
+          <p style={{ color: "#4f6b5b", lineHeight: 1.6, margin: 0 }}>
+            Monitor active paid users, recent subscriptions, and recent PayPal or Square
+            payment attempts after checkout.
+          </p>
+        </div>
+
+        <span
+          style={{
+            ...statusStyle(billing.failed_payment_attempts > 0 ? "failed" : "success"),
+            borderRadius: 999,
+            fontSize: 13,
+            fontWeight: 800,
+            padding: "8px 12px",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {billing.failed_payment_attempts > 0
+            ? `${formatNumber(billing.failed_payment_attempts)} failed attempts`
+            : "No failed attempts"}
+        </span>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gap: 14,
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          marginTop: 20,
+        }}
+      >
+        <Metric
+          label="Active paid users"
+          value={formatNumber(billing.active_paid_users)}
+          detail={`${formatNumber(billing.active_subscriptions)} active subscriptions`}
+        />
+        <Metric
+          label="Payment attempts"
+          value={formatNumber(billing.total_payment_attempts)}
+          detail={`${formatNumber(billing.successful_payment_attempts)} successful`}
+        />
+        <Metric
+          label="Failed attempts"
+          value={formatNumber(billing.failed_payment_attempts)}
+          detail="Review provider/order errors"
+        />
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gap: 16,
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          marginTop: 20,
+        }}
+      >
+        <div>
+          <h3 style={{ color: "#123326", margin: "0 0 10px" }}>
+            Recent subscriptions
+          </h3>
+          <div style={{ display: "grid", gap: 10 }}>
+            {billing.recent_subscriptions.length > 0 ? (
+              billing.recent_subscriptions.map((subscription) => (
+                <article
+                  key={subscription.id}
+                  style={{
+                    background: "#f8fbf8",
+                    border: "1px solid #d7eadf",
+                    borderRadius: 14,
+                    padding: 14,
+                  }}
+                >
+                  <strong style={{ color: "#123326" }}>
+                    {subscription.user_email ?? `User ${subscription.user_id}`}
+                  </strong>
+                  <p style={{ color: "#5d6f66", margin: "6px 0 0" }}>
+                    {formatStatus(subscription.provider)} · {subscription.plan_code} ·{" "}
+                    {formatStatus(subscription.status)}
+                  </p>
+                  <p style={{ color: "#6b7f73", fontSize: 13, margin: "6px 0 0" }}>
+                    Created {formatDate(subscription.created_at)}
+                  </p>
+                </article>
+              ))
+            ) : (
+              <p style={{ color: "#6b7f73", margin: 0 }}>
+                No subscriptions recorded yet.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <h3 style={{ color: "#123326", margin: "0 0 10px" }}>
+            Recent payment attempts
+          </h3>
+          <div style={{ display: "grid", gap: 10 }}>
+            {billing.recent_payment_attempts.length > 0 ? (
+              billing.recent_payment_attempts.map((attempt) => (
+                <article
+                  key={attempt.id}
+                  style={{
+                    background: "#f8fbf8",
+                    border: "1px solid #d7eadf",
+                    borderRadius: 14,
+                    padding: 14,
+                  }}
+                >
+                  <strong style={{ color: "#123326" }}>
+                    {attempt.user_email ?? `User ${attempt.user_id}`}
+                  </strong>
+                  <p style={{ color: "#5d6f66", margin: "6px 0 0" }}>
+                    {formatStatus(attempt.provider)} · {formatMoney(attempt.amount_cents, attempt.currency_code)} ·{" "}
+                    {formatStatus(attempt.status)}
+                  </p>
+                  <p style={{ color: "#6b7f73", fontSize: 13, margin: "6px 0 0" }}>
+                    Created {formatDate(attempt.created_at)}
+                    {attempt.completed_at ? ` · Completed ${formatDate(attempt.completed_at)}` : ""}
+                  </p>
+                  {attempt.error_message ? (
+                    <p style={{ color: "#991b1b", fontSize: 13, margin: "6px 0 0" }}>
+                      {attempt.error_message}
+                    </p>
+                  ) : null}
+                </article>
+              ))
+            ) : (
+              <p style={{ color: "#6b7f73", margin: 0 }}>
+                No payment attempts recorded yet.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function AdminSupportTriageCard({
   overview,
 }: {
@@ -305,6 +486,7 @@ export default function AdminPage() {
   const [meetings, setMeetings] =
     useState<AdminMeetingsResponse | null>(null);
   const [health, setHealth] = useState<AdminSystemHealth | null>(null);
+  const [billing, setBilling] = useState<AdminBillingOverview | null>(null);
 
   const [page, setPage] = useState(0);
   const [statusFilter, setStatusFilter] = useState("");
@@ -327,7 +509,7 @@ export default function AdminPage() {
       setError(null);
 
       try {
-        const [overviewData, meetingData, healthData] =
+        const [overviewData, meetingData, healthData, billingData] =
           await Promise.all([
             getAdminOverview(),
             getAdminMeetings({
@@ -337,11 +519,13 @@ export default function AdminPage() {
               offset: page * PAGE_SIZE,
             }),
             getAdminSystemHealth(),
+            getAdminBillingOverview(),
           ]);
 
         setOverview(overviewData);
         setMeetings(meetingData);
         setHealth(healthData);
+        setBilling(billingData);
         setIsForbidden(false);
         setLastUpdated(new Date());
       } catch (err) {
@@ -440,7 +624,7 @@ export default function AdminPage() {
     );
   }
 
-  if (error && (!overview || !meetings || !health)) {
+  if (error && (!overview || !meetings || !health || !billing)) {
     return (
       <section
         style={{
@@ -467,7 +651,7 @@ export default function AdminPage() {
     );
   }
 
-  if (!overview || !meetings || !health) {
+  if (!overview || !meetings || !health || !billing) {
     return null;
   }
 
@@ -575,6 +759,8 @@ export default function AdminPage() {
           {error}
         </section>
       ) : null}
+
+      <AdminBillingOverviewCard billing={billing} />
 
       <AdminSupportTriageCard overview={overview} />
 

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.api import health as health_api
 from app.deps import get_db, require_admin
+from app.models.billing import BillingPaymentAttempt, BillingSubscription
 from app.models.meeting import Meeting
 from app.models.user import User
 
@@ -215,6 +216,118 @@ def admin_list_meetings(
         "total": total,
         "limit": limit,
         "offset": offset,
+    }
+
+
+@router.get("/billing/overview")
+def admin_billing_overview(
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin),
+) -> dict[str, Any]:
+    """
+    Return billing state for admin monitoring.
+
+    This endpoint intentionally returns payment metadata only. It does not
+    return raw provider payloads, card/bank details, transcripts, recordings,
+    notes, or secrets.
+    """
+    active_statuses = ("active", "trialing", "paid")
+    successful_attempt_statuses = ("captured", "succeeded", "completed", "paid")
+    failed_attempt_statuses = ("failed", "canceled", "cancelled", "error")
+
+    active_paid_users = (
+        db.query(func.count(func.distinct(BillingSubscription.user_id)))
+        .filter(BillingSubscription.status.in_(active_statuses))
+        .scalar()
+        or 0
+    )
+    active_subscriptions = (
+        db.query(func.count(BillingSubscription.id))
+        .filter(BillingSubscription.status.in_(active_statuses))
+        .scalar()
+        or 0
+    )
+    total_subscriptions = db.query(func.count(BillingSubscription.id)).scalar() or 0
+    total_payment_attempts = db.query(func.count(BillingPaymentAttempt.id)).scalar() or 0
+    successful_payment_attempts = (
+        db.query(func.count(BillingPaymentAttempt.id))
+        .filter(BillingPaymentAttempt.status.in_(successful_attempt_statuses))
+        .scalar()
+        or 0
+    )
+    failed_payment_attempts = (
+        db.query(func.count(BillingPaymentAttempt.id))
+        .filter(BillingPaymentAttempt.status.in_(failed_attempt_statuses))
+        .scalar()
+        or 0
+    )
+
+    subscription_rows = (
+        db.query(BillingSubscription, User.email)
+        .outerjoin(User, BillingSubscription.user_id == User.id)
+        .order_by(BillingSubscription.created_at.desc(), BillingSubscription.id.desc())
+        .limit(10)
+        .all()
+    )
+
+    attempt_rows = (
+        db.query(BillingPaymentAttempt, User.email)
+        .outerjoin(User, BillingPaymentAttempt.user_id == User.id)
+        .order_by(BillingPaymentAttempt.created_at.desc(), BillingPaymentAttempt.id.desc())
+        .limit(10)
+        .all()
+    )
+
+    recent_subscriptions = []
+    for subscription, user_email in subscription_rows:
+        recent_subscriptions.append(
+            {
+                "id": subscription.id,
+                "user_id": subscription.user_id,
+                "user_email": user_email,
+                "provider": subscription.provider,
+                "plan_code": subscription.plan_code,
+                "status": subscription.status,
+                "provider_subscription_id": subscription.provider_subscription_id,
+                "provider_payment_id": subscription.provider_payment_id,
+                "current_period_end": _iso(subscription.current_period_end),
+                "created_at": _iso(subscription.created_at),
+                "updated_at": _iso(subscription.updated_at),
+            }
+        )
+
+    recent_payment_attempts = []
+    for attempt, user_email in attempt_rows:
+        recent_payment_attempts.append(
+            {
+                "id": attempt.id,
+                "user_id": attempt.user_id,
+                "user_email": user_email,
+                "provider": attempt.provider,
+                "plan_code": attempt.plan_code,
+                "status": attempt.status,
+                "amount_cents": attempt.amount_cents,
+                "currency_code": attempt.currency_code,
+                "provider_order_id": attempt.provider_order_id,
+                "provider_capture_id": attempt.provider_capture_id,
+                "provider_payment_id": attempt.provider_payment_id,
+                "completed_at": _iso(attempt.completed_at),
+                "created_at": _iso(attempt.created_at),
+                "updated_at": _iso(attempt.updated_at),
+                "error_message": attempt.error_message,
+            }
+        )
+
+    return {
+        "generated_at": _utc_now().isoformat(),
+        "active_paid_users": int(active_paid_users),
+        "active_subscriptions": int(active_subscriptions),
+        "total_subscriptions": int(total_subscriptions),
+        "total_payment_attempts": int(total_payment_attempts),
+        "successful_payment_attempts": int(successful_payment_attempts),
+        "failed_payment_attempts": int(failed_payment_attempts),
+        "recent_subscriptions": recent_subscriptions,
+        "recent_payment_attempts": recent_payment_attempts,
     }
 
 
