@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.models.billing import BillingPaymentAttempt
 from app.models.user import User
-from app.services.billing import PAID_PRO_PLAN
+from app.services.billing import PAID_PRO_PLAN, grant_paypal_paid_access
 
 PAYPAL_SANDBOX_API_BASE = "https://api-m.sandbox.paypal.com"
 PAYPAL_LIVE_API_BASE = "https://api-m.paypal.com"
@@ -198,5 +198,96 @@ def create_paypal_checkout(
     db.add(attempt)
     db.commit()
     db.refresh(attempt)
+
+    return attempt
+
+
+def _extract_capture_id(capture_payload: dict[str, Any]) -> str | None:
+    purchase_units = capture_payload.get("purchase_units")
+    if not isinstance(purchase_units, list):
+        return None
+
+    for unit in purchase_units:
+        if not isinstance(unit, dict):
+            continue
+        payments = unit.get("payments")
+        if not isinstance(payments, dict):
+            continue
+        captures = payments.get("captures")
+        if not isinstance(captures, list):
+            continue
+        for capture in captures:
+            if isinstance(capture, dict) and isinstance(capture.get("id"), str):
+                return capture["id"]
+
+    return None
+
+
+def capture_paypal_checkout(
+    *,
+    db: Session,
+    user: User,
+    provider_order_id: str,
+) -> BillingPaymentAttempt:
+    order_id = provider_order_id.strip()
+    if not order_id:
+        raise PayPalCheckoutProviderError("PayPal order id is required.")
+
+    attempt = (
+        db.query(BillingPaymentAttempt)
+        .filter(
+            BillingPaymentAttempt.provider == "paypal",
+            BillingPaymentAttempt.provider_order_id == order_id,
+        )
+        .first()
+    )
+    if attempt is None:
+        raise PayPalCheckoutProviderError("PayPal payment attempt was not found.")
+
+    if attempt.user_id != user.id:
+        raise PayPalCheckoutProviderError("PayPal payment attempt does not belong to this user.")
+
+    if attempt.status in {"captured", "completed", "paid"}:
+        return attempt
+
+    try:
+        token = _get_paypal_access_token()
+        response = httpx.post(
+            f"{_paypal_api_base()}/v2/checkout/orders/{order_id}/capture",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            },
+            timeout=15,
+        )
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        attempt.status = "capture_failed"
+        attempt.error_message = "PayPal order capture request failed."
+        attempt.updated_at = _utc_now()
+        db.add(attempt)
+        db.commit()
+        raise PayPalCheckoutProviderError("PayPal order capture request failed.") from exc
+
+    capture_payload = response.json()
+    capture_id = _extract_capture_id(capture_payload)
+
+    attempt.provider_capture_id = capture_id
+    attempt.provider_payment_id = capture_id
+    attempt.status = "captured"
+    attempt.payload_json = capture_payload
+    attempt.completed_at = _utc_now()
+    attempt.updated_at = _utc_now()
+    db.add(attempt)
+    db.commit()
+    db.refresh(attempt)
+
+    grant_paypal_paid_access(
+        db,
+        user=user,
+        provider_order_id=order_id,
+        provider_capture_id=capture_id,
+        plan_code=attempt.plan_code,
+    )
 
     return attempt

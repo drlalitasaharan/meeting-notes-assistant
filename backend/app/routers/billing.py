@@ -18,6 +18,7 @@ from app.services.billing import (
 from app.services.paypal_checkout import (
     PayPalCheckoutConfigError,
     PayPalCheckoutProviderError,
+    capture_paypal_checkout,
     create_paypal_checkout,
 )
 from app.services.paypal_webhooks import (
@@ -43,6 +44,10 @@ class ManualUpgradeRequest(BaseModel):
 
 class ManualCancelRequest(BaseModel):
     user_email: EmailStr
+
+
+class PayPalCaptureRequest(BaseModel):
+    provider_order_id: str
 
 
 @router.post("/v1/billing/paypal/create-checkout")
@@ -73,6 +78,54 @@ def paypal_create_checkout(
         "plan_code": attempt.plan_code,
         "amount_cents": attempt.amount_cents,
         "currency_code": attempt.currency_code,
+    }
+
+
+@router.post("/v1/billing/paypal/capture")
+def paypal_capture_checkout(
+    payload: PayPalCaptureRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict[str, Any]:
+    try:
+        attempt = capture_paypal_checkout(
+            db=db,
+            user=current_user,
+            provider_order_id=payload.provider_order_id,
+        )
+    except PayPalCheckoutProviderError as exc:
+        detail = str(exc)
+        if "not found" in detail.lower():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=detail,
+            ) from exc
+        if "does not belong" in detail.lower():
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=detail,
+            ) from exc
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=detail,
+        ) from exc
+    except PayPalCheckoutConfigError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        ) from exc
+
+    return {
+        "status": "captured",
+        "provider": "paypal",
+        "payment_attempt_id": attempt.id,
+        "attempt_reference": attempt.attempt_reference,
+        "provider_order_id": attempt.provider_order_id,
+        "provider_capture_id": attempt.provider_capture_id,
+        "plan_code": attempt.plan_code,
+        "amount_cents": attempt.amount_cents,
+        "currency_code": attempt.currency_code,
+        "billing": get_billing_status(db=db, user=current_user),
     }
 
 
