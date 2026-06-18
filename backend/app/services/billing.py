@@ -10,6 +10,9 @@ from app.models.user import User
 
 FREE_TRIAL_PLAN = "free_trial"
 PAID_PRO_PLAN = "paid_pro"
+STARTER_PLAN = "starter"
+PRO_PILOT_PLAN = "pro_pilot"
+PAID_PLAN_CODES = {PAID_PRO_PLAN, STARTER_PLAN, PRO_PILOT_PLAN}
 ACTIVE_BILLING_STATUSES = {"active", "trialing", "paid"}
 
 
@@ -98,7 +101,7 @@ def has_paid_access(
     db: Session,
     user: User,
 ) -> bool:
-    return get_effective_plan(db=db, user=user) == PAID_PRO_PLAN
+    return get_effective_plan(db=db, user=user) in PAID_PLAN_CODES
 
 
 def get_billing_status(
