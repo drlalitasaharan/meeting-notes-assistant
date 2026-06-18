@@ -81,7 +81,8 @@ export default function SupportPage() {
     processingIssueBody,
   );
   const limitMailto = buildMailto("MeetIQ upload limit request", limitRequestBody);
-  const notesQualityMailto = buildMailto(
+  const billingMailto = `mailto:${SUPPORT_EMAIL}?subject=MeetIQ%20billing%20support&body=Account%20email:%0A%0APayment%20or%20billing%20question:%0A%0APayPal%20payment%20date%20or%20order%20details,%20if%20available:%0A%0AWhat%20you%20need%20help%20with:%0A`;
+const notesQualityMailto = buildMailto(
     "MeetIQ notes quality issue",
     notesQualityBody,
   );
@@ -209,6 +210,11 @@ export default function SupportPage() {
                 body: "Use this when names, owners, deadlines, decisions, or action items need review.",
                 href: notesQualityMailto,
               },
+              {
+                title: "Billing support",
+                body: "Use this for PayPal payment confirmation issues, manual invoice requests, cancellation requests, or refund questions during early access.",
+                href: billingMailto,
+              },
             ].map((item) => (
               <article
                 key={item.title}
@@ -258,6 +264,35 @@ export default function SupportPage() {
               <li>Screenshot or error text, if available.</li>
               <li>Avoid sharing sensitive meeting details unless needed for support.</li>
             </ul>
+          </section>
+
+          <section
+            style={{
+              background: "#fbfffb",
+              border: "1px solid #d7eadf",
+              borderRadius: 22,
+              color: "#365342",
+              lineHeight: 1.7,
+              marginTop: 22,
+              padding: 22,
+            }}
+          >
+            <h2 style={{ color: "#123326", marginTop: 0 }}>
+              Billing, cancellation, and refund questions
+            </h2>
+            <p style={{ marginTop: 0 }}>
+              During early access, billing changes are handled manually by the
+              MeetIQ team. Contact support if your PayPal payment completed but
+              paid access is not active, if you need help with a manual invoice
+              or payment request, or if you want to request cancellation of paid
+              access.
+            </p>
+            <p style={{ marginBottom: 0 }}>
+              Refund and cancellation requests are reviewed manually during
+              early access. Please include your account email, payment date,
+              and a short description of the issue. Do not send payment card,
+              bank, or password details.
+            </p>
           </section>
 
           <section

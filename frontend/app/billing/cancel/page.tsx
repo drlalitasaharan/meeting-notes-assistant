@@ -42,6 +42,11 @@ export default function BillingCancelPage() {
           whenever you are ready.
         </p>
 
+        <p style={{ color: "#5d6f66", fontSize: 16, lineHeight: 1.6, margin: "0 0 24px" }}>
+          If you have a billing question or need help with a manual payment request,
+          contact support and include your account email.
+        </p>
+
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
           <Link
             href="/pricing"
@@ -73,6 +78,22 @@ export default function BillingCancelPage() {
             }}
           >
             Go to meetings
+          </Link>
+
+          <Link
+            href="/support"
+            style={{
+              border: "1px solid #b8d8c5",
+              borderRadius: 999,
+              color: "#123326",
+              display: "inline-flex",
+              fontWeight: 800,
+              justifyContent: "center",
+              padding: "12px 18px",
+              textDecoration: "none",
+            }}
+          >
+            Billing support
           </Link>
         </div>
       </section>
