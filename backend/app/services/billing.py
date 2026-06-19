@@ -258,3 +258,56 @@ def grant_paypal_paid_access(
     db.commit()
     db.refresh(subscription)
     return subscription
+
+
+def grant_square_paid_access(
+    db: Session,
+    *,
+    user: User,
+    provider_order_id: str | None,
+    provider_payment_id: str | None,
+    provider_customer_id: str | None = None,
+    plan_code: str = PAID_PRO_PLAN,
+) -> BillingSubscription:
+    query = db.query(BillingSubscription).filter(
+        BillingSubscription.provider == "square",
+        BillingSubscription.user_id == user.id,
+    )
+
+    existing = None
+    if provider_order_id:
+        existing = query.filter(
+            BillingSubscription.provider_subscription_id == provider_order_id,
+        ).first()
+    elif provider_payment_id:
+        existing = query.filter(
+            BillingSubscription.provider_payment_id == provider_payment_id,
+        ).first()
+
+    if existing is not None:
+        existing.plan_code = plan_code
+        existing.status = "active"
+        existing.provider_customer_id = provider_customer_id or existing.provider_customer_id
+        existing.provider_payment_id = provider_payment_id or existing.provider_payment_id
+        existing.current_period_start = existing.current_period_start or _utc_now()
+        existing.current_period_end = None
+        db.add(existing)
+        db.commit()
+        db.refresh(existing)
+        return existing
+
+    subscription = BillingSubscription(
+        user_id=user.id,
+        provider="square",
+        provider_customer_id=provider_customer_id,
+        provider_subscription_id=provider_order_id,
+        provider_payment_id=provider_payment_id,
+        plan_code=plan_code,
+        status="active",
+        current_period_start=_utc_now(),
+        current_period_end=None,
+    )
+    db.add(subscription)
+    db.commit()
+    db.refresh(subscription)
+    return subscription

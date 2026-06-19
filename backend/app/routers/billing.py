@@ -27,6 +27,12 @@ from app.services.paypal_webhooks import (
     process_paypal_webhook_event,
     verify_paypal_webhook_signature,
 )
+from app.services.square_checkout import (
+    SquareCheckoutConfigError,
+    SquareCheckoutPlanError,
+    SquareCheckoutProviderError,
+    create_square_checkout,
+)
 from app.services.square_webhooks import (
     SquareWebhookVerificationError,
     process_square_webhook_event,
@@ -53,6 +59,10 @@ class PayPalCreateCheckoutRequest(BaseModel):
 
 class PayPalCaptureRequest(BaseModel):
     provider_order_id: str
+
+
+class SquareCreateCheckoutRequest(BaseModel):
+    plan_code: str | None = None
 
 
 @router.post("/v1/billing/paypal/create-checkout")
@@ -141,6 +151,48 @@ def paypal_capture_checkout(
         "amount_cents": attempt.amount_cents,
         "currency_code": attempt.currency_code,
         "billing": get_billing_status(db=db, user=current_user),
+    }
+
+
+@router.post("/v1/billing/square/create-checkout")
+def square_create_checkout(
+    payload: SquareCreateCheckoutRequest | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict[str, Any]:
+    try:
+        attempt = create_square_checkout(
+            db=db,
+            user=current_user,
+            plan_code=payload.plan_code if payload else None,
+        )
+    except SquareCheckoutPlanError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+    except SquareCheckoutConfigError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        ) from exc
+    except SquareCheckoutProviderError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(exc),
+        ) from exc
+
+    return {
+        "status": "created",
+        "provider": "square",
+        "payment_attempt_id": attempt.id,
+        "attempt_reference": attempt.attempt_reference,
+        "provider_order_id": attempt.provider_order_id,
+        "checkout_url": attempt.checkout_url,
+        "approval_url": attempt.checkout_url,
+        "plan_code": attempt.plan_code,
+        "amount_cents": attempt.amount_cents,
+        "currency_code": attempt.currency_code,
     }
 
 
