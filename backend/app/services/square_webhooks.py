@@ -11,9 +11,9 @@ from typing import Any
 from sqlalchemy.orm import Session
 from starlette.datastructures import Headers
 
-from app.models.billing import BillingEvent, BillingSubscription
+from app.models.billing import BillingEvent, BillingPaymentAttempt, BillingSubscription
 from app.models.user import User
-from app.services.billing import PAID_PRO_PLAN
+from app.services.billing import PAID_PRO_PLAN, grant_square_paid_access
 
 SQUARE_ACTIVE_EVENTS = {
     "payment.updated",
@@ -170,6 +170,22 @@ def _extract_payment_status(payload: dict[str, Any]) -> str | None:
     return status.upper() if isinstance(status, str) else None
 
 
+def _extract_provider_order_id(payload: dict[str, Any]) -> str | None:
+    payment = _payment(payload)
+    invoice = _invoice(payload)
+
+    for value in (
+        payment.get("order_id"),
+        payment.get("orderId"),
+        invoice.get("order_id"),
+        invoice.get("orderId"),
+    ):
+        if isinstance(value, str) and value:
+            return value
+
+    return None
+
+
 def _extract_provider_payment_id(payload: dict[str, Any]) -> str | None:
     payment = _payment(payload)
 
@@ -213,6 +229,54 @@ def _extract_provider_customer_id(payload: dict[str, Any]) -> str | None:
     return None
 
 
+def _find_checkout_attempt(
+    db: Session,
+    *,
+    payload: dict[str, Any],
+) -> BillingPaymentAttempt | None:
+    provider_order_id = _extract_provider_order_id(payload)
+    provider_payment_id = _extract_provider_payment_id(payload)
+
+    query = db.query(BillingPaymentAttempt).filter(
+        BillingPaymentAttempt.provider == "square",
+    )
+
+    if provider_order_id:
+        attempt = query.filter(
+            BillingPaymentAttempt.provider_order_id == provider_order_id,
+        ).first()
+        if attempt is not None:
+            return attempt
+
+    if provider_payment_id:
+        attempt = query.filter(
+            BillingPaymentAttempt.provider_payment_id == provider_payment_id,
+        ).first()
+        if attempt is not None:
+            return attempt
+
+    return None
+
+
+def _mark_checkout_attempt_captured(
+    db: Session,
+    *,
+    attempt: BillingPaymentAttempt | None,
+    provider_payment_id: str | None,
+    payload: dict[str, Any],
+) -> None:
+    if attempt is None:
+        return
+
+    attempt.status = "captured"
+    attempt.provider_payment_id = provider_payment_id or attempt.provider_payment_id
+    attempt.payload_json = payload
+    attempt.completed_at = attempt.completed_at or _utc_now()
+    attempt.updated_at = _utc_now()
+    db.add(attempt)
+    db.commit()
+
+
 def _find_user_by_email(db: Session, email: str | None) -> User | None:
     if not email:
         return None
@@ -253,47 +317,29 @@ def _activate_paid_subscription(
     user: User,
     payload: dict[str, Any],
 ) -> BillingSubscription:
+    provider_order_id = _extract_provider_order_id(payload)
     provider_subscription_id = _extract_provider_subscription_id(payload)
     provider_payment_id = _extract_provider_payment_id(payload)
     provider_customer_id = _extract_provider_customer_id(payload)
+    attempt = _find_checkout_attempt(db, payload=payload)
+    plan_code = attempt.plan_code if attempt is not None else PAID_PRO_PLAN
 
-    query = db.query(BillingSubscription).filter(
-        BillingSubscription.user_id == user.id,
-        BillingSubscription.provider == "square",
-    )
-
-    existing = None
-    if provider_subscription_id:
-        existing = query.filter(
-            BillingSubscription.provider_subscription_id == provider_subscription_id
-        ).first()
-    elif provider_payment_id:
-        existing = query.filter(
-            BillingSubscription.provider_payment_id == provider_payment_id
-        ).first()
-
-    if existing is not None:
-        existing.status = "active"
-        existing.plan_code = PAID_PRO_PLAN
-        db.add(existing)
-        db.commit()
-        db.refresh(existing)
-        return existing
-
-    subscription = BillingSubscription(
-        user_id=user.id,
-        provider="square",
-        provider_customer_id=provider_customer_id,
-        provider_subscription_id=provider_subscription_id,
+    subscription = grant_square_paid_access(
+        db,
+        user=user,
+        provider_order_id=provider_order_id or provider_subscription_id,
         provider_payment_id=provider_payment_id,
-        plan_code=PAID_PRO_PLAN,
-        status="active",
-        current_period_start=_utc_now(),
-        current_period_end=None,
+        provider_customer_id=provider_customer_id,
+        plan_code=plan_code,
     )
-    db.add(subscription)
-    db.commit()
-    db.refresh(subscription)
+
+    _mark_checkout_attempt_captured(
+        db,
+        attempt=attempt,
+        provider_payment_id=provider_payment_id,
+        payload=payload,
+    )
+
     return subscription
 
 

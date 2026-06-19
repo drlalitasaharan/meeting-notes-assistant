@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PayPalCheckoutButton } from "./PayPalCheckoutButton";
+import { SquareCheckoutButton } from "./SquareCheckoutButton";
 
-const squareUrl = process.env.NEXT_PUBLIC_SQUARE_CHECKOUT_URL || "";
 const manualPaymentUrl = process.env.NEXT_PUBLIC_MANUAL_PAYMENT_REQUEST_URL || "";
 
 function PaymentLink({
@@ -205,10 +205,11 @@ export default function PricingPage() {
               "Copy-ready notes and Markdown download",
               "Email support",
               "PayPal checkout",
+              "Square checkout",
             ]}
           >
             <PayPalCheckoutButton planCode="starter" />
-            <PaymentLink href={squareUrl}>Pay with Square</PaymentLink>
+            <SquareCheckoutButton planCode="starter" />
             <PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
           </PlanCard>
 
@@ -222,10 +223,12 @@ export default function PricingPage() {
               "Copy-ready notes and Markdown download",
               "Priority email support during early access",
               "PayPal checkout",
+              "Square checkout",
             ]}
           >
-          <PayPalCheckoutButton planCode="pro_pilot" />
-<PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
+            <PayPalCheckoutButton planCode="pro_pilot" />
+            <SquareCheckoutButton planCode="pro_pilot" />
+            <PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
           </PlanCard>
 
           <PlanCard
@@ -272,7 +275,7 @@ export default function PricingPage() {
         >
           <h2 style={{ color: "#123326", margin: "0 0 8px" }}>Early-access billing and limits</h2>
           <p style={{ margin: "0 0 12px" }}>
-            PayPal checkout activates paid access after payment confirmation. Webhooks remain a backup verification path. Square checkout is coming soon.
+            PayPal and Square checkout activate paid access after payment confirmation. Webhooks remain a backup verification path.
           </p>
           <p style={{ margin: 0 }}>
             During early access, Starter and Pro Pilot usage allowances may be reviewed manually. Business / Team plans are request-based; we confirm expected usage, team size, recording volume, billing method, and support needs before activating team access.
