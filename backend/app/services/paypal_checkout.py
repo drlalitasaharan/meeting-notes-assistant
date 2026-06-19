@@ -4,20 +4,51 @@ import os
 import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
-from typing import Any
+from typing import Any, NamedTuple
 
 import httpx
 from sqlalchemy.orm import Session
 
 from app.models.billing import BillingPaymentAttempt
 from app.models.user import User
-from app.services.billing import PAID_PRO_PLAN, grant_paypal_paid_access
+from app.services.billing import (
+    PAID_PRO_PLAN,
+    PRO_PILOT_PLAN,
+    STARTER_PLAN,
+    grant_paypal_paid_access,
+)
 
 PAYPAL_SANDBOX_API_BASE = "https://api-m.sandbox.paypal.com"
 PAYPAL_LIVE_API_BASE = "https://api-m.paypal.com"
 
-DEFAULT_AMOUNT_CENTS = 1000
 DEFAULT_CURRENCY_CODE = "USD"
+DEFAULT_PLAN_CODE = STARTER_PLAN
+
+
+class PayPalCheckoutPlan(NamedTuple):
+    plan_code: str
+    amount_cents: int
+    description: str
+
+
+PAYPAL_CHECKOUT_PLANS: dict[str, PayPalCheckoutPlan] = {
+    STARTER_PLAN: PayPalCheckoutPlan(
+        plan_code=STARTER_PLAN,
+        amount_cents=2300,
+        description="MeetIQ Starter",
+    ),
+    # Legacy alias: keep paid_pro supported as Starter-equivalent.
+    PAID_PRO_PLAN: PayPalCheckoutPlan(
+        plan_code=PAID_PRO_PLAN,
+        amount_cents=2300,
+        description="MeetIQ Starter",
+    ),
+    PRO_PILOT_PLAN: PayPalCheckoutPlan(
+        plan_code=PRO_PILOT_PLAN,
+        amount_cents=4900,
+        description="MeetIQ Pro Pilot",
+    ),
+}
 
 
 class PayPalCheckoutConfigError(RuntimeError):
@@ -25,6 +56,10 @@ class PayPalCheckoutConfigError(RuntimeError):
 
 
 class PayPalCheckoutProviderError(RuntimeError):
+    pass
+
+
+class PayPalCheckoutPlanError(ValueError):
     pass
 
 
@@ -48,6 +83,19 @@ def _frontend_base_url() -> str:
 
 def _format_amount(amount_cents: int) -> str:
     return f"{Decimal(amount_cents) / Decimal('100'):.2f}"
+
+
+def resolve_paypal_checkout_plan(plan_code: str | None) -> PayPalCheckoutPlan:
+    normalized_plan_code = (plan_code or DEFAULT_PLAN_CODE).strip().lower()
+
+    plan = PAYPAL_CHECKOUT_PLANS.get(normalized_plan_code)
+    if plan is None:
+        supported = ", ".join(sorted(PAYPAL_CHECKOUT_PLANS))
+        raise PayPalCheckoutPlanError(
+            f"Unsupported PayPal checkout plan. Supported plans: {supported}."
+        )
+
+    return plan
 
 
 def _get_paypal_access_token() -> str:
@@ -106,19 +154,19 @@ def create_paypal_checkout(
     *,
     db: Session,
     user: User,
-    amount_cents: int = DEFAULT_AMOUNT_CENTS,
-    currency_code: str = DEFAULT_CURRENCY_CODE,
-    plan_code: str = PAID_PRO_PLAN,
+    plan_code: str | None = None,
 ) -> BillingPaymentAttempt:
+    checkout_plan = resolve_paypal_checkout_plan(plan_code)
+    amount_cents = checkout_plan.amount_cents
+    currency_code = DEFAULT_CURRENCY_CODE
     attempt_reference = f"meetiq-{uuid.uuid4().hex}"
-    currency_code = currency_code.upper().strip()
     frontend_base_url = _frontend_base_url()
 
     attempt = BillingPaymentAttempt(
         user_id=user.id,
         provider="paypal",
         attempt_reference=attempt_reference,
-        plan_code=plan_code,
+        plan_code=checkout_plan.plan_code,
         amount_cents=amount_cents,
         currency_code=currency_code,
         status="creating",
@@ -129,6 +177,7 @@ def create_paypal_checkout(
 
     try:
         token = _get_paypal_access_token()
+
         order_request = {
             "intent": "CAPTURE",
             "purchase_units": [
@@ -136,7 +185,7 @@ def create_paypal_checkout(
                     "reference_id": attempt_reference,
                     "custom_id": attempt_reference,
                     "invoice_id": attempt_reference,
-                    "description": "MeetIQ Early Access",
+                    "description": checkout_plan.description,
                     "amount": {
                         "currency_code": currency_code,
                         "value": _format_amount(amount_cents),
@@ -195,6 +244,7 @@ def create_paypal_checkout(
     attempt.status = "created"
     attempt.payload_json = order_payload
     attempt.updated_at = _utc_now()
+
     db.add(attempt)
     db.commit()
     db.refresh(attempt)
@@ -210,12 +260,15 @@ def _extract_capture_id(capture_payload: dict[str, Any]) -> str | None:
     for unit in purchase_units:
         if not isinstance(unit, dict):
             continue
+
         payments = unit.get("payments")
         if not isinstance(payments, dict):
             continue
+
         captures = payments.get("captures")
         if not isinstance(captures, list):
             continue
+
         for capture in captures:
             if isinstance(capture, dict) and isinstance(capture.get("id"), str):
                 return capture["id"]
@@ -241,6 +294,7 @@ def capture_paypal_checkout(
         )
         .first()
     )
+
     if attempt is None:
         raise PayPalCheckoutProviderError("PayPal payment attempt was not found.")
 
@@ -252,6 +306,7 @@ def capture_paypal_checkout(
 
     try:
         token = _get_paypal_access_token()
+
         response = httpx.post(
             f"{_paypal_api_base()}/v2/checkout/orders/{order_id}/capture",
             headers={
@@ -278,6 +333,7 @@ def capture_paypal_checkout(
     attempt.payload_json = capture_payload
     attempt.completed_at = _utc_now()
     attempt.updated_at = _utc_now()
+
     db.add(attempt)
     db.commit()
     db.refresh(attempt)

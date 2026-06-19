@@ -17,6 +17,7 @@ from app.services.billing import (
 )
 from app.services.paypal_checkout import (
     PayPalCheckoutConfigError,
+    PayPalCheckoutPlanError,
     PayPalCheckoutProviderError,
     capture_paypal_checkout,
     create_paypal_checkout,
@@ -46,17 +47,31 @@ class ManualCancelRequest(BaseModel):
     user_email: EmailStr
 
 
+class PayPalCreateCheckoutRequest(BaseModel):
+    plan_code: str | None = None
+
+
 class PayPalCaptureRequest(BaseModel):
     provider_order_id: str
 
 
 @router.post("/v1/billing/paypal/create-checkout")
 def paypal_create_checkout(
+    payload: PayPalCreateCheckoutRequest | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
     try:
-        attempt = create_paypal_checkout(db=db, user=current_user)
+        attempt = create_paypal_checkout(
+            db=db,
+            user=current_user,
+            plan_code=payload.plan_code if payload else None,
+        )
+    except PayPalCheckoutPlanError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
     except PayPalCheckoutConfigError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

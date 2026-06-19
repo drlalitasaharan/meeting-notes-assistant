@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+type PayPalPlanCode = "starter" | "paid_pro" | "pro_pilot";
+
 type CheckoutResponse = {
   status: string;
   provider_order_id: string;
@@ -17,7 +19,11 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   "https://meeting-notes-assistant.onrender.com";
 
-export function PayPalCheckoutButton() {
+export function PayPalCheckoutButton({
+  planCode = "starter",
+}: {
+  planCode?: PayPalPlanCode;
+}) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -39,7 +45,9 @@ export function PayPalCheckoutButton() {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({ plan_code: planCode }),
         },
       );
 

@@ -207,7 +207,7 @@ export default function PricingPage() {
               "PayPal checkout",
             ]}
           >
-            <PayPalCheckoutButton />
+            <PayPalCheckoutButton planCode="starter" />
             <PaymentLink href={squareUrl}>Pay with Square</PaymentLink>
             <PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
           </PlanCard>
@@ -221,25 +221,11 @@ export default function PricingPage() {
               "AI-generated summaries, decisions, risks, and action items",
               "Copy-ready notes and Markdown download",
               "Priority email support during early access",
-              "Manual activation while billing automation improves",
+              "PayPal checkout",
             ]}
           >
-            <Link
-              href="/support"
-              style={{
-                background: "#2f6f4e",
-                borderRadius: 999,
-                color: "#ffffff",
-                display: "inline-flex",
-                fontWeight: 800,
-                justifyContent: "center",
-                padding: "12px 18px",
-                textDecoration: "none",
-              }}
-            >
-              Request Pro Pilot access
-            </Link>
-            <PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
+          <PayPalCheckoutButton planCode="pro_pilot" />
+<PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
           </PlanCard>
 
           <PlanCard
