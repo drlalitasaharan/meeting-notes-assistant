@@ -234,3 +234,27 @@ def test_square_create_checkout_supports_legacy_paid_pro_as_starter_equivalent(
     payload = response.json()
     assert payload["plan_code"] == "paid_pro"
     assert payload["amount_cents"] == 2300
+
+
+def test_square_api_base_uses_production_url_for_production_env(monkeypatch) -> None:
+    from app.services.square_checkout import _square_api_base
+
+    monkeypatch.setenv("SQUARE_ENV", "production")
+
+    assert _square_api_base() == "https://connect.squareup.com"
+
+
+def test_square_api_base_uses_production_url_for_live_env(monkeypatch) -> None:
+    from app.services.square_checkout import _square_api_base
+
+    monkeypatch.setenv("SQUARE_ENV", "live")
+
+    assert _square_api_base() == "https://connect.squareup.com"
+
+
+def test_square_api_base_uses_sandbox_url_for_sandbox_env(monkeypatch) -> None:
+    from app.services.square_checkout import _square_api_base
+
+    monkeypatch.setenv("SQUARE_ENV", "sandbox")
+
+    assert _square_api_base() == "https://connect.squareupsandbox.com"
