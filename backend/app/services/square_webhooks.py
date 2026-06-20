@@ -143,9 +143,12 @@ def _extract_email(payload: dict[str, Any]) -> str | None:
     invoice = _invoice(payload)
 
     candidates = [
-        _get_nested_str(payment, ["buyer_email_address"]),
+        # Prefer MeetIQ-controlled metadata before Square buyer receipt email.
+        # In live Square checkout, buyer_email_address can be the payer email,
+        # while payment.note contains the MeetIQ account email from checkout creation.
         _get_nested_str(payment, ["note"]),
         _get_nested_str(payment, ["reference_id"]),
+        _get_nested_str(payment, ["buyer_email_address"]),
         _get_nested_str(invoice, ["primary_recipient", "email_address"]),
         _get_nested_str(invoice, ["description"]),
         _get_nested_str(invoice, ["title"]),
