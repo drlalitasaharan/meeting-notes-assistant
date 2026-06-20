@@ -62,7 +62,11 @@ def _utc_now() -> datetime:
 
 def _square_api_base() -> str:
     env = os.getenv("SQUARE_ENV", "sandbox").strip().lower()
-    return SQUARE_LIVE_API_BASE if env == "live" else SQUARE_SANDBOX_API_BASE
+    if env in {"production", "live"}:
+        return SQUARE_LIVE_API_BASE
+    if env in {"sandbox", "test"}:
+        return SQUARE_SANDBOX_API_BASE
+    raise SquareCheckoutConfigError("SQUARE_ENV must be one of: sandbox, test, production, live.")
 
 
 def _frontend_base_url() -> str:
