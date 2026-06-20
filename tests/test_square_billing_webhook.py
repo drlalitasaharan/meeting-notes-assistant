@@ -4,6 +4,7 @@ import uuid
 
 from app.core.db import SessionLocal
 from app.models.billing import BillingEvent, BillingPaymentAttempt, BillingSubscription
+from app.models.user import User
 
 
 def _signup(client, email: str) -> str:
@@ -350,5 +351,98 @@ def test_square_webhook_preserves_checkout_attempt_plan_code(client, monkeypatch
         assert attempt.plan_code == "pro_pilot"
         assert attempt.provider_payment_id == payment_id
         assert attempt.completed_at is not None
+    finally:
+        db.close()
+
+
+def test_square_payment_updated_prefers_meetiq_note_email_over_buyer_email(
+    client,
+    monkeypatch,
+):
+    monkeypatch.setenv("SQUARE_WEBHOOK_VERIFY_DISABLED", "true")
+
+    meetiq_email = f"square-note-account-{uuid.uuid4().hex}@example.com"
+    payer_email = f"square-payer-{uuid.uuid4().hex}@example.com"
+    token = _signup(client, meetiq_email)
+
+    order_id = f"ORDER-{uuid.uuid4().hex}"
+    payment_id = f"pay-{uuid.uuid4().hex}"
+    event_id = f"evt-{uuid.uuid4().hex}"
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.email == meetiq_email).one()
+        attempt = BillingPaymentAttempt(
+            user_id=user.id,
+            provider="square",
+            attempt_reference=f"meetiq-{uuid.uuid4().hex}",
+            provider_order_id=order_id,
+            plan_code="starter",
+            amount_cents=2300,
+            currency_code="USD",
+            status="created",
+        )
+        db.add(attempt)
+        db.commit()
+    finally:
+        db.close()
+
+    response = client.post(
+        "/v1/billing/square/webhook",
+        json={
+            "event_id": event_id,
+            "type": "payment.updated",
+            "data": {
+                "id": payment_id,
+                "object": {
+                    "payment": {
+                        "id": payment_id,
+                        "status": "COMPLETED",
+                        "buyer_email_address": payer_email,
+                        "note": f"meetiq:{meetiq_email}",
+                        "order_id": order_id,
+                    }
+                },
+            },
+        },
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "processed"
+    assert response.json()["plan_code"] == "starter"
+
+    billing_status = client.get(
+        "/v1/billing/status",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert billing_status.status_code == 200
+    assert billing_status.json()["plan_code"] == "starter"
+    assert billing_status.json()["provider"] == "square"
+
+    db = SessionLocal()
+    try:
+        assert (
+            db.query(BillingSubscription)
+            .filter(
+                BillingSubscription.provider == "square",
+                BillingSubscription.provider_subscription_id == order_id,
+                BillingSubscription.provider_payment_id == payment_id,
+                BillingSubscription.plan_code == "starter",
+                BillingSubscription.status == "active",
+            )
+            .count()
+            == 1
+        )
+        assert (
+            db.query(BillingPaymentAttempt)
+            .filter(
+                BillingPaymentAttempt.provider == "square",
+                BillingPaymentAttempt.provider_order_id == order_id,
+                BillingPaymentAttempt.provider_payment_id == payment_id,
+                BillingPaymentAttempt.status == "captured",
+            )
+            .count()
+            == 1
+        )
     finally:
         db.close()
