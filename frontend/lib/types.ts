@@ -85,3 +85,35 @@ export interface UsageSummary {
   max_duration_seconds: number;
   max_duration_minutes: number;
 }
+
+export type FeedbackUsefulness = "yes" | "somewhat" | "no";
+export type FeedbackMostUseful =
+  | "summary"
+  | "decisions"
+  | "action_items"
+  | "risks"
+  | "nothing_yet";
+export type FeedbackWouldUseAgain = "yes" | "maybe" | "no";
+export type FeedbackMeetingType =
+  | "internal"
+  | "client"
+  | "sales"
+  | "research"
+  | "project"
+  | "other";
+
+export interface MeetingFeedbackRequest {
+  meeting_id: number;
+  usefulness: FeedbackUsefulness;
+  most_useful: FeedbackMostUseful;
+  improvement_text?: string | null;
+  would_use_again: FeedbackWouldUseAgain;
+  meeting_type: FeedbackMeetingType;
+}
+
+export interface MeetingFeedbackResponse extends MeetingFeedbackRequest {
+  id: number;
+  user_id: number;
+  created_at: string;
+  updated_at: string;
+}

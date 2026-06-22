@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import ActionItemsCard from "../../../components/ActionItemsCard";
 import ErrorBanner from "../../../components/ErrorBanner";
 import KeyPointsCard from "../../../components/KeyPointsCard";
+import MeetingFeedbackForm from "../../../components/MeetingFeedbackForm";
 import StatusCard from "../../../components/StatusCard";
 import SummaryCard from "../../../components/SummaryCard";
 import TranscriptCard from "../../../components/TranscriptCard";
@@ -602,6 +603,8 @@ export default function MeetingResultsPage() {
               filename={`meeting-${meetingId}-notes.md`}
             />
           ) : null}
+
+          <MeetingFeedbackForm meetingId={Number(meetingId)} />
         </>
       ) : null}
     </div>
