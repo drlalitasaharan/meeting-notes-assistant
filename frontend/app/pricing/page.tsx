@@ -3,7 +3,9 @@ import { PayPalCheckoutButton } from "./PayPalCheckoutButton";
 import { SquareCheckoutButton } from "./SquareCheckoutButton";
 
 const manualPaymentUrl = process.env.NEXT_PUBLIC_MANUAL_PAYMENT_REQUEST_URL || "";
-const supportDevelopmentUrl = process.env.NEXT_PUBLIC_SUPPORT_DEVELOPMENT_URL || "#";
+const supportDevelopmentUrl = process.env.NEXT_PUBLIC_SUPPORT_DEVELOPMENT_URL?.trim() || "";
+const supportDevelopmentIsExternal = /^https?:\/\//.test(supportDevelopmentUrl);
+const invoiceRequestUrl = manualPaymentUrl.trim() || "/support";
 
 function PaymentLink({
   href,
@@ -14,28 +16,6 @@ function PaymentLink({
   children: React.ReactNode;
   primary?: boolean;
 }) {
-  const configured = href.trim().length > 0;
-
-  if (!configured) {
-    return (
-      <span
-        aria-disabled="true"
-        style={{
-          background: primary ? "#8fb7a1" : "#f3f7f4",
-          border: primary ? "none" : "1px solid #d7eadf",
-          borderRadius: 999,
-          color: primary ? "#ffffff" : "#789086",
-          display: "inline-flex",
-          fontWeight: 800,
-          justifyContent: "center",
-          padding: "12px 18px",
-        }}
-      >
-        Payment link coming soon
-      </span>
-    );
-  }
-
   return (
     <a
       href={href}
@@ -211,7 +191,7 @@ export default function PricingPage() {
           >
             <PayPalCheckoutButton planCode="starter" />
             <SquareCheckoutButton planCode="starter" />
-            <PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
+            <PaymentLink href={invoiceRequestUrl}>Request invoice</PaymentLink>
           </PlanCard>
 
           <PlanCard
@@ -229,38 +209,98 @@ export default function PricingPage() {
           >
             <PayPalCheckoutButton planCode="pro_pilot" />
             <SquareCheckoutButton planCode="pro_pilot" />
-            <PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
+            <PaymentLink href={invoiceRequestUrl}>Request invoice</PaymentLink>
           </PlanCard>
 
-          <PlanCard
-            title="Business / Team"
-            price="Custom pricing"
-            description="Best for teams with higher usage, privacy-conscious workflows, or internal review needs."
-            features={[
-              "Custom meeting upload allowances",
-              "Team onboarding during early access",
-              "Export and deletion support",
-              "Priority email support",
-              "Request-based approval before activation",
-            ]}
+          <section
+            style={{
+              background: "#ffffff",
+              border: "1px solid #d7eadf",
+              borderRadius: 28,
+              gridColumn: "1 / -1",
+              padding: 28,
+            }}
           >
-            <Link
-              href="/support"
+            <div
               style={{
-                background: "#2f6f4e",
-                borderRadius: 999,
-                color: "#ffffff",
-                display: "inline-flex",
-                fontWeight: 800,
-                justifyContent: "center",
-                padding: "12px 18px",
-                textDecoration: "none",
+                alignItems: "center",
+                display: "grid",
+                gap: 28,
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
               }}
             >
-              Request team access
-            </Link>
-            <PaymentLink href={manualPaymentUrl}>Request invoice/manual payment</PaymentLink>
-          </PlanCard>
+              <div>
+                <p
+                  style={{
+                    color: "#2f6f4e",
+                    fontSize: 13,
+                    fontWeight: 900,
+                    letterSpacing: "0.08em",
+                    margin: 0,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Business / Team
+                </p>
+                <h2 style={{ color: "#123326", fontSize: 34, margin: "10px 0 8px" }}>
+                  Custom pricing
+                </h2>
+                <p style={{ color: "#5d6f66", lineHeight: 1.6, margin: "0 0 20px" }}>
+                  Best for teams with higher usage, privacy-conscious workflows, or internal review needs.
+                </p>
+                <ul
+                  style={{
+                    color: "#31473d",
+                    lineHeight: 1.8,
+                    margin: 0,
+                    paddingLeft: 20,
+                  }}
+                >
+                  {[
+                    "Custom meeting upload allowances",
+                    "Team onboarding during early access",
+                    "Export and deletion support",
+                    "Priority email support",
+                    "Request-based approval before activation",
+                  ].map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div
+                style={{
+                  background: "#f7fbf8",
+                  border: "1px solid #d7eadf",
+                  borderRadius: 22,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 12,
+                  padding: 22,
+                }}
+              >
+                <p style={{ color: "#5d6f66", lineHeight: 1.6, margin: 0 }}>
+                  Tell us your team size, expected meeting volume, and billing needs so we can set up the right access.
+                </p>
+                <Link
+                  href="/support"
+                  style={{
+                    background: "#2f6f4e",
+                    borderRadius: 999,
+                    color: "#ffffff",
+                    display: "inline-flex",
+                    fontWeight: 800,
+                    justifyContent: "center",
+                    padding: "12px 18px",
+                    textDecoration: "none",
+                  }}
+                >
+                  Request team access
+                </Link>
+                <PaymentLink href={invoiceRequestUrl}>Request invoice</PaymentLink>
+              </div>
+            </div>
+          </section>
         </div>
 
         <section
@@ -297,24 +337,35 @@ export default function PricingPage() {
           <h2 style={{ color: "#123326", margin: "0 0 8px" }}>
             Support MeetIQ development
           </h2>
-          <p style={{ margin: "0 0 16px" }}>
-            This is separate from Starter, Pro Pilot, and Business / Team checkout. This is not a subscription and is not a tax-deductible donation.
+          <p style={{ margin: "0 0 8px" }}>
+            This is separate from Starter, Pro Pilot, and Business / Team checkout.
           </p>
-          <a
-            href={supportDevelopmentUrl}
-            style={{
-              border: "1px solid #b8d8c5",
-              borderRadius: 999,
-              color: "#123326",
-              display: "inline-flex",
-              fontWeight: 800,
-              justifyContent: "center",
-              padding: "12px 18px",
-              textDecoration: "none",
-            }}
-          >
-            Support development
-          </a>
+          <p style={{ margin: "0 0 16px" }}>
+            This is not a subscription and is not a tax-deductible donation.
+          </p>
+          {supportDevelopmentUrl ? (
+            <a
+              href={supportDevelopmentUrl}
+              target={supportDevelopmentIsExternal ? "_blank" : undefined}
+              rel={supportDevelopmentIsExternal ? "noreferrer" : undefined}
+              style={{
+                border: "1px solid #b8d8c5",
+                borderRadius: 999,
+                color: "#123326",
+                display: "inline-flex",
+                fontWeight: 800,
+                justifyContent: "center",
+                padding: "12px 18px",
+                textDecoration: "none",
+              }}
+            >
+              Support development
+            </a>
+          ) : (
+            <p style={{ color: "#789086", fontSize: 14, fontWeight: 800, margin: 0 }}>
+              Contribution link coming soon.
+            </p>
+          )}
         </section>
       </div>
     </main>
