@@ -98,9 +98,10 @@ export default function PricingPage() {
         background: "linear-gradient(180deg, #f7fbf8 0%, #ffffff 100%)",
         minHeight: "100vh",
         padding: "56px 20px 88px",
+        minWidth: 0,
       }}
     >
-      <div style={{ margin: "0 auto", maxWidth: 1080 }}>
+      <div style={{ margin: "0 auto", maxWidth: 1080, minWidth: 0, width: "100%" }}>
         <div style={{ marginBottom: 34, maxWidth: 760 }}>
           <p
             style={{
@@ -128,7 +129,7 @@ export default function PricingPage() {
           style={{
             display: "grid",
             gap: 22,
-            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
           }}
         >
           <PlanCard
@@ -226,7 +227,7 @@ export default function PricingPage() {
                 alignItems: "center",
                 display: "grid",
                 gap: 28,
-                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
               }}
             >
               <div>

@@ -24,10 +24,12 @@ export default function RootLayout({
       >
         <Header />
         <main
+          className="app-frame"
           style={{
             maxWidth: 980,
             margin: "0 auto",
             padding: "18px 16px 28px",
+            minWidth: 0,
           }}
         >
           {children}

@@ -41,11 +41,12 @@ function formatDisplayName(user: UserRead | null): string {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div
+      className="account-detail-row"
       style={{
         borderBottom: "1px solid #e4f0e8",
         display: "grid",
         gap: 8,
-        gridTemplateColumns: "minmax(140px, 0.4fr) 1fr",
+        gridTemplateColumns: "minmax(0, 0.4fr) minmax(0, 1fr)",
         padding: "14px 0",
       }}
     >
@@ -110,9 +111,10 @@ export default function AccountPage() {
         background: "linear-gradient(180deg, #f7fbf8 0%, #ffffff 100%)",
         minHeight: "100vh",
         padding: "48px 20px 80px",
+        minWidth: 0,
       }}
     >
-      <div style={{ margin: "0 auto", maxWidth: 960 }}>
+      <div style={{ margin: "0 auto", maxWidth: 960, minWidth: 0, width: "100%" }}>
         <div style={{ marginBottom: 28 }}>
           <p
             style={{

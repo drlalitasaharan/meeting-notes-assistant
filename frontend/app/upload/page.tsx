@@ -480,7 +480,14 @@ export default function UploadPage() {
             </div>
 
             {file ? (
-              <p style={{ margin: "12px 0 0", color: "#123326", fontSize: 16 }}>
+              <p
+                style={{
+                  margin: "12px 0 0",
+                  color: "#123326",
+                  fontSize: 16,
+                  overflowWrap: "anywhere",
+                }}
+              >
                 Selected file: <strong>{file.name}</strong>
               </p>
             ) : null}
