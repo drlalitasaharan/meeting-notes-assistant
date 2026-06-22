@@ -3,9 +3,17 @@ import { PayPalCheckoutButton } from "./PayPalCheckoutButton";
 import { SquareCheckoutButton } from "./SquareCheckoutButton";
 
 const manualPaymentUrl = process.env.NEXT_PUBLIC_MANUAL_PAYMENT_REQUEST_URL || "";
-const supportDevelopmentUrl = process.env.NEXT_PUBLIC_SUPPORT_DEVELOPMENT_URL?.trim() || "";
-const supportDevelopmentIsExternal = /^https?:\/\//.test(supportDevelopmentUrl);
+const supportDevelopmentSquareUrl =
+  process.env.NEXT_PUBLIC_SUPPORT_DEVELOPMENT_SQUARE_URL?.trim() || "";
+const supportDevelopmentPayPalUrl =
+  process.env.NEXT_PUBLIC_SUPPORT_DEVELOPMENT_PAYPAL_URL?.trim() || "";
+const fallbackSupportDevelopmentUrl =
+  process.env.NEXT_PUBLIC_SUPPORT_DEVELOPMENT_URL?.trim() || "";
 const invoiceRequestUrl = manualPaymentUrl.trim() || "/support";
+
+function isExternalUrl(href: string): boolean {
+  return /^https?:\/\//.test(href);
+}
 
 function PaymentLink({
   href,
@@ -26,6 +34,36 @@ function PaymentLink({
         border: primary ? "none" : "1px solid #b8d8c5",
         borderRadius: 999,
         color: primary ? "#ffffff" : "#123326",
+        display: "inline-flex",
+        fontWeight: 800,
+        justifyContent: "center",
+        padding: "12px 18px",
+        textDecoration: "none",
+      }}
+    >
+      {children}
+    </a>
+  );
+}
+
+function SupportDevelopmentLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  const external = isExternalUrl(href);
+
+  return (
+    <a
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
+      style={{
+        border: "1px solid #b8d8c5",
+        borderRadius: 999,
+        color: "#123326",
         display: "inline-flex",
         fontWeight: 800,
         justifyContent: "center",
@@ -92,6 +130,19 @@ function PlanCard({
 }
 
 export default function PricingPage() {
+  const supportDevelopmentLinks = [
+    supportDevelopmentSquareUrl
+      ? { href: supportDevelopmentSquareUrl, label: "Support with Square" }
+      : null,
+    supportDevelopmentPayPalUrl
+      ? { href: supportDevelopmentPayPalUrl, label: "Support with PayPal" }
+      : null,
+  ].filter((link): link is { href: string; label: string } => Boolean(link));
+  const fallbackSupportDevelopmentLink =
+    supportDevelopmentLinks.length === 0 && fallbackSupportDevelopmentUrl
+      ? { href: fallbackSupportDevelopmentUrl, label: "Support development" }
+      : null;
+
   return (
     <main
       style={{
@@ -344,24 +395,24 @@ export default function PricingPage() {
           <p style={{ margin: "0 0 16px" }}>
             This is not a subscription and is not a tax-deductible donation.
           </p>
-          {supportDevelopmentUrl ? (
-            <a
-              href={supportDevelopmentUrl}
-              target={supportDevelopmentIsExternal ? "_blank" : undefined}
-              rel={supportDevelopmentIsExternal ? "noreferrer" : undefined}
+          {supportDevelopmentLinks.length > 0 ? (
+            <div
               style={{
-                border: "1px solid #b8d8c5",
-                borderRadius: 999,
-                color: "#123326",
-                display: "inline-flex",
-                fontWeight: 800,
-                justifyContent: "center",
-                padding: "12px 18px",
-                textDecoration: "none",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 12,
               }}
             >
-              Support development
-            </a>
+              {supportDevelopmentLinks.map((link) => (
+                <SupportDevelopmentLink key={link.label} href={link.href}>
+                  {link.label}
+                </SupportDevelopmentLink>
+              ))}
+            </div>
+          ) : fallbackSupportDevelopmentLink ? (
+            <SupportDevelopmentLink href={fallbackSupportDevelopmentLink.href}>
+              {fallbackSupportDevelopmentLink.label}
+            </SupportDevelopmentLink>
           ) : (
             <p style={{ color: "#789086", fontSize: 14, fontWeight: 800, margin: 0 }}>
               Contribution link coming soon.
