@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { clearAuthToken, subscribeToAuthChanges } from "../lib/api";
 
 const navItemStyle: CSSProperties = {
@@ -16,6 +16,14 @@ const navItemStyle: CSSProperties = {
   alignItems: "center",
 };
 
+const activeNavItemStyle: CSSProperties = {
+  ...navItemStyle,
+  background: "#e7f7ed",
+  borderRadius: 999,
+  color: "#123326",
+  padding: "8px 12px",
+};
+
 const logoutButtonStyle: CSSProperties = {
   ...navItemStyle,
   background: "transparent",
@@ -27,8 +35,26 @@ const logoutButtonStyle: CSSProperties = {
   WebkitAppearance: "none",
 };
 
+const loggedInNavItems = [
+  { href: "/upload", label: "New Upload" },
+  { href: "/meetings", label: "Meetings" },
+  { href: "/usage", label: "Usage" },
+  { href: "/account", label: "Account" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/support", label: "Support" },
+];
+
+function isActivePath(pathname: string, href: string): boolean {
+  if (href === "/meetings") {
+    return pathname === "/meetings" || pathname.startsWith("/meetings/");
+  }
+
+  return pathname === href;
+}
+
 export default function Header() {
   const [loggedIn, setLoggedIn] = useState(false);
+  const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
@@ -82,24 +108,22 @@ export default function Header() {
           MeetIQ by Acjen AI
         </Link>
 
-        <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
+        <nav style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           {loggedIn ? (
             <>
-              <Link href="/upload" style={navItemStyle}>
-                New Upload
-              </Link>
-              <Link href="/meetings" style={navItemStyle}>
-                Meetings
-              </Link>
-              <Link href="/usage" style={navItemStyle}>
-                Usage
-              </Link>
-              <Link href="/pricing" style={navItemStyle}>
-                Pricing
-              </Link>
-              <Link href="/support" style={navItemStyle}>
-                Support
-              </Link>
+              {loggedInNavItems.map((item) => {
+                const active = isActivePath(pathname, item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    style={active ? activeNavItemStyle : navItemStyle}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
               <button type="button" onClick={handleLogout} style={logoutButtonStyle}>
                 Logout
               </button>
