@@ -15,6 +15,7 @@ class Base(DeclarativeBase):
 # This ensures Base.metadata.create_all() sees jobs, meetings, meeting_notes, etc.
 from app.models import job as _job  # noqa: F401,E402
 from app.models import meeting as _meeting  # noqa: F401,E402
+from app.models import meeting_feedback as _meeting_feedback  # noqa: F401,E402
 from app.models import meeting_notes as _meeting_notes  # noqa: F401,E402
 from app.models import upload_ledger as _upload_ledger  # noqa: F401,E402
 from app.models import user as _user  # noqa: F401,E402

@@ -14,7 +14,7 @@ from app.logging_utils import (
     get_logger,
 )
 from app.metrics import render_all_metrics_prometheus, track_http_request
-from app.routers import admin, auth, billing, jobs, meetings, slides, usage
+from app.routers import admin, auth, billing, feedback, jobs, meetings, slides, usage
 
 app = FastAPI(title="Meeting Notes Assistant")
 
@@ -203,6 +203,7 @@ app.include_router(slides.router)
 app.include_router(jobs.router)
 app.include_router(auth.router)
 app.include_router(usage.router)
+app.include_router(feedback.router)
 
 
 # Golden-flow: register meeting notes/upload router

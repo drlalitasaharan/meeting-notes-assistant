@@ -6,6 +6,8 @@ import type {
   JobStatus,
   MeetingListResponse,
   MeetingNotes,
+  MeetingFeedbackRequest,
+  MeetingFeedbackResponse,
   UploadMeetingResponse,
   UsageSummary,
   UserRead,
@@ -226,6 +228,18 @@ export async function getBillingStatus(): Promise<BillingStatus> {
   return fetchWithAuth<BillingStatus>("/v1/billing/status", {
     method: "GET",
     cache: "no-store",
+  });
+}
+
+export async function submitMeetingFeedback(
+  payload: MeetingFeedbackRequest,
+): Promise<MeetingFeedbackResponse> {
+  return fetchWithAuth<MeetingFeedbackResponse>("/v1/feedback/meeting", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
   });
 }
 
