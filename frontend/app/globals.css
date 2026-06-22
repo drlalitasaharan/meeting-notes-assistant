@@ -6,6 +6,8 @@ html,
 body {
   padding: 0;
   margin: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 button,
@@ -16,4 +18,66 @@ textarea {
 
 a {
   color: inherit;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+.app-frame {
+  width: 100%;
+  min-width: 0;
+}
+
+.app-header-inner {
+  min-width: 0;
+  width: 100%;
+}
+
+.app-header-brand {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.app-header-nav {
+  min-width: 0;
+}
+
+.app-header-nav > * {
+  flex: 0 0 auto;
+}
+
+.account-detail-row dd {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 720px) {
+  .app-header-inner {
+    align-items: stretch !important;
+    flex-direction: column;
+    gap: 12px !important;
+  }
+
+  .app-header-nav {
+    flex-wrap: nowrap !important;
+    margin: 0 -16px;
+    overflow-x: auto;
+    padding: 0 16px 4px;
+    scrollbar-width: thin;
+    width: calc(100% + 32px);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-header-nav::after {
+    content: "";
+    flex: 0 0 1px;
+  }
+
+  .account-detail-row {
+    grid-template-columns: 1fr !important;
+  }
 }

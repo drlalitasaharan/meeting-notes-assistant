@@ -64,12 +64,13 @@ export default function UsageSummaryCard({ usage, billingStatus }: UsageSummaryC
         style={{
           alignItems: "flex-start",
           display: "flex",
+          flexWrap: "wrap",
           gap: 18,
           justifyContent: "space-between",
           marginBottom: 20,
         }}
       >
-        <div>
+        <div style={{ minWidth: 0 }}>
           <p
             style={{
               color: "#2f6f4e",
@@ -111,7 +112,7 @@ export default function UsageSummaryCard({ usage, billingStatus }: UsageSummaryC
         style={{
           display: "grid",
           gap: 14,
-          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(180px, 100%), 1fr))",
         }}
       >
         <div style={{ background: "#f7fbf8", borderRadius: 18, padding: 18 }}>

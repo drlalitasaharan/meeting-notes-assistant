@@ -86,6 +86,7 @@ export default function Header() {
       }}
     >
       <div
+        className="app-header-inner"
         style={{
           maxWidth: 1080,
           margin: "0 auto",
@@ -97,6 +98,7 @@ export default function Header() {
         }}
       >
         <Link
+          className="app-header-brand"
           href="/upload"
           style={{
             textDecoration: "none",
@@ -108,7 +110,10 @@ export default function Header() {
           MeetIQ by Acjen AI
         </Link>
 
-        <nav style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <nav
+          className="app-header-nav"
+          style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}
+        >
           {loggedIn ? (
             <>
               {loggedInNavItems.map((item) => {

@@ -429,12 +429,13 @@ export default function MeetingsPage() {
               style={{
                 alignItems: "flex-start",
                 display: "flex",
+                flexWrap: "wrap",
                 gap: 18,
                 justifyContent: "space-between",
                 marginBottom: 20,
               }}
             >
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <p
                   style={{
                     color: "#2f6f4e",
@@ -503,6 +504,7 @@ export default function MeetingsPage() {
                             color: "#123326",
                             fontSize: 20,
                             margin: 0,
+                            overflowWrap: "anywhere",
                           }}
                         >
                           {meeting.title || `Meeting ${meeting.id}`}
