@@ -246,7 +246,7 @@ export default function MeetingsPage() {
                 textDecoration: "none",
               }}
             >
-              Send pilot feedback
+              Email support
             </Link>
           </div>
         </section>
@@ -566,10 +566,10 @@ export default function MeetingsPage() {
                 padding: 16,
               }}
             >
-              <strong style={{ color: "#123326" }}>Pilot feedback:</strong>{" "}
-              If an upload gets stuck or the notes miss important decisions,{" "}
+              <strong style={{ color: "#123326" }}>Structured feedback:</strong>{" "}
+              Open a completed meeting and use the feedback form below the notes. If an upload gets stuck or notes need review,{" "}
               <Link href="/support" style={{ color: "#2f6f4e", fontWeight: 800 }}>
-                send feedback
+                email support
               </Link>{" "}
               with the meeting title or ID.
             </div>
