@@ -3,6 +3,7 @@ import { PayPalCheckoutButton } from "./PayPalCheckoutButton";
 import { SquareCheckoutButton } from "./SquareCheckoutButton";
 
 const manualPaymentUrl = process.env.NEXT_PUBLIC_MANUAL_PAYMENT_REQUEST_URL || "";
+const supportDevelopmentUrl = process.env.NEXT_PUBLIC_SUPPORT_DEVELOPMENT_URL || "#";
 
 function PaymentLink({
   href,
@@ -280,6 +281,40 @@ export default function PricingPage() {
           <p style={{ margin: 0 }}>
             During early access, Starter and Pro Pilot usage allowances may be reviewed manually. Business / Team plans are request-based; we confirm expected usage, team size, recording volume, billing method, and support needs before activating team access.
           </p>
+        </section>
+
+        <section
+          style={{
+            background: "#ffffff",
+            border: "1px solid #d7eadf",
+            borderRadius: 24,
+            color: "#5d6f66",
+            lineHeight: 1.6,
+            marginTop: 24,
+            padding: 24,
+          }}
+        >
+          <h2 style={{ color: "#123326", margin: "0 0 8px" }}>
+            Support MeetIQ development
+          </h2>
+          <p style={{ margin: "0 0 16px" }}>
+            This is separate from Starter, Pro Pilot, and Business / Team checkout. This is not a subscription and is not a tax-deductible donation.
+          </p>
+          <a
+            href={supportDevelopmentUrl}
+            style={{
+              border: "1px solid #b8d8c5",
+              borderRadius: 999,
+              color: "#123326",
+              display: "inline-flex",
+              fontWeight: 800,
+              justifyContent: "center",
+              padding: "12px 18px",
+              textDecoration: "none",
+            }}
+          >
+            Support development
+          </a>
         </section>
       </div>
     </main>
