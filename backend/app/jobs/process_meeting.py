@@ -21,6 +21,7 @@ from app.services.action_item_postprocess import clean_action_items
 from app.services.media import load_audio_for_meeting
 from app.services.note_strategies.factory import get_notes_strategy
 from app.services.notes import generate_meeting_notes
+from app.services.notes_pipeline.consistency import apply_risk_action_owner_consistency
 from app.services.notes_postprocess import normalize_canonical_notes
 from app.services.notes_quality_pass import (
     _pilot_rc1_precision_cleanup_result,
@@ -323,6 +324,7 @@ def process_meeting(meeting_id: str) -> None:
             }
         )
         normalized_notes = _restore_publishable_actions_from_objects(normalized_notes)
+        normalized_notes = apply_risk_action_owner_consistency(normalized_notes)
 
         for action_obj in normalized_notes.get("action_item_objects", []) or []:
             if not isinstance(action_obj, dict):
