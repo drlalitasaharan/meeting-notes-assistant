@@ -1,0 +1,5 @@
+case,duration_minutes,status,meeting_id,quality_summary
+M01,37.9,completed,365,weak action recall; noisy decisions; risks weak
+M02,35.38,completed,366,missed owner actions; fragmented decisions; missed risks
+M03,44.06,completed,367,stronger action recall; decisions and risks still weak
+M04,53.54,completed,368,missed owner action; fragmented decisions; risks missing

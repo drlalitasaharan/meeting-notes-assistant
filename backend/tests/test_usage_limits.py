@@ -8,6 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.models import Base
+from app.models.billing import BillingSubscription
 from app.models.meeting import Meeting
 from app.models.upload_ledger import UploadLedger
 from app.models.user import User
@@ -15,6 +16,7 @@ from app.services.usage_limits import (
     count_uploaded_meeting_slots,
     enforce_free_trial_duration_limit,
     enforce_free_trial_upload_limit,
+    max_duration_seconds_for_plan,
     max_duration_seconds_for_user,
     record_upload_ledger_entry,
     upload_limit_for_user,
@@ -87,6 +89,26 @@ def _create_counted_ledger(
     db_session.commit()
     db_session.refresh(ledger)
     return ledger
+
+
+def _create_active_subscription(
+    db_session,
+    *,
+    user_id: int,
+    plan_code: str,
+) -> BillingSubscription:
+    subscription = BillingSubscription(
+        user_id=user_id,
+        provider="local_test",
+        provider_customer_id=f"customer-{user_id}",
+        provider_subscription_id=f"subscription-{user_id}-{plan_code}",
+        plan_code=plan_code,
+        status="active",
+    )
+    db_session.add(subscription)
+    db_session.commit()
+    db_session.refresh(subscription)
+    return subscription
 
 
 def test_free_trial_allows_first_uploaded_meeting_slot(db_session, monkeypatch):
@@ -209,6 +231,7 @@ def test_free_trial_blocks_recordings_over_30_minutes(db_session, monkeypatch):
 
     with pytest.raises(HTTPException) as exc:
         enforce_free_trial_duration_limit(
+            db=db_session,
             current_user=user,
             duration_seconds=1800.5,
         )
@@ -224,11 +247,78 @@ def test_free_trial_allows_recordings_at_or_under_30_minutes(db_session, monkeyp
     user = _create_user(db_session)
 
     enforce_free_trial_duration_limit(
+        db=db_session,
         current_user=user,
         duration_seconds=1800,
     )
 
     assert max_duration_seconds_for_user(user) == 1800
+
+
+def test_starter_subscription_allows_over_30_minutes_within_60(db_session, monkeypatch):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+    monkeypatch.setenv("MEETIQ_STARTER_MAX_DURATION_SECONDS", "3600")
+
+    user = _create_user(db_session, email="starter@example.com")
+    _create_active_subscription(db_session, user_id=user.id, plan_code="starter")
+
+    enforce_free_trial_duration_limit(
+        db=db_session,
+        current_user=user,
+        duration_seconds=37.9 * 60,
+    )
+
+    assert max_duration_seconds_for_plan("starter") == 3600
+
+
+def test_paid_pro_subscription_allows_over_30_minutes_within_60(db_session, monkeypatch):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+    monkeypatch.setenv("MEETIQ_STARTER_MAX_DURATION_SECONDS", "3600")
+
+    user = _create_user(db_session, email="paid-pro@example.com")
+    _create_active_subscription(db_session, user_id=user.id, plan_code="paid_pro")
+
+    enforce_free_trial_duration_limit(
+        db=db_session,
+        current_user=user,
+        duration_seconds=59.9 * 60,
+    )
+
+    assert max_duration_seconds_for_plan("paid_pro") == 3600
+
+
+def test_pro_pilot_subscription_allows_over_60_minutes_within_120(db_session, monkeypatch):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+    monkeypatch.setenv("MEETIQ_PRO_PILOT_MAX_DURATION_SECONDS", "7200")
+
+    user = _create_user(db_session, email="pro-pilot@example.com")
+    _create_active_subscription(db_session, user_id=user.id, plan_code="pro_pilot")
+
+    enforce_free_trial_duration_limit(
+        db=db_session,
+        current_user=user,
+        duration_seconds=90 * 60,
+    )
+
+    assert max_duration_seconds_for_plan("pro_pilot") == 7200
+
+
+def test_pro_pilot_subscription_blocks_over_120_minutes(db_session, monkeypatch):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+    monkeypatch.setenv("MEETIQ_PRO_PILOT_MAX_DURATION_SECONDS", "7200")
+
+    user = _create_user(db_session, email="pro-pilot-too-long@example.com")
+    _create_active_subscription(db_session, user_id=user.id, plan_code="pro_pilot")
+
+    with pytest.raises(HTTPException) as exc:
+        enforce_free_trial_duration_limit(
+            db=db_session,
+            current_user=user,
+            duration_seconds=120.1 * 60,
+        )
+
+    assert exc.value.status_code == 400
+    assert "current limit is 120 minutes" in exc.value.detail
 
 
 def test_pilot_override_allows_longer_duration(db_session, monkeypatch):

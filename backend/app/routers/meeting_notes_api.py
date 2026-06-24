@@ -1,6 +1,7 @@
 # mypy: ignore-errors
 from __future__ import annotations
 
+import ast
 import os
 import re
 from pathlib import Path
@@ -128,6 +129,14 @@ def _save_raw_media(
 
 def _render_action_item_md(item: Any) -> str:
     if isinstance(item, str):
+        stripped = item.strip()
+        if stripped.startswith("{") and stripped.endswith("}"):
+            try:
+                parsed = ast.literal_eval(stripped)
+            except (SyntaxError, ValueError):
+                parsed = None
+            if isinstance(parsed, dict):
+                return _render_action_item_md(parsed)
         return f"- [ ] {item}"
 
     if isinstance(item, dict):
@@ -187,6 +196,7 @@ async def upload_meeting_media(
         suffix=extension or ".bin",
     )
     enforce_free_trial_duration_limit(
+        db=db,
         current_user=current_user,
         duration_seconds=media_duration_seconds,
     )
@@ -239,6 +249,9 @@ def _clean_client_facing_json_text(value: Any) -> str:
     replacements = {
         "I'd us to": "I'd like us to",
         "I’d us to": "I’d like us to",
+        "reviewrecommended": "review recommended",
+        "tomake": "to make",
+        "a gen.ai": "Acjen AI",
     }
     for old, new in replacements.items():
         cleaned = cleaned.replace(old, new)
@@ -440,6 +453,9 @@ def _clean_publishable_markdown_text(text: str) -> str:
     replacements = {
         "I'd us to": "I'd like us to",
         "I’d us to": "I’d like us to",
+        "reviewrecommended": "review recommended",
+        "tomake": "to make",
+        "a gen.ai": "Acjen AI",
     }
     for old, new in replacements.items():
         cleaned = cleaned.replace(old, new)

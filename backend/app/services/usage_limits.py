@@ -24,6 +24,8 @@ DEFAULT_PILOT_UPLOAD_LIMIT = 3
 DEFAULT_PILOT_MAX_DURATION_SECONDS = 60 * 60
 DEFAULT_STARTER_MONTHLY_UPLOAD_LIMIT = 20
 DEFAULT_PRO_PILOT_MONTHLY_UPLOAD_LIMIT = 100
+DEFAULT_STARTER_MAX_DURATION_SECONDS = 60 * 60
+DEFAULT_PRO_PILOT_MAX_DURATION_SECONDS = 120 * 60
 
 FREE_TRIAL_LIMIT_MESSAGE = "You have used your free-trial upload. Contact support to request pilot access or a higher limit."
 PAID_MONTHLY_LIMIT_MESSAGE = "You have used your monthly upload allowance. Contact support to request a higher limit or Business / Team access."
@@ -67,6 +69,22 @@ def monthly_upload_limit_for_plan(plan_code: str) -> int | None:
         return _int_env(
             "MEETIQ_PRO_PILOT_MONTHLY_UPLOAD_LIMIT",
             DEFAULT_PRO_PILOT_MONTHLY_UPLOAD_LIMIT,
+        )
+
+    return None
+
+
+def max_duration_seconds_for_plan(plan_code: str) -> int | None:
+    if plan_code in {PAID_PRO_PLAN, STARTER_PLAN}:
+        return _int_env(
+            "MEETIQ_STARTER_MAX_DURATION_SECONDS",
+            DEFAULT_STARTER_MAX_DURATION_SECONDS,
+        )
+
+    if plan_code == PRO_PILOT_PLAN:
+        return _int_env(
+            "MEETIQ_PRO_PILOT_MAX_DURATION_SECONDS",
+            DEFAULT_PRO_PILOT_MAX_DURATION_SECONDS,
         )
 
     return None
@@ -237,13 +255,21 @@ def record_upload_ledger_entry(
 
 def enforce_free_trial_duration_limit(
     *,
+    db: Session | None = None,
     current_user: User,
     duration_seconds: float | None,
 ) -> None:
     if duration_seconds is None:
         return
 
-    max_seconds = max_duration_seconds_for_user(current_user)
+    max_seconds = None
+    if db is not None:
+        plan_code = get_effective_plan(db=db, user=current_user)
+        max_seconds = max_duration_seconds_for_plan(plan_code)
+
+    if max_seconds is None:
+        max_seconds = max_duration_seconds_for_user(current_user)
+
     if duration_seconds <= max_seconds:
         return
 

@@ -1,0 +1,102 @@
+{
+  "meeting_id": 388,
+  "status": "DONE",
+  "summary": "Priya says, decision confirmed, pro pilot live payment testing is useful, but not required before the first controlled launch. The meeting aligned on the main priorities and next steps",
+  "summary_slots": {
+    "purpose": "Priya says, decision confirmed, pro pilot live payment testing is useful, but not required before the first controlled launch",
+    "outcome": "The meeting aligned on the main priorities and next steps",
+    "risks": [
+      "Pricing confirmation may delay the client follow-up"
+    ],
+    "next_steps": [
+      "Run a production smoke test for signup, checkout, upload, note generation, download, and usage tracking by noon tomorrow.",
+      "Prepare the main list submission using the Acjen AI URL by the end of the week.",
+      "Draft the first support macro for failed uploads and long processing by Wednesday.",
+      "Confirm whether the public pricing table should show starter at $23 and pro pilot at $49.",
+      "Verify Square and PayPal webhook logs after the next test payment."
+    ]
+  },
+  "key_points": [
+    "Priya says, decision confirmed, pro pilot live payment testing is useful, but not required before the first controlled launch",
+    "Priya says, decision confirmed, single site on-chain outside the first pilot scope unless a client specifically requests it",
+    "Priya says, decision confirmed, Acjen AI as the primary public URL, and avoid submitting the raw version URL to launch sites",
+    "Ethan says, Ethan will confirm whether the public pricing table should show starter at $23 and pro pilot at $49",
+    "Priya says, the goal today is to review pilot implementation and billing readiness planning and finish with a marked decision, risks, questions, and owners",
+    "Priya says, decision confirmed, launch has controlled early access, not a full public enterprise launch"
+  ],
+  "decisions": [
+    "confirmed, launch has controlled early access, not a full public enterprise launch",
+    "confirmed, starter checkout is the primary public plan for now"
+  ],
+  "decision_objects": [
+    {
+      "text": "confirmed, launch has controlled early access, not a full public enterprise launch",
+      "confidence": 0.8
+    },
+    {
+      "text": "confirmed, starter checkout is the primary public plan for now",
+      "confidence": 0.8
+    }
+  ],
+  "action_items": [
+    "Sam - Run a production smoke test for signup, checkout, upload, note generation, download, and usage tracking by noon tomorrow",
+    "Priya - Prepare the main list submission using the Acjen AI URL by the end of the week",
+    "Nora - Draft the first support macro for failed uploads and long processing by Wednesday",
+    "Ethan - Confirm whether the public pricing table should show starter at $23 and pro pilot at $49",
+    "Sam - Verify Square and PayPal webhook logs after the next test payment",
+    "Priya - Remove language at Sam's perfect notes for two hour meetings from public launch copy",
+    "Nora - Create a simple onboarding checklist for the first 10 users before Monday morning"
+  ],
+  "action_item_objects": [
+    {
+      "owner": "Sam",
+      "task": "Run a production smoke test for signup, checkout, upload, note generation, download, and usage tracking by noon tomorrow",
+      "status": "open",
+      "priority": "medium",
+      "text": "Sam: Run a production smoke test for signup, checkout, upload, note generation, download, and usage tracking by noon tomorrow"
+    },
+    {
+      "owner": "Priya",
+      "task": "Prepare the main list submission using the Acjen AI URL by the end of the week",
+      "status": "open",
+      "priority": "medium",
+      "text": "Priya: Prepare the main list submission using the Acjen AI URL by the end of the week"
+    },
+    {
+      "owner": "Nora",
+      "task": "Draft the first support macro for failed uploads and long processing by Wednesday",
+      "status": "open",
+      "priority": "medium",
+      "text": "Nora: Draft the first support macro for failed uploads and long processing by Wednesday"
+    },
+    {
+      "owner": "Ethan",
+      "task": "Confirm whether the public pricing table should show starter at $23 and pro pilot at $49",
+      "status": "open",
+      "priority": "medium",
+      "text": "Ethan: Confirm whether the public pricing table should show starter at $23 and pro pilot at $49"
+    },
+    {
+      "owner": "Sam",
+      "task": "Verify Square and PayPal webhook logs after the next test payment",
+      "status": "open",
+      "priority": "medium",
+      "text": "Sam: Verify Square and PayPal webhook logs after the next test payment"
+    },
+    {
+      "owner": "Priya",
+      "task": "Remove language at Sam's perfect notes for two hour meetings from public launch copy",
+      "status": "open",
+      "priority": "medium",
+      "text": "Priya: Remove language at Sam's perfect notes for two hour meetings from public launch copy"
+    },
+    {
+      "owner": "Nora",
+      "task": "Create a simple onboarding checklist for the first 10 users before Monday morning",
+      "status": "open",
+      "priority": "medium",
+      "text": "Nora: Create a simple onboarding checklist for the first 10 users before Monday morning"
+    }
+  ],
+  "model_version": "local-summary-v3"
+}
