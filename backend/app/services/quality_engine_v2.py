@@ -146,3 +146,30 @@ def _sync_next_steps_from_actions(
             break
 
     return output[:limit]
+
+
+VALID_NOTES_ENGINE_MODES = {"v1", "v2", "shadow"}
+
+
+def normalize_notes_engine_mode(value: object) -> str:
+    """Normalize NOTES_ENGINE mode.
+
+    Defaults to v1 for safety.
+    """
+
+    mode = str(value or "").strip().lower()
+    if mode in VALID_NOTES_ENGINE_MODES:
+        return mode
+    return "v1"
+
+
+def should_apply_quality_engine_v2(mode: object) -> bool:
+    """Return True only when v2 should become the user-facing notes output."""
+
+    return normalize_notes_engine_mode(mode) == "v2"
+
+
+def should_run_quality_engine_v2_shadow(mode: object) -> bool:
+    """Return True when v2 should run for comparison only."""
+
+    return normalize_notes_engine_mode(mode) == "shadow"

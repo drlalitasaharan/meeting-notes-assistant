@@ -56,3 +56,36 @@ def test_quality_engine_v2_preserves_existing_decisions() -> None:
     decisions = improved["decision_objects"]
     assert len(decisions) == 1
     assert "launch scope" in decisions[0]["text"].lower()
+
+
+def test_quality_engine_v2_mode_defaults_to_v1() -> None:
+    from app.services.quality_engine_v2 import normalize_notes_engine_mode
+
+    assert normalize_notes_engine_mode(None) == "v1"
+    assert normalize_notes_engine_mode("") == "v1"
+    assert normalize_notes_engine_mode("unknown") == "v1"
+
+
+def test_quality_engine_v2_mode_accepts_v1_v2_shadow() -> None:
+    from app.services.quality_engine_v2 import normalize_notes_engine_mode
+
+    assert normalize_notes_engine_mode("v1") == "v1"
+    assert normalize_notes_engine_mode("v2") == "v2"
+    assert normalize_notes_engine_mode("shadow") == "shadow"
+    assert normalize_notes_engine_mode(" V2 ") == "v2"
+    assert normalize_notes_engine_mode(" SHADOW ") == "shadow"
+
+
+def test_quality_engine_v2_mode_decisions() -> None:
+    from app.services.quality_engine_v2 import (
+        should_apply_quality_engine_v2,
+        should_run_quality_engine_v2_shadow,
+    )
+
+    assert should_apply_quality_engine_v2("v1") is False
+    assert should_apply_quality_engine_v2("shadow") is False
+    assert should_apply_quality_engine_v2("v2") is True
+
+    assert should_run_quality_engine_v2_shadow("v1") is False
+    assert should_run_quality_engine_v2_shadow("v2") is False
+    assert should_run_quality_engine_v2_shadow("shadow") is True
