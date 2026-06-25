@@ -89,3 +89,56 @@ def test_quality_engine_v2_mode_decisions() -> None:
     assert should_run_quality_engine_v2_shadow("v1") is False
     assert should_run_quality_engine_v2_shadow("v2") is False
     assert should_run_quality_engine_v2_shadow("shadow") is True
+
+
+def test_run_quality_engine_v2_preserves_v1_output_in_v1_mode() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team discussed launch readiness.",
+        "summary_slots": {"purpose": "", "outcome": "", "risks": [], "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v2(notes, "The goal is to confirm launch readiness.", mode="v1")
+
+    assert result["notes"] == notes
+    assert result["metadata"]["applied"] is False
+    assert result["metadata"]["mode"] == "v1"
+
+
+def test_run_quality_engine_v2_applies_v2_in_v2_mode() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team discussed launch readiness.",
+        "summary_slots": {"purpose": "", "outcome": "", "risks": [], "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v2(notes, "The goal is to confirm launch readiness.", mode="v2")
+
+    assert result["metadata"]["applied"] is True
+    assert result["metadata"]["mode"] == "v2"
+    assert result["notes"]["summary_slots"]["purpose"]
+
+
+def test_run_quality_engine_v2_shadow_keeps_v1_notes_user_facing() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team discussed launch readiness.",
+        "summary_slots": {"purpose": "", "outcome": "", "risks": [], "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v2(notes, "The goal is to confirm launch readiness.", mode="shadow")
+
+    assert result["notes"] == notes
+    assert result["metadata"]["applied"] is False
+    assert result["metadata"]["mode"] == "shadow"
+    assert result["metadata"]["shadow_ran"] is True
+    assert result["metadata"]["shadow_summary"]["purpose_added"] is True

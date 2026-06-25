@@ -173,3 +173,79 @@ def should_run_quality_engine_v2_shadow(mode: object) -> bool:
     """Return True when v2 should run for comparison only."""
 
     return normalize_notes_engine_mode(mode) == "shadow"
+
+
+def run_quality_engine_v2(
+    notes: dict[str, Any],
+    transcript_text: str | None,
+    *,
+    mode: object = "v1",
+) -> dict[str, Any]:
+    """Run Quality Engine v2 according to mode.
+
+    Modes:
+    - v1: return original notes unchanged.
+    - v2: return improved notes.
+    - shadow: run v2 for comparison but return original notes unchanged.
+    """
+
+    normalized_mode = normalize_notes_engine_mode(mode)
+
+    metadata: dict[str, Any] = {
+        "applied": False,
+        "mode": normalized_mode,
+        "fallback_used": False,
+        "warnings": [],
+    }
+
+    if normalized_mode == "v1":
+        return {"notes": notes, "metadata": metadata}
+
+    try:
+        improved = apply_quality_engine_v2(notes, transcript_text)
+    except Exception as exc:  # pragma: no cover - defensive production fallback
+        metadata["fallback_used"] = True
+        metadata["warnings"].append(f"Quality Engine v2 failed: {exc.__class__.__name__}")
+        return {"notes": notes, "metadata": metadata}
+
+    if normalized_mode == "shadow":
+        metadata["shadow_ran"] = True
+        metadata["shadow_summary"] = _compare_v1_v2_notes(notes, improved)
+        return {"notes": notes, "metadata": metadata}
+
+    metadata["applied"] = True
+    return {"notes": improved, "metadata": metadata}
+
+
+def _compare_v1_v2_notes(
+    original: dict[str, Any],
+    improved: dict[str, Any],
+) -> dict[str, Any]:
+    original_slots = original.get("summary_slots") if isinstance(original, dict) else {}
+    improved_slots = improved.get("summary_slots") if isinstance(improved, dict) else {}
+
+    if not isinstance(original_slots, dict):
+        original_slots = {}
+    if not isinstance(improved_slots, dict):
+        improved_slots = {}
+
+    original_purpose = _text(original_slots.get("purpose"))
+    improved_purpose = _text(improved_slots.get("purpose"))
+
+    original_actions = original.get("action_item_objects") if isinstance(original, dict) else []
+    improved_actions = improved.get("action_item_objects") if isinstance(improved, dict) else []
+
+    original_decisions = original.get("decision_objects") if isinstance(original, dict) else []
+    improved_decisions = improved.get("decision_objects") if isinstance(improved, dict) else []
+
+    return {
+        "purpose_added": not bool(original_purpose) and bool(improved_purpose),
+        "original_action_count": len(original_actions) if isinstance(original_actions, list) else 0,
+        "improved_action_count": len(improved_actions) if isinstance(improved_actions, list) else 0,
+        "original_decision_count": len(original_decisions)
+        if isinstance(original_decisions, list)
+        else 0,
+        "improved_decision_count": len(improved_decisions)
+        if isinstance(improved_decisions, list)
+        else 0,
+    }
