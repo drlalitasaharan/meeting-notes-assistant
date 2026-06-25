@@ -16,13 +16,21 @@ def test_quality_engine_v2_adds_purpose_when_missing() -> None:
     improved = apply_quality_engine_v2(notes, transcript)
 
     assert improved["summary_slots"]["purpose"]
-    assert "pricing" in improved["summary_slots"]["purpose"].lower() or "launch" in improved["summary_slots"]["purpose"].lower()
+    assert (
+        "pricing" in improved["summary_slots"]["purpose"].lower()
+        or "launch" in improved["summary_slots"]["purpose"].lower()
+    )
 
 
 def test_quality_engine_v2_syncs_next_steps_from_actions() -> None:
     notes = {
         "summary": "The team discussed launch follow-up.",
-        "summary_slots": {"purpose": "Confirm launch follow-up.", "outcome": "", "risks": [], "next_steps": []},
+        "summary_slots": {
+            "purpose": "Confirm launch follow-up.",
+            "outcome": "",
+            "risks": [],
+            "next_steps": [],
+        },
         "action_item_objects": [
             {
                 "owner": "Lalita",
@@ -34,7 +42,9 @@ def test_quality_engine_v2_syncs_next_steps_from_actions() -> None:
         "decision_objects": [],
     }
 
-    improved = apply_quality_engine_v2(notes, "Lalita will update the pricing page CTA before launch.")
+    improved = apply_quality_engine_v2(
+        notes, "Lalita will update the pricing page CTA before launch."
+    )
 
     next_steps = improved["summary_slots"]["next_steps"]
     assert next_steps
@@ -44,10 +54,18 @@ def test_quality_engine_v2_syncs_next_steps_from_actions() -> None:
 def test_quality_engine_v2_preserves_existing_decisions() -> None:
     notes = {
         "summary": "The team aligned on the launch scope.",
-        "summary_slots": {"purpose": "Review launch scope.", "outcome": "", "risks": [], "next_steps": []},
+        "summary_slots": {
+            "purpose": "Review launch scope.",
+            "outcome": "",
+            "risks": [],
+            "next_steps": [],
+        },
         "action_item_objects": [],
         "decision_objects": [
-            {"text": "Keep launch scope focused on upload, processing, notes review, and Markdown export.", "confidence": 0.8}
+            {
+                "text": "Keep launch scope focused on upload, processing, notes review, and Markdown export.",
+                "confidence": 0.8,
+            }
         ],
     }
 
@@ -389,6 +407,118 @@ def test_quality_engine_v2_open_questions_keep_known_entity_warnings_working() -
 
     assert "Who owns pay pal checkout validation?" in improved["summary_slots"]["open_questions"]
     assert any(
-        "PayPal" in warning
-        for warning in improved["summary_slots"]["known_entity_warnings"]
+        "PayPal" in warning for warning in improved["summary_slots"]["known_entity_warnings"]
     )
+
+
+def test_quality_engine_v2_extracts_explicit_risks_from_transcript() -> None:
+    notes = {
+        "summary": "The team reviewed launch readiness.",
+        "summary_slots": {"purpose": "Review launch readiness.", "next_steps": [], "risks": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = """
+    Risk: Pricing approval may delay the launch follow-up.
+    Blocker: The support page owner is still waiting on review guidance.
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+    risks = improved["summary_slots"]["risks"]
+
+    assert "Pricing approval may delay the launch follow-up." in risks
+    assert "The support page owner is still waiting on review guidance." in risks
+
+
+def test_quality_engine_v2_preserves_existing_risks() -> None:
+    notes = {
+        "summary": "The team reviewed launch readiness.",
+        "summary_slots": {
+            "purpose": "Review launch readiness.",
+            "next_steps": [],
+            "risks": ["Long recordings need manual review before publication."],
+        },
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+
+    assert improved["summary_slots"]["risks"] == [
+        "Long recordings need manual review before publication."
+    ]
+
+
+def test_quality_engine_v2_deduplicates_repeated_risks() -> None:
+    notes = {
+        "summary": "Risk: Pricing approval may delay launch.",
+        "summary_slots": {
+            "purpose": "Review launch readiness.",
+            "next_steps": [],
+            "risks": ["Pricing approval may delay launch."],
+        },
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Risk: pricing approval may delay launch."
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["summary_slots"]["risks"] == ["Pricing approval may delay launch."]
+
+
+def test_quality_engine_v2_does_not_extract_risks_when_none_are_present() -> None:
+    notes = {
+        "summary": "The team reviewed risks and action items, then confirmed ownership.",
+        "summary_slots": {"purpose": "Review launch readiness.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "The prior blocker was resolved. No risks remain for launch."
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["summary_slots"]["risks"] == []
+
+
+def test_quality_engine_v2_risks_preserve_existing_v1_and_shadow_behavior() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team reviewed launch readiness.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    original = {
+        "summary": "The team reviewed launch readiness.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Risk: Pricing approval may delay launch."
+
+    v1_result = run_quality_engine_v2(notes, transcript, mode="v1")
+    shadow_result = run_quality_engine_v2(notes, transcript, mode="shadow")
+
+    assert v1_result["notes"] == original
+    assert shadow_result["notes"] == original
+    assert notes == original
+    assert shadow_result["metadata"]["shadow_ran"] is True
+
+
+def test_quality_engine_v2_risks_keep_open_questions_and_known_entity_warnings_working() -> None:
+    notes = {
+        "summary": "Risk: pay pal checkout may delay launch. Open question: who owns sqare validation?",
+        "summary_slots": {"purpose": "Review checkout readiness.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+
+    assert "Pay pal checkout may delay launch." in improved["summary_slots"]["risks"]
+    assert "Who owns sqare validation?" in improved["summary_slots"]["open_questions"]
+    warnings = " ".join(improved["summary_slots"]["known_entity_warnings"])
+    assert "PayPal" in warnings
+    assert "Square" in warnings
