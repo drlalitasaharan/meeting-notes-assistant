@@ -1,0 +1,45 @@
+{
+  "meeting_id": 389,
+  "status": "DONE",
+  "summary": "Sophia says, Sophia will update the support page with review recommended language for long recordings before the launch post goes live. The meeting aligned on the main priorities and next steps",
+  "summary_slots": {
+    "purpose": "Sophia says, Sophia will update the support page with review recommended language for long recordings before the launch post goes live",
+    "outcome": "The meeting aligned on the main priorities and next steps",
+    "risks": [
+      "Long recordings may miss details, so important action items should be reviewed before sharing externally",
+      "Support and reliability messaging may be unclear if long-recording review guidance is missing"
+    ],
+    "next_steps": [
+      "Update the support page with review recommended language for long recordings before the launch post goes live."
+    ]
+  },
+  "key_points": [
+    "Sophia says, Sophia will update the support page with review recommended language for long recordings before the launch post goes live",
+    "The most important action item should include an owner, a concrete task, a deadline if one was spoken and enough context to make the task understandable later",
+    "Maya says, the goal today is to review support operations, and reliability review, and finish with a marked decision, risks, questions, and owners",
+    "It contains clear decisions, action items, risks, open questions, repeated actions, and vague actions that should be written",
+    "Man says, I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting"
+  ],
+  "decisions": [
+    "Use support at Acjen AI as the public support address once the email alias is ready"
+  ],
+  "decision_objects": [
+    {
+      "text": "Use support at Acjen AI as the public support address once the email alias is ready",
+      "confidence": 0.8
+    }
+  ],
+  "action_items": [
+    "Sophia - Update the support page with review recommended language for long recordings before the launch post goes live"
+  ],
+  "action_item_objects": [
+    {
+      "owner": "Sophia",
+      "task": "Update the support page with review recommended language for long recordings before the launch post goes live",
+      "status": "open",
+      "priority": "medium",
+      "text": "Sophia: Update the support page with review recommended language for long recordings before the launch post goes live"
+    }
+  ],
+  "model_version": "local-summary-v3"
+}
