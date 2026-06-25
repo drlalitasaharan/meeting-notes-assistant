@@ -8,11 +8,11 @@ Baseline directory: `qa_results/quality_engine_v2_baseline`
 
 | Case | Transcript source | Purpose v1 | Purpose v2 | Actions v1 | Actions v2 | Decisions v1 | Decisions v2 | Next steps v1 | Next steps v2 | Risks v1 | Risks v2 | Open questions v1 | Open questions v2 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| M01 | not available | yes | yes | 1 | 1 | 2 | 2 | 1 | 1 | 2 | 2 | n/a | n/a |
-| M02 | not available | yes | yes | 2 | 2 | 0 | 0 | 2 | 2 | 1 | 1 | n/a | n/a |
-| M03 | not available | yes | yes | 7 | 7 | 2 | 2 | 5 | 5 | 1 | 1 | n/a | n/a |
-| M04 | not available | yes | yes | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 2 | n/a | n/a |
-| S01_client_weekly_sync | not available | yes | yes | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | n/a | n/a |
+| M01 | not available | yes | yes | 1 | 1 | 2 | 2 | 1 | 1 | 2 | 2 | n/a | 0 |
+| M02 | not available | yes | yes | 2 | 2 | 0 | 0 | 2 | 2 | 1 | 1 | n/a | 0 |
+| M03 | not available | yes | yes | 7 | 7 | 2 | 2 | 5 | 5 | 1 | 1 | n/a | 0 |
+| M04 | not available | yes | yes | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 2 | n/a | 0 |
+| S01_client_weekly_sync | not available | yes | yes | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | n/a | 0 |
 
 ## Per-Case Metric Deltas
 
@@ -29,7 +29,7 @@ Baseline directory: `qa_results/quality_engine_v2_baseline`
 | decision_count | 2 | 2 | 0 |
 | next_step_count | 1 | 1 | 0 |
 | risk_count | 2 | 2 | 0 |
-| open_question_count | n/a | n/a | n/a |
+| open_question_count | n/a | 0 | n/a |
 
 ### M02
 
@@ -44,7 +44,7 @@ Baseline directory: `qa_results/quality_engine_v2_baseline`
 | decision_count | 0 | 0 | 0 |
 | next_step_count | 2 | 2 | 0 |
 | risk_count | 1 | 1 | 0 |
-| open_question_count | n/a | n/a | n/a |
+| open_question_count | n/a | 0 | n/a |
 
 ### M03
 
@@ -59,7 +59,7 @@ Baseline directory: `qa_results/quality_engine_v2_baseline`
 | decision_count | 2 | 2 | 0 |
 | next_step_count | 5 | 5 | 0 |
 | risk_count | 1 | 1 | 0 |
-| open_question_count | n/a | n/a | n/a |
+| open_question_count | n/a | 0 | n/a |
 
 ### M04
 
@@ -74,7 +74,7 @@ Baseline directory: `qa_results/quality_engine_v2_baseline`
 | decision_count | 1 | 1 | 0 |
 | next_step_count | 1 | 1 | 0 |
 | risk_count | 2 | 2 | 0 |
-| open_question_count | n/a | n/a | n/a |
+| open_question_count | n/a | 0 | n/a |
 
 ### S01_client_weekly_sync
 
@@ -89,4 +89,4 @@ Baseline directory: `qa_results/quality_engine_v2_baseline`
 | decision_count | 0 | 0 | 0 |
 | next_step_count | 0 | 0 | 0 |
 | risk_count | 0 | 0 | 0 |
-| open_question_count | n/a | n/a | n/a |
+| open_question_count | n/a | 0 | n/a |
