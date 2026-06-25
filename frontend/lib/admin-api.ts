@@ -40,6 +40,16 @@ export type AdminMeeting = {
   updated_at: string | null;
   last_error: string | null;
   is_stuck: boolean;
+  processing_stage?: string | null;
+  processing_progress_label?: string | null;
+  processing_error_code?: string | null;
+  processing_error_message?: string | null;
+  processing_diagnostics?: string | null;
+  processing_attempts?: number;
+  processing_started_at?: string | null;
+  processing_finished_at?: string | null;
+  processing_total_seconds?: number | null;
+  processing_timings?: Record<string, string>;
 };
 
 export type AdminMeetingsResponse = {

@@ -32,6 +32,12 @@ from app.services.persisted_action_contract import (
     _finalize_persisted_action_contract,
     align_action_items_with_objects,
 )
+from app.services.processing_observability import (
+    begin_attempt,
+    commit_stage,
+    mark_completed,
+    mark_failed,
+)
 from app.services.transcription import get_transcriber
 
 log = logging.getLogger(__name__)
@@ -160,6 +166,7 @@ def process_meeting(meeting_id: str) -> None:
     log.info("process_meeting: job started", extra=log_extra)
 
     db: Session | None = None
+    current_stage = "uploaded"
     try:
         db = SessionLocal()
 
@@ -171,11 +178,7 @@ def process_meeting(meeting_id: str) -> None:
             raise RuntimeError(f"Meeting {meeting_id} not found in worker database")
 
         # 2) Mark as PROCESSING
-        if hasattr(meeting, "status"):
-            meeting.status = "PROCESSING"
-        if hasattr(meeting, "last_error"):
-            meeting.last_error = None
-
+        begin_attempt(meeting)
         db.commit()
         db.refresh(meeting)
 
@@ -196,10 +199,34 @@ def process_meeting(meeting_id: str) -> None:
                 f"Raw media file not found for meeting {meeting.id}: {raw_media_path}"
             ) from exc
 
+        current_stage = "processing_audio"
+        commit_stage(
+            db,
+            meeting,
+            current_stage,
+            status="PROCESSING",
+            completed_key="media_validation_completed_at",
+            started_key="audio_conversion_started_at",
+        )
         audio_bytes = load_audio_for_meeting(str(meeting.id), media_bytes)
+        commit_stage(
+            db,
+            meeting,
+            current_stage,
+            status="PROCESSING",
+            completed_key="audio_conversion_completed_at",
+        )
 
         # 4) Transcription
         log.info("process_meeting: transcribing audio", extra=log_extra)
+        current_stage = "transcribing"
+        commit_stage(
+            db,
+            meeting,
+            current_stage,
+            status="PROCESSING",
+            started_key="transcription_started_at",
+        )
 
         with tempfile.NamedTemporaryFile(suffix=_media_suffix(raw_media_path), delete=False) as tmp:
             tmp.write(audio_bytes)
@@ -212,6 +239,13 @@ def process_meeting(meeting_id: str) -> None:
                 os.remove(tmp_audio_path)
             except OSError:
                 pass
+        commit_stage(
+            db,
+            meeting,
+            current_stage,
+            status="PROCESSING",
+            completed_key="transcription_completed_at",
+        )
 
         # 4a) Optional slide OCR enrichment
         log.info("process_meeting: running slide OCR", extra=log_extra)
@@ -222,6 +256,14 @@ def process_meeting(meeting_id: str) -> None:
 
         # 5) Generate notes
         log.info("process_meeting: generating notes", extra=log_extra)
+        current_stage = "generating_notes"
+        commit_stage(
+            db,
+            meeting,
+            current_stage,
+            status="PROCESSING",
+            started_key="notes_generation_started_at",
+        )
 
         notes_strategy_name = getattr(settings, "NOTES_STRATEGY", "local_summary")
 
@@ -237,7 +279,16 @@ def process_meeting(meeting_id: str) -> None:
             notes_dict = notes_result.to_api_dict()
             notes_dict = normalize_canonical_notes(notes_dict)
             notes_dict = apply_focused_30min_quality_pass(notes_dict, transcript_text)
+        commit_stage(
+            db,
+            meeting,
+            current_stage,
+            status="PROCESSING",
+            completed_key="notes_generation_completed_at",
+        )
 
+        current_stage = "finalizing"
+        commit_stage(db, meeting, current_stage, status="PROCESSING")
         cleaned_action_items = clean_action_items(notes_dict.get("action_items") or [])
         action_item_objects = notes_dict.get("action_item_objects") or []
 
@@ -376,13 +427,13 @@ def process_meeting(meeting_id: str) -> None:
             decision_objects=normalized_notes["decision_objects"],
             model_version=notes_dict.get("model_version"),
         )
+        db.query(MeetingNotes).filter(MeetingNotes.meeting_id == meeting.id).delete(
+            synchronize_session=False
+        )
         db.add(notes_row)
 
         # 7) Mark meeting as DONE
-        if hasattr(meeting, "status"):
-            meeting.status = "DONE"
-        if hasattr(meeting, "last_error"):
-            meeting.last_error = None
+        mark_completed(meeting)
 
         db.commit()
 
@@ -406,10 +457,7 @@ def process_meeting(meeting_id: str) -> None:
                 if meeting_pk is not None:
                     meeting = db.get(Meeting, meeting_pk)
                     if meeting is not None:
-                        if hasattr(meeting, "status"):
-                            meeting.status = "ERROR"
-                        if hasattr(meeting, "last_error"):
-                            meeting.last_error = str(exc)[:250]
+                        mark_failed(meeting, exc, stage=current_stage)
                         db.commit()
             except Exception:
                 db.rollback()

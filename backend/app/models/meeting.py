@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import BigInteger, DateTime, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import JSON, BigInteger, DateTime, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import Base
@@ -31,6 +31,14 @@ class Meeting(Base):
     media_content_type: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     media_filename: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     last_error: Mapped[Optional[str]] = mapped_column(String(250), nullable=True)
+    processing_stage: Mapped[Optional[str]] = mapped_column(String(40), nullable=True)
+    processing_error_code: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
+    processing_error_message: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    processing_diagnostics: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    processing_attempts: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    processing_timings: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
 
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default="new", server_default="new"
@@ -45,3 +53,17 @@ class Meeting(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
+
+    @property
+    def processing_progress_label(self) -> str:
+        labels = {
+            "uploaded": "Upload received",
+            "validating_media": "Checking the recording",
+            "processing_audio": "Preparing audio",
+            "transcribing": "Transcribing audio",
+            "generating_notes": "Generating notes",
+            "finalizing": "Finalizing notes",
+            "completed": "Notes ready",
+            "failed": "Processing failed",
+        }
+        return labels.get((self.processing_stage or "").strip().lower(), "Processing")

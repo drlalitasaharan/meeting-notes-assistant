@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -20,6 +20,10 @@ class MeetingRead(BaseModel):
     scheduled_at: Optional[datetime] = None
     agenda: Optional[str] = None
     status: str
+    processing_stage: Optional[str] = None
+    processing_progress_label: Optional[str] = None
+    processing_error_message: Optional[str] = None
+    processing_timings: Optional[dict[str, Any]] = None
     created_at: datetime
     updated_at: datetime
 

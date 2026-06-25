@@ -16,6 +16,8 @@ type StatusCardProps = {
   jobId?: string | null;
   lastUpdated?: string;
   isPolling?: boolean;
+  progressLabel?: string | null;
+  errorMessage?: string | null;
 };
 
 function statusLabel(status: string): string {
@@ -55,6 +57,8 @@ export default function StatusCard({
   jobId,
   lastUpdated,
   isPolling = false,
+  progressLabel,
+  errorMessage,
 }: StatusCardProps) {
   const normalizedStatus = status.toLowerCase();
 
@@ -74,12 +78,12 @@ export default function StatusCard({
         </div>
 
         <span style={getStatusBadgeStyle(status)}>
-          {statusLabel(status)}
+          {progressLabel || statusLabel(status)}
         </span>
       </div>
 
       <p style={mutedTextStyle}>
-        {statusDescription(status, isPolling)}
+        {errorMessage || statusDescription(status, isPolling)}
       </p>
 
       <details style={{ marginTop: 18 }}>

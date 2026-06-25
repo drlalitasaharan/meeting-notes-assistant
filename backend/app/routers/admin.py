@@ -12,6 +12,7 @@ from app.deps import get_db, require_admin
 from app.models.billing import BillingPaymentAttempt, BillingSubscription
 from app.models.meeting import Meeting
 from app.models.user import User
+from app.services.processing_observability import serialize_admin_processing
 
 router = APIRouter(prefix="/v1/admin", tags=["admin"])
 
@@ -208,6 +209,7 @@ def admin_list_meetings(
                 "updated_at": _iso(meeting.updated_at),
                 "last_error": meeting.last_error,
                 "is_stuck": _is_stuck(meeting, now),
+                **serialize_admin_processing(meeting),
             }
         )
 

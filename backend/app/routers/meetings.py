@@ -13,6 +13,7 @@ from app.models.user import User
 from app.schemas.meetings import MeetingCreate, MeetingRead, MeetingUpdate
 from app.schemas.notes import NoteCreate, NoteRead
 from app.services.data_controls import delete_raw_media_best_effort
+from app.services.processing_observability import mark_stage, serialize_progress
 from app.services.usage_limits import enforce_can_create_meeting
 
 router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
@@ -122,9 +123,12 @@ def retry_meeting_processing(
             detail="This meeting does not have an uploaded recording to retry.",
         )
 
-    m.status = "PROCESSING"
-    if hasattr(m, "last_error"):
-        m.last_error = None
+    mark_stage(
+        m,
+        "uploaded",
+        status="PROCESSING",
+        clear_error=True,
+    )
 
     db.add(m)
     db.commit()
@@ -147,6 +151,7 @@ def retry_meeting_processing(
         "status": "processing",
         "meeting_id": meeting_id,
         "job_id": getattr(job, "id", None),
+        **serialize_progress(m),
     }
 
 

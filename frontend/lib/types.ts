@@ -10,6 +10,9 @@ export interface Meeting {
   title?: string;
   created_at?: string;
   status?: string;
+  processing_stage?: string | null;
+  processing_progress_label?: string | null;
+  processing_error_message?: string | null;
 }
 
 export interface MeetingListResponse {
@@ -40,6 +43,9 @@ export interface JobStatus {
 export interface MeetingNotes {
   meeting_id: number;
   status: string;
+  processing_stage?: string | null;
+  processing_progress_label?: string | null;
+  processing_error_message?: string | null;
   model_version?: string;
   summary: string;
   key_points: string[];
