@@ -40,6 +40,18 @@ The five-recording quality baseline has been created.
 | M04 | 35 |
 | S01_client_weekly_sync | 35 |
 
+## Follow-up plan added
+
+The remaining manual evaluation items are tracked in:
+
+- manual_evaluation_followup_plan.md
+
+This covers:
+
+- manually corrected perfect notes
+- manual section-by-section scoring
+- exact transcript/source mapping confirmation
+
 ## Conclusion
 
 The baseline is complete enough to support the next task: Quality Engine v2 design and implementation.
