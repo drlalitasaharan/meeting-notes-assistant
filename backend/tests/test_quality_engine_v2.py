@@ -522,3 +522,188 @@ def test_quality_engine_v2_risks_keep_open_questions_and_known_entity_warnings_w
     warnings = " ".join(improved["summary_slots"]["known_entity_warnings"])
     assert "PayPal" in warnings
     assert "Square" in warnings
+
+
+def test_quality_engine_v2_extracts_explicit_action_items_from_transcript() -> None:
+    notes = {
+        "summary": "The team reviewed onboarding.",
+        "summary_slots": {"purpose": "Review onboarding.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = """
+    Aisha will update the landing page onboarding copy by Friday morning.
+    Action for Marco: add a sample recording link to the upload page before the next product review.
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+    actions = improved["action_item_objects"]
+
+    assert {
+        "owner": "Aisha",
+        "task": "Update the landing page onboarding copy",
+        "deadline": "Friday morning",
+        "status": "open",
+        "priority": "medium",
+    } in actions
+    assert {
+        "owner": "Marco",
+        "task": "Add a sample recording link to the upload page",
+        "deadline": "the next product review",
+        "status": "open",
+        "priority": "medium",
+    } in actions
+
+
+def test_quality_engine_v2_preserves_existing_action_item_objects() -> None:
+    notes = {
+        "summary": "The team reviewed support.",
+        "summary_slots": {"purpose": "Review support.", "next_steps": []},
+        "action_item_objects": [
+            {
+                "owner": "Nora",
+                "task": "Draft the first support macro",
+                "deadline": "Wednesday",
+                "status": "open",
+                "priority": "high",
+            }
+        ],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+
+    assert improved["action_item_objects"] == notes["action_item_objects"]
+
+
+def test_quality_engine_v2_deduplicates_repeated_action_items() -> None:
+    notes = {
+        "summary": "The team reviewed checkout.",
+        "summary_slots": {"purpose": "Review checkout.", "next_steps": []},
+        "action_item_objects": [
+            {
+                "owner": "Sam",
+                "task": "Verify Square and PayPal webhook logs",
+                "status": "open",
+            }
+        ],
+        "decision_objects": [],
+    }
+    transcript = "Sam will verify Square and PayPal webhook logs after the next test payment."
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    matching = [
+        item
+        for item in improved["action_item_objects"]
+        if item["owner"] == "Sam" and item["task"] == "Verify Square and PayPal webhook logs"
+    ]
+    assert len(matching) == 1
+
+
+def test_quality_engine_v2_extracts_clear_action_owner_and_deadline() -> None:
+    notes = {
+        "summary": "The team reviewed pricing.",
+        "summary_slots": {"purpose": "Review pricing.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(
+        notes,
+        "Priya, please prepare the BetaList submission using the Acjen AI URL by end of week.",
+    )
+
+    assert improved["action_item_objects"] == [
+        {
+            "owner": "Priya",
+            "task": "Prepare the BetaList submission using the Acjen AI URL",
+            "deadline": "end of week",
+            "status": "open",
+            "priority": "medium",
+        }
+    ]
+
+
+def test_quality_engine_v2_does_not_extract_generic_discussion_points_as_actions() -> None:
+    notes = {
+        "summary": "The team reviewed risks and action items.",
+        "summary_slots": {"purpose": "Review launch readiness.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = """
+    Marco says: I will listen for concrete actions and deadlines.
+    Aisha says: I want to make sure the notes separate confirmed decisions from general discussion.
+    The most important action items should include an owner and deadline.
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["action_item_objects"] == []
+
+
+def test_quality_engine_v2_action_extraction_preserves_v1_behavior() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team reviewed onboarding.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v2(
+        notes,
+        "Aisha will update the landing page onboarding copy by Friday morning.",
+        mode="v1",
+    )
+
+    assert result["notes"] == notes
+    assert result["metadata"]["applied"] is False
+
+
+def test_quality_engine_v2_action_extraction_preserves_shadow_behavior() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team reviewed onboarding.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    original = {
+        "summary": "The team reviewed onboarding.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v2(
+        notes,
+        "Aisha will update the landing page onboarding copy by Friday morning.",
+        mode="shadow",
+    )
+
+    assert result["notes"] == original
+    assert notes == original
+    assert result["metadata"]["shadow_ran"] is True
+
+
+def test_quality_engine_v2_actions_keep_risks_questions_and_entity_warnings_working() -> None:
+    notes = {
+        "summary": "Risk: pay pal checkout may delay launch. Open question: who owns sqare validation?",
+        "summary_slots": {"purpose": "Review checkout.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Sam will verify Square and PayPal webhook logs after the next test payment."
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert any(item["owner"] == "Sam" for item in improved["action_item_objects"])
+    assert "Pay pal checkout may delay launch." in improved["summary_slots"]["risks"]
+    assert "Who owns sqare validation?" in improved["summary_slots"]["open_questions"]
+    warnings = " ".join(improved["summary_slots"]["known_entity_warnings"])
+    assert "PayPal" in warnings
+    assert "Square" in warnings

@@ -74,6 +74,10 @@ def apply_quality_engine_v2(
     action_items = improved.get("action_item_objects")
     if not isinstance(action_items, list):
         action_items = []
+    action_items = _merge_action_items(
+        action_items,
+        detect_action_items(improved, transcript_text),
+    )
 
     next_steps = summary_slots.get("next_steps")
     if not isinstance(next_steps, list):
@@ -396,6 +400,185 @@ def detect_risks(notes: dict[str, Any], transcript_text: str | None) -> list[str
     for source in sources:
         risks.extend(_extract_risks_from_text(source))
     return _merge_risks([], risks)
+
+
+def _normalize_owner(text: str) -> str:
+    owner = re.sub(r"\s+", " ", text).strip(" .:-")
+    if not owner:
+        return ""
+    blocked = {
+        "action",
+        "decision",
+        "discussion",
+        "it",
+        "open",
+        "risk",
+        "that",
+        "the",
+        "this",
+        "we",
+    }
+    if owner.lower() in blocked:
+        return ""
+    return owner
+
+
+def _extract_action_deadline(task: str) -> tuple[str, str]:
+    deadline_patterns = (
+        r"\b(?:due date is|due dates? remain|due by|due)\s+([^.;,\n]+(?:\s+(?:Eastern|morning|afternoon|evening))?)",
+        r"\b(?:by|before|after|until)\s+([^.;,\n]+(?:\s+(?:Eastern|morning|afternoon|evening))?)",
+    )
+
+    for pattern in deadline_patterns:
+        match = re.search(pattern, task, flags=re.IGNORECASE)
+        if not match:
+            continue
+        deadline = re.sub(r"\s+", " ", match.group(1)).strip(" .")
+        task_without_deadline = (task[: match.start()] + task[match.end() :]).strip(" ,.;")
+        if deadline:
+            return task_without_deadline, deadline
+
+    return task, ""
+
+
+def _normalize_action_task(text: str) -> str:
+    cleaned = re.sub(r"\s+", " ", text).strip(" .:-")
+    cleaned = re.sub(
+        r"^(?:I\s+will|will|please|can\s+you|we\s+need\s+to|the\s+next\s+step\s+is)\s+",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = cleaned.strip(" .:-")
+    if not cleaned:
+        return ""
+    return cleaned[0].upper() + cleaned[1:]
+
+
+def _looks_like_generic_action(task: str) -> bool:
+    normalized = _dedupe_key(task)
+    if not normalized:
+        return True
+
+    generic_patterns = (
+        r"^follow up$",
+        r"^check it$",
+        r"^discuss this$",
+        r"^review later$",
+        r"\blisten for concrete actions\b",
+        r"\bmake sure the notes separate\b",
+        r"\bmost important action items should include\b",
+        r"\bcapture risks separately\b",
+        r"\bcontains clear decisions\b",
+        r"\bdecisions discussed in this meeting\b",
+        r"\bfinish with exact decisions\b",
+        r"\bfinish with a marked decision\b",
+        r"\bthis recording is part of\b",
+    )
+
+    return any(re.search(pattern, normalized) for pattern in generic_patterns)
+
+
+def _make_action_item(owner: str, task: str) -> dict[str, str] | None:
+    normalized_owner = _normalize_owner(owner)
+    if not normalized_owner:
+        return None
+
+    task_without_deadline, deadline = _extract_action_deadline(task)
+    normalized_task = _normalize_action_task(task_without_deadline)
+    if not normalized_task or _looks_like_generic_action(normalized_task):
+        return None
+
+    item = {
+        "owner": normalized_owner,
+        "task": normalized_task,
+        "status": "open",
+        "priority": "medium",
+    }
+    if deadline:
+        item["deadline"] = deadline
+    return item
+
+
+def _extract_action_items_from_text(text: str) -> list[dict[str, str]]:
+    normalized_text = _text(text)
+    if not normalized_text:
+        return []
+
+    candidates: list[dict[str, str]] = []
+    patterns = (
+        r"\bAction(?:\s+item)?\s+for\s+(?P<owner>[A-Z][A-Za-z]+)\s*[:,]\s*(?P<task>[^.\n]+)",
+        r"\b(?P<owner>[A-Z][A-Za-z]+)\s*,\s*please\s+(?P<task>[^.\n]+)",
+        r"\b(?P<owner>[A-Z][A-Za-z]+)\s+will\s+(?P<task>[^.\n]+)",
+        r"\bassign(?:ed)?\s+to\s+(?P<owner>[A-Z][A-Za-z]+)\s*[:,]\s*(?P<task>[^.\n]+)",
+    )
+
+    for pattern in patterns:
+        for match in re.finditer(pattern, normalized_text, flags=re.IGNORECASE):
+            owner = match.group("owner")
+            task = match.group("task")
+            item = _make_action_item(owner, task)
+            if item:
+                candidates.append(item)
+
+    return candidates
+
+
+def _action_item_key(item: dict[str, Any]) -> str:
+    owner = _dedupe_key(_text(item.get("owner")))
+    task = _dedupe_key(
+        _text(item.get("task") or item.get("action") or item.get("text") or item.get("description"))
+    )
+    return f"{owner}:{task}"
+
+
+def _normalize_existing_action_item(item: Any) -> dict[str, Any] | None:
+    if not isinstance(item, dict):
+        return None
+
+    task = _text(
+        item.get("task") or item.get("action") or item.get("text") or item.get("description")
+    )
+    if not task:
+        return None
+
+    output = dict(item)
+    output["task"] = task
+    output["status"] = _text(output.get("status")) or "open"
+    return output
+
+
+def _merge_action_items(
+    existing: list[Any],
+    new_actions: list[dict[str, str]],
+) -> list[dict[str, Any]]:
+    output: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    for raw_item in [*existing, *new_actions]:
+        item = _normalize_existing_action_item(raw_item)
+        if not item:
+            continue
+        key = _action_item_key(item)
+        if key in seen:
+            continue
+        seen.add(key)
+        output.append(item)
+
+    return output
+
+
+def detect_action_items(
+    notes: dict[str, Any],
+    transcript_text: str | None,
+) -> list[dict[str, str]]:
+    """Extract explicit owner/action items without inventing missing fields."""
+
+    sources = [_text(transcript_text), _note_text_blob(notes)]
+    actions: list[dict[str, str]] = []
+    for source in sources:
+        actions.extend(_extract_action_items_from_text(source))
+    return _merge_action_items([], actions)
 
 
 def _iter_note_text_values(value: Any) -> list[str]:
