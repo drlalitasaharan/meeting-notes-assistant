@@ -19,6 +19,7 @@ from app.models.meeting import Meeting
 from app.models.meeting_notes import MeetingNotes
 from app.models.user import User
 from app.services.media_metadata import probe_media_duration_seconds
+from app.services.processing_observability import mark_stage, mark_uploaded, serialize_progress
 from app.services.usage_limits import (
     enforce_free_trial_duration_limit,
     enforce_free_trial_upload_limit,
@@ -191,6 +192,14 @@ async def upload_meeting_media(
             detail="Unsupported file type. Please upload MP3, MP4, M4A, WAV, WEBM, OGG, or FLAC.",
         )
 
+    mark_stage(
+        meeting,
+        "validating_media",
+        status="PROCESSING",
+        started_key="upload_received_at",
+        clear_error=True,
+    )
+
     media_duration_seconds = probe_media_duration_seconds(
         raw_bytes,
         suffix=extension or ".bin",
@@ -224,8 +233,7 @@ async def upload_meeting_media(
     meeting.media_size_bytes = len(raw_bytes)
     meeting.media_content_type = file.content_type
     meeting.media_filename = file.filename
-    meeting.status = "PROCESSING"
-    meeting.last_error = None
+    mark_uploaded(meeting)
 
     db.add(meeting)
     db.commit()
@@ -240,6 +248,7 @@ async def upload_meeting_media(
         "raw_media_path": meeting.raw_media_path,
         "media_duration_seconds": meeting.media_duration_seconds,
         "media_size_bytes": meeting.media_size_bytes,
+        **serialize_progress(meeting),
     }
 
 
@@ -353,6 +362,7 @@ def get_meeting_notes(
     return {
         "meeting_id": meeting_id,
         "status": status,
+        **serialize_progress(meeting),
         "summary": _client_facing_summary_from_slots(notes.summary, summary_slots),
         "summary_slots": summary_slots,
         "key_points": _clean_client_facing_json_list(notes.key_points),

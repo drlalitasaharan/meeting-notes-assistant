@@ -18,6 +18,7 @@ import {
 } from "../../../components/ui";
 import {
   deleteMeeting,
+  getMeeting,
   getJobStatus,
   retryMeetingProcessing,
   getMeetingMarkdown,
@@ -29,6 +30,9 @@ import type { EditableNotesSection } from "../../../lib/types";
 type MeetingNotes = {
   meeting_id: number;
   status?: string;
+  processing_stage?: string | null;
+  processing_progress_label?: string | null;
+  processing_error_message?: string | null;
   model_version?: string;
   summary: string;
   key_points: string[];
@@ -130,6 +134,8 @@ export default function MeetingResultsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRetryingProcessing, setIsRetryingProcessing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
+  const [progressLabel, setProgressLabel] = useState<string | null>(null);
+  const [processingErrorMessage, setProcessingErrorMessage] = useState<string | null>(null);
 
   const loadNotes = useCallback(
     async (strict: boolean): Promise<boolean> => {
@@ -142,6 +148,8 @@ export default function MeetingResultsPage() {
         setNotes(notesResponse);
         setMarkdown(markdownResponse);
         setStatus(normalizeStatus(notesResponse.status ?? "succeeded"));
+        setProgressLabel(notesResponse.processing_progress_label ?? null);
+        setProcessingErrorMessage(notesResponse.processing_error_message ?? null);
         setLastUpdated(Date.now());
         setLoadingResults(false);
         setError("");
@@ -222,6 +230,8 @@ export default function MeetingResultsPage() {
       setNotes(null);
       setMarkdown("");
       setStatus("queued");
+      setProgressLabel("Upload received");
+      setProcessingErrorMessage(null);
       setLoadingResults(false);
       setLastUpdated(Date.now());
 
@@ -264,6 +274,14 @@ export default function MeetingResultsPage() {
       }
 
       try {
+        const meeting = await getMeeting(Number(meetingId));
+        if (!cancelled) {
+          setProgressLabel(meeting.processing_progress_label ?? null);
+          setProcessingErrorMessage(meeting.processing_error_message ?? null);
+          setStatus(normalizeStatus(meeting.status ?? status));
+          setLastUpdated(Date.now());
+        }
+
         const job = await checkJob();
         if (!job || cancelled) return;
 
@@ -303,6 +321,12 @@ export default function MeetingResultsPage() {
       try {
         const notesLoaded = await loadNotes(false);
         if (notesLoaded) return;
+
+        const meeting = await getMeeting(Number(meetingId));
+        setProgressLabel(meeting.processing_progress_label ?? null);
+        setProcessingErrorMessage(meeting.processing_error_message ?? null);
+        setStatus(normalizeStatus(meeting.status ?? status));
+        setLastUpdated(Date.now());
 
         const job = await checkJob();
         if (!job) return;
@@ -497,6 +521,8 @@ export default function MeetingResultsPage() {
         jobId={jobId}
         lastUpdated={formatLastUpdated(lastUpdated)}
         isPolling={Boolean(jobId && isPollingStatus(status) && !notes)}
+        progressLabel={progressLabel}
+        errorMessage={processingErrorMessage}
       />
 
       {!error ? <ResultsGuidanceCard hasNotes={Boolean(notes)} /> : null}

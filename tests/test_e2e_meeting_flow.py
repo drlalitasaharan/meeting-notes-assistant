@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
 from typing import Any, Dict
 
 
@@ -50,6 +51,12 @@ def test_e2e_meeting_flow_creates_notes(
         meeting_notes_api,
         "_save_raw_media",
         fake_save_raw_media,
+        raising=True,
+    )
+    monkeypatch.setattr(
+        meeting_notes_api,
+        "enqueue_process_meeting",
+        lambda meeting_id: SimpleNamespace(id=f"test-job-{meeting_id}"),
         raising=True,
     )
     monkeypatch.setattr(
@@ -184,6 +191,12 @@ def test_e2e_meeting_flow_includes_slide_ocr_in_notes(
         meeting_notes_api,
         "_save_raw_media",
         fake_save_raw_media,
+        raising=True,
+    )
+    monkeypatch.setattr(
+        meeting_notes_api,
+        "enqueue_process_meeting",
+        lambda meeting_id: SimpleNamespace(id=f"test-job-{meeting_id}"),
         raising=True,
     )
     monkeypatch.setattr(

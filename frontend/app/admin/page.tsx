@@ -1129,24 +1129,49 @@ export default function AdminPage() {
                       >
                         {formatStatus(meeting.status)}
                       </span>
+                      {meeting.processing_progress_label ? (
+                        <div style={{ marginTop: 6, color: "#64766b", fontSize: 12 }}>
+                          {meeting.processing_progress_label}
+                          {typeof meeting.processing_attempts === "number"
+                            ? ` · ${formatNumber(meeting.processing_attempts)} attempt${
+                                meeting.processing_attempts === 1 ? "" : "s"
+                              }`
+                            : ""}
+                        </div>
+                      ) : null}
                     </td>
 
                     <td style={cellStyle}>
                       {formatDate(meeting.updated_at)}
+                      {typeof meeting.processing_total_seconds === "number" ? (
+                        <div style={{ marginTop: 6, color: "#64766b", fontSize: 12 }}>
+                          Processing: {meeting.processing_total_seconds}s
+                        </div>
+                      ) : null}
                     </td>
 
                     <td
-                      title={meeting.last_error ?? undefined}
+                      title={
+                        meeting.processing_diagnostics ??
+                        meeting.processing_error_message ??
+                        meeting.last_error ??
+                        undefined
+                      }
                       style={{
                         ...cellStyle,
-                        color: meeting.last_error
+                        color: meeting.processing_error_message || meeting.last_error
                           ? "#991b1b"
                           : "#64766b",
                         maxWidth: 260,
                         overflowWrap: "anywhere",
                       }}
                     >
-                      {meeting.last_error ?? "—"}
+                      {meeting.processing_error_message ?? meeting.last_error ?? "—"}
+                      {meeting.processing_error_code ? (
+                        <div style={{ marginTop: 6, color: "#7f1d1d", fontSize: 12 }}>
+                          {meeting.processing_error_code}
+                        </div>
+                      ) : null}
                     </td>
 
                     <td style={cellStyle}>

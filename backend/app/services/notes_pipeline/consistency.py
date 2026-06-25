@@ -73,6 +73,7 @@ _BAD_ACTION_PATTERNS = [
     r"\btoday (we )?need to confirm\b",
     r"\bthe purpose is to confirm\b",
     r"\bthe goal today is\b",
+    r"\breview progress\b.*\bnext demo path\b.*\bopen risks\b",
     r"\bthe demo should show the workflow\b",
     r"\bfor example\b.*\bshould become\b",
     r"\bif we send\b",

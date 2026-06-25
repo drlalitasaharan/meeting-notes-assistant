@@ -8,6 +8,7 @@ import type {
   MeetingNotes,
   MeetingFeedbackRequest,
   MeetingFeedbackResponse,
+  Meeting,
   UploadMeetingResponse,
   UsageSummary,
   UserRead,
@@ -245,6 +246,13 @@ export async function submitMeetingFeedback(
 
 export async function getMeetings(): Promise<MeetingListResponse> {
   return fetchWithAuth<MeetingListResponse>("/v1/meetings?limit=50");
+}
+
+export async function getMeeting(meetingId: number): Promise<Meeting> {
+  return fetchWithAuth<Meeting>(`/v1/meetings/${meetingId}`, {
+    method: "GET",
+    cache: "no-store",
+  });
 }
 
 export async function createMeeting(title: string): Promise<CreateMeetingResponse> {
