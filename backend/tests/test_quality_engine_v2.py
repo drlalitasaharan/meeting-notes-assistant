@@ -281,3 +281,114 @@ def test_quality_engine_v2_known_entity_warnings_preserve_existing_v1_and_shadow
     assert shadow_result["notes"] == original
     assert notes == original
     assert shadow_result["metadata"]["shadow_ran"] is True
+
+
+def test_quality_engine_v2_extracts_explicit_unresolved_questions_from_transcript() -> None:
+    notes = {
+        "summary": "The team reviewed launch readiness.",
+        "summary_slots": {"purpose": "Review launch readiness.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = """
+    Open question: Who owns the support page update?
+    The team still needs to confirm whether the launch post goes live Friday.
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+    questions = improved["summary_slots"]["open_questions"]
+
+    assert "Who owns the support page update?" in questions
+    assert "Whether the launch post goes live Friday?" in questions
+
+
+def test_quality_engine_v2_preserves_existing_open_questions() -> None:
+    notes = {
+        "summary": "The team reviewed launch readiness.",
+        "summary_slots": {
+            "purpose": "Review launch readiness.",
+            "next_steps": [],
+            "open_questions": ["Who confirms the PayPal test?"],
+        },
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+
+    assert improved["summary_slots"]["open_questions"] == ["Who confirms the PayPal test?"]
+
+
+def test_quality_engine_v2_deduplicates_repeated_open_questions() -> None:
+    notes = {
+        "summary": "Open question: Who owns onboarding copy?",
+        "summary_slots": {
+            "purpose": "Review onboarding.",
+            "next_steps": [],
+            "open_questions": ["Who owns onboarding copy?"],
+        },
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Unresolved question: who owns onboarding copy?"
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["summary_slots"]["open_questions"] == ["Who owns onboarding copy?"]
+
+
+def test_quality_engine_v2_does_not_extract_questions_when_none_are_present() -> None:
+    notes = {
+        "summary": "The team confirmed launch readiness and reviewed support ownership.",
+        "summary_slots": {"purpose": "Review launch readiness.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Does that make sense? Any questions? The support owner is confirmed."
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["summary_slots"]["open_questions"] == []
+
+
+def test_quality_engine_v2_open_questions_preserve_existing_v1_and_shadow_behavior() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team reviewed launch readiness.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    original = {
+        "summary": "The team reviewed launch readiness.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Open question: Who owns support routing?"
+
+    v1_result = run_quality_engine_v2(notes, transcript, mode="v1")
+    shadow_result = run_quality_engine_v2(notes, transcript, mode="shadow")
+
+    assert v1_result["notes"] == original
+    assert shadow_result["notes"] == original
+    assert notes == original
+    assert shadow_result["metadata"]["shadow_ran"] is True
+
+
+def test_quality_engine_v2_open_questions_keep_known_entity_warnings_working() -> None:
+    notes = {
+        "summary": "Open question: who owns pay pal checkout validation?",
+        "summary_slots": {"purpose": "Review checkout readiness.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+
+    assert "Who owns pay pal checkout validation?" in improved["summary_slots"]["open_questions"]
+    assert any(
+        "PayPal" in warning
+        for warning in improved["summary_slots"]["known_entity_warnings"]
+    )
