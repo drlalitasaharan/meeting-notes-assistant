@@ -87,6 +87,10 @@ def apply_quality_engine_v2(
         summary_slots.get("open_questions"),
         detect_open_questions(improved, transcript_text),
     )
+    summary_slots["risks"] = _merge_risks(
+        summary_slots.get("risks"),
+        detect_risks(improved, transcript_text),
+    )
     summary_slots["known_entity_warnings"] = _merge_warnings(
         summary_slots.get("known_entity_warnings"),
         detect_known_entity_warnings(improved),
@@ -251,6 +255,147 @@ def detect_open_questions(notes: dict[str, Any], transcript_text: str | None) ->
     for source in sources:
         questions.extend(_extract_open_questions_from_text(source))
     return _merge_open_questions([], questions)
+
+
+def _normalize_risk(text: str) -> str:
+    cleaned = re.sub(r"\s+", " ", text).strip(" .:-")
+    if not cleaned:
+        return ""
+    cleaned = re.sub(
+        r"^(?:open|known|confirmed|explicit)?\s*(?:risk|risks|blocker|blockers)\s*[:\-]?\s*",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"^(?:there\s+is\s+a\s+)?risk\s+(?:that|is)\s+",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"^(?:the\s+)?blocker\s+(?:is|was)\s+",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    if not cleaned:
+        return ""
+    cleaned = cleaned[0].upper() + cleaned[1:]
+    return cleaned if cleaned.endswith((".", "!", "?")) else f"{cleaned}."
+
+
+def _looks_like_resolved_or_generic_risk(text: str) -> bool:
+    normalized = _dedupe_key(text)
+    if not normalized:
+        return True
+
+    resolved_patterns = (
+        r"\bno risks?\b",
+        r"\bnot a risk\b",
+        r"\bno longer a risk\b",
+        r"\bno blockers?\b",
+        r"\bunblocked\b",
+        r"\bresolved\b",
+        r"\bmitigated\b",
+        r"\bclosed\b",
+        r"\bfixed\b",
+        r"\balready handled\b",
+    )
+    generic_patterns = (
+        r"^risks?$",
+        r"^blockers?$",
+        r"\breview risks?\b",
+        r"\bdiscuss risks?\b",
+        r"\brisk review\b",
+        r"\brisks? and (?:action items|owners|questions)\b",
+        r"\brisk register\b",
+    )
+
+    return any(re.search(pattern, normalized) for pattern in resolved_patterns) or any(
+        re.search(pattern, normalized) for pattern in generic_patterns
+    )
+
+
+def _extract_risks_from_text(text: str) -> list[str]:
+    normalized_text = _text(text)
+    if not normalized_text:
+        return []
+
+    candidates: list[str] = []
+    marker_patterns = (
+        r"\b(?:open|known|confirmed|explicit)?\s*(?:risk|risks)\s*[:\-]\s*([^.\n]+)",
+        r"\b(?:open|known|confirmed|explicit)?\s*(?:blocker|blockers)\s*[:\-]\s*([^.\n]+)",
+        r"\bthere\s+is\s+a\s+risk\s+that\s+([^.\n]+)",
+        r"\bthe\s+risk\s+is\s+([^.\n]+)",
+        r"\bthe\s+blocker\s+is\s+([^.\n]+)",
+    )
+
+    for pattern in marker_patterns:
+        for match in re.finditer(pattern, normalized_text, flags=re.IGNORECASE):
+            risk = _normalize_risk(match.group(1))
+            if risk and not _looks_like_resolved_or_generic_risk(risk):
+                candidates.append(risk)
+
+    for sentence in re.split(r"(?<=[.!?])\s+|\n+", normalized_text):
+        sentence = sentence.strip()
+        lowered = sentence.lower()
+        if not any(
+            marker in lowered
+            for marker in (
+                "at risk",
+                "blocked by",
+                "blocker",
+                "dependency risk",
+                "may delay",
+                "could delay",
+                "waiting on",
+            )
+        ):
+            continue
+        if not any(
+            evidence in lowered
+            for evidence in (
+                "risk",
+                "block",
+                "dependency",
+                "delay",
+                "waiting on",
+            )
+        ):
+            continue
+        risk = _normalize_risk(sentence)
+        if risk and not _looks_like_resolved_or_generic_risk(risk):
+            candidates.append(risk)
+
+    return candidates
+
+
+def _merge_risks(existing: Any, new_risks: list[str]) -> list[str]:
+    output: list[str] = []
+    seen: set[str] = set()
+
+    for risk in [*(existing if isinstance(existing, list) else []), *new_risks]:
+        text = _normalize_risk(_text(risk))
+        if not text or _looks_like_resolved_or_generic_risk(text):
+            continue
+        key = _dedupe_key(text)
+        if key in seen:
+            continue
+        seen.add(key)
+        output.append(text)
+
+    return output
+
+
+def detect_risks(notes: dict[str, Any], transcript_text: str | None) -> list[str]:
+    """Extract likely risks/blockers without rewriting source content."""
+
+    sources = [_text(transcript_text), _note_text_blob(notes)]
+    risks: list[str] = []
+    for source in sources:
+        risks.extend(_extract_risks_from_text(source))
+    return _merge_risks([], risks)
 
 
 def _iter_note_text_values(value: Any) -> list[str]:
