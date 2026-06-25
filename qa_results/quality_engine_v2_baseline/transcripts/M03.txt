@@ -1,0 +1,237 @@
+Synthetic MeetIQ baseline recording M03. Title: Pilot implementation and billing readiness planning.
+This is a synthetic internal test meeting for QA. It contains clear decisions, action items, risks, open questions, repeated actions, and vague actions that should be rewritten.
+Participants: Priya Founder, Sam Backend Engineer, Nora Customer Success, Ethan Finance.
+Context: The group is planning controlled early access, Starter checkout, Pro Pilot testing, and support responsibilities..
+
+Priya says: The goal today is to review Pilot implementation and billing readiness planning and finish with exact decisions, risks, questions, and owners.
+Sam says: I will listen for concrete actions and deadlines, because this recording is part of the thirty to sixty minute quality baseline.
+Decisions discussed in this meeting are listed next as spoken meeting content, not as a separate document.
+Priya says: Decision confirmed: launch as controlled early access, not a full public enterprise launch.
+Priya says: Decision confirmed: Starter checkout is the primary public plan for now.
+Priya says: Decision confirmed: Pro Pilot live payment testing is useful but not required before the first controlled launch.
+Priya says: Decision confirmed: use Acjen AI as the primary public URL and avoid submitting the raw Vercel URL to launch sites.
+Priya says: Decision confirmed: single sign-on stays outside the first pilot scope unless a client specifically requests it.
+Action items are now discussed with owners, tasks, context, and due dates when available.
+Priya says: Sam will run a production smoke test for signup, checkout, upload, notes generation, download, and usage tracking by noon tomorrow.
+Sam says: Priya will prepare the BetaList submission using the Acjen AI URL by the end of the week.
+Nora says: Nora will draft the first support macro for failed uploads and long processing by Wednesday.
+Ethan says: Ethan will confirm whether the public pricing table should show Starter at twenty three dollars and Pro Pilot at forty nine dollars.
+Priya says: Sam will verify Square and PayPal webhook logs after the next test payment.
+Sam says: Priya will remove language that says perfect notes for two-hour meetings from public launch copy.
+Nora says: Nora will create a simple onboarding checklist for the first ten users before Monday morning.
+The team now reviews risks, blockers, dependencies, and uncertainties.
+Sam says: Risk: if webhook activation fails, paid users may not receive the correct upload limit.
+Nora says: Risk: Pro Pilot pricing may confuse early users if it is shown before testing is complete.
+Ethan says: Risk: support load may increase if failed uploads do not show a helpful message.
+Priya says: Risk: overpromising two-hour meeting quality could create trust problems during launch.
+The team now lists unresolved open questions.
+Nora says: Open question: should Business Team stay manual request only on the pricing page?
+Ethan says: Open question: who will monitor the first weekend of paid signups?
+Priya says: Open question: should early access users receive a welcome email immediately after checkout?
+Sam says: Open question: should failed payment attempts be visible in the admin dashboard?
+The team intentionally repeats a few actions so deduplication can be tested.
+Nora says: Sam repeated the smoke test task three times: production smoke test, checkout test, and upload-download verification.
+Nora says: Priya repeated that BetaList should use Acjen AI, not Vercel, in two different parts of the meeting.
+The team intentionally says vague items and then clarifies them so vague action cleanup can be tested.
+Ethan says: Follow up on billing was clarified as Sam verifying Square and PayPal webhook logs after the next test payment.
+Ethan says: Check launch copy was clarified as Priya removing perfect two-hour meeting language.
+Discussion round 1. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 2. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 3. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Ethan will confirm whether the public pricing table should show Starter at twenty three dollars and Pro Pilot at forty nine dollars.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 4. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Nora says: The blocker I want captured is this. Risk: if webhook activation fails, paid users may not receive the correct upload limit.
+Discussion round 5. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Ethan asks: Open question: who will monitor the first weekend of paid signups?
+Discussion round 6. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Nora will create a simple onboarding checklist for the first ten users before Monday morning.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 7. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 8. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Nora says: The blocker I want captured is this. Risk: if webhook activation fails, paid users may not receive the correct upload limit.
+Discussion round 9. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Nora will draft the first support macro for failed uploads and long processing by Wednesday.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 10. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Ethan asks: Open question: should early access users receive a welcome email immediately after checkout?
+Discussion round 11. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 12. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Priya will remove language that says perfect notes for two-hour meetings from public launch copy.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Nora says: The blocker I want captured is this. Risk: if webhook activation fails, paid users may not receive the correct upload limit.
+Discussion round 13. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 14. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 15. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Priya will prepare the BetaList submission using the Acjen AI URL by the end of the week.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Ethan asks: Open question: should failed payment attempts be visible in the admin dashboard?
+Discussion round 16. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Nora says: The blocker I want captured is this. Risk: if webhook activation fails, paid users may not receive the correct upload limit.
+Discussion round 17. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 18. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Sam will verify Square and PayPal webhook logs after the next test payment.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 19. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 20. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Nora says: The blocker I want captured is this. Risk: if webhook activation fails, paid users may not receive the correct upload limit.
+Ethan asks: Open question: should Business Team stay manual request only on the pricing page?
+Discussion round 21. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Sam will run a production smoke test for signup, checkout, upload, notes generation, download, and usage tracking by noon tomorrow.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 22. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 23. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 24. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Ethan will confirm whether the public pricing table should show Starter at twenty three dollars and Pro Pilot at forty nine dollars.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Nora says: The blocker I want captured is this. Risk: if webhook activation fails, paid users may not receive the correct upload limit.
+Discussion round 25. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Ethan asks: Open question: who will monitor the first weekend of paid signups?
+Discussion round 26. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 27. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Nora will create a simple onboarding checklist for the first ten users before Monday morning.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 28. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Nora says: The blocker I want captured is this. Risk: if webhook activation fails, paid users may not receive the correct upload limit.
+Discussion round 29. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 30. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Nora will draft the first support macro for failed uploads and long processing by Wednesday.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Ethan asks: Open question: should early access users receive a welcome email immediately after checkout?
+Discussion round 31. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 32. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Nora says: The blocker I want captured is this. Risk: if webhook activation fails, paid users may not receive the correct upload limit.
+Discussion round 33. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Priya will remove language that says perfect notes for two-hour meetings from public launch copy.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 34. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 35. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Ethan asks: Open question: should failed payment attempts be visible in the admin dashboard?
+Discussion round 36. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Priya will prepare the BetaList submission using the Acjen AI URL by the end of the week.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Nora says: The blocker I want captured is this. Risk: if webhook activation fails, paid users may not receive the correct upload limit.
+Discussion round 37. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 38. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 39. Priya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Sam says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Nora says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ethan says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Priya says again: Sam will verify Square and PayPal webhook logs after the next test payment.
+Sam says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Priya says: Closing summary. The decisions, actions, risks, and open questions from this M03 meeting should now be available for baseline scoring.
+End of synthetic baseline recording.

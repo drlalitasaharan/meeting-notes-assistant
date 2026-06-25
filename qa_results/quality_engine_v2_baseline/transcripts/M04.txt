@@ -1,0 +1,286 @@
+Synthetic MeetIQ baseline recording M04. Title: Support operations and reliability review.
+This is a synthetic internal test meeting for QA. It contains clear decisions, action items, risks, open questions, repeated actions, and vague actions that should be rewritten.
+Participants: Maya Operations, Arun Support Lead, Sofia Product, Ben Infrastructure.
+Context: The team is deciding support policies, monitoring, retry messaging, retention copy, and manual escalation during early access..
+
+Maya says: The goal today is to review Support operations and reliability review and finish with exact decisions, risks, questions, and owners.
+Arun says: I will listen for concrete actions and deadlines, because this recording is part of the thirty to sixty minute quality baseline.
+Decisions discussed in this meeting are listed next as spoken meeting content, not as a separate document.
+Maya says: Decision confirmed: use support at Acjen dot AI as the public support address once the email alias is ready.
+Maya says: Decision confirmed: failed uploads should show a helpful retry message instead of a generic error.
+Maya says: Decision confirmed: the support page should explain that AI notes must be reviewed before important external sharing.
+Maya says: Decision confirmed: delete meeting should remain available and should not reset lifetime free trial usage.
+Maya says: Decision confirmed: the first response target for early support is one business day, not instant live chat.
+Action items are now discussed with owners, tasks, context, and due dates when available.
+Maya says: Arun will write a failed-upload support response template by tomorrow afternoon.
+Arun says: Ben will check Render worker logs and queue health every morning during the first launch week.
+Sofia says: Sofia will update the support page with review recommended language for long recordings before the launch post goes live.
+Ben says: Maya will create a simple issue tracker for signup, checkout, upload, and notes-generation issues by Friday.
+Maya says: Ben will verify that delete meeting removes the file from storage and keeps usage history correct.
+Arun says: Arun will prepare a refund escalation note for failed paid access activation by Monday.
+Sofia says: Sofia will add a public note that MP3 and MP4 are recommended recording formats.
+The team now reviews risks, blockers, dependencies, and uncertainties.
+Arun says: Risk: users may think delete meeting gives another free trial upload if the usage policy is not clear.
+Sofia says: Risk: worker queue delays could look like product failure if there is no processing status message.
+Ben says: Risk: support messages may be inconsistent if there is no standard failed-upload response.
+Maya says: Risk: early users may upload very long recordings before long-meeting recall is fully hardened.
+Arun says: Risk: manual refund handling can become messy if payment attempt records are not easy to find.
+The team now lists unresolved open questions.
+Sofia says: Open question: should the support page mention a typical processing-time range?
+Ben says: Open question: who owns refunds when PayPal and Square results differ?
+Maya says: Open question: should the admin page show queue depth or only recent failures?
+Arun says: Open question: should the review recommended language appear on the upload page, the generated notes page, or both?
+Sofia says: Open question: should there be a separate status page later?
+The team intentionally repeats a few actions so deduplication can be tested.
+Sofia says: Ben mentioned queue health once as worker logs and once as Render worker monitoring; these should merge.
+Sofia says: Sofia mentioned review recommended language twice, once for support page and once for long recordings.
+The team intentionally says vague items and then clarifies them so vague action cleanup can be tested.
+Ben says: Follow up on support should be rewritten as Arun preparing a failed-upload support response template by tomorrow afternoon.
+Ben says: Check the system should be rewritten as Ben checking Render worker logs and queue health every morning during launch week.
+Discussion round 1. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 2. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 3. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Maya will create a simple issue tracker for signup, checkout, upload, and notes-generation issues by Friday.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 4. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Sofia says: The blocker I want captured is this. Risk: manual refund handling can become messy if payment attempt records are not easy to find.
+Discussion round 5. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Ben asks: Open question: should the support page mention a typical processing-time range?
+Discussion round 6. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Sofia will add a public note that MP3 and MP4 are recommended recording formats.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 7. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 8. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Sofia says: The blocker I want captured is this. Risk: early users may upload very long recordings before long-meeting recall is fully hardened.
+Discussion round 9. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Sofia will update the support page with review recommended language for long recordings before the launch post goes live.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 10. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Ben asks: Open question: should the support page mention a typical processing-time range?
+Discussion round 11. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 12. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Arun will prepare a refund escalation note for failed paid access activation by Monday.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Sofia says: The blocker I want captured is this. Risk: support messages may be inconsistent if there is no standard failed-upload response.
+Discussion round 13. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 14. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 15. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Ben will check Render worker logs and queue health every morning during the first launch week.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Ben asks: Open question: should the support page mention a typical processing-time range?
+Discussion round 16. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Sofia says: The blocker I want captured is this. Risk: worker queue delays could look like product failure if there is no processing status message.
+Discussion round 17. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 18. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Ben will verify that delete meeting removes the file from storage and keeps usage history correct.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 19. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 20. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Sofia says: The blocker I want captured is this. Risk: users may think delete meeting gives another free trial upload if the usage policy is not clear.
+Ben asks: Open question: should the support page mention a typical processing-time range?
+Discussion round 21. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Arun will write a failed-upload support response template by tomorrow afternoon.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 22. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 23. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 24. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Maya will create a simple issue tracker for signup, checkout, upload, and notes-generation issues by Friday.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Sofia says: The blocker I want captured is this. Risk: manual refund handling can become messy if payment attempt records are not easy to find.
+Discussion round 25. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Ben asks: Open question: should the support page mention a typical processing-time range?
+Discussion round 26. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 27. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Sofia will add a public note that MP3 and MP4 are recommended recording formats.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 28. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Sofia says: The blocker I want captured is this. Risk: early users may upload very long recordings before long-meeting recall is fully hardened.
+Discussion round 29. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 30. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Sofia will update the support page with review recommended language for long recordings before the launch post goes live.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Ben asks: Open question: should the support page mention a typical processing-time range?
+Discussion round 31. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 32. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Sofia says: The blocker I want captured is this. Risk: support messages may be inconsistent if there is no standard failed-upload response.
+Discussion round 33. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Arun will prepare a refund escalation note for failed paid access activation by Monday.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 34. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 35. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Ben asks: Open question: should the support page mention a typical processing-time range?
+Discussion round 36. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Ben will check Render worker logs and queue health every morning during the first launch week.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Sofia says: The blocker I want captured is this. Risk: worker queue delays could look like product failure if there is no processing status message.
+Discussion round 37. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 38. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 39. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Ben will verify that delete meeting removes the file from storage and keeps usage history correct.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 40. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Sofia says: The blocker I want captured is this. Risk: users may think delete meeting gives another free trial upload if the usage policy is not clear.
+Ben asks: Open question: should the support page mention a typical processing-time range?
+Discussion round 41. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 42. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Arun will write a failed-upload support response template by tomorrow afternoon.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 43. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 44. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Sofia says: The blocker I want captured is this. Risk: manual refund handling can become messy if payment attempt records are not easy to find.
+Discussion round 45. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Maya will create a simple issue tracker for signup, checkout, upload, and notes-generation issues by Friday.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Ben asks: Open question: should the support page mention a typical processing-time range?
+Discussion round 46. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 47. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 48. Maya says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Arun says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Sofia says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Ben says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Maya says again: Sofia will add a public note that MP3 and MP4 are recommended recording formats.
+Arun says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Sofia says: The blocker I want captured is this. Risk: early users may upload very long recordings before long-meeting recall is fully hardened.
+Maya says: Closing summary. The decisions, actions, risks, and open questions from this M04 meeting should now be available for baseline scoring.
+End of synthetic baseline recording.

@@ -1,0 +1,56 @@
+Speaker 1:
+Good morning everyone, and thanks for joining the client weekly sync. The main purpose of today’s meeting is to review where we are with the meeting notes assistant demo, confirm the pilot outreach plan, discuss a few open issues, and align on next steps for this week. I’d like us to leave this meeting with a clear decision on the target audience, a finalized plan for the demo flow, and concrete owners for the follow-up actions.
+
+Speaker 2:
+Sounds good. I can start with a quick product update. Since last week, we’ve stabilized the core upload and processing flow for the product. The backend is healthy, Redis is healthy, storage is healthy, and the worker is now running properly. We also confirmed that the application can accept uploaded media files and start background processing jobs. From a demo perspective, the strongest part of the product right now is the end-to-end workflow: create a meeting, upload the file, process it, and then show generated notes in both JSON and markdown format.
+
+Speaker 1:
+That’s helpful. From a positioning standpoint, I still think the best first audience is consultants, small agencies, and startup teams. Those groups have frequent client calls, internal check-ins, and discovery meetings, and they usually feel the pain of manual note-taking very quickly. They also tend to appreciate a simple product that saves time without requiring a complicated rollout process. So for the pilot, I suggest we keep the message very focused: upload a short meeting file, generate a summary, identify decisions and action items, and reduce manual documentation work.
+
+Speaker 2:
+I agree with that. We should avoid trying to pitch this too broadly at the beginning. If we say the product is for everyone, it sounds generic. But if we say it’s designed for consultants, agencies, founders, and small teams who want fast and structured meeting notes, that’s much more specific and stronger. I also think we should be careful with what we claim publicly. For example, the product does handle short files well, and we are now moving toward testing 10-minute audio as a stronger proof point. For the demo, though, we should still keep the live sample short so processing is fast and predictable.
+
+Speaker 1:
+Yes, that makes sense. So let’s separate two things clearly. One is the capability testing track, where we validate 10-minute audio files and expand reliability. The second is the live demo track, where we use a short and very clean sample so the demonstration feels fast and polished. That way we are honest about the current state of the product while still presenting it confidently. We don’t want to promise full-length one-hour meetings before we’ve tested and hardened that properly.
+
+Speaker 2:
+Exactly. On the product side, one issue we should watch carefully is the timing between meeting creation, file upload, and job processing. We already saw that if a meeting gets processed before a raw media path is attached, the worker throws an error saying the meeting has no raw media path. That means our clean test process should always be: first make sure the audio file exists, then create a fresh meeting, then upload the file, and only then let the worker process that new meeting. Reusing older failed meetings is likely to cause confusion.
+
+Speaker 1:
+That’s a very important operational point. For the demo, I want the steps to be simple enough that I can repeat them confidently on screen. Ideally, the flow is: check services, create meeting, upload file, watch worker logs, then fetch the AI notes and markdown notes. If the live run feels slow, we should also have a backup meeting already processed so that I can still show the final output without interruption.
+
+Speaker 2:
+I think that backup is essential. We should have one already-processed meeting called Client Weekly Sync Demo Backup, and the live one can be called Client Weekly Sync Demo. The backup gives us safety in case the queue is slow, there’s a temporary transcription issue, or network conditions are poor during the demo. It also lets us compare outputs later. One of the good things about the product is that the generated structure is easy to inspect. We can check the summary, key points, and action items right away.
+
+Speaker 1:
+Let’s talk about the user-facing message for pilot outreach. My thought is to keep it very practical. Something like: we built a meeting notes assistant that turns short meeting recordings into structured summaries, decisions, and action items. We’re looking for a few early users to try it and share feedback. The goal is not a polished enterprise sales pitch yet. The goal is to start real conversations with potential users and validate whether the workflow actually saves them time.
+
+Speaker 2:
+Yes, and I would keep the outreach short. We don’t need a long explanation. A short demo video, a simple landing page, and a concise message would be enough to start. We should also make sure the landing page language matches the product’s current strengths. We can confidently say the MVP supports short audio and video meeting uploads, produces structured notes, and is being tested on longer files such as 10-minute audio. That is strong, credible, and still honest.
+
+Speaker 1:
+Another thing we should decide today is the minimum success criteria for this week. For me, success means three things. First, complete one clean 10-minute audio test from end to end. Second, prepare one short live demo file that processes quickly. Third, finalize a basic pilot outreach package that includes the demo, the landing page, and a short message we can send to early prospects. If we achieve those three things, I think we move from internal building mode into actual early selling mode.
+
+Speaker 2:
+I agree with those priorities. I would also add one more operational task: keep a written runbook of the demo commands. That way you don’t have to remember anything under pressure. The runbook should include the health check command, the meeting creation command, the file upload command, the worker log command, and the commands to fetch notes. Even if you already know the workflow, having it written down makes the demo feel much calmer and more professional.
+
+Speaker 1:
+That’s a good addition. Let’s make that an action item as well. We should also improve the sample meeting content itself. The best sample is one that is short, clear, and contains at least one decision, multiple action items, and one deadline. That gives the product something meaningful to extract. If the meeting is too vague or too conversational, the output will naturally look weaker even if the system is technically working. So the content quality matters for the demo almost as much as the technical setup.
+
+Speaker 2:
+Absolutely. Strong input gives stronger demo output. For the 10-minute test file, we should include a business-style conversation with a product update, a target audience discussion, a pilot decision, outreach actions, and a deadline for the next step. That will allow us to see whether the system captures not only the general summary but also the concrete next actions. If it performs well on that type of content, we’ll have much more confidence in how to present it externally.
+
+Speaker 1:
+All right, let’s lock the decisions. Decision one: the first pilot audience will be consultants, agencies, founders, and small teams. Decision two: the live demo will use a short and clean file, while capability testing will use a separate 10-minute audio sample. Decision three: we will keep one backup meeting already processed before any live demo. Decision four: this week’s priority is to validate the 10-minute audio flow and prepare basic pilot outreach assets.
+
+Speaker 2:
+That sounds final to me. Let’s assign owners. Lalita will create the clean 10-minute audio test and run it through the product today. Lalita will also prepare the short live demo file and keep one backup processed meeting ready. The demo command runbook will be updated after the successful test. The landing page and outreach message will be reviewed and finalized by Friday. After that, the next step is to begin sending pilot outreach messages and collecting feedback from early users.
+
+Speaker 1:
+Perfect. Before we close, let me restate the immediate next steps. First, create the script file directly in the project folder so there are no macOS permission issues. Second, generate the audio file locally and verify the duration. Third, create a brand-new meeting in the product and upload the audio. Fourth, monitor the worker logs until processing finishes. Fifth, review the AI notes and markdown notes for quality. And sixth, if the output is good, preserve that processed meeting as the backup demo asset.
+
+Speaker 2:
+That’s a strong plan. I think we are in a good place now. We have a stable core flow, a clear testing target, a focused pilot audience, and concrete actions for the week. Once the 10-minute test is successful, we should treat that as a milestone and use it to strengthen both the product messaging and the demo confidence. Thanks everyone.
+
+Speaker 1:
+Great, thanks. We’ll close here. Please complete the assigned tasks today and tomorrow, and let’s do a quick review of the output before pilot outreach begins later this week.

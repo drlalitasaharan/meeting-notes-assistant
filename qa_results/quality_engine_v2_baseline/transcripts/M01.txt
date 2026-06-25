@@ -1,0 +1,158 @@
+[Chunk 01]
+
+Maya: Thanks everyone. This is the MeetIQ early access launch readiness meeting. The purpose is to confirm what we can launch this week, what should stay out of scope, and what we need to improve for thirty to sixty minute meeting recall without blocking the social media launch. Please be specific about decisions, risks, open questions, and action items.
+Priya: For launch, I want us to keep the public promise simple. The public message should be: upload a meeting recording and get clear AI generated meeting notes. We should not claim perfect two hour meeting capture yet. We can say it is strongest today for short and medium meetings, especially thirty to sixty minutes.
+Alex: That positioning is safer. From engineering, the hosted flow is already working. Users can sign up, upload a recording, process notes, download markdown, and usage increments. The quality work should continue, but it should not block launch unless it breaks upload, processing, or payment.
+Jordan: From support, I agree. I also want review language in the notes for longer recordings. Users need to understand that AI notes may miss details in long or low quality recordings and they should review important decisions before sharing externally.
+Maya: Decision confirmed: we will launch as controlled early access, not as a broad full public SaaS launch. The first public channels will be BetaList, Indie Hackers, selected AI directories, LinkedIn, and X. Product Hunt can wait until we have more confident user proof and cleaner long meeting results.
+Priya: Action for me: I will prepare the BetaList and Indie Hackers copy today, and I will reuse the same core description for the directory submissions. The due date is tomorrow at noon Eastern. The context is that these assets need to be ready before the Acjen.ai CTA update goes live.
+Maya: Priya, please also create two versions of the LinkedIn post, one founder style and one product style. We should avoid sounding like a giant mature platform. Make it honest and early access.
+Priya: Yes, I will create two LinkedIn versions and one short X version by tomorrow at noon Eastern. I will also add a line that longer recordings are supported with review recommended.
+
+[Chunk 02]
+
+Jordan: Open question: do we want the Start Early Access button to go directly to the pricing page or to the Acjen.ai landing page first? We need to decide before submitting the directories because some sites ask for one canonical product URL.
+Maya: Good question. Decision confirmed for directories: use Acjen.ai as the main product URL. The pricing link can appear inside the landing page or as the CTA, but the public submission URL should be Acjen.ai.
+Alex: Risk: the landing page and app are currently on different domains, so users may feel a small trust gap if they move from Acjen.ai to the Vercel pricing page. It is not launch blocking, but it is a trust issue.
+Maya: Action for Alex: add a clear transition note on the pricing CTA page that says MeetIQ is by Acjen AI and this is the secure app checkout page. Due by Friday evening if possible. If Friday is too soon, mark it as follow up after launch.
+Maya: Now the quality track. The priority is thirty to sixty minute recall. We are not going to improve ninety to one hundred twenty minute meetings in this branch. That will be a separate later branch after medium meetings are consistently strong.
+Alex: Decision confirmed: the first quality branch will focus only on thirty to sixty minute meeting recall. Specifically, action item recall, decisions, risks, open questions, chunk evidence, deduplication, and vague action cleanup. No payment code should be touched in that branch.
+Jordan: For baseline, I will test three to five medium meetings and record whether owner, task, due date, and context are captured. I will also mark whether confirmed decisions are separated from general discussion.
+Maya: Action for Jordan: create the baseline quality sheet for the first three medium meetings, using M01, M02, and M03 if they are between thirty and sixty minutes. Due date is Thursday by five PM Eastern. Add M04 and M05 only if time allows.
+
+[Chunk 03]
+
+Jordan: I will do that. I also need to check whether evidence is traceable to chunk or transcript section. If the UI does not show evidence yet, I will use backend logs or the saved transcript to judge whether the generated item came from a real part of the meeting.
+Alex: Risk: if we try to show every evidence detail in the UI immediately, it could slow the launch. I recommend preserving source chunk metadata internally first, then decide later how much evidence to expose to users.
+Maya: Decision confirmed: preserve evidence internally first. UI evidence display is not required for launch. We only need enough traceability to evaluate quality and debug recall.
+Priya: Open question: for launch copy, should we mention chunk evidence or just say structured notes with summaries, decisions, risks, and action items?
+Maya: For now, do not mention chunk evidence publicly. That is internal quality work. Public copy should stay focused on clear meeting notes from uploaded recordings.
+Alex: Action for me: I will check whether each extracted action, decision, risk, and open question can carry source_chunk_id, speaker if available, timestamp if available, evidence text, and confidence. I will not change the UI in the first pass. Due date is next Monday.
+Jordan: The biggest weakness I saw in earlier notes was action recall. Sometimes the notes captured the general topic but missed the exact owner, deadline, or reason. Sometimes it wrote follow up without saying who follows up or what they follow up on.
+Alex: I can improve this by looking for explicit action phrases like I will, can you, please, we need to, the next step is, by Friday, before launch, and assign this to. I also want to catch implicit actions such as still waiting for approval or this needs legal review.
+
+[Chunk 04]
+
+Maya: Action for Alex: update the extraction prompt or parser so action items prefer owner, concrete task, due date when available, and context. Due next Monday. Make sure it is covered by tests so short meeting quality does not regress.
+Priya: There is also an action for me from the launch side. I need to submit at least five free or low cost directories after BetaList and Indie Hackers are ready. The target is by the end of this week, but if directories are paid only, I will record them as skipped instead of paying immediately.
+Maya: Good. Decision confirmed: do not pay for every directory during this first launch week. We will prioritize free, credible, or low cost options and avoid spending heavily before we have organic signups.
+Jordan: Risk: if the product receives signups before the support page is clear, users may be confused about supported formats and review expectations. We should make sure MP3 and MP4 are recommended, and WAV is not overpromised if we are unsure.
+Maya: Action for Maya: review the support page language and make sure it says MP3 and MP4 are recommended. Also add review recommended language for longer recordings. Due tomorrow evening.
+Priya: Open question: should the social launch mention free trial limit, or should that only appear on pricing and signup?
+Maya: Decision confirmed: social launch will not lead with limits. Pricing and signup will explain the plan details. Social should focus on the problem and value: no manual review of long recordings just to write notes.
+Jordan: For deduplication, I want the final notes to merge repeated items. For example, Sarah will send pricing, Sarah will send the pricing table, and Sarah will send the approved pricing table by five PM should become one action with the strongest wording.
+
+[Chunk 05]
+
+Alex: Agreed. The dedupe rule should merge items with the same owner, same task meaning, same deadline, and same project context. It should preserve the most specific version and remove weak duplicates.
+Maya: Decision confirmed: final notes should favor fewer better action items over many vague ones. The output should remove weak items like follow up, discuss this, check it, or review later unless there is enough context to make them specific.
+Jordan: Action for Jordan: in the baseline sheet, mark vague items separately from missed items. A vague item should not count as a full pass just because something related appeared. Due Thursday at five PM with the baseline results.
+Alex: Risk: aggressive deduplication could accidentally merge two different actions that share a topic. For example, update pricing copy and approve pricing table are related but not the same. We need tests for false merging.
+Maya: Action for Alex: add at least one test case where two similar pricing actions should not be merged. Due next Monday with the dedupe work.
+Priya: I will also watch for duplicates in the launch asset pack. If the same value proposition repeats too many times, directories may reject it as low quality or too generic.
+Maya: Thanks. That is more launch copy than product extraction, but it matters. Please keep one-line tagline, short description, and longer description consistent without being identical.
+Maya: Now decisions. We only want confirmed decisions in the decision section. Discussion should not become a decision unless someone says we agreed, decision confirmed, approved, final decision, let us go with this, or that is settled.
+
+[Chunk 06]
+
+Alex: I can add stronger decision signals. I can also add a guard that says tentative ideas, options, and unresolved proposals should move to open questions or discussion instead of decisions.
+Jordan: In baseline review, I will mark false decisions. If MeetIQ says the team decided something but the transcript only shows a possibility, that should lower precision.
+Maya: Action for Jordan: include decision precision score in the baseline. Track both missed confirmed decisions and false decisions. Due with the baseline sheet.
+Priya: For risks, the important thing is to capture blockers and dependencies. Waiting for pricing approval is a risk. Landing page trust gap is a risk. Directory costs are a risk. But not every concern should be dramatic.
+Alex: Risk extraction should look for blockers, dependencies, uncertainty, not approved yet, still waiting, may delay, and customer confusion. It should explain the context, not just list a keyword.
+Maya: Decision confirmed: risks should be practical and context-specific. We do not want generic risk lists. Each risk should say what may go wrong and why it matters.
+Jordan: Open question: how should we score open questions that become decisions later in the meeting? If a question is asked and then answered later, it should not remain as unresolved.
+Maya: Correct. Decision confirmed: open questions should only contain unresolved questions at the end of the meeting. If the question is resolved later, it should either disappear or become a decision if the answer was confirmed.
+
+[Chunk 07]
+
+Alex: Action for Alex: add a simple resolution pass that removes open questions when a later chunk clearly answers them. Due after the first action recall improvement, not before launch.
+Maya: Let us confirm what blocks launch and what does not. Billing issues, upload failure, processing failure, usage tracking failure, or broken login block launch. Medium meeting recall improvements do not block launch unless the notes are misleading or hallucinated.
+Alex: Decision confirmed: the quality branch must not touch checkout, plan activation, payment webhooks, or usage ledger unless a bug is directly discovered. This keeps launch safe.
+Priya: Action for Priya: continue BetaList, Indie Hackers, and directory submissions while engineering works on quality. I will not wait for the thirty to sixty minute branch before preparing public copy. Due dates remain tomorrow and end of week.
+Jordan: Risk: we may spend too much time making a perfect evaluator and delay useful improvements. The baseline should be good enough to compare before and after, not a research project.
+Maya: Decision confirmed: baseline should be lightweight. Three meetings are enough to start. Five is better if time allows. We will not make a perfect benchmark before making practical improvements.
+Alex: Open question: do we want one synthetic test recording in the repo, or should we keep recordings outside the repo and only store expected outputs and test metadata?
+Maya: For now, keep recordings outside the repo unless the file size is small and licensing is clear. Store expected outputs, test notes, and metadata in the repo. That is safer.
+
+[Chunk 08]
+
+Jordan: Action for Jordan: label the synthetic recordings clearly as synthetic so we do not confuse them with real customer meetings. Due immediately when the baseline pack is created.
+Maya: Let me repeat the main action items so they are clear. Priya will prepare BetaList and Indie Hackers copy by tomorrow noon Eastern. Priya will submit five free or low cost directories by the end of the week. Priya will create two LinkedIn versions and one X version by tomorrow noon Eastern.
+Maya: Alex will add the pricing page transition note by Friday evening if possible. Alex will inspect source chunk metadata fields by next Monday. Alex will improve action extraction to capture owner, task, due date, and context by next Monday. Alex will add dedupe tests including similar pricing actions that should not merge by next Monday.
+Maya: Jordan will create baseline sheets for M01, M02, and M03 by Thursday five PM Eastern. Jordan will mark vague items separately. Jordan will score decision recall and decision precision. Jordan will label synthetic recordings clearly. Maya will review support page language by tomorrow evening.
+Priya: That recap is accurate. One clarification: if BetaList account creation is still blocked, I will record the error and continue with Indie Hackers and directories. BetaList should not freeze the whole launch.
+Maya: Decision confirmed: if one platform blocks us, we continue with the others. BetaList account issues do not block the social media launch.
+Jordan: Open question: who owns the final approval of the launch post before it goes live?
+Maya: I own final approval of launch posts. Priya drafts them, Maya approves them. That is a decision.
+
+[Chunk 09]
+
+Alex: Risk: if we add review recommended language too strongly, users may think the product is unreliable. It should be honest but not scary.
+Maya: Action for Maya and Priya: write review language that is calm and professional. Use review suggested for normal meetings and review recommended for longer recordings. Due tomorrow evening with support page copy.
+Jordan: Before we close, I want to make sure the pricing copy action is captured once, not three times. Alex needs to add a transition note on the pricing page. It should say MeetIQ is by Acjen AI and this is the secure app checkout page. Due Friday evening if possible.
+Alex: Yes, I own the pricing transition note by Friday evening if possible. That is the same action, not a new separate one.
+Priya: And I own BetaList and Indie Hackers copy by tomorrow noon Eastern, plus the LinkedIn and X versions. I also own directory submissions by the end of the week.
+Maya: Correct. Please do not turn discuss launch copy into a vague action item. The concrete action is Priya preparing the launch copy and submissions.
+Jordan: Another vague phrase: follow up with users. We should only keep that if it is specific. For now, Jordan will prepare a simple support response template for early users who report poor long meeting recall. Due Friday at noon Eastern.
+Maya: Good catch. Action for Jordan: prepare a support response template for early users who report poor long meeting recall, due Friday noon Eastern.
+
+[Chunk 10]
+
+Alex: Open question: should poor recall feedback go into GitHub issues or a separate feedback spreadsheet?
+Maya: Decision confirmed: use GitHub issues for engineering bugs and a simple feedback spreadsheet for user wording, pain points, and launch channel notes.
+Priya: Risk: feedback may be scattered across email, LinkedIn comments, and directories. We need one place to capture it so launch learning is not lost.
+Maya: Action for Priya: create one feedback tracker with columns for source, user comment, meeting length, issue type, severity, and follow up status. Due Friday afternoon.
+Maya: Final decision: launch continues while quality hardening continues. We improve thirty to sixty minute recall first. We do not work on ninety to one hundred twenty minute meetings until medium meetings are consistently strong. Meeting closed.
+Maya: Post meeting clarification section. This part is included intentionally in the test recording to check whether repeated action items are deduplicated and whether resolved questions do not remain open. The launch is controlled early access. The quality work is parallel. Medium meetings are the priority. Two hour meetings are later.
+Maya: Clarification round 1. We are repeating key items in natural language so the baseline recording has enough length and so the deduplication test is realistic. The extractor should not create duplicates just because the same action is restated.
+Priya: I want to restate the launch channel sequence. First, finish the Acjen.ai CTA and pricing connection. Second, prepare BetaList copy. Third, prepare Indie Hackers copy. Fourth, submit to AI directories only when they are free, credible, or low cost. Fifth, publish LinkedIn and X posts. If a directory is paid only, I will log it as skipped for now.
+
+[Chunk 11]
+
+Alex: I want to restate the engineering boundary. The recall hardening branch should not change payment, checkout, plan mapping, usage ledger, or account activation. It can change extraction prompts, structured note assembly, evidence metadata, deduplication, and review language. This is how we avoid blocking launch.
+Jordan: I want to restate the baseline review method. For each meeting, I will list expected actions, decisions, risks, and open questions. Then I will compare them to generated notes. A partial item does not get full credit. For example, if the task is present but the owner and due date are missing, it is partial.
+Maya: I want to restate the acceptance target. Thirty to sixty minute meetings should reach good enough quality first. Good enough means action items are mostly concrete, decisions are not hallucinated, risks are practical, open questions are unresolved, and duplicate vague items are reduced.
+Priya: For copy, I will say MeetIQ helps founders, consultants, and small teams turn meeting recordings into structured notes. I will not say it captures every detail. I will not say two hour meetings are perfect. I will say longer recordings should be reviewed before important decisions are made.
+Alex: For evidence, I will start internally. Each structured item should carry item type, source chunk identifier, speaker when available, timestamp when available, short evidence text, and confidence. The UI can stay the same for the first quality branch.
+Jordan: For vague action cleanup, I will mark follow up, check it, discuss later, and review this as weak unless the note includes who owns it, what the actual task is, and why it matters. This will help us separate weak extraction from acceptable extraction.
+Maya: For risks, I want the output to capture practical business risk, not generic risk. Pricing approval delay, landing page trust gap, unclear support language, and scattered feedback are real risks because they could affect launch quality or user trust.
+Priya: For open questions, I will watch whether questions are resolved later. For example, Jordan asked whether the main product URL should be Acjen.ai or the pricing page. That was resolved as Acjen.ai, so it should not remain in final open questions.
+
+[Chunk 12]
+
+Alex: For dedupe, I will be careful not to merge related but distinct actions. Pricing page transition copy, pricing approval, and pricing table delivery are related but different. The dedupe test should preserve separate responsibilities when the task is truly different.
+Maya: Clarification round 2. We are repeating key items in natural language so the baseline recording has enough length and so the deduplication test is realistic. The extractor should not create duplicates just because the same action is restated.
+Priya: I want to restate the launch channel sequence. First, finish the Acjen.ai CTA and pricing connection. Second, prepare BetaList copy. Third, prepare Indie Hackers copy. Fourth, submit to AI directories only when they are free, credible, or low cost. Fifth, publish LinkedIn and X posts. If a directory is paid only, I will log it as skipped for now.
+Alex: I want to restate the engineering boundary. The recall hardening branch should not change payment, checkout, plan mapping, usage ledger, or account activation. It can change extraction prompts, structured note assembly, evidence metadata, deduplication, and review language. This is how we avoid blocking launch.
+Jordan: I want to restate the baseline review method. For each meeting, I will list expected actions, decisions, risks, and open questions. Then I will compare them to generated notes. A partial item does not get full credit. For example, if the task is present but the owner and due date are missing, it is partial.
+Maya: I want to restate the acceptance target. Thirty to sixty minute meetings should reach good enough quality first. Good enough means action items are mostly concrete, decisions are not hallucinated, risks are practical, open questions are unresolved, and duplicate vague items are reduced.
+Priya: For copy, I will say MeetIQ helps founders, consultants, and small teams turn meeting recordings into structured notes. I will not say it captures every detail. I will not say two hour meetings are perfect. I will say longer recordings should be reviewed before important decisions are made.
+Alex: For evidence, I will start internally. Each structured item should carry item type, source chunk identifier, speaker when available, timestamp when available, short evidence text, and confidence. The UI can stay the same for the first quality branch.
+
+[Chunk 13]
+
+Jordan: For vague action cleanup, I will mark follow up, check it, discuss later, and review this as weak unless the note includes who owns it, what the actual task is, and why it matters. This will help us separate weak extraction from acceptable extraction.
+Maya: For risks, I want the output to capture practical business risk, not generic risk. Pricing approval delay, landing page trust gap, unclear support language, and scattered feedback are real risks because they could affect launch quality or user trust.
+Priya: For open questions, I will watch whether questions are resolved later. For example, Jordan asked whether the main product URL should be Acjen.ai or the pricing page. That was resolved as Acjen.ai, so it should not remain in final open questions.
+Alex: For dedupe, I will be careful not to merge related but distinct actions. Pricing page transition copy, pricing approval, and pricing table delivery are related but different. The dedupe test should preserve separate responsibilities when the task is truly different.
+Maya: Clarification round 3. We are repeating key items in natural language so the baseline recording has enough length and so the deduplication test is realistic. The extractor should not create duplicates just because the same action is restated.
+Priya: I want to restate the launch channel sequence. First, finish the Acjen.ai CTA and pricing connection. Second, prepare BetaList copy. Third, prepare Indie Hackers copy. Fourth, submit to AI directories only when they are free, credible, or low cost. Fifth, publish LinkedIn and X posts. If a directory is paid only, I will log it as skipped for now.
+Alex: I want to restate the engineering boundary. The recall hardening branch should not change payment, checkout, plan mapping, usage ledger, or account activation. It can change extraction prompts, structured note assembly, evidence metadata, deduplication, and review language. This is how we avoid blocking launch.
+Jordan: I want to restate the baseline review method. For each meeting, I will list expected actions, decisions, risks, and open questions. Then I will compare them to generated notes. A partial item does not get full credit. For example, if the task is present but the owner and due date are missing, it is partial.
+
+[Chunk 14]
+
+Maya: I want to restate the acceptance target. Thirty to sixty minute meetings should reach good enough quality first. Good enough means action items are mostly concrete, decisions are not hallucinated, risks are practical, open questions are unresolved, and duplicate vague items are reduced.
+Priya: For copy, I will say MeetIQ helps founders, consultants, and small teams turn meeting recordings into structured notes. I will not say it captures every detail. I will not say two hour meetings are perfect. I will say longer recordings should be reviewed before important decisions are made.
+Alex: For evidence, I will start internally. Each structured item should carry item type, source chunk identifier, speaker when available, timestamp when available, short evidence text, and confidence. The UI can stay the same for the first quality branch.
+Jordan: For vague action cleanup, I will mark follow up, check it, discuss later, and review this as weak unless the note includes who owns it, what the actual task is, and why it matters. This will help us separate weak extraction from acceptable extraction.
+Maya: For risks, I want the output to capture practical business risk, not generic risk. Pricing approval delay, landing page trust gap, unclear support language, and scattered feedback are real risks because they could affect launch quality or user trust.
+Priya: For open questions, I will watch whether questions are resolved later. For example, Jordan asked whether the main product URL should be Acjen.ai or the pricing page. That was resolved as Acjen.ai, so it should not remain in final open questions.
+Alex: For dedupe, I will be careful not to merge related but distinct actions. Pricing page transition copy, pricing approval, and pricing table delivery are related but different. The dedupe test should preserve separate responsibilities when the task is truly different.
+Maya: Final recap. Confirmed decisions: controlled early access, Acjen.ai as main URL, quality branch limited to thirty to sixty minute recall, preserve evidence internally first, do not pay for every directory, social copy does not lead with limits, fewer better action items, practical risks only, unresolved open questions only, continue launch even if one platform blocks us, Maya approves launch posts, GitHub issues for engineering bugs and feedback spreadsheet for user wording, and ninety to one hundred twenty minute meetings come later.
+
+[Chunk 15]
+
+Maya: Final action recap. Priya prepares BetaList, Indie Hackers, LinkedIn, and X copy by tomorrow noon Eastern. Priya submits five free or low cost directories by the end of the week. Priya creates the feedback tracker by Friday afternoon. Alex adds the pricing page transition note by Friday evening if possible. Alex inspects chunk evidence metadata and improves action extraction by next Monday. Alex adds dedupe tests by next Monday. Jordan creates baseline sheets for M01 through M03 by Thursday five PM. Jordan prepares a support response template by Friday noon. Maya reviews support page and review language by tomorrow evening.
+Maya: Meeting adjourned. Remember, this recording is synthetic and designed for testing MeetIQ baseline quality on a thirty to sixty minute meeting. It intentionally includes repeated actions, resolved questions, practical risks, and review recommended language.

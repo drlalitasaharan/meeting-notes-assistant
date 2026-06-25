@@ -1,0 +1,191 @@
+Synthetic MeetIQ baseline recording M02. Title: Product onboarding and supported recordings review.
+This is a synthetic internal test meeting for QA. It contains clear decisions, action items, risks, open questions, repeated actions, and vague actions that should be rewritten.
+Participants: Aisha Product Lead, Marco Frontend Engineer, Lena Legal Advisor, Dev Backend Engineer.
+Context: The team is reviewing the Acjen AI landing page, supported recording copy, sample meeting option, and early-access onboarding..
+
+Aisha says: The goal today is to review Product onboarding and supported recordings review and finish with exact decisions, risks, questions, and owners.
+Marco says: I will listen for concrete actions and deadlines, because this recording is part of the thirty to sixty minute quality baseline.
+Decisions discussed in this meeting are listed next as spoken meeting content, not as a separate document.
+Aisha says: Decision confirmed: keep the main CTA as Start Early Access and link it to the strongest pricing or checkout page.
+Aisha says: Decision confirmed: promote MP3 and MP4 as recommended formats and avoid promising WAV support until it is fully verified.
+Aisha says: Decision confirmed: the sample meeting option is helpful but should not block real uploads.
+Aisha says: Decision confirmed: longer recordings should show review recommended language rather than a guarantee of full detail capture.
+Action items are now discussed with owners, tasks, context, and due dates when available.
+Aisha says: Aisha will update the landing page onboarding copy by Friday morning, including Upload, Process, and Review steps.
+Marco says: Marco will add a sample recording link to the upload page before the next product review.
+Lena says: Lena will review the supported recordings page and confirm the wording about AI-generated notes by Thursday afternoon.
+Dev says: Dev will check whether the frontend displays a clear processing status for recordings above thirty minutes.
+Aisha says: Aisha will send the final onboarding text to Marco by five PM tomorrow.
+Marco says: Marco will remove vague copy that says all formats are supported and replace it with recommended formats.
+Lena says: Dev will add a warning if a recording is longer than sixty minutes and the confidence score is low.
+The team now reviews risks, blockers, dependencies, and uncertainties.
+Marco says: Risk: users may upload WAV files if the page sounds too broad about supported formats.
+Lena says: Risk: the Vercel checkout URL may look less trustworthy than the Acjen AI domain.
+Dev says: Risk: users may misunderstand early access if the contact form and self-checkout are both shown without explanation.
+Aisha says: Risk: long recordings may miss some details, so important action items should be reviewed before sharing externally.
+The team now lists unresolved open questions.
+Lena says: Open question: should the upload page show estimated processing time before the user starts upload?
+Dev says: Open question: should the review recommended message appear at sixty minutes or only when quality confidence is low?
+Aisha says: Open question: should the sample meeting live on Acjen AI or inside the app dashboard?
+Marco says: Open question: what exact maximum file size should be shown publicly?
+The team intentionally repeats a few actions so deduplication can be tested.
+Lena says: Aisha repeated that she will send the onboarding copy tomorrow, and later repeated that the landing page copy needs to go to Marco by five PM.
+Lena says: Marco repeated the sample recording task twice, first as sample link and later as sample meeting button.
+The team intentionally says vague items and then clarifies them so vague action cleanup can be tested.
+Dev says: Someone said we should follow up on the wording, but Aisha clarified that Lena owns legal wording review by Thursday afternoon.
+Dev says: The phrase check the upload page was clarified as Dev checking the processing status display for recordings above thirty minutes.
+Discussion round 1. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 2. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 3. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Aisha says again: Dev will check whether the frontend displays a clear processing status for recordings above thirty minutes.
+Marco says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 4. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Lena says: The blocker I want captured is this. Risk: users may upload WAV files if the page sounds too broad about supported formats.
+Discussion round 5. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Dev asks: Open question: should the review recommended message appear at sixty minutes or only when quality confidence is low?
+Discussion round 6. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Aisha says again: Dev will add a warning if a recording is longer than sixty minutes and the confidence score is low.
+Marco says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 7. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 8. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Lena says: The blocker I want captured is this. Risk: users may upload WAV files if the page sounds too broad about supported formats.
+Discussion round 9. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Aisha says again: Lena will review the supported recordings page and confirm the wording about AI-generated notes by Thursday afternoon.
+Marco says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 10. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Dev asks: Open question: should the sample meeting live on Acjen AI or inside the app dashboard?
+Discussion round 11. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 12. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Aisha says again: Marco will remove vague copy that says all formats are supported and replace it with recommended formats.
+Marco says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Lena says: The blocker I want captured is this. Risk: users may upload WAV files if the page sounds too broad about supported formats.
+Discussion round 13. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 14. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 15. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Aisha says again: Marco will add a sample recording link to the upload page before the next product review.
+Marco says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Dev asks: Open question: what exact maximum file size should be shown publicly?
+Discussion round 16. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Lena says: The blocker I want captured is this. Risk: users may upload WAV files if the page sounds too broad about supported formats.
+Discussion round 17. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 18. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Aisha says again: Aisha will send the final onboarding text to Marco by five PM tomorrow.
+Marco says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 19. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 20. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Lena says: The blocker I want captured is this. Risk: users may upload WAV files if the page sounds too broad about supported formats.
+Dev asks: Open question: should the upload page show estimated processing time before the user starts upload?
+Discussion round 21. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Aisha says again: Aisha will update the landing page onboarding copy by Friday morning, including Upload, Process, and Review steps.
+Marco says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 22. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 23. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 24. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Aisha says again: Dev will check whether the frontend displays a clear processing status for recordings above thirty minutes.
+Marco says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Lena says: The blocker I want captured is this. Risk: users may upload WAV files if the page sounds too broad about supported formats.
+Discussion round 25. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Dev asks: Open question: should the review recommended message appear at sixty minutes or only when quality confidence is low?
+Discussion round 26. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 27. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Aisha says again: Dev will add a warning if a recording is longer than sixty minutes and the confidence score is low.
+Marco says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Discussion round 28. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Lena says: The blocker I want captured is this. Risk: users may upload WAV files if the page sounds too broad about supported formats.
+Discussion round 29. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Discussion round 30. Aisha says: I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting.
+Marco says: I agree. The most important action items should include an owner, a concrete task, a deadline if one was spoken, and enough context to make the task understandable later.
+Lena says: We should be careful not to create duplicate actions when the same owner repeats the same task with slightly different wording. The notes should keep the best version.
+Dev says: I also want the notes to capture risks separately from open questions. A risk is a possible problem, while an open question is something unresolved that needs an answer.
+Aisha says again: Lena will review the supported recordings page and confirm the wording about AI-generated notes by Thursday afternoon.
+Marco says: Please do not make this a separate duplicate if it means the same thing as the earlier action.
+Dev asks: Open question: should the sample meeting live on Acjen AI or inside the app dashboard?
+Aisha says: Closing summary. The decisions, actions, risks, and open questions from this M02 meeting should now be available for baseline scoring.
+End of synthetic baseline recording.
