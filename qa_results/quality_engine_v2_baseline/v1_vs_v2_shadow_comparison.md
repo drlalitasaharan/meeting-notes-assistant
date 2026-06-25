@@ -12,7 +12,7 @@ Baseline directory: `qa_results/quality_engine_v2_baseline`
 | M02 | not available | yes | yes | 2 | 2 | 0 | 0 | 2 | 2 | 1 | 1 | n/a | 0 |
 | M03 | not available | yes | yes | 7 | 7 | 2 | 2 | 5 | 5 | 1 | 1 | n/a | 0 |
 | M04 | not available | yes | yes | 1 | 1 | 1 | 1 | 1 | 1 | 2 | 2 | n/a | 0 |
-| S01_client_weekly_sync | not available | yes | yes | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | n/a | 0 |
+| S01_client_weekly_sync | not available | yes | yes | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | n/a | 0 |
 
 ## Per-Case Metric Deltas
 
@@ -88,5 +88,5 @@ Baseline directory: `qa_results/quality_engine_v2_baseline`
 | action_count | 0 | 0 | 0 |
 | decision_count | 0 | 0 | 0 |
 | next_step_count | 0 | 0 | 0 |
-| risk_count | 0 | 0 | 0 |
+| risk_count | 0 | 1 | 1 |
 | open_question_count | n/a | 0 | n/a |
