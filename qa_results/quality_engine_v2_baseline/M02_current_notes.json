@@ -1,0 +1,47 @@
+{
+  "meeting_id": 387,
+  "status": "DONE",
+  "summary": "Asia says, Asia will update the landing page onboarding copy by Friday morning, including upload, process, and review steps. The meeting aligned on the main priorities and next steps",
+  "summary_slots": {
+    "purpose": "Asia says, Asia will update the landing page onboarding copy by Friday morning, including upload, process, and review steps",
+    "outcome": "The meeting aligned on the main priorities and next steps",
+    "risks": [
+      "Long recordings may miss details, so important action items should be reviewed before sharing externally"
+    ],
+    "next_steps": [
+      "Update the landing page onboarding copy by Friday morning, including upload, process, and review steps.",
+      "Send the landing page copy to Marco by 5 pm."
+    ]
+  },
+  "key_points": [
+    "Lina says, Asia repeated that she will send the onboarding copy tomorrow and later repeated at the landing page copy needs to go to Marco by 5 pm",
+    "Asia says, the goal today is to review product onboarding, and supported recording review, and finish with a MAC decision, risks, questions, and owners",
+    "Asia says, RISC, long recordings may miss some details, so important action items should be reviewed before sharing externally",
+    "The most important action items should include an owner, a concrete task, a deadline if one was spoken and enough context to make the task understandable later",
+    "Marco says, I will listen for concrete actions, and deadlines, because this recording is part of the 30-60 minute quality baseline",
+    "It contains clear decisions, action items, risks, open questions, repeated actions, and vague actions that should be written"
+  ],
+  "decisions": [],
+  "decision_objects": [],
+  "action_items": [
+    "Asia - Update the landing page onboarding copy by Friday morning, including upload, process, and review steps",
+    "Asia - Send the landing page copy to Marco by 5 pm"
+  ],
+  "action_item_objects": [
+    {
+      "owner": "Asia",
+      "task": "Update the landing page onboarding copy by Friday morning, including upload, process, and review steps",
+      "status": "open",
+      "priority": "medium",
+      "text": "Asia: Update the landing page onboarding copy by Friday morning, including upload, process, and review steps"
+    },
+    {
+      "owner": "Asia",
+      "task": "Send the landing page copy to Marco by 5 pm",
+      "status": "open",
+      "priority": "medium",
+      "text": "Asia: Send the landing page copy to Marco by 5 pm"
+    }
+  ],
+  "model_version": "local-summary-v3"
+}
