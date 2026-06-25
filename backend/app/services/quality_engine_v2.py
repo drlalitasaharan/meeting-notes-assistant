@@ -83,6 +83,10 @@ def apply_quality_engine_v2(
         next_steps,
         action_items,
     )
+    summary_slots["open_questions"] = _merge_open_questions(
+        summary_slots.get("open_questions"),
+        detect_open_questions(improved, transcript_text),
+    )
     summary_slots["known_entity_warnings"] = _merge_warnings(
         summary_slots.get("known_entity_warnings"),
         detect_known_entity_warnings(improved),
@@ -121,6 +125,132 @@ def _merge_warnings(existing: Any, new_warnings: list[str]) -> list[str]:
         output.append(text)
 
     return output
+
+
+def _normalize_question(text: str) -> str:
+    cleaned = re.sub(r"\s+", " ", text).strip(" .:-")
+    if not cleaned:
+        return ""
+    cleaned = re.sub(
+        r"^(?:open|unresolved)\s+questions?\s*(?:remains?|is|are)?\s*[:\-]?\s*",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"^question\s+remains?\s*[:\-]?\s*",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"^(?:we|the team)\s+still\s+need(?:s)?\s+to\s+(?:confirm|decide|know)\s+",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    if not cleaned:
+        return ""
+    cleaned = cleaned[0].upper() + cleaned[1:]
+    return cleaned if cleaned.endswith("?") else f"{cleaned}?"
+
+
+def _looks_like_rhetorical_or_answered_question(text: str) -> bool:
+    normalized = _dedupe_key(text)
+    if not normalized:
+        return True
+
+    rhetorical_patterns = (
+        r"\bdoes that make sense\b",
+        r"\bcan you hear me\b",
+        r"\bany questions\b",
+        r"\bright\b",
+        r"\bokay\b",
+        r"\byou know\b",
+        r"\bwhat do you think\b",
+    )
+    answered_patterns = (
+        r"\balready answered\b",
+        r"\banswered\b",
+        r"\bresolved\b",
+        r"\bconfirmed\b",
+        r"\bdecided\b",
+        r"\bclosed\b",
+    )
+
+    return any(re.search(pattern, normalized) for pattern in rhetorical_patterns) or any(
+        re.search(pattern, normalized) for pattern in answered_patterns
+    )
+
+
+def _extract_open_questions_from_text(text: str) -> list[str]:
+    normalized_text = _text(text)
+    if not normalized_text:
+        return []
+
+    candidates: list[str] = []
+    marker_patterns = (
+        r"\bopen questions?\s*(?:remains?|is|are)?\s*[:\-]\s*([^.\n?]+(?:\?)?)",
+        r"\bunresolved questions?\s*(?:remains?|is|are)?\s*[:\-]\s*([^.\n?]+(?:\?)?)",
+        r"\bquestion remains?\s*[:\-]\s*([^.\n?]+(?:\?)?)",
+        r"\b(?:we|the team)\s+still\s+need(?:s)?\s+to\s+(?:confirm|decide|know)\s+([^.\n?]+(?:\?)?)",
+    )
+
+    for pattern in marker_patterns:
+        for match in re.finditer(pattern, normalized_text, flags=re.IGNORECASE):
+            question = _normalize_question(match.group(1))
+            if question and not _looks_like_rhetorical_or_answered_question(question):
+                candidates.append(question)
+
+    for sentence in re.split(r"(?<=[.!?])\s+|\n+", normalized_text):
+        sentence = sentence.strip()
+        if "?" not in sentence:
+            continue
+        lowered = sentence.lower()
+        if not any(
+            marker in lowered
+            for marker in (
+                "open question",
+                "unresolved question",
+                "question remains",
+                "still need to confirm",
+                "still need to decide",
+                "still need to know",
+            )
+        ):
+            continue
+        question = _normalize_question(sentence)
+        if question and not _looks_like_rhetorical_or_answered_question(question):
+            candidates.append(question)
+
+    return candidates
+
+
+def _merge_open_questions(existing: Any, new_questions: list[str]) -> list[str]:
+    output: list[str] = []
+    seen: set[str] = set()
+
+    for question in [*(existing if isinstance(existing, list) else []), *new_questions]:
+        text = _normalize_question(_text(question))
+        if not text or _looks_like_rhetorical_or_answered_question(text):
+            continue
+        key = _dedupe_key(text)
+        if key in seen:
+            continue
+        seen.add(key)
+        output.append(text)
+
+    return output
+
+
+def detect_open_questions(notes: dict[str, Any], transcript_text: str | None) -> list[str]:
+    """Extract likely unresolved questions without rewriting source content."""
+
+    sources = [_text(transcript_text), _note_text_blob(notes)]
+    questions: list[str] = []
+    for source in sources:
+        questions.extend(_extract_open_questions_from_text(source))
+    return _merge_open_questions([], questions)
 
 
 def _iter_note_text_values(value: Any) -> list[str]:
