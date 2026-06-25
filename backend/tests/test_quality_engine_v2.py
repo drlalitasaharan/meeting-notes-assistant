@@ -142,3 +142,53 @@ def test_run_quality_engine_v2_shadow_keeps_v1_notes_user_facing() -> None:
     assert result["metadata"]["mode"] == "shadow"
     assert result["metadata"]["shadow_ran"] is True
     assert result["metadata"]["shadow_summary"]["purpose_added"] is True
+
+
+def test_run_quality_engine_v2_shadow_does_not_mutate_original_notes() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team discussed onboarding.",
+        "summary_slots": {"purpose": "", "outcome": "", "risks": [], "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    original_copy = {
+        "summary": "The team discussed onboarding.",
+        "summary_slots": {"purpose": "", "outcome": "", "risks": [], "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v2(
+        notes,
+        "The goal is to confirm onboarding readiness.",
+        mode="shadow",
+    )
+
+    assert notes == original_copy
+    assert result["notes"] == original_copy
+    assert result["metadata"]["shadow_ran"] is True
+    assert result["metadata"]["shadow_summary"]["purpose_added"] is True
+
+
+def test_run_quality_engine_v2_unknown_mode_safely_uses_v1() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team discussed launch readiness.",
+        "summary_slots": {"purpose": "", "outcome": "", "risks": [], "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v2(
+        notes,
+        "The goal is to confirm launch readiness.",
+        mode="bad-mode",
+    )
+
+    assert result["notes"] == notes
+    assert result["metadata"]["mode"] == "v1"
+    assert result["metadata"]["applied"] is False

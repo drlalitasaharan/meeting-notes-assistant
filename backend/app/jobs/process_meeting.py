@@ -38,6 +38,7 @@ from app.services.processing_observability import (
     mark_completed,
     mark_failed,
 )
+from app.services.quality_engine_v2 import run_quality_engine_v2
 from app.services.transcription import get_transcriber
 
 log = logging.getLogger(__name__)
@@ -268,13 +269,15 @@ def process_meeting(meeting_id: str) -> None:
         notes_strategy_name = getattr(settings, "NOTES_STRATEGY", "local_summary")
 
         raw_transcript_payload = transcription.to_dict()
+        transcript_text = str(
+            getattr(transcription, "text", "") or raw_transcript_payload.get("text") or ""
+        )
         if slide_text:
             raw_transcript_payload["slide_text"] = slide_text
 
         if notes_strategy_name == "local_rules":
             notes_dict = generate_meeting_notes(raw_transcript_payload)
         else:
-            transcript_text = transcription.text
             notes_result = get_notes_strategy().generate(transcript_text, slide_text or "")
             notes_dict = notes_result.to_api_dict()
             notes_dict = normalize_canonical_notes(notes_dict)
@@ -376,6 +379,15 @@ def process_meeting(meeting_id: str) -> None:
         )
         normalized_notes = _restore_publishable_actions_from_objects(normalized_notes)
         normalized_notes = apply_risk_action_owner_consistency(normalized_notes)
+
+        notes_engine_mode = os.getenv("NOTES_ENGINE", "v1")
+        quality_engine_result = run_quality_engine_v2(
+            normalized_notes,
+            transcript_text,
+            mode=notes_engine_mode,
+        )
+        if quality_engine_result.get("metadata", {}).get("mode") == "v2":
+            normalized_notes = quality_engine_result["notes"]
 
         for action_obj in normalized_notes.get("action_item_objects", []) or []:
             if not isinstance(action_obj, dict):
