@@ -192,3 +192,92 @@ def test_run_quality_engine_v2_unknown_mode_safely_uses_v1() -> None:
     assert result["notes"] == notes
     assert result["metadata"]["mode"] == "v1"
     assert result["metadata"]["applied"] is False
+
+
+def test_quality_engine_v2_correct_known_entities_produce_no_warning() -> None:
+    notes = {
+        "summary": (
+            "MeetIQ uses Acjen AI, support@acjen.ai, PayPal, Square, Render, "
+            "Vercel, GoDaddy, BetaList, Indie Hackers, Product Hunt, GitHub, "
+            "Markdown, Starter, and Pro Pilot."
+        ),
+        "summary_slots": {"purpose": "Review MeetIQ launch readiness.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, None)
+
+    assert improved["summary_slots"]["known_entity_warnings"] == []
+
+
+def test_quality_engine_v2_warns_on_obvious_known_entity_variants() -> None:
+    notes = {
+        "summary": "The team mentioned a gen.ai, meet iq, git hub, and producthunt.",
+        "summary_slots": {"purpose": "Review launch readiness.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, None)
+    warnings = " ".join(improved["summary_slots"]["known_entity_warnings"])
+
+    assert "Acjen AI" in warnings
+    assert "MeetIQ" in warnings
+    assert "GitHub" in warnings
+    assert "Product Hunt" in warnings
+    assert improved["summary"] == notes["summary"]
+
+
+def test_quality_engine_v2_warns_on_support_email_variants() -> None:
+    notes = {
+        "summary": "Use support at Acjen AI until support@acjen.com is ready.",
+        "summary_slots": {"purpose": "Review support routing.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, None)
+    warnings = improved["summary_slots"]["known_entity_warnings"]
+
+    assert any("support@acjen.ai" in warning for warning in warnings)
+
+
+def test_quality_engine_v2_warns_on_paypal_and_square_variants() -> None:
+    notes = {
+        "summary": "Check pay pal checkout and the sqare fallback link.",
+        "summary_slots": {"purpose": "Review checkout readiness.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, None)
+    warnings = " ".join(improved["summary_slots"]["known_entity_warnings"])
+
+    assert "PayPal" in warnings
+    assert "Square" in warnings
+
+
+def test_quality_engine_v2_known_entity_warnings_preserve_existing_v1_and_shadow_behavior() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "Check pay pal checkout before launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    original = {
+        "summary": "Check pay pal checkout before launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    v1_result = run_quality_engine_v2(notes, "The goal is to review checkout.", mode="v1")
+    shadow_result = run_quality_engine_v2(notes, "The goal is to review checkout.", mode="shadow")
+
+    assert v1_result["notes"] == original
+    assert shadow_result["notes"] == original
+    assert notes == original
+    assert shadow_result["metadata"]["shadow_ran"] is True

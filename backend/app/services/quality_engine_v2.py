@@ -4,6 +4,46 @@ import copy
 import re
 from typing import Any
 
+KNOWN_ENTITY_VARIANTS: dict[str, tuple[str, ...]] = {
+    "Acjen AI": (
+        r"\ba gen\.?\s*ai\b",
+        r"\bagenda\s+ai\b",
+        r"\bacjenai\b",
+        r"\bacjen\s+acjen\s+ai\b",
+        r"\bacgen\s+ai\b",
+        r"\bajencel\s+ai\b",
+    ),
+    "MeetIQ": (
+        r"\bmeet\s+iq\b",
+        r"\bmeeting\s+iq\b",
+        r"\bmeetiq\.ai\b",
+    ),
+    "support@acjen.ai": (
+        r"\bsupport\s+(?:at|\[at\])\s+acjen(?:\.|\s+dot\s+)?ai\b",
+        r"\bsupport@(?:agenda|acgen|ajencel)\.ai\b",
+        r"\bsupport@acjen\.(?:com|io|co)\b",
+        r"\bsupport@acjenai\b",
+    ),
+    "PayPal": (
+        r"\bpay\s+pal\b",
+        r"\bpay-pal\b",
+    ),
+    "Square": (
+        r"\bsqare\b",
+        r"\bsquire\s+checkout\b",
+    ),
+    "Render": (r"\brendr\b",),
+    "Vercel": (r"\bvercell\b",),
+    "GoDaddy": (r"\bgo\s+daddy\b", r"\bgodady\b"),
+    "BetaList": (r"\bbeta\s+list\b",),
+    "Indie Hackers": (r"\bindiehackers\b", r"\bindy\s+hackers\b"),
+    "Product Hunt": (r"\bproducthunt\b", r"\bproduct\s+hunter\b"),
+    "GitHub": (r"\bgit\s+hub\b",),
+    "Markdown": (r"\bmark\s+down\b",),
+    "Starter": (r"\bstater\s+plan\b",),
+    "Pro Pilot": (r"\bpro\s+pilate\b", r"\bpropilot\b"),
+}
+
 
 def apply_quality_engine_v2(
     notes: dict[str, Any],
@@ -43,6 +83,10 @@ def apply_quality_engine_v2(
         next_steps,
         action_items,
     )
+    summary_slots["known_entity_warnings"] = _merge_warnings(
+        summary_slots.get("known_entity_warnings"),
+        detect_known_entity_warnings(improved),
+    )
 
     improved["summary_slots"] = summary_slots
 
@@ -60,6 +104,81 @@ def _text(value: Any) -> str:
     if value is None:
         return ""
     return str(value).strip()
+
+
+def _merge_warnings(existing: Any, new_warnings: list[str]) -> list[str]:
+    output: list[str] = []
+    seen: set[str] = set()
+
+    for warning in [*(existing if isinstance(existing, list) else []), *new_warnings]:
+        text = _text(warning)
+        if not text:
+            continue
+        key = text.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        output.append(text)
+
+    return output
+
+
+def _iter_note_text_values(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        output: list[str] = []
+        for item in value:
+            output.extend(_iter_note_text_values(item))
+        return output
+    if isinstance(value, dict):
+        output = []
+        for key, item in value.items():
+            if key == "known_entity_warnings":
+                continue
+            output.extend(_iter_note_text_values(item))
+        return output
+    return []
+
+
+def _note_text_blob(notes: dict[str, Any]) -> str:
+    fields = (
+        "summary",
+        "summary_slots",
+        "key_points",
+        "decisions",
+        "decision_objects",
+        "action_items",
+        "action_item_objects",
+    )
+    texts: list[str] = []
+    for field in fields:
+        texts.extend(_iter_note_text_values(notes.get(field)))
+    return "\n".join(text for text in texts if text.strip())
+
+
+def detect_known_entity_warnings(notes: dict[str, Any]) -> list[str]:
+    """Return warning-only known-entity guardrail findings.
+
+    This function intentionally does not rewrite notes. It only flags likely
+    variants/misspellings that should be reviewed before v2 output is trusted.
+    """
+
+    text_blob = _note_text_blob(notes)
+    if not text_blob:
+        return []
+
+    warnings: list[str] = []
+    for canonical, patterns in KNOWN_ENTITY_VARIANTS.items():
+        for pattern in patterns:
+            match = re.search(pattern, text_blob, flags=re.IGNORECASE)
+            if match:
+                warnings.append(
+                    f"Possible known entity rewrite: '{match.group(0)}' may refer to '{canonical}'."
+                )
+                break
+
+    return warnings
 
 
 def _clean_sentence(text: str) -> str:
