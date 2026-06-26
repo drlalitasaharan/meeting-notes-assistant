@@ -1134,6 +1134,46 @@ def run_quality_engine_v2(
     return {"notes": improved, "metadata": metadata}
 
 
+def build_quality_engine_v2_admin_comparison(
+    notes: dict[str, Any],
+    transcript_text: str | None,
+) -> dict[str, Any]:
+    """Build explicit admin/shadow comparison data without changing user notes.
+
+    This helper is intentionally not used by normal note rendering. It exposes
+    v2 output only to callers that deliberately request an admin comparison.
+    """
+
+    try:
+        improved = apply_quality_engine_v2(notes, transcript_text)
+        return {
+            "user_notes": notes,
+            "admin_only": True,
+            "comparison": _compare_v1_v2_notes(notes, improved),
+            "v2_notes": improved,
+            "v2_markdown": render_quality_engine_v2_markdown(improved),
+            "metadata": {
+                "mode": "admin_comparison",
+                "applied_to_user_notes": False,
+                "fallback_used": False,
+            },
+        }
+    except Exception as exc:  # pragma: no cover - defensive admin fallback
+        return {
+            "user_notes": notes,
+            "admin_only": True,
+            "comparison": {},
+            "v2_notes": None,
+            "v2_markdown": "",
+            "metadata": {
+                "mode": "admin_comparison",
+                "applied_to_user_notes": False,
+                "fallback_used": True,
+                "warnings": [f"Quality Engine v2 comparison failed: {exc.__class__.__name__}"],
+            },
+        }
+
+
 def _compare_v1_v2_notes(
     original: dict[str, Any],
     improved: dict[str, Any],
