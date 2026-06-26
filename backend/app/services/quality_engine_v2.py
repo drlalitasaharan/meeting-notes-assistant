@@ -195,6 +195,39 @@ def _looks_like_rhetorical_or_answered_question(text: str) -> bool:
     )
 
 
+def _question_answered_later(question: str, source_text: str) -> bool:
+    normalized_question = _dedupe_key(question)
+    normalized_source = _dedupe_key(source_text)
+    if not normalized_question or normalized_question not in normalized_source:
+        return False
+
+    answer_text = normalized_source.split(normalized_question, 1)[1][:800]
+    if not answer_text:
+        return False
+
+    meaningful_terms = {
+        term
+        for term in normalized_question.split()
+        if len(term) > 3
+        and term not in {"should", "whether", "question", "open", "what", "when", "where"}
+    }
+    if not meaningful_terms:
+        return False
+
+    answer_markers = (
+        "decision confirmed",
+        "confirmed decision",
+        "we agreed",
+        "we decided",
+        "the team decided",
+        "final answer",
+    )
+    if not any(marker in answer_text for marker in answer_markers):
+        return False
+
+    return len(meaningful_terms.intersection(answer_text.split())) >= 2
+
+
 def _extract_open_questions_from_text(text: str) -> list[str]:
     normalized_text = _text(text)
     if not normalized_text:
@@ -211,7 +244,26 @@ def _extract_open_questions_from_text(text: str) -> list[str]:
     for pattern in marker_patterns:
         for match in re.finditer(pattern, normalized_text, flags=re.IGNORECASE):
             question = _normalize_question(match.group(1))
-            if question and not _looks_like_rhetorical_or_answered_question(question):
+            if (
+                question
+                and not _looks_like_rhetorical_or_answered_question(question)
+                and not _question_answered_later(question, normalized_text)
+            ):
+                candidates.append(question)
+
+    section_match = re.search(
+        r"\b(?:open|unresolved)\s+questions?\s*[:\-]\s*(?P<section>(?:\s*[-*]\s*[^\n?]+\?\s*)+)",
+        normalized_text,
+        flags=re.IGNORECASE,
+    )
+    if section_match:
+        for line in section_match.group("section").splitlines():
+            question = _normalize_question(re.sub(r"^\s*[-*]\s*", "", line))
+            if (
+                question
+                and not _looks_like_rhetorical_or_answered_question(question)
+                and not _question_answered_later(question, normalized_text)
+            ):
                 candidates.append(question)
 
     for sentence in re.split(r"(?<=[.!?])\s+|\n+", normalized_text):
@@ -232,7 +284,11 @@ def _extract_open_questions_from_text(text: str) -> list[str]:
         ):
             continue
         question = _normalize_question(sentence)
-        if question and not _looks_like_rhetorical_or_answered_question(question):
+        if (
+            question
+            and not _looks_like_rhetorical_or_answered_question(question)
+            and not _question_answered_later(question, normalized_text)
+        ):
             candidates.append(question)
 
     return candidates
@@ -319,9 +375,16 @@ def _looks_like_resolved_or_generic_risk(text: str) -> bool:
         r"\brisks? and (?:action items|owners|questions)\b",
         r"\brisk register\b",
     )
+    action_like_patterns = (
+        r"\b[A-Z]?[a-z]+\s+will\s+\w+",
+        r"\baction\s+for\b",
+        r"\bplease\s+\w+",
+    )
 
-    return any(re.search(pattern, normalized) for pattern in resolved_patterns) or any(
-        re.search(pattern, normalized) for pattern in generic_patterns
+    return (
+        any(re.search(pattern, normalized) for pattern in resolved_patterns)
+        or any(re.search(pattern, normalized) for pattern in generic_patterns)
+        or any(re.search(pattern, text) for pattern in action_like_patterns)
     )
 
 
@@ -334,9 +397,6 @@ def _extract_risks_from_text(text: str) -> list[str]:
     marker_patterns = (
         r"\b(?:open|known|confirmed|explicit)?\s*(?:risk|risks)\s*[:\-]\s*([^.\n]+)",
         r"\b(?:open|known|confirmed|explicit)?\s*(?:blocker|blockers)\s*[:\-]\s*([^.\n]+)",
-        r"\bthere\s+is\s+a\s+risk\s+that\s+([^.\n]+)",
-        r"\bthe\s+risk\s+is\s+([^.\n]+)",
-        r"\bthe\s+blocker\s+is\s+([^.\n]+)",
     )
 
     for pattern in marker_patterns:
@@ -344,37 +404,6 @@ def _extract_risks_from_text(text: str) -> list[str]:
             risk = _normalize_risk(match.group(1))
             if risk and not _looks_like_resolved_or_generic_risk(risk):
                 candidates.append(risk)
-
-    for sentence in re.split(r"(?<=[.!?])\s+|\n+", normalized_text):
-        sentence = sentence.strip()
-        lowered = sentence.lower()
-        if not any(
-            marker in lowered
-            for marker in (
-                "at risk",
-                "blocked by",
-                "blocker",
-                "dependency risk",
-                "may delay",
-                "could delay",
-                "waiting on",
-            )
-        ):
-            continue
-        if not any(
-            evidence in lowered
-            for evidence in (
-                "risk",
-                "block",
-                "dependency",
-                "delay",
-                "waiting on",
-            )
-        ):
-            continue
-        risk = _normalize_risk(sentence)
-        if risk and not _looks_like_resolved_or_generic_risk(risk):
-            candidates.append(risk)
 
     return candidates
 
@@ -466,9 +495,13 @@ def _looks_like_generic_action(task: str) -> bool:
 
     generic_patterns = (
         r"^follow up$",
+        r"^check\b",
+        r"^review\b",
+        r"^make sure\b",
         r"^check it$",
         r"^discuss this$",
         r"^review later$",
+        r"\bfollow up on\b",
         r"\blisten for concrete actions\b",
         r"\bmake sure the notes separate\b",
         r"\bmost important action items should include\b",
@@ -479,8 +512,14 @@ def _looks_like_generic_action(task: str) -> bool:
         r"\bfinish with a marked decision\b",
         r"\bthis recording is part of\b",
     )
+    deliverable_patterns = (
+        r"\b(?:write|draft|prepare|create|update|add|remove|submit|send|verify|confirm)\b",
+        r"\b(?:template|macro|tracker|copy|page|link|note|warning|checklist|submission|logs?)\b",
+    )
 
-    return any(re.search(pattern, normalized) for pattern in generic_patterns)
+    is_generic = any(re.search(pattern, normalized) for pattern in generic_patterns)
+    has_deliverable = any(re.search(pattern, normalized) for pattern in deliverable_patterns)
+    return is_generic and not has_deliverable
 
 
 def _make_action_item(owner: str, task: str) -> dict[str, str] | None:
@@ -536,6 +575,26 @@ def _action_item_key(item: dict[str, Any]) -> str:
     return f"{owner}:{task}"
 
 
+def _action_task_key(item: dict[str, Any]) -> str:
+    task = _dedupe_key(
+        _text(item.get("task") or item.get("action") or item.get("text") or item.get("description"))
+    )
+    task = re.sub(r"\b(?:a|an|the)\b", " ", task)
+    return re.sub(r"\s+", " ", task).strip()
+
+
+def _action_richness_score(item: dict[str, Any]) -> int:
+    score = 0
+    if _text(item.get("owner")):
+        score += 4
+    if _text(item.get("deadline")):
+        score += 3
+    if _text(item.get("priority")):
+        score += 1
+    score += min(len(_dedupe_key(_text(item.get("task"))).split()), 8)
+    return score
+
+
 def _normalize_existing_action_item(item: Any) -> dict[str, Any] | None:
     if not isinstance(item, dict):
         return None
@@ -547,6 +606,9 @@ def _normalize_existing_action_item(item: Any) -> dict[str, Any] | None:
         return None
 
     output = dict(item)
+    owner = _normalize_owner(_text(output.get("owner")))
+    if owner:
+        output["owner"] = owner
     output["task"] = task
     output["status"] = _text(output.get("status")) or "open"
     return output
@@ -557,16 +619,25 @@ def _merge_action_items(
     new_actions: list[dict[str, str]],
 ) -> list[dict[str, Any]]:
     output: list[dict[str, Any]] = []
-    seen: set[str] = set()
 
     for raw_item in [*existing, *new_actions]:
         item = _normalize_existing_action_item(raw_item)
         if not item:
             continue
-        key = _action_item_key(item)
-        if key in seen:
+        task_key = _action_task_key(item)
+        if not task_key:
             continue
-        seen.add(key)
+        duplicate_index: int | None = None
+        for index, existing_item in enumerate(output):
+            existing_key = _action_task_key(existing_item)
+            if task_key == existing_key or task_key in existing_key or existing_key in task_key:
+                duplicate_index = index
+                break
+        if duplicate_index is not None:
+            existing_item = output[duplicate_index]
+            if _action_richness_score(item) > _action_richness_score(existing_item):
+                output[duplicate_index] = item
+            continue
         output.append(item)
 
     return output
@@ -631,6 +702,15 @@ def _looks_like_non_decision(text: str) -> bool:
         r"\btentative\b",
         r"\bproposal\b",
         r"\bpossibility\b",
+        r"\bis confirmed\b",
+        r"\bwas confirmed\b",
+        r"\bready\b",
+        r"\bhealthy\b",
+        r"\bcomplete\b",
+        r"\bcompleted\b",
+        r"\bworks?\b",
+        r"\bowns?\b",
+        r"\bwill monitor\b",
         r"\bfinish with exact decisions\b",
         r"\bfinish with a marked decision\b",
         r"\bseparate confirmed decisions from general discussion\b",

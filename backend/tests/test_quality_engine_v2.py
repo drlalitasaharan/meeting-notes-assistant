@@ -755,9 +755,7 @@ def test_quality_engine_v2_deduplicates_repeated_decisions() -> None:
         "summary": "Decision: use Acjen.ai as the public URL.",
         "summary_slots": {"purpose": "Review launch URL.", "next_steps": []},
         "action_item_objects": [],
-        "decision_objects": [
-            {"text": "Use Acjen.ai as the public URL.", "confidence": 0.7}
-        ],
+        "decision_objects": [{"text": "Use Acjen.ai as the public URL.", "confidence": 0.7}],
     }
     transcript = "Confirmed decision: use Acjen.ai as the public URL."
 
@@ -859,8 +857,7 @@ def test_quality_engine_v2_decision_extraction_preserves_shadow_behavior() -> No
 def test_quality_engine_v2_decisions_keep_actions_risks_questions_and_entities_working() -> None:
     notes = {
         "summary": (
-            "Risk: pay pal checkout may delay launch. "
-            "Open question: who owns sqare validation?"
+            "Risk: pay pal checkout may delay launch. Open question: who owns sqare validation?"
         ),
         "summary_slots": {"purpose": "Review checkout.", "next_steps": []},
         "action_item_objects": [],
@@ -880,6 +877,263 @@ def test_quality_engine_v2_decisions_keep_actions_risks_questions_and_entities_w
     assert any(item["owner"] == "Sam" for item in improved["action_item_objects"])
     assert "Pay pal checkout may delay launch." in improved["summary_slots"]["risks"]
     assert "Who owns sqare validation?" in improved["summary_slots"]["open_questions"]
+    warnings = " ".join(improved["summary_slots"]["known_entity_warnings"])
+    assert "PayPal" in warnings
+    assert "Square" in warnings
+
+
+def test_quality_engine_v2_action_dedupe_keeps_richer_owner_deadline_item() -> None:
+    notes = {
+        "summary": "The team reviewed launch copy.",
+        "summary_slots": {"purpose": "Review launch copy.", "next_steps": []},
+        "action_item_objects": [
+            {
+                "task": "Prepare BetaList copy",
+                "status": "open",
+            }
+        ],
+        "decision_objects": [],
+    }
+    transcript = "Priya will prepare BetaList copy by Friday morning."
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["action_item_objects"] == [
+        {
+            "owner": "Priya",
+            "task": "Prepare BetaList copy",
+            "deadline": "Friday morning",
+            "status": "open",
+            "priority": "medium",
+        }
+    ]
+
+
+def test_quality_engine_v2_action_extraction_avoids_vague_review_check_items() -> None:
+    notes = {
+        "summary": "The team reviewed follow-up.",
+        "summary_slots": {"purpose": "Review follow-up.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = """
+    Priya will review this by Friday.
+    Sam will check it by Monday.
+    Jordan will follow up on the topic next week.
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["action_item_objects"] == []
+
+
+def test_quality_engine_v2_decision_extraction_avoids_generic_confirmed_status() -> None:
+    notes = {
+        "summary": "The team reviewed readiness.",
+        "summary_slots": {"purpose": "Review readiness.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = """
+    Decision confirmed: Sam owns weekend monitoring.
+    Decision confirmed: backend is healthy.
+    Decision confirmed: the demo is ready.
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["decision_objects"] == []
+
+
+def test_quality_engine_v2_decision_extraction_still_keeps_explicit_decisions() -> None:
+    notes = {
+        "summary": "The team reviewed launch decisions.",
+        "summary_slots": {"purpose": "Review launch decisions.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = """
+    Decision: we will launch Starter first.
+    We agreed to keep PayPal and Square both enabled.
+    The team decided to delay Pro Pilot testing.
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    decision_text = [item["text"] for item in improved["decision_objects"]]
+    assert "Launch Starter first." in decision_text
+    assert "Keep PayPal and Square both enabled." in decision_text
+    assert "Delay Pro Pilot testing." in decision_text
+
+
+def test_quality_engine_v2_risk_extraction_avoids_action_like_items() -> None:
+    notes = {
+        "summary": "The team reviewed billing follow-up.",
+        "summary_slots": {"purpose": "Review billing.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Risk: Sam will verify Square and PayPal webhook logs after the next test payment."
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["summary_slots"]["risks"] == []
+
+
+def test_quality_engine_v2_open_questions_excludes_question_answered_later() -> None:
+    notes = {
+        "summary": "The team reviewed launch URL.",
+        "summary_slots": {"purpose": "Review launch URL.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = """
+    Open question: should the public URL be Acjen.ai or the Vercel app?
+    Decision confirmed: use Acjen.ai as the public URL.
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["summary_slots"]["open_questions"] == []
+    assert {
+        "text": "Use Acjen.ai as the public URL.",
+        "confidence": 0.8,
+    } in improved["decision_objects"]
+
+
+def test_quality_engine_v2_open_questions_keeps_explicit_unresolved_question() -> None:
+    notes = {
+        "summary": "The team reviewed support operations.",
+        "summary_slots": {"purpose": "Review support.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Open question: who owns refunds when PayPal and Square results differ?"
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["summary_slots"]["open_questions"] == [
+        "Who owns refunds when PayPal and Square results differ?"
+    ]
+
+
+def test_quality_engine_v2_open_questions_excludes_rhetorical_question() -> None:
+    notes = {
+        "summary": "The team reviewed checkout readiness.",
+        "summary_slots": {"purpose": "Review checkout.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Open question: does that make sense?"
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["summary_slots"]["open_questions"] == []
+
+
+def test_quality_engine_v2_open_question_section_keeps_multiple_real_questions() -> None:
+    notes = {
+        "summary": "The team reviewed support operations.",
+        "summary_slots": {"purpose": "Review support.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = """
+    Open questions:
+    - Should the support page mention a typical processing-time range?
+    - Should the admin page show queue depth or only recent failures?
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["summary_slots"]["open_questions"] == [
+        "Should the support page mention a typical processing-time range?",
+        "Should the admin page show queue depth or only recent failures?",
+    ]
+
+
+def test_quality_engine_v2_risk_extraction_avoids_generic_concern_without_marker() -> None:
+    notes = {
+        "summary": "The team reviewed launch concerns.",
+        "summary_slots": {"purpose": "Review launch.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Pricing approval could be a concern for launch timing."
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["summary_slots"]["risks"] == []
+
+
+def test_quality_engine_v2_global_dedupe_preserves_distinct_items() -> None:
+    notes = {
+        "summary": "The team reviewed pricing.",
+        "summary_slots": {"purpose": "Review pricing.", "next_steps": []},
+        "action_item_objects": [
+            {
+                "owner": "Alex",
+                "task": "Update pricing copy",
+                "status": "open",
+            }
+        ],
+        "decision_objects": [{"text": "Use Acjen.ai as the public URL.", "confidence": 0.8}],
+    }
+    transcript = """
+    Alex will approve the pricing table by Friday.
+    Decision: we will keep Starter checkout primary.
+    Risk: Pricing approval may delay launch.
+    Open question: who approves the launch post?
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    action_tasks = [item["task"] for item in improved["action_item_objects"]]
+    decision_text = [item["text"] for item in improved["decision_objects"]]
+    assert "Update pricing copy" in action_tasks
+    assert "Approve the pricing table" in action_tasks
+    assert "Use Acjen.ai as the public URL." in decision_text
+    assert "Keep Starter checkout primary." in decision_text
+    assert improved["summary_slots"]["risks"] == ["Pricing approval may delay launch."]
+    assert improved["summary_slots"]["open_questions"] == ["Who approves the launch post?"]
+
+
+def test_quality_engine_v2_tuning_preserves_v1_and_shadow_behavior() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team reviewed launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    original = {
+        "summary": "The team reviewed launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Decision: we will launch Starter first. Priya will prepare copy by Friday."
+
+    v1_result = run_quality_engine_v2(notes, transcript, mode="v1")
+    shadow_result = run_quality_engine_v2(notes, transcript, mode="shadow")
+
+    assert v1_result["notes"] == original
+    assert shadow_result["notes"] == original
+    assert notes == original
+    assert shadow_result["metadata"]["shadow_ran"] is True
+
+
+def test_quality_engine_v2_tuning_keeps_known_entity_warnings_working() -> None:
+    notes = {
+        "summary": "Decision: we will keep pay pal and sqare support enabled.",
+        "summary_slots": {"purpose": "Review checkout.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+
     warnings = " ".join(improved["summary_slots"]["known_entity_warnings"])
     assert "PayPal" in warnings
     assert "Square" in warnings
