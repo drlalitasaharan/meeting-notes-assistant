@@ -109,6 +109,99 @@ def test_quality_engine_v2_mode_decisions() -> None:
     assert should_run_quality_engine_v2_shadow("shadow") is True
 
 
+def test_quality_engine_v2_allowlist_parsing_ignores_empty_segments() -> None:
+    from app.services.quality_engine_v2 import parse_quality_engine_v2_allowlist
+
+    assert parse_quality_engine_v2_allowlist(" Admin@Example.com, , qa@example.com ") == {
+        "admin@example.com",
+        "qa@example.com",
+    }
+
+
+def test_quality_engine_v2_email_allowlist_matching_is_case_insensitive() -> None:
+    from app.services.quality_engine_v2 import is_quality_engine_v2_email_allowlisted
+
+    assert (
+        is_quality_engine_v2_email_allowlisted(
+            " ADMIN@example.COM ",
+            "qa@example.com, admin@EXAMPLE.com",
+        )
+        is True
+    )
+
+
+def test_quality_engine_v2_email_allowlist_uses_env_when_value_not_supplied(
+    monkeypatch,
+) -> None:
+    from app.services.quality_engine_v2 import is_quality_engine_v2_email_allowlisted
+
+    monkeypatch.setenv("MEETIQ_QEV2_ALLOWLIST_EMAILS", "internal@example.com")
+
+    assert is_quality_engine_v2_email_allowlisted("internal@example.com") is True
+    assert is_quality_engine_v2_email_allowlisted("customer@example.com") is False
+
+
+def test_resolve_notes_engine_mode_defaults_to_v1_when_env_unset(monkeypatch) -> None:
+    from app.services.quality_engine_v2 import resolve_notes_engine_mode_for_user
+
+    monkeypatch.delenv("MEETIQ_QEV2_ALLOWLIST_EMAILS", raising=False)
+
+    assert resolve_notes_engine_mode_for_user(None, "admin@example.com") == "v1"
+
+
+def test_resolve_notes_engine_mode_keeps_non_allowlisted_email_on_v1() -> None:
+    from app.services.quality_engine_v2 import resolve_notes_engine_mode_for_user
+
+    assert (
+        resolve_notes_engine_mode_for_user(
+            "v1",
+            "customer@example.com",
+            "admin@example.com",
+        )
+        == "v1"
+    )
+
+
+def test_resolve_notes_engine_mode_routes_allowlisted_email_to_v2() -> None:
+    from app.services.quality_engine_v2 import resolve_notes_engine_mode_for_user
+
+    assert (
+        resolve_notes_engine_mode_for_user(
+            "v1",
+            "admin@example.com",
+            "qa@example.com, admin@example.com",
+        )
+        == "v2"
+    )
+
+
+def test_resolve_notes_engine_mode_missing_email_stays_v1() -> None:
+    from app.services.quality_engine_v2 import resolve_notes_engine_mode_for_user
+
+    assert resolve_notes_engine_mode_for_user("v1", None, "admin@example.com") == "v1"
+
+
+def test_resolve_notes_engine_mode_preserves_shadow_and_explicit_global_v2() -> None:
+    from app.services.quality_engine_v2 import resolve_notes_engine_mode_for_user
+
+    assert (
+        resolve_notes_engine_mode_for_user(
+            "shadow",
+            "customer@example.com",
+            "admin@example.com",
+        )
+        == "shadow"
+    )
+    assert (
+        resolve_notes_engine_mode_for_user(
+            "v2",
+            "customer@example.com",
+            "admin@example.com",
+        )
+        == "v2"
+    )
+
+
 def test_run_quality_engine_v2_preserves_v1_output_in_v1_mode() -> None:
     from app.services.quality_engine_v2 import run_quality_engine_v2
 

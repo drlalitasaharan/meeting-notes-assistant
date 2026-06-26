@@ -1,4 +1,7 @@
-from app.services.persisted_action_contract import _finalize_persisted_action_contract, _is_low_precision_task, _is_low_precision_task, _is_low_precision_task
+from app.services.persisted_action_contract import (
+    _finalize_persisted_action_contract,
+    _is_low_precision_task,
+)
 
 
 def test_finalizes_action_contract_from_malformed_action_object():
@@ -399,6 +402,27 @@ def test_restores_publishable_actions_from_recovered_objects_after_normalization
     ]
 
 
+def test_process_meeting_resolves_qev2_only_for_allowlisted_owner(monkeypatch):
+    from types import SimpleNamespace
+
+    from app.jobs.process_meeting import _resolve_notes_engine_mode_for_meeting
+
+    allowlisted_meeting = SimpleNamespace(
+        user=SimpleNamespace(email="Admin@Example.com"),
+    )
+    normal_meeting = SimpleNamespace(
+        user=SimpleNamespace(email="customer@example.com"),
+    )
+    anonymous_meeting = SimpleNamespace(user=None)
+
+    monkeypatch.delenv("NOTES_ENGINE", raising=False)
+    monkeypatch.setenv("MEETIQ_QEV2_ALLOWLIST_EMAILS", " admin@example.com ")
+
+    assert _resolve_notes_engine_mode_for_meeting(allowlisted_meeting) == "v2"
+    assert _resolve_notes_engine_mode_for_meeting(normal_meeting) == "v1"
+    assert _resolve_notes_engine_mode_for_meeting(anonymous_meeting) == "v1"
+
+
 def test_finalizes_uses_chunk_recovery_when_existing_actions_are_sparse():
     cleaned_action_items, action_item_objects, summary_slots = _finalize_persisted_action_contract(
         cleaned_action_items=[],
@@ -455,6 +479,7 @@ def test_finalizes_does_not_need_chunk_recovery_when_existing_actions_are_enough
     assert len(action_item_objects) == 3
     assert len(cleaned_action_items) == 3
     assert summary_slots is not None
+
 
 def test_dedupe_preserves_chunk_recovery_metadata_from_action_objects():
     cleaned_action_items, action_item_objects, summary_slots = _finalize_persisted_action_contract(
@@ -539,22 +564,10 @@ def test_finalizes_filters_vague_non_committal_actions_without_dropping_concrete
 def test_low_precision_filter_blocks_drop_it_false_positive():
     assert _is_low_precision_task("Help if you drop it")
     assert _is_low_precision_task("And it will help if you drop it")
-    assert _is_low_precision_task("Do something with voice recognition or not, but anyway, these are different options that we have")
+    assert _is_low_precision_task(
+        "Do something with voice recognition or not, but anyway, these are different options that we have"
+    )
     assert not _is_low_precision_task("Take minutes and put updated minutes in the shared folder")
-    assert not _is_low_precision_task("Save the smartboard or session output into shared project documents as a JPEG")
-
-
-def test_low_precision_filter_blocks_drop_it_false_positive():
-    assert _is_low_precision_task("Help if you drop it")
-    assert _is_low_precision_task("And it will help if you drop it")
-    assert _is_low_precision_task("Do something with voice recognition or not, but anyway, these are different options that we have")
-    assert not _is_low_precision_task("Take minutes and put updated minutes in the shared folder")
-    assert not _is_low_precision_task("Save the smartboard or session output into shared project documents as a JPEG")
-
-
-def test_low_precision_filter_blocks_drop_it_false_positive():
-    assert _is_low_precision_task("Help if you drop it")
-    assert _is_low_precision_task("And it will help if you drop it")
-    assert _is_low_precision_task("Do something with voice recognition or not, but anyway, these are different options that we have")
-    assert not _is_low_precision_task("Take minutes and put updated minutes in the shared folder")
-    assert not _is_low_precision_task("Save the smartboard or session output into shared project documents as a JPEG")
+    assert not _is_low_precision_task(
+        "Save the smartboard or session output into shared project documents as a JPEG"
+    )
