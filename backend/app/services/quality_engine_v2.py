@@ -978,6 +978,120 @@ def should_run_quality_engine_v2_shadow(mode: object) -> bool:
     return normalize_notes_engine_mode(mode) == "shadow"
 
 
+def _as_text_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    output: list[str] = []
+    for item in value:
+        text = _text(item)
+        if text:
+            output.append(text)
+    return output
+
+
+def _render_markdown_section(title: str, body: str | list[str]) -> str:
+    if isinstance(body, list):
+        items = [_text(item) for item in body if _text(item)]
+        if not items:
+            return ""
+        rendered_body = "\n".join(
+            item if item.startswith(("- ", "- [ ] ")) else f"- {item}" for item in items
+        )
+    else:
+        rendered_body = _text(body)
+        if not rendered_body:
+            return ""
+
+    return f"## {title}\n\n{rendered_body}"
+
+
+def _render_action_item_markdown(action_item: Any) -> str:
+    if not isinstance(action_item, dict):
+        return ""
+
+    task = _text(
+        action_item.get("task")
+        or action_item.get("action")
+        or action_item.get("text")
+        or action_item.get("description")
+    )
+    if not task:
+        return ""
+
+    owner = _text(action_item.get("owner"))
+    deadline = _text(action_item.get("deadline") or action_item.get("due_date"))
+    status = _text(action_item.get("status")) or "open"
+
+    label = f"**{owner}** — {task}" if owner else task
+    details = [f"status: {status}"]
+    if deadline:
+        details.insert(0, f"deadline: {deadline}")
+    return f"- [ ] {label} _({', '.join(details)})_"
+
+
+def _render_decision_markdown(decision: Any) -> str:
+    if isinstance(decision, dict):
+        return _text(decision.get("text") or decision.get("decision"))
+    return _text(decision)
+
+
+def render_quality_engine_v2_markdown(notes: dict[str, Any]) -> str:
+    """Render structured v2 notes as clean Markdown.
+
+    This helper is not wired into production rendering. Callers must explicitly
+    opt into v2 behavior before using it.
+    """
+
+    summary_slots = notes.get("summary_slots")
+    if not isinstance(summary_slots, dict):
+        summary_slots = {}
+
+    sections: list[str] = []
+    sections.append(_render_markdown_section("Purpose", _text(summary_slots.get("purpose"))))
+    sections.append(_render_markdown_section("Summary", _text(notes.get("summary"))))
+    sections.append(_render_markdown_section("Key Points", _as_text_list(notes.get("key_points"))))
+
+    decision_objects = notes.get("decision_objects")
+    if not isinstance(decision_objects, list):
+        decision_objects = []
+    decisions = [
+        rendered
+        for rendered in (_render_decision_markdown(item) for item in decision_objects)
+        if rendered
+    ]
+    sections.append(_render_markdown_section("Decisions", decisions))
+
+    action_items = notes.get("action_item_objects")
+    if not isinstance(action_items, list):
+        action_items = []
+    actions = [
+        rendered
+        for rendered in (_render_action_item_markdown(item) for item in action_items)
+        if rendered
+    ]
+    sections.append(_render_markdown_section("Action Items", actions))
+    sections.append(
+        _render_markdown_section(
+            "Open Questions",
+            _as_text_list(summary_slots.get("open_questions")),
+        )
+    )
+    sections.append(
+        _render_markdown_section(
+            "Risks / Blockers",
+            _as_text_list(summary_slots.get("risks")),
+        )
+    )
+    sections.append(
+        _render_markdown_section(
+            "Next Steps",
+            _as_text_list(summary_slots.get("next_steps")),
+        )
+    )
+
+    return "\n\n".join(section for section in sections if section).strip() + "\n"
+
+
 def run_quality_engine_v2(
     notes: dict[str, Any],
     transcript_text: str | None,

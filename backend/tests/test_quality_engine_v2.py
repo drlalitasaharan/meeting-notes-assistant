@@ -1137,3 +1137,134 @@ def test_quality_engine_v2_tuning_keeps_known_entity_warnings_working() -> None:
     warnings = " ".join(improved["summary_slots"]["known_entity_warnings"])
     assert "PayPal" in warnings
     assert "Square" in warnings
+
+
+def test_quality_engine_v2_markdown_renderer_renders_all_sections() -> None:
+    from app.services.quality_engine_v2 import render_quality_engine_v2_markdown
+
+    notes = {
+        "summary": "The team aligned on launch readiness.",
+        "summary_slots": {
+            "purpose": "Review launch readiness.",
+            "open_questions": ["Who monitors first weekend signups?"],
+            "risks": ["Webhook activation failure may block paid upload limits."],
+            "next_steps": ["Run production smoke test."],
+        },
+        "key_points": ["Starter checkout remains the primary public plan."],
+        "decision_objects": [{"text": "Launch as controlled early access."}],
+        "action_item_objects": [
+            {
+                "owner": "Sam",
+                "task": "Run a production smoke test",
+                "deadline": "noon tomorrow",
+                "status": "open",
+            }
+        ],
+    }
+
+    markdown = render_quality_engine_v2_markdown(notes)
+
+    assert "## Purpose\n\nReview launch readiness." in markdown
+    assert "## Summary\n\nThe team aligned on launch readiness." in markdown
+    assert "## Key Points\n\n- Starter checkout remains the primary public plan." in markdown
+    assert "## Decisions\n\n- Launch as controlled early access." in markdown
+    assert (
+        "## Action Items\n\n"
+        "- [ ] **Sam** — Run a production smoke test _(deadline: noon tomorrow, status: open)_"
+    ) in markdown
+    assert "## Open Questions\n\n- Who monitors first weekend signups?" in markdown
+    assert (
+        "## Risks / Blockers\n\n"
+        "- Webhook activation failure may block paid upload limits."
+    ) in markdown
+    assert "## Next Steps\n\n- Run production smoke test." in markdown
+
+
+def test_quality_engine_v2_markdown_renderer_skips_empty_sections_cleanly() -> None:
+    from app.services.quality_engine_v2 import render_quality_engine_v2_markdown
+
+    notes = {
+        "summary": "The team aligned on launch readiness.",
+        "summary_slots": {"purpose": "Review launch readiness."},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    markdown = render_quality_engine_v2_markdown(notes)
+
+    assert markdown == (
+        "## Purpose\n\nReview launch readiness.\n\n"
+        "## Summary\n\nThe team aligned on launch readiness.\n"
+    )
+    assert "## Decisions" not in markdown
+    assert "## Action Items" not in markdown
+    assert "None" not in markdown
+
+
+def test_quality_engine_v2_markdown_renderer_formats_action_without_optional_fields() -> None:
+    from app.services.quality_engine_v2 import render_quality_engine_v2_markdown
+
+    notes = {
+        "summary_slots": {},
+        "action_item_objects": [{"task": "Prepare launch copy"}],
+        "decision_objects": [],
+    }
+
+    markdown = render_quality_engine_v2_markdown(notes)
+
+    assert markdown == "## Action Items\n\n- [ ] Prepare launch copy _(status: open)_\n"
+
+
+def test_quality_engine_v2_markdown_renderer_formats_decision_objects() -> None:
+    from app.services.quality_engine_v2 import render_quality_engine_v2_markdown
+
+    notes = {
+        "summary_slots": {},
+        "action_item_objects": [],
+        "decision_objects": [
+            {"text": "Use Acjen.ai as the public URL."},
+            {"decision": "Keep Starter checkout primary."},
+        ],
+    }
+
+    markdown = render_quality_engine_v2_markdown(notes)
+
+    assert markdown == (
+        "## Decisions\n\n"
+        "- Use Acjen.ai as the public URL.\n"
+        "- Keep Starter checkout primary.\n"
+    )
+
+
+def test_quality_engine_v2_markdown_renderer_preserves_v1_and_shadow_behavior() -> None:
+    from app.services.quality_engine_v2 import (
+        render_quality_engine_v2_markdown,
+        run_quality_engine_v2,
+    )
+
+    notes = {
+        "summary": "The team reviewed launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = "Decision: we will launch Starter first."
+
+    v1_result = run_quality_engine_v2(notes, transcript, mode="v1")
+    shadow_result = run_quality_engine_v2(notes, transcript, mode="shadow")
+    markdown = render_quality_engine_v2_markdown(
+        {
+            "summary": "The team reviewed launch.",
+            "summary_slots": {"purpose": "Review launch."},
+        }
+    )
+
+    assert v1_result["notes"] == notes
+    assert shadow_result["notes"] == notes
+    assert markdown.startswith("## Purpose")
+
+
+def test_quality_engine_v2_renderer_does_not_enable_v2_by_default() -> None:
+    from app.services.quality_engine_v2 import normalize_notes_engine_mode
+
+    assert normalize_notes_engine_mode(None) == "v1"
