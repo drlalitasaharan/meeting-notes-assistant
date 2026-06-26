@@ -28,6 +28,19 @@ def _as_list(value: Any) -> list[Any]:
     return [value]
 
 
+def _merged_list(*values: Any) -> list[Any]:
+    output: list[Any] = []
+    seen: set[str] = set()
+    for value in values:
+        for item in _as_list(value):
+            key = repr(item)
+            if key in seen:
+                continue
+            seen.add(key)
+            output.append(item)
+    return output
+
+
 def _summary_slots(notes: dict[str, Any]) -> dict[str, Any]:
     slots = notes.get("summary_slots")
     return slots if isinstance(slots, dict) else {}
@@ -40,22 +53,21 @@ def _evaluator_payload(notes: dict[str, Any]) -> dict[str, Any]:
     slots = _summary_slots(payload)
 
     action_objects = _as_list(payload.get("action_item_objects"))
-    if action_objects and not payload.get("actions"):
-        payload["actions"] = action_objects
-    if action_objects and not payload.get("action_items"):
-        payload["action_items"] = action_objects
+    if action_objects:
+        payload["actions"] = _merged_list(payload.get("actions"), action_objects)
+        payload["action_items"] = _merged_list(payload.get("action_items"), action_objects)
 
     decision_objects = _as_list(payload.get("decision_objects"))
-    if decision_objects and not payload.get("decisions"):
-        payload["decisions"] = decision_objects
+    if decision_objects:
+        payload["decisions"] = _merged_list(payload.get("decisions"), decision_objects)
 
     risks = _as_list(slots.get("risks"))
-    if risks and not payload.get("risks"):
-        payload["risks"] = risks
+    if risks:
+        payload["risks"] = _merged_list(payload.get("risks"), risks)
 
     open_questions = _as_list(slots.get("open_questions"))
-    if open_questions and not payload.get("open_questions"):
-        payload["open_questions"] = open_questions
+    if open_questions:
+        payload["open_questions"] = _merged_list(payload.get("open_questions"), open_questions)
 
     if slots.get("purpose") and not payload.get("purpose"):
         payload["purpose"] = slots["purpose"]

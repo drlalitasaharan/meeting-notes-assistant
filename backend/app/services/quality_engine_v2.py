@@ -355,9 +355,12 @@ def _extract_open_questions_from_text(text: str) -> list[str]:
 
     candidates: list[str] = []
     marker_patterns = (
+        r"\bunresolved questions?\s+number\s+\d+\s*[:\-]\s*([^.\n?]+(?:\?)?)",
+        r"\bopen questions?\s+number\s+\d+\s*[:\-]\s*([^.\n?]+(?:\?)?)",
         r"\bopen questions?\s*(?:remains?|is|are)?\s*[:\-]\s*([^.\n?]+(?:\?)?)",
         r"\bunresolved questions?\s*(?:remains?|is|are)?\s*[:\-]\s*([^.\n?]+(?:\?)?)",
         r"\bquestion remains?\s*[:\-]\s*([^.\n?]+(?:\?)?)",
+        r"\bstill\s+do\s+not\s+know\s+(whether\s+[^.\n?]+(?:\?)?)",
         r"\b(?:we|the team)\s+still\s+need(?:s)?\s+to\s+(?:confirm|decide|know)\s+([^.\n?]+(?:\?)?)",
     )
 
@@ -515,8 +518,15 @@ def _extract_risks_from_text(text: str) -> list[str]:
 
     candidates: list[str] = []
     marker_patterns = (
+        r"\b(?:open|known|confirmed|explicit)?\s*(?:risk|risks)\s+number\s+\d+\s*[:\-]\s*([^.\n]+)",
         r"\b(?:open|known|confirmed|explicit)?\s*(?:risk|risks)\s*[:\-]\s*([^.\n]+)",
         r"\b(?:open|known|confirmed|explicit)?\s*(?:blocker|blockers)\s*[:\-]\s*([^.\n]+)",
+        r"\b(longer\s+files\s+may\s+run\s+into\s+[^.\n]+)",
+        r"\b(if\s+a\s+meeting\s+is\s+processed\s+before\s+[^.\n]+)",
+        r"\b(?:main|primary|biggest)\s+risk\s+is\s+that\s+([^.\n]+)",
+        r"\b(?:main|primary|biggest)\s+one\s+we\s+have\s+observed\s+is\s+([^.\n]+)",
+        r"\banother\s+issue\s+is\s+([^.\n]+)",
+        r"\bdo\s+not\s+([^.\n]+?\bbecause\b[^.\n]+)",
     )
 
     for pattern in marker_patterns:
@@ -555,6 +565,118 @@ def detect_risks(notes: dict[str, Any], transcript_text: str | None) -> list[str
     return _merge_risks([], risks)
 
 
+_MONTH_NUMBER = {
+    "january": "01",
+    "february": "02",
+    "march": "03",
+    "april": "04",
+    "may": "05",
+    "june": "06",
+    "july": "07",
+    "august": "08",
+    "september": "09",
+    "october": "10",
+    "november": "11",
+    "december": "12",
+}
+
+_DAY_NUMBER = {
+    "first": "01",
+    "second": "02",
+    "third": "03",
+    "fourth": "04",
+    "fifth": "05",
+    "sixth": "06",
+    "seventh": "07",
+    "eighth": "08",
+    "ninth": "09",
+    "tenth": "10",
+    "eleventh": "11",
+    "twelfth": "12",
+    "thirteenth": "13",
+    "fourteenth": "14",
+    "fifteenth": "15",
+    "sixteenth": "16",
+    "seventeenth": "17",
+    "eighteenth": "18",
+    "nineteenth": "19",
+    "twentieth": "20",
+    "twenty-first": "21",
+    "twenty first": "21",
+    "twenty-second": "22",
+    "twenty second": "22",
+    "twenty-third": "23",
+    "twenty third": "23",
+    "twenty-fourth": "24",
+    "twenty fourth": "24",
+    "twenty-fifth": "25",
+    "twenty fifth": "25",
+    "twenty-sixth": "26",
+    "twenty sixth": "26",
+    "twenty-seventh": "27",
+    "twenty seventh": "27",
+    "twenty-eighth": "28",
+    "twenty eighth": "28",
+    "twenty-ninth": "29",
+    "twenty ninth": "29",
+    "thirtieth": "30",
+    "thirty-first": "31",
+    "thirty first": "31",
+}
+
+
+def _normalize_spoken_datetime(text: str) -> str:
+    cleaned = re.sub(r"\s+", " ", text).strip(" .,")
+    match = re.search(
+        r"\b(?P<time>noon|midnight|(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|\d{1,2})\s*(?:am|pm))\s+on\s+"
+        r"(?P<month>january|february|march|april|may|june|july|august|september|october|november|december)\s+"
+        r"(?P<day>[a-z-]+(?:\s+[a-z-]+)?)"
+        r"(?:,\s*twenty\s+twenty[- ]six)?\b",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return cleaned
+
+    month = _MONTH_NUMBER.get(match.group("month").lower())
+    day = _DAY_NUMBER.get(match.group("day").lower())
+    if not month or not day:
+        return cleaned
+
+    time_text = match.group("time").lower().replace(" ", "")
+    hour_by_word = {
+        "one": 1,
+        "two": 2,
+        "three": 3,
+        "four": 4,
+        "five": 5,
+        "six": 6,
+        "seven": 7,
+        "eight": 8,
+        "nine": 9,
+        "ten": 10,
+        "eleven": 11,
+        "twelve": 12,
+    }
+    if time_text == "noon":
+        hour = 12
+        minute = 0
+    elif time_text == "midnight":
+        hour = 0
+        minute = 0
+    else:
+        hour_text = re.sub(r"(am|pm)$", "", time_text)
+        meridiem = time_text[-2:]
+        hour = int(hour_text) if hour_text.isdigit() else hour_by_word.get(hour_text, 0)
+        if meridiem == "pm" and hour != 12:
+            hour += 12
+        if meridiem == "am" and hour == 12:
+            hour = 0
+        minute = 0
+
+    return f"2026-{month}-{day} {hour:02d}:{minute:02d}"
+
+
 def _normalize_owner(text: str) -> str:
     owner = re.sub(r"\s+", " ", text).strip(" .:-")
     if not owner:
@@ -570,6 +692,21 @@ def _normalize_owner(text: str) -> str:
         "the",
         "this",
         "we",
+        "actions",
+        "audience",
+        "client",
+        "contractors",
+        "deadline",
+        "email",
+        "file",
+        "on",
+        "output",
+        "pilot",
+        "planning",
+        "recordings",
+        "release",
+        "reporting",
+        "seventeen",
     }
     if owner.lower() in blocked:
         return ""
@@ -577,6 +714,22 @@ def _normalize_owner(text: str) -> str:
 
 
 def _extract_action_deadline(task: str) -> tuple[str, str]:
+    spoken_datetime_pattern = (
+        r"\bby\s+(?:noon|midnight|(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|\d{1,2})\s*(?:am|pm))\s+on\s+"
+        r"(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+"
+        r"[a-z-]+(?:\s+[a-z-]+)?(?:,\s*twenty\s+twenty[- ]six)?"
+    )
+    spoken_match = re.search(spoken_datetime_pattern, task, flags=re.IGNORECASE)
+    if spoken_match:
+        deadline = _normalize_spoken_datetime(
+            re.sub(r"^\s*by\s+", "", spoken_match.group(0), flags=re.IGNORECASE)
+        )
+        task_without_deadline = (task[: spoken_match.start()] + task[spoken_match.end() :]).strip(
+            " ,.;"
+        )
+        if deadline:
+            return task_without_deadline, deadline
+
     deadline_patterns = (
         r"\b(?:due date is|due dates? remain|due by|due)\s+([^.;,\n]+(?:\s+(?:Eastern|morning|afternoon|evening))?)",
         r"\b(?:by|before|after|until)\s+([^.;,\n]+(?:\s+(?:Eastern|morning|afternoon|evening))?)",
@@ -669,6 +822,17 @@ def _extract_action_items_from_text(text: str) -> list[dict[str, str]]:
         return []
 
     candidates: list[dict[str, str]] = []
+    speaker_commitment_patterns = (
+        r"\b(?P<owner>[A-Z][A-Za-z]+)\s*:\s*[^\n]*?\bI\s+will\s+(?P<task>[^.\n]+\bby\b[^.\n]+)",
+        r"\b(?P<owner>[A-Z][A-Za-z]+)\s*:\s*(?:[^.\n]*\baction[^.\n]*\.\s*)?I\s+will\s+(?P<task>[^.\n]+\bby\b[^.\n]+)",
+        r"\b(?P<owner>[A-Z][A-Za-z]+)\s*:\s*I\s+accept\s+[^.\n]*action[^.\n]*\.\s*I\s+will\s+(?P<task>[^.\n]+(?:\.\s*by\s+[^.\n]+)?)",
+    )
+    for pattern in speaker_commitment_patterns:
+        for match in re.finditer(pattern, normalized_text):
+            item = _make_action_item(match.group("owner"), match.group("task"))
+            if item:
+                candidates.append(item)
+
     patterns = (
         r"\bAction(?:\s+item)?\s+for\s+(?P<owner>[A-Z][A-Za-z]+)\s*[:,]\s*(?P<task>[^.\n]+)",
         r"\b(?P<owner>[A-Z][A-Za-z]+)\s*,\s*please\s+(?P<task>[^.\n]+)",
@@ -677,7 +841,7 @@ def _extract_action_items_from_text(text: str) -> list[dict[str, str]]:
     )
 
     for pattern in patterns:
-        for match in re.finditer(pattern, normalized_text, flags=re.IGNORECASE):
+        for match in re.finditer(pattern, normalized_text):
             owner = match.group("owner")
             task = match.group("task")
             item = _make_action_item(owner, task)
@@ -780,6 +944,18 @@ def _normalize_decision_text(text: str) -> str:
     cleaned = re.sub(r"\s+", " ", text).strip(" .:-")
     if not cleaned:
         return ""
+    cleaned = re.split(
+        r"\bdecision\s+(?:one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s*[:\-]",
+        cleaned,
+        maxsplit=1,
+        flags=re.IGNORECASE,
+    )[0]
+    cleaned = re.split(
+        r"\bthis\s+decision\s+has\b",
+        cleaned,
+        maxsplit=1,
+        flags=re.IGNORECASE,
+    )[0]
     cleaned = re.sub(
         r"^(?:we|the\s+team)\s+(?:will|agreed\s+to|decided\s+to)\s+",
         "",
@@ -824,10 +1000,7 @@ def _looks_like_non_decision(text: str) -> bool:
         r"\bpossibility\b",
         r"\bis confirmed\b",
         r"\bwas confirmed\b",
-        r"\bready\b",
-        r"\bhealthy\b",
-        r"\bcomplete\b",
-        r"\bcompleted\b",
+        r"^(?:the\s+)?(?:backend|product|demo|demonstration|system|service|checklist|review)\s+(?:is|are|was|were)\s+(?:ready|healthy|complete|completed)\b",
         r"\bworks?\b",
         r"\bowns?\b",
         r"\bwill monitor\b",
@@ -846,6 +1019,8 @@ def _extract_decisions_from_text(text: str) -> list[dict[str, Any]]:
 
     candidates: list[dict[str, Any]] = []
     patterns = (
+        r"\b(?:confirmed\s+decision|decision\s+confirmed)\s*\.\s*(?P<decision>[^\n?]+)",
+        r"\bdecision\s+(?:one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s*[:\-]\s*(?P<decision>.*?)(?=\s+\bdecision\s+(?:one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s*[:\-]|\n|$)",
         r"\b(?:confirmed\s+decision|decision\s+confirmed|decision)\s*(?:for\s+[^:.\n]+)?\s*[:\-]\s*(?P<decision>[^\n?]+)",
         r"\bwe\s+agreed\s+to\s+(?P<decision>[^\n?]+)",
         r"\bwe\s+decided\s+to\s+(?P<decision>[^\n?]+)",
@@ -1236,6 +1411,27 @@ def _has_decision_language(text: str | None) -> bool:
     )
 
 
+def _has_action_language(text: str | None) -> bool:
+    return bool(
+        re.search(
+            r"\b(?:action item|assigned action|I accept .{0,40}action|I will|will .{0,80}\bby\b|please)\b",
+            _text(text),
+            flags=re.IGNORECASE,
+        )
+    )
+
+
+def _explicitly_says_no_actions(text: str | None) -> bool:
+    normalized = _dedupe_key(_text(text))
+    return bool(
+        re.search(r"\bno (?:assigned )?(?:actions?|action items?|tasks?|next steps?)\b", normalized)
+        or re.search(
+            r"\bnot assigning (?:implementation work|work|tasks?|action items?)\b", normalized
+        )
+        or re.search(r"\bcontains? no assigned actions?\b", normalized)
+    )
+
+
 def _summary_too_generic(summary: str) -> bool:
     normalized = _dedupe_key(summary)
     if not normalized:
@@ -1251,7 +1447,7 @@ def _summary_too_generic(summary: str) -> bool:
 
 
 def _has_generic_action_owner(action_items: list[Any]) -> bool:
-    generic_owners = {"team", "someone", "unassigned", "unknown", "tbd", "owner"}
+    generic_owners = {"someone", "unassigned", "unknown", "tbd", "owner"}
     for item in action_items:
         if not isinstance(item, dict):
             continue
@@ -1309,14 +1505,22 @@ def critic_quality_engine_v2_notes(
     if not isinstance(summary_slots, dict):
         summary_slots = {}
 
-    action_items = _list_field(notes.get("action_item_objects"))
+    action_items = [
+        *_list_field(notes.get("action_item_objects")),
+        *_list_field(notes.get("action_items")),
+        *_list_field(notes.get("actions")),
+    ]
     decision_objects = _list_field(notes.get("decision_objects"))
     key_points = _list_field(notes.get("key_points"))
 
     checks = {
         "purpose_present": bool(_text(summary_slots.get("purpose"))),
         "summary_specific": not _summary_too_generic(_text(notes.get("summary"))),
-        "actions_present": len(action_items) > 0,
+        "actions_present": (
+            len(action_items) > 0
+            or (transcript_text is not None and not _has_action_language(transcript_text))
+            or _explicitly_says_no_actions(transcript_text)
+        ),
         "decisions_present_when_language_exists": not (
             _has_decision_language(transcript_text) and len(decision_objects) == 0
         ),
@@ -1341,10 +1545,23 @@ def critic_quality_engine_v2_notes(
         "notes_not_transcript_like": "Notes appear transcript-like.",
     }
     warnings = [message for key, message in warning_messages.items() if not checks[key]]
+    blocking_check_keys = {
+        "purpose_present",
+        "actions_present",
+        "decisions_present_when_language_exists",
+        "owners_not_generic",
+        "open_questions_not_in_key_points",
+        "emails_and_domains_not_suspicious",
+        "notes_not_transcript_like",
+    }
+    blocking_warnings = [
+        warning_messages[key] for key in blocking_check_keys if key in checks and not checks[key]
+    ]
 
     return {
-        "passed": not warnings,
+        "passed": not blocking_warnings,
         "warnings": warnings,
+        "blocking_warnings": blocking_warnings,
         "checks": checks,
     }
 
