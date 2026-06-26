@@ -105,6 +105,10 @@ def apply_quality_engine_v2(
     decision_objects = improved.get("decision_objects")
     if not isinstance(decision_objects, list):
         decision_objects = []
+    decision_objects = _merge_decision_objects(
+        decision_objects,
+        detect_decisions(improved, transcript_text),
+    )
 
     improved["decision_objects"] = decision_objects
     improved["action_item_objects"] = action_items
@@ -579,6 +583,148 @@ def detect_action_items(
     for source in sources:
         actions.extend(_extract_action_items_from_text(source))
     return _merge_action_items([], actions)
+
+
+def _normalize_decision_text(text: str) -> str:
+    cleaned = re.sub(r"\s+", " ", text).strip(" .:-")
+    if not cleaned:
+        return ""
+    cleaned = re.sub(
+        r"^(?:we|the\s+team)\s+(?:will|agreed\s+to|decided\s+to)\s+",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"^to\s+",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = cleaned.strip(" .:-")
+    if not cleaned:
+        return ""
+    cleaned = cleaned[0].upper() + cleaned[1:]
+    return cleaned if cleaned.endswith((".", "!", "?")) else f"{cleaned}."
+
+
+def _looks_like_non_decision(text: str) -> bool:
+    normalized = _dedupe_key(text)
+    if not normalized:
+        return True
+
+    blocked_patterns = (
+        r"\bmaybe\b",
+        r"\bwe discussed\b",
+        r"\bdiscussed in this meeting\b",
+        r"\bone option is\b",
+        r"\boption is\b",
+        r"\bshould we\b",
+        r"\bshould the\b",
+        r"\bno decision\b",
+        r"\bdecision yet\b",
+        r"\bneed to decide\b",
+        r"\bstill need to decide\b",
+        r"\bopen question\b",
+        r"\bunresolved question\b",
+        r"\bnot decided\b",
+        r"\btentative\b",
+        r"\bproposal\b",
+        r"\bpossibility\b",
+        r"\bfinish with exact decisions\b",
+        r"\bfinish with a marked decision\b",
+        r"\bseparate confirmed decisions from general discussion\b",
+    )
+
+    return any(re.search(pattern, normalized) for pattern in blocked_patterns)
+
+
+def _extract_decisions_from_text(text: str) -> list[dict[str, Any]]:
+    normalized_text = _text(text)
+    if not normalized_text:
+        return []
+
+    candidates: list[dict[str, Any]] = []
+    patterns = (
+        r"\b(?:confirmed\s+decision|decision\s+confirmed|decision)\s*(?:for\s+[^:.\n]+)?\s*[:\-]\s*(?P<decision>[^\n?]+)",
+        r"\bwe\s+agreed\s+to\s+(?P<decision>[^\n?]+)",
+        r"\bwe\s+decided\s+to\s+(?P<decision>[^\n?]+)",
+        r"\bthe\s+team\s+decided\s+to\s+(?P<decision>[^\n?]+)",
+    )
+
+    for pattern in patterns:
+        for match in re.finditer(pattern, normalized_text, flags=re.IGNORECASE):
+            decision = _normalize_decision_text(match.group("decision"))
+            if decision and not _looks_like_non_decision(decision):
+                candidates.append({"text": decision, "confidence": 0.8})
+
+    return candidates
+
+
+def _decision_key(item: dict[str, Any]) -> str:
+    return _dedupe_key(_text(item.get("text") or item.get("decision")))
+
+
+def _decision_similarity_key(item: dict[str, Any]) -> str:
+    key = _decision_key(item)
+    key = re.sub(r"\b(?:a|an|the)\b", " ", key)
+    return re.sub(r"\s+", " ", key).strip()
+
+
+def _normalize_existing_decision(item: Any) -> dict[str, Any] | None:
+    if not isinstance(item, dict):
+        return None
+
+    text = _text(item.get("text") or item.get("decision"))
+    if not text:
+        return None
+
+    output = dict(item)
+    output["text"] = text
+    return output
+
+
+def _merge_decision_objects(
+    existing: list[Any],
+    new_decisions: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    output: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    similarity_keys: list[str] = []
+
+    for raw_item in [*existing, *new_decisions]:
+        item = _normalize_existing_decision(raw_item)
+        if not item:
+            continue
+        text = _normalize_decision_text(_text(item.get("text")))
+        if not text or _looks_like_non_decision(text):
+            continue
+        item["text"] = text
+        key = _decision_key(item)
+        similarity_key = _decision_similarity_key(item)
+        if key in seen or any(
+            similarity_key in existing_key or existing_key in similarity_key
+            for existing_key in similarity_keys
+        ):
+            continue
+        seen.add(key)
+        similarity_keys.append(similarity_key)
+        output.append(item)
+
+    return output
+
+
+def detect_decisions(
+    notes: dict[str, Any],
+    transcript_text: str | None,
+) -> list[dict[str, Any]]:
+    """Extract explicit confirmed decisions without inferring from discussion."""
+
+    sources = [_text(transcript_text), _note_text_blob(notes)]
+    decisions: list[dict[str, Any]] = []
+    for source in sources:
+        decisions.extend(_extract_decisions_from_text(source))
+    return _merge_decision_objects([], decisions)
 
 
 def _iter_note_text_values(value: Any) -> list[str]:
