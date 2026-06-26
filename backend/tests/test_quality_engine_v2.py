@@ -1833,3 +1833,131 @@ def test_quality_engine_v2_shadow_mode_includes_critic_without_changing_user_not
     assert result["metadata"]["shadow_ran"] is True
     assert "critic" in result["metadata"]
     assert "v2_notes" not in result
+
+
+def test_quality_engine_v2_meeting_44_style_duplicate_risks_are_collapsed() -> None:
+    notes = {
+        "summary": "The team reviewed demo readiness.",
+        "summary_slots": {
+            "purpose": "Review demo readiness.",
+            "next_steps": [],
+            "risks": [
+                "Longer files may run into the current timeout.",
+                "Longer files may run into the current time out.",
+                "If a meeting is processed before the raw media path is attached, the work can throw an error because the meeting has no raw media path.",
+                "If a meeting is processed before the raw media path is attached, the worker can throw an error because the meeting has no raw media path.",
+            ],
+        },
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+
+    assert improved["summary_slots"]["risks"] == [
+        "Longer files may run into the current timeout.",
+        "If a meeting is processed before the raw media path is attached, the worker can throw an error because the meeting has no raw media path.",
+    ]
+
+
+def test_quality_engine_v2_meeting_44_style_timing_log_actions_are_collapsed() -> None:
+    notes = {
+        "summary": "The team reviewed worker observability.",
+        "summary_slots": {"purpose": "Review worker observability.", "next_steps": []},
+        "action_item_objects": [
+            {
+                "owner": "Team",
+                "task": "Add stage timing logs to the worker output",
+                "status": "open",
+            },
+            {
+                "owner": "Team",
+                "task": "Add staged timing logs so that each major processing step has an elapsed duration in the worker logs",
+                "status": "open",
+            },
+        ],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+    timing_actions = [
+        item for item in improved["action_item_objects"] if "timing logs" in item["task"].lower()
+    ]
+
+    assert len(timing_actions) == 1
+
+
+def test_quality_engine_v2_meeting_44_style_backup_demo_actions_are_reduced() -> None:
+    notes = {
+        "summary": "The team reviewed demo readiness.",
+        "summary_slots": {"purpose": "Review demo readiness.", "next_steps": []},
+        "action_item_objects": [
+            {
+                "owner": "Team",
+                "task": "Keep one backup meeting already processed before any live demo",
+                "status": "open",
+            },
+            {
+                "owner": "Team",
+                "task": "Keep meeting seventeen as the primary backup demo example",
+                "status": "open",
+            },
+            {
+                "owner": "Lalita",
+                "task": "Package the final demo commands into one short runbook",
+                "status": "open",
+            },
+        ],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+    backup_actions = [
+        item
+        for item in improved["action_item_objects"]
+        if "backup" in item["task"].lower() and "demo" in item["task"].lower()
+    ]
+
+    assert len(backup_actions) == 1
+    assert any(
+        item["task"] == "Package the final demo commands into one short runbook"
+        for item in improved["action_item_objects"]
+    )
+
+
+def test_quality_engine_v2_normalizes_lolita_owner_only_when_lalita_context_exists() -> None:
+    notes = {
+        "summary": "Lalita reviewed demo readiness.",
+        "summary_slots": {"purpose": "Review demo readiness.", "next_steps": []},
+        "action_item_objects": [
+            {
+                "owner": "Lolita",
+                "task": "Package the final demo commands into one short runbook",
+                "status": "open",
+            }
+        ],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "Lalita will send a short recap.")
+
+    assert improved["action_item_objects"][0]["owner"] == "Lalita"
+
+
+def test_quality_engine_v2_does_not_normalize_lolita_without_lalita_context() -> None:
+    notes = {
+        "summary": "The team reviewed demo readiness.",
+        "summary_slots": {"purpose": "Review demo readiness.", "next_steps": []},
+        "action_item_objects": [
+            {
+                "owner": "Lolita",
+                "task": "Package the final demo commands into one short runbook",
+                "status": "open",
+            }
+        ],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+
+    assert improved["action_item_objects"][0]["owner"] == "Lolita"
