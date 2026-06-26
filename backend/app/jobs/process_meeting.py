@@ -39,6 +39,7 @@ from app.services.processing_observability import (
     mark_failed,
 )
 from app.services.quality_engine_v2 import (
+    is_quality_engine_v2_email_allowlisted,
     resolve_notes_engine_mode_for_user,
     run_quality_engine_v2,
 )
@@ -157,11 +158,81 @@ def _meeting_owner_email(meeting: Meeting) -> str:
         return ""
 
 
-def _resolve_notes_engine_mode_for_meeting(meeting: Meeting) -> str:
-    return resolve_notes_engine_mode_for_user(
-        os.getenv("NOTES_ENGINE", "v1"),
-        _meeting_owner_email(meeting),
+def _mask_email_for_logs(email: str) -> str:
+    value = str(email or "").strip().lower()
+    if "@" not in value:
+        return ""
+    local, domain = value.split("@", 1)
+    if not local or not domain:
+        return ""
+    visible = local[:2] if len(local) > 2 else local[:1]
+    return f"{visible}***@{domain}"
+
+
+def _quality_engine_routing_context(meeting: Meeting) -> dict[str, Any]:
+    owner_email = _meeting_owner_email(meeting)
+    global_mode = os.getenv("NOTES_ENGINE", "v1")
+    allowlist_value = os.getenv("MEETIQ_QEV2_ALLOWLIST_EMAILS", "")
+    owner_allowlisted = is_quality_engine_v2_email_allowlisted(
+        owner_email,
+        allowlist_value,
     )
+    return {
+        "owner_email": owner_email,
+        "owner_email_masked": _mask_email_for_logs(owner_email),
+        "global_notes_engine_mode": global_mode,
+        "qev2_allowlist_configured": bool(allowlist_value.strip()),
+        "qev2_owner_allowlisted": owner_allowlisted,
+        "resolved_notes_engine_mode": resolve_notes_engine_mode_for_user(
+            global_mode,
+            owner_email,
+            allowlist_value,
+        ),
+    }
+
+
+def _resolve_notes_engine_mode_for_meeting(meeting: Meeting) -> str:
+    return str(_quality_engine_routing_context(meeting)["resolved_notes_engine_mode"])
+
+
+def _quality_engine_result_log_fields(metadata: dict[str, Any]) -> dict[str, Any]:
+    critic = metadata.get("critic")
+    critic_passed = None
+    critic_warning_count = None
+    if isinstance(critic, dict):
+        critic_passed = critic.get("passed")
+        warnings = critic.get("warnings")
+        critic_warning_count = len(warnings) if isinstance(warnings, list) else 0
+
+    return {
+        "quality_engine_result_mode": metadata.get("mode"),
+        "quality_engine_v2_applied": bool(metadata.get("applied")),
+        "quality_engine_v2_fallback_used": bool(metadata.get("fallback_used")),
+        "quality_engine_v2_critic_passed": critic_passed,
+        "quality_engine_v2_warning_count": critic_warning_count,
+    }
+
+
+def _model_version_with_quality_engine_suffix(
+    model_version: object,
+    metadata: dict[str, Any],
+) -> str | None:
+    base = str(model_version or "").strip()
+    if metadata.get("mode") != "v2":
+        return base or None
+
+    if metadata.get("fallback_used"):
+        suffix = "+qev2-fallback"
+    elif metadata.get("applied"):
+        suffix = "+qev2"
+    else:
+        return base or None
+
+    if not base:
+        base = "unknown"
+    if base.endswith(("+qev2", "+qev2-fallback")):
+        return base
+    return f"{base}{suffix}"
 
 
 def process_meeting(meeting_id: str) -> None:
@@ -404,7 +475,19 @@ def process_meeting(meeting_id: str) -> None:
         normalized_notes = _restore_publishable_actions_from_objects(normalized_notes)
         normalized_notes = apply_risk_action_owner_consistency(normalized_notes)
 
-        notes_engine_mode = _resolve_notes_engine_mode_for_meeting(meeting)
+        quality_engine_routing = _quality_engine_routing_context(meeting)
+        notes_engine_mode = str(quality_engine_routing["resolved_notes_engine_mode"])
+        log.info(
+            "process_meeting: quality engine routing",
+            extra={
+                **log_extra,
+                "owner_email_masked": quality_engine_routing["owner_email_masked"],
+                "global_notes_engine_mode": quality_engine_routing["global_notes_engine_mode"],
+                "qev2_allowlist_configured": quality_engine_routing["qev2_allowlist_configured"],
+                "qev2_owner_allowlisted": quality_engine_routing["qev2_owner_allowlisted"],
+                "resolved_notes_engine_mode": notes_engine_mode,
+            },
+        )
         commit_stage(
             db,
             meeting,
@@ -417,6 +500,16 @@ def process_meeting(meeting_id: str) -> None:
             transcript_text,
             mode=notes_engine_mode,
         )
+        quality_engine_metadata = quality_engine_result.get("metadata", {})
+        if not isinstance(quality_engine_metadata, dict):
+            quality_engine_metadata = {}
+        log.info(
+            "process_meeting: quality engine result",
+            extra={
+                **log_extra,
+                **_quality_engine_result_log_fields(quality_engine_metadata),
+            },
+        )
         commit_stage(
             db,
             meeting,
@@ -424,7 +517,7 @@ def process_meeting(meeting_id: str) -> None:
             status="PROCESSING",
             completed_key="quality_engine_completed_at",
         )
-        if quality_engine_result.get("metadata", {}).get("mode") == "v2":
+        if quality_engine_metadata.get("mode") == "v2":
             normalized_notes = quality_engine_result["notes"]
 
         for action_obj in normalized_notes.get("action_item_objects", []) or []:
@@ -475,7 +568,10 @@ def process_meeting(meeting_id: str) -> None:
             action_item_objects=normalized_notes["action_item_objects"],
             decisions=normalized_notes["decisions"],
             decision_objects=normalized_notes["decision_objects"],
-            model_version=notes_dict.get("model_version"),
+            model_version=_model_version_with_quality_engine_suffix(
+                notes_dict.get("model_version"),
+                quality_engine_metadata,
+            ),
         )
         db.query(MeetingNotes).filter(MeetingNotes.meeting_id == meeting.id).delete(
             synchronize_session=False

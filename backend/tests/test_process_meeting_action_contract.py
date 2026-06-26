@@ -405,7 +405,12 @@ def test_restores_publishable_actions_from_recovered_objects_after_normalization
 def test_process_meeting_resolves_qev2_only_for_allowlisted_owner(monkeypatch):
     from types import SimpleNamespace
 
-    from app.jobs.process_meeting import _resolve_notes_engine_mode_for_meeting
+    from app.jobs.process_meeting import (
+        _model_version_with_quality_engine_suffix,
+        _quality_engine_result_log_fields,
+        _quality_engine_routing_context,
+        _resolve_notes_engine_mode_for_meeting,
+    )
 
     allowlisted_meeting = SimpleNamespace(
         user=SimpleNamespace(email="Admin@Example.com"),
@@ -421,6 +426,54 @@ def test_process_meeting_resolves_qev2_only_for_allowlisted_owner(monkeypatch):
     assert _resolve_notes_engine_mode_for_meeting(allowlisted_meeting) == "v2"
     assert _resolve_notes_engine_mode_for_meeting(normal_meeting) == "v1"
     assert _resolve_notes_engine_mode_for_meeting(anonymous_meeting) == "v1"
+
+    allowlisted_context = _quality_engine_routing_context(allowlisted_meeting)
+    assert allowlisted_context["owner_email_masked"] == "ad***@example.com"
+    assert allowlisted_context["global_notes_engine_mode"] == "v1"
+    assert allowlisted_context["qev2_allowlist_configured"] is True
+    assert allowlisted_context["qev2_owner_allowlisted"] is True
+    assert allowlisted_context["resolved_notes_engine_mode"] == "v2"
+
+    normal_context = _quality_engine_routing_context(normal_meeting)
+    assert normal_context["qev2_owner_allowlisted"] is False
+    assert normal_context["resolved_notes_engine_mode"] == "v1"
+
+    assert (
+        _model_version_with_quality_engine_suffix(
+            "local-summary-v3",
+            {"mode": "v2", "applied": True, "fallback_used": False},
+        )
+        == "local-summary-v3+qev2"
+    )
+    assert (
+        _model_version_with_quality_engine_suffix(
+            "local-summary-v3",
+            {"mode": "v2", "applied": False, "fallback_used": True},
+        )
+        == "local-summary-v3+qev2-fallback"
+    )
+    assert (
+        _model_version_with_quality_engine_suffix(
+            "local-summary-v3",
+            {"mode": "v1", "applied": False, "fallback_used": False},
+        )
+        == "local-summary-v3"
+    )
+
+    assert _quality_engine_result_log_fields(
+        {
+            "mode": "v2",
+            "applied": True,
+            "fallback_used": False,
+            "critic": {"passed": True, "warnings": []},
+        }
+    ) == {
+        "quality_engine_result_mode": "v2",
+        "quality_engine_v2_applied": True,
+        "quality_engine_v2_fallback_used": False,
+        "quality_engine_v2_critic_passed": True,
+        "quality_engine_v2_warning_count": 0,
+    }
 
 
 def test_finalizes_uses_chunk_recovery_when_existing_actions_are_sparse():
