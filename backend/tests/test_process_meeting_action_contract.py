@@ -624,3 +624,81 @@ def test_low_precision_filter_blocks_drop_it_false_positive():
     assert not _is_low_precision_task(
         "Save the smartboard or session output into shared project documents as a JPEG"
     )
+
+
+def test_qev2_action_precision_cleanup_filters_decision_and_key_point_leakage():
+    from app.jobs.process_meeting import _apply_qev2_action_precision_cleanup
+
+    notes = {
+        "summary_slots": {
+            "purpose": "Confirm confirm proposal scope, pricing status, demo readiness, client follow-up, risks, and action items.",
+            "next_steps": [],
+        },
+        "action_items": [],
+        "action_item_objects": [
+            {"owner": "Priya", "task": "Update the proposal language today"},
+            {"owner": "Priya", "task": "Send the edited version to Alex by 3pm"},
+            {"owner": "Jordan", "task": "Confirm pricing with finance by 11am tomorrow"},
+            {
+                "owner": "Morgan",
+                "task": "Draft the client follow-up email by tomorrow afternoon with the pilot timeline, success criteria, and a proposed next meeting date",
+            },
+            {
+                "owner": "Morgan",
+                "task": "Upload one approved sample meeting before the client call I will clean the demo account",
+            },
+            {"owner": "Priya", "task": "Upload the approved sample meeting file by Monday morning"},
+            {"owner": "Alex", "task": "Run the internal demo dry run on Monday afternoon"},
+            {
+                "owner": "Alex",
+                "task": "Check upload, processing, structured notes, markdown export, and non-meeting safety",
+            },
+            {
+                "owner": "Morgan",
+                "task": "Draft a short onboarding note with upload guidance, including clear audio, structured meeting format, and expected output",
+            },
+            {
+                "owner": "Team",
+                "task": "The client demo will use one clean sample meeting file, and one prepared structured notes example",
+            },
+            {
+                "owner": "Team",
+                "task": "We decided on phase two custom reporting, concise follow-up messaging, Tuesday as the target client meeting, a clean demo account, and honest positioning",
+            },
+            {
+                "owner": "Priya",
+                "task": "Key action owners are Priya for proposal, and demo cleanup, Jordan for pricing, Morgan for client email, and onboarding guidance, and Alex for final review, and dry run",
+            },
+            {
+                "owner": "Jordan",
+                "task": "Request finance approval, and escalate by noon, if there is no answer",
+            },
+        ],
+    }
+
+    cleaned = _apply_qev2_action_precision_cleanup(notes)
+
+    assert cleaned["summary_slots"]["purpose"].startswith("Confirm proposal scope")
+
+    tasks = [item["task"] for item in cleaned["action_item_objects"]]
+
+    assert "Update the proposal language today" in tasks
+    assert "Send the edited version to Alex by 3pm" in tasks
+    assert "Confirm pricing with finance by 11am tomorrow" in tasks
+    assert "Upload one approved sample meeting before the client call" in tasks
+    assert (
+        "Upload one approved sample meeting before the client call I will clean the demo account"
+        not in tasks
+    )
+    assert "Upload the approved sample meeting file by Monday morning" in tasks
+    assert "Run the internal demo dry run on Monday afternoon" in tasks
+    assert (
+        "Check upload, processing, structured notes, markdown export, and non-meeting safety"
+        in tasks
+    )
+    assert "Request finance approval, and escalate by noon, if there is no answer" in tasks
+
+    joined = "\n".join(tasks)
+    assert "The client demo will use" not in joined
+    assert "We decided on phase two" not in joined
+    assert "Key action owners are" not in joined

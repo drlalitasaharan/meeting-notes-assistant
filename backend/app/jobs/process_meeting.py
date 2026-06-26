@@ -235,6 +235,112 @@ def _model_version_with_quality_engine_suffix(
     return f"{base}{suffix}"
 
 
+def _normalize_qev2_purpose_text(value: object) -> str:
+    purpose = re.sub(r"\s+", " ", str(value or "")).strip()
+    purpose = re.sub(r"\b(confirm)(?:\s+\1\b)+", r"\1", purpose, flags=re.IGNORECASE)
+    return purpose
+
+
+_QEV2_ACTION_LEAK_PREFIXES = (
+    "we decided",
+    "the team decided",
+    "the team aligned on",
+    "the client demo will use",
+    "key action owners are",
+    "today we need to confirm",
+    "today confirm proposal scope",
+)
+
+
+def _qev2_action_task_text(item: Any) -> str:
+    if not isinstance(item, dict):
+        return ""
+    return str(
+        item.get("task") or item.get("action") or item.get("text") or item.get("description") or ""
+    ).strip()
+
+
+def _looks_like_qev2_action_leak(task: object) -> bool:
+    normalized = re.sub(r"\s+", " ", str(task or "")).strip(" .:-").lower()
+    if not normalized:
+        return True
+    return any(normalized.startswith(prefix) for prefix in _QEV2_ACTION_LEAK_PREFIXES)
+
+
+def _clean_qev2_action_task(task: object) -> str:
+    cleaned = re.sub(r"\s+", " ", str(task or "")).strip(" .:-")
+    if not cleaned:
+        return ""
+
+    cleaned = re.split(
+        r"\.\s+(?:Priya|Jordan|Morgan|Alex|Team|We|Decision\s+\d+|Final recap)\b",
+        cleaned,
+        maxsplit=1,
+        flags=re.IGNORECASE,
+    )[0].strip(" .:-")
+
+    cleaned = re.sub(
+        r"\s+\bI\s+will\s+clean\s+the\s+demo\s+account\b\.?$",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    ).strip(" .:-")
+
+    return cleaned
+
+
+def _apply_qev2_action_precision_cleanup(notes: dict[str, Any]) -> dict[str, Any]:
+    """Remove obvious decision/key-point leakage from QEv2 action output."""
+
+    output = dict(notes)
+
+    summary_slots = output.get("summary_slots")
+    if isinstance(summary_slots, dict):
+        summary_slots = dict(summary_slots)
+        if summary_slots.get("purpose"):
+            summary_slots["purpose"] = _normalize_qev2_purpose_text(summary_slots.get("purpose"))
+        output["summary_slots"] = summary_slots
+
+    action_objects = output.get("action_item_objects")
+    if not isinstance(action_objects, list):
+        return output
+
+    cleaned_objects: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    for raw_item in action_objects:
+        if not isinstance(raw_item, dict):
+            continue
+
+        task = _clean_qev2_action_task(_qev2_action_task_text(raw_item))
+        if not task or _looks_like_qev2_action_leak(task):
+            continue
+
+        key = re.sub(r"[^a-z0-9]+", " ", task.lower()).strip()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+
+        item = dict(raw_item)
+        item["task"] = task
+        owner = str(item.get("owner") or "Team").strip() or "Team"
+        item["owner"] = owner
+        item["text"] = f"{owner}: {task}"
+        cleaned_objects.append(item)
+
+    output["action_item_objects"] = cleaned_objects
+
+    if cleaned_objects:
+        output["action_items"] = align_action_items_with_objects(
+            output.get("action_items") or [],
+            cleaned_objects,
+        )
+    else:
+        output["action_items"] = []
+
+    return output
+
+
 def process_meeting(meeting_id: str) -> None:
     """
     Golden-path meeting processing job.
@@ -519,6 +625,7 @@ def process_meeting(meeting_id: str) -> None:
         )
         if quality_engine_metadata.get("mode") == "v2":
             normalized_notes = quality_engine_result["notes"]
+            normalized_notes = _apply_qev2_action_precision_cleanup(normalized_notes)
 
         for action_obj in normalized_notes.get("action_item_objects", []) or []:
             if not isinstance(action_obj, dict):
