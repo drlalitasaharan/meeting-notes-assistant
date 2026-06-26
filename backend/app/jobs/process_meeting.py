@@ -291,7 +291,13 @@ def process_meeting(meeting_id: str) -> None:
         )
 
         current_stage = "finalizing"
-        commit_stage(db, meeting, current_stage, status="PROCESSING")
+        commit_stage(
+            db,
+            meeting,
+            current_stage,
+            status="PROCESSING",
+            started_key="finalization_started_at",
+        )
         cleaned_action_items = clean_action_items(notes_dict.get("action_items") or [])
         action_item_objects = notes_dict.get("action_item_objects") or []
 
@@ -381,10 +387,24 @@ def process_meeting(meeting_id: str) -> None:
         normalized_notes = apply_risk_action_owner_consistency(normalized_notes)
 
         notes_engine_mode = os.getenv("NOTES_ENGINE", "v1")
+        commit_stage(
+            db,
+            meeting,
+            current_stage,
+            status="PROCESSING",
+            started_key="quality_engine_started_at",
+        )
         quality_engine_result = run_quality_engine_v2(
             normalized_notes,
             transcript_text,
             mode=notes_engine_mode,
+        )
+        commit_stage(
+            db,
+            meeting,
+            current_stage,
+            status="PROCESSING",
+            completed_key="quality_engine_completed_at",
         )
         if quality_engine_result.get("metadata", {}).get("mode") == "v2":
             normalized_notes = quality_engine_result["notes"]
@@ -443,6 +463,14 @@ def process_meeting(meeting_id: str) -> None:
             synchronize_session=False
         )
         db.add(notes_row)
+
+        commit_stage(
+            db,
+            meeting,
+            current_stage,
+            status="PROCESSING",
+            completed_key="finalization_completed_at",
+        )
 
         # 7) Mark meeting as DONE
         mark_completed(meeting)

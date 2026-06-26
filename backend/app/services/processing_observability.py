@@ -29,6 +29,10 @@ TIMING_KEYS = {
     "transcription_completed_at",
     "notes_generation_started_at",
     "notes_generation_completed_at",
+    "quality_engine_started_at",
+    "quality_engine_completed_at",
+    "finalization_started_at",
+    "finalization_completed_at",
     "processing_completed_at",
     "processing_failed_at",
 }
@@ -184,12 +188,14 @@ def serialize_admin_processing(meeting: Meeting) -> dict[str, Any]:
     timings = _timings(meeting)
     started = timings.get("upload_received_at") or timings.get("media_validation_started_at")
     finished = timings.get("processing_completed_at") or timings.get("processing_failed_at")
+    stage_durations = _stage_durations_seconds(timings)
     return {
         **serialize_progress(meeting),
         "processing_error_code": getattr(meeting, "processing_error_code", None),
         "processing_diagnostics": getattr(meeting, "processing_diagnostics", None),
         "processing_attempts": int(getattr(meeting, "processing_attempts", 0) or 0),
         "processing_timings": timings,
+        "processing_stage_durations_seconds": stage_durations,
         "processing_started_at": started,
         "processing_finished_at": finished,
         "processing_total_seconds": _total_seconds(started, finished),
@@ -205,6 +211,42 @@ def _total_seconds(started: Any, finished: Any) -> float | None:
     except ValueError:
         return None
     return round((finish_dt - start_dt).total_seconds(), 3)
+
+
+def _stage_durations_seconds(timings: dict[str, Any]) -> dict[str, float]:
+    pairs = {
+        "media_validation_seconds": (
+            "media_validation_started_at",
+            "media_validation_completed_at",
+        ),
+        "audio_conversion_seconds": (
+            "audio_conversion_started_at",
+            "audio_conversion_completed_at",
+        ),
+        "transcription_seconds": (
+            "transcription_started_at",
+            "transcription_completed_at",
+        ),
+        "notes_generation_seconds": (
+            "notes_generation_started_at",
+            "notes_generation_completed_at",
+        ),
+        "quality_engine_seconds": (
+            "quality_engine_started_at",
+            "quality_engine_completed_at",
+        ),
+        "finalization_seconds": (
+            "finalization_started_at",
+            "finalization_completed_at",
+        ),
+    }
+
+    durations: dict[str, float] = {}
+    for label, (started_key, completed_key) in pairs.items():
+        seconds = _total_seconds(timings.get(started_key), timings.get(completed_key))
+        if seconds is not None:
+            durations[label] = seconds
+    return durations
 
 
 def commit_stage(db: Session, meeting: Meeting, stage: str, **kwargs: Any) -> Meeting:
