@@ -702,3 +702,103 @@ def test_qev2_action_precision_cleanup_filters_decision_and_key_point_leakage():
     assert "The client demo will use" not in joined
     assert "We decided on phase two" not in joined
     assert "Key action owners are" not in joined
+
+
+def test_qev2_cleanup_polishes_key_points_decisions_and_generic_owners():
+    from app.jobs.process_meeting import _apply_qev2_action_precision_cleanup
+
+    notes = {
+        "summary_slots": {
+            "purpose": "Confirm proposal scope, pricing status, demo readiness, client follow-up, risks, and action items.",
+            "next_steps": [],
+        },
+        "key_points": [
+            "Key action owners are Priya for proposal and demo cleanup, Jordan for pricing, Morgan for client email and onboarding guidance, and Alex for final review and dry run",
+            "We decided on phase two custom reporting, concise follow-up messaging, Tuesday as the target client meeting, a clean demo account, and honest positioning",
+            "Draft the client follow-up email by tomorrow afternoon with the pilot timeline, success criteria, and a proposed next meeting date",
+            "Today we need to confirm proposal scope, pricing status, demo readiness, client follow-up, risks, and action items",
+        ],
+        "decisions": [
+            "We decided on phase two custom reporting, concise follow-up messaging, Tuesday as the target client meeting, a clean demo account, and honest positioning",
+            "Custom reporting will stay out of the first month, and will be positioned as phase two after the first 30 days of pilot usage",
+            "The client demo will use one clean sample meeting file and one prepared structured notes example",
+            "We should remove old test files and upload one approved sample meeting before the client call",
+            "I will clean the demo account and upload the approved sample meeting file by Monday morning",
+        ],
+        "decision_objects": [
+            {
+                "text": "Custom reporting will stay out of the first month, and will be positioned as phase two after the first 30 days of pilot usage"
+            },
+            {
+                "text": "We should remove old test files and upload one approved sample meeting before the client call"
+            },
+            {
+                "text": "I will clean the demo account and upload the approved sample meeting file by Monday morning"
+            },
+        ],
+        "action_items": [],
+        "action_item_objects": [
+            {"owner": "Priya", "task": "Update the proposal language today"},
+            {"owner": "Priya", "task": "Send the edited version to Alex by 3 p.m"},
+            {"owner": "Jordan", "task": "Confirm pricing with finance by 11 a.m. tomorrow"},
+            {
+                "owner": "Morgan",
+                "task": "Draft the client follow-up email by tomorrow afternoon with the pilot timeline, success criteria, and a proposed next meeting date",
+            },
+            {
+                "owner": "Morgan",
+                "task": "Upload one approved sample meeting before the client call",
+            },
+            {"owner": "Priya", "task": "Upload the approved sample meeting file by Monday morning"},
+            {"owner": "Alex", "task": "Run the internal demo dry run on Monday afternoon"},
+            {
+                "owner": "Team",
+                "task": "Check upload, processing, structured notes, markdown export, and non-meeting safety",
+            },
+            {
+                "owner": "Morgan",
+                "task": "Draft a short onboarding note with upload guidance, including clear audio, structured meeting format, and expected output",
+            },
+            {
+                "owner": "We",
+                "task": "Remove old test files and upload one approved sample meeting before the client call",
+            },
+            {"owner": "Jordan", "task": "Request finance approval"},
+        ],
+    }
+
+    cleaned = _apply_qev2_action_precision_cleanup(notes)
+
+    key_points_text = "\n".join(cleaned["key_points"])
+    assert "Key action owners are" not in key_points_text
+    assert "We decided on phase two" not in key_points_text
+    assert "Today we need to confirm" not in key_points_text
+    assert "Draft the client follow-up email" in key_points_text
+
+    decisions_text = "\n".join(cleaned["decisions"])
+    assert "Custom reporting will stay out of the first month" in decisions_text
+    assert "The client demo will use one clean sample meeting file" in decisions_text
+    assert "We should remove old test files" not in decisions_text
+    assert "I will clean the demo account" not in decisions_text
+
+    decision_objects_text = "\n".join(item["text"] for item in cleaned["decision_objects"])
+    assert "Custom reporting will stay out of the first month" in decision_objects_text
+    assert "We should remove old test files" not in decision_objects_text
+    assert "I will clean the demo account" not in decision_objects_text
+
+    actions = cleaned["action_item_objects"]
+    owner_by_task = {item["task"]: item["owner"] for item in actions}
+
+    assert owner_by_task["Update the proposal language today"] == "Priya"
+    assert owner_by_task["Confirm pricing with finance by 11 a.m. tomorrow"] == "Jordan"
+    assert (
+        owner_by_task[
+            "Check upload, processing, structured notes, markdown export, and non-meeting safety"
+        ]
+        == "Alex"
+    )
+    assert (
+        "Remove old test files and upload one approved sample meeting before the client call"
+        not in owner_by_task
+    )
+    assert owner_by_task["Request finance approval"] == "Jordan"
