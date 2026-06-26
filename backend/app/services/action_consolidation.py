@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 
-from backend.app.services.chunk_action_extractor import CandidateAction
+from app.services.chunk_action_extractor import CandidateAction
 
 _CONFIDENCE_RANK = {
     "low": 1,

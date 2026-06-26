@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import asdict
 
-from backend.app.services.action_consolidation import consolidate_candidate_actions
-from backend.app.services.chunk_action_extractor import (
+from app.services.action_consolidation import consolidate_candidate_actions
+from app.services.chunk_action_extractor import (
     CandidateAction,
     extract_candidate_actions,
 )

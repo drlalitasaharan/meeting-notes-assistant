@@ -1268,3 +1268,97 @@ def test_quality_engine_v2_renderer_does_not_enable_v2_by_default() -> None:
     from app.services.quality_engine_v2 import normalize_notes_engine_mode
 
     assert normalize_notes_engine_mode(None) == "v1"
+
+
+def test_quality_engine_v2_admin_comparison_keeps_v1_default() -> None:
+    from app.services.quality_engine_v2 import normalize_notes_engine_mode
+
+    assert normalize_notes_engine_mode(None) == "v1"
+    assert normalize_notes_engine_mode("") == "v1"
+
+
+def test_quality_engine_v2_shadow_comparison_does_not_alter_user_notes() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team reviewed launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    original = {
+        "summary": "The team reviewed launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v2(
+        notes,
+        "Decision: we will launch Starter first. Priya will prepare copy by Friday.",
+        mode="shadow",
+    )
+
+    assert result["notes"] == original
+    assert notes == original
+    assert result["metadata"]["shadow_ran"] is True
+    assert "v2_notes" not in result
+    assert "v2_markdown" not in result
+
+
+def test_quality_engine_v2_comparison_output_not_exposed_to_normal_users() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team reviewed launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v2(
+        notes,
+        "Decision: we will launch Starter first.",
+        mode="v1",
+    )
+
+    assert result == {
+        "notes": notes,
+        "metadata": {
+            "applied": False,
+            "mode": "v1",
+            "fallback_used": False,
+            "warnings": [],
+        },
+    }
+    assert "comparison" not in result
+    assert "v2_notes" not in result
+    assert "v2_markdown" not in result
+
+
+def test_quality_engine_v2_admin_comparison_path_is_explicit() -> None:
+    from app.services.quality_engine_v2 import build_quality_engine_v2_admin_comparison
+
+    notes = {
+        "summary": "The team reviewed launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = build_quality_engine_v2_admin_comparison(
+        notes,
+        "Decision: we will launch Starter first. Priya will prepare copy by Friday.",
+    )
+
+    assert result["admin_only"] is True
+    assert result["user_notes"] == notes
+    assert result["metadata"] == {
+        "mode": "admin_comparison",
+        "applied_to_user_notes": False,
+        "fallback_used": False,
+    }
+    assert result["v2_notes"] != notes
+    assert "Launch Starter first." in result["v2_markdown"]
+    assert result["comparison"]["improved_action_count"] == 1
+    assert result["comparison"]["improved_decision_count"] == 1
