@@ -1,0 +1,132 @@
+{
+  "case_ids": [
+    "S01",
+    "M01",
+    "M04",
+    "M05",
+    "L01"
+  ],
+  "failed_cases": 5,
+  "fixture_dir": "backend/tests/fixtures/meeting_regression",
+  "gate": "quality_engine_v2_regression",
+  "min_score": 0.7,
+  "notes_engine_default": "v1",
+  "passed": false,
+  "passed_cases": 0,
+  "results": [
+    {
+      "case_id": "S01",
+      "checks": {
+        "action_recall_not_regressed": true,
+        "context_recall_not_regressed": true,
+        "critic_passed": false,
+        "decision_recall_not_regressed": true,
+        "overall_score_not_regressed": true,
+        "risk_recall_not_regressed": true,
+        "v1_default_preserved": true,
+        "v2_output_generated": true,
+        "v2_score_meets_threshold": true
+      },
+      "expected_path": "backend/tests/fixtures/meeting_regression/S01_controlled_short.expected.json",
+      "passed": false,
+      "transcript_path": "backend/tests/fixtures/meeting_regression/S01_controlled_short.txt",
+      "v1_score": 0.8824,
+      "v2_score": 0.8824,
+      "warnings": [
+        "Quality Engine v2 critic reported warnings."
+      ]
+    },
+    {
+      "case_id": "M01",
+      "checks": {
+        "action_recall_not_regressed": true,
+        "context_recall_not_regressed": true,
+        "critic_passed": false,
+        "decision_recall_not_regressed": true,
+        "overall_score_not_regressed": true,
+        "risk_recall_not_regressed": true,
+        "v1_default_preserved": true,
+        "v2_output_generated": true,
+        "v2_score_meets_threshold": false
+      },
+      "expected_path": "backend/tests/fixtures/meeting_regression/M01_controlled_29min.expected.json",
+      "passed": false,
+      "transcript_path": "backend/tests/fixtures/meeting_regression/M01_controlled_29min.txt",
+      "v1_score": 0.4117,
+      "v2_score": 0.647,
+      "warnings": [
+        "Quality Engine v2 score is below the regression threshold.",
+        "Quality Engine v2 critic reported warnings."
+      ]
+    },
+    {
+      "case_id": "M04",
+      "checks": {
+        "action_recall_not_regressed": true,
+        "context_recall_not_regressed": true,
+        "critic_passed": false,
+        "decision_recall_not_regressed": true,
+        "overall_score_not_regressed": true,
+        "risk_recall_not_regressed": true,
+        "v1_default_preserved": true,
+        "v2_output_generated": true,
+        "v2_score_meets_threshold": true
+      },
+      "expected_path": "backend/tests/fixtures/meeting_regression/M04_decisions_only.expected.json",
+      "passed": false,
+      "transcript_path": "backend/tests/fixtures/meeting_regression/M04_decisions_only.txt",
+      "v1_score": 0.75,
+      "v2_score": 0.75,
+      "warnings": [
+        "Quality Engine v2 critic reported warnings."
+      ]
+    },
+    {
+      "case_id": "M05",
+      "checks": {
+        "action_recall_not_regressed": true,
+        "context_recall_not_regressed": true,
+        "critic_passed": false,
+        "decision_recall_not_regressed": true,
+        "overall_score_not_regressed": true,
+        "risk_recall_not_regressed": true,
+        "v1_default_preserved": true,
+        "v2_output_generated": true,
+        "v2_score_meets_threshold": false
+      },
+      "expected_path": "backend/tests/fixtures/meeting_regression/M05_risks_open_questions.expected.json",
+      "passed": false,
+      "transcript_path": "backend/tests/fixtures/meeting_regression/M05_risks_open_questions.txt",
+      "v1_score": 0.1765,
+      "v2_score": 0.1765,
+      "warnings": [
+        "Quality Engine v2 score is below the regression threshold.",
+        "Quality Engine v2 critic reported warnings."
+      ]
+    },
+    {
+      "case_id": "L01",
+      "checks": {
+        "action_recall_not_regressed": true,
+        "context_recall_not_regressed": true,
+        "critic_passed": false,
+        "decision_recall_not_regressed": true,
+        "overall_score_not_regressed": true,
+        "risk_recall_not_regressed": true,
+        "v1_default_preserved": true,
+        "v2_output_generated": true,
+        "v2_score_meets_threshold": true
+      },
+      "expected_path": "backend/tests/fixtures/meeting_regression/L01_long_business.expected.json",
+      "passed": false,
+      "transcript_path": "backend/tests/fixtures/meeting_regression/L01_long_business.txt",
+      "v1_score": 1.0,
+      "v2_score": 1.0,
+      "warnings": [
+        "Quality Engine v2 critic reported warnings."
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "total_cases": 5
+}
