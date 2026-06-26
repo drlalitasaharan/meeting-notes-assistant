@@ -87,9 +87,13 @@ def apply_quality_engine_v2(
         next_steps,
         action_items,
     )
+    cleaned_key_points, key_point_questions = _clean_key_points(improved.get("key_points"))
+    if isinstance(improved.get("key_points"), list):
+        improved["key_points"] = cleaned_key_points
+
     summary_slots["open_questions"] = _merge_open_questions(
         summary_slots.get("open_questions"),
-        detect_open_questions(improved, transcript_text),
+        [*key_point_questions, *detect_open_questions(improved, transcript_text)],
     )
     summary_slots["risks"] = _merge_risks(
         summary_slots.get("risks"),
@@ -120,6 +124,122 @@ def _text(value: Any) -> str:
     if value is None:
         return ""
     return str(value).strip()
+
+
+def _strip_speaker_prefix(text: str) -> tuple[str, str]:
+    match = re.match(
+        r"^(?P<speaker>[A-Z][A-Za-z]+)\s+says?,\s*(?P<body>.+)$",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return "", text
+
+    speaker = match.group("speaker").strip()
+    body = match.group("body").strip()
+    body = re.sub(
+        rf"^{re.escape(speaker)}\s+",
+        "",
+        body,
+        flags=re.IGNORECASE,
+    )
+    return speaker, body
+
+
+def _looks_like_meta_key_point(text: str) -> bool:
+    normalized = _dedupe_key(text)
+    if not normalized:
+        return True
+
+    meta_patterns = (
+        r"\bthis recording is part of\b",
+        r"\b30 60 minute quality baseline\b",
+        r"\bfinish with exact decisions risks questions and owners\b",
+        r"\bfinish with a marked decision risks questions and owners\b",
+        r"\bseparate confirmed decisions from general discussion\b",
+        r"\bmost important action items should include\b",
+        r"\bcontains clear decisions action items risks open questions\b",
+        r"\blisten for concrete actions\b",
+        r"\bwhat a user will expect after a real meeting\b",
+    )
+    return any(re.search(pattern, normalized) for pattern in meta_patterns)
+
+
+def _looks_like_action_key_point(text: str) -> bool:
+    normalized = _dedupe_key(text)
+    return bool(
+        re.search(
+            r"\b(?:will|please|action for|action item for)\b",
+            normalized,
+        )
+    )
+
+
+def _clean_key_point_text(text: str) -> str:
+    _, body = _strip_speaker_prefix(text)
+    cleaned = re.sub(r"\s+", " ", body).strip(" .")
+    if not cleaned:
+        return ""
+
+    cleaned = re.sub(
+        r"^I\s+want\s+to\s+make\s+sure\s+",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"^I\s+will\s+",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = cleaned.strip(" .")
+    if not cleaned:
+        return ""
+    return cleaned[0].upper() + cleaned[1:]
+
+
+def _clean_key_points(value: Any) -> tuple[list[str], list[str]]:
+    if not isinstance(value, list):
+        return [], []
+
+    cleaned_points: list[str] = []
+    questions: list[str] = []
+    seen_points: set[str] = set()
+
+    for item in value:
+        raw = _text(item)
+        if not raw:
+            continue
+
+        _, without_speaker = _strip_speaker_prefix(raw)
+        question_candidate = re.sub(
+            r"^(?:open|unresolved)\s+question\s*,?\s*",
+            "",
+            without_speaker,
+            flags=re.IGNORECASE,
+        ).strip()
+        if question_candidate != without_speaker and "?" in question_candidate:
+            question = _normalize_question(question_candidate)
+            if question and not _looks_like_rhetorical_or_answered_question(question):
+                questions.append(question)
+            continue
+
+        cleaned = _clean_key_point_text(raw)
+        if (
+            not cleaned
+            or _looks_like_meta_key_point(cleaned)
+            or _looks_like_action_key_point(cleaned)
+        ):
+            continue
+
+        key = _dedupe_key(cleaned)
+        if key in seen_points:
+            continue
+        seen_points.add(key)
+        cleaned_points.append(cleaned)
+
+    return cleaned_points, _merge_open_questions([], questions)
 
 
 def _merge_warnings(existing: Any, new_warnings: list[str]) -> list[str]:

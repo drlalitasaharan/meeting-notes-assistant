@@ -1362,3 +1362,73 @@ def test_quality_engine_v2_admin_comparison_path_is_explicit() -> None:
     assert "Launch Starter first." in result["v2_markdown"]
     assert result["comparison"]["improved_action_count"] == 1
     assert result["comparison"]["improved_decision_count"] == 1
+
+
+def test_quality_engine_v2_cleans_transcript_like_key_points() -> None:
+    notes = {
+        "summary": "The team reviewed support operations.",
+        "summary_slots": {"purpose": "Review support.", "next_steps": []},
+        "key_points": [
+            "Sophia says, Sophia will update the support page with review recommended language for long recordings before the launch post goes live",
+            "Aaron says, I will listen for concrete actions, deadlines, because this recording is part of the 30-60 minute quality baseline",
+            "Sophia says, open question, should the support page mention a typical processing time range?",
+            "Meyer says, the goal today is to review support operations, and reliability review, and finish with exact decisions, risks, questions, and owners",
+            "Maya says, I want to make sure the notes separate confirmed decisions from general discussion, because this is what a user will expect after a real meeting",
+            "Support operations and reliability are being reviewed for launch readiness",
+        ],
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+
+    key_points_text = " ".join(improved["key_points"])
+    assert "Sophia says" not in key_points_text
+    assert "Aaron says" not in key_points_text
+    assert "Meyer says" not in key_points_text
+    assert "Maya says" not in key_points_text
+    assert "30-60 minute quality baseline" not in key_points_text
+    assert "separate confirmed decisions from general discussion" not in key_points_text
+    assert improved["key_points"] == [
+        "Support operations and reliability are being reviewed for launch readiness"
+    ]
+
+
+def test_quality_engine_v2_moves_open_question_key_point_to_open_questions() -> None:
+    notes = {
+        "summary": "The team reviewed support operations.",
+        "summary_slots": {"purpose": "Review support.", "next_steps": []},
+        "key_points": [
+            "Sophia says, open question, should the support page mention a typical processing time range?"
+        ],
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+
+    assert improved["key_points"] == []
+    assert improved["summary_slots"]["open_questions"] == [
+        "Should the support page mention a typical processing time range?"
+    ]
+
+
+def test_quality_engine_v2_support_page_key_point_remains_action_or_next_step() -> None:
+    notes = {
+        "summary": "The team reviewed support operations.",
+        "summary_slots": {"purpose": "Review support.", "next_steps": []},
+        "key_points": [
+            "Sophia says, Sophia will update the support page with review recommended language for long recordings before the launch post goes live"
+        ],
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    improved = apply_quality_engine_v2(notes, "")
+
+    assert improved["key_points"] == []
+    assert any(
+        item["owner"] == "Sophia" and "support page" in item["task"]
+        for item in improved["action_item_objects"]
+    )
+    assert any("support page" in step for step in improved["summary_slots"]["next_steps"])
