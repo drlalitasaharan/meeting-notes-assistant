@@ -1212,6 +1212,157 @@ def render_quality_engine_v2_markdown(notes: dict[str, Any]) -> str:
     return "\n\n".join(section for section in sections if section).strip() + "\n"
 
 
+def _list_field(value: Any) -> list[Any]:
+    return value if isinstance(value, list) else []
+
+
+def _has_deadline_language(text: str | None) -> bool:
+    return bool(
+        re.search(
+            r"\b(?:by|before|after|due|deadline|tomorrow|monday|tuesday|wednesday|thursday|friday|next week|end of week)\b",
+            _text(text),
+            flags=re.IGNORECASE,
+        )
+    )
+
+
+def _has_decision_language(text: str | None) -> bool:
+    return bool(
+        re.search(
+            r"\b(?:decision|agreed|decided|confirmed decision|decision confirmed)\b",
+            _text(text),
+            flags=re.IGNORECASE,
+        )
+    )
+
+
+def _summary_too_generic(summary: str) -> bool:
+    normalized = _dedupe_key(summary)
+    if not normalized:
+        return True
+    generic_summaries = {
+        "the meeting aligned on the main priorities and next steps",
+        "the team discussed the meeting and next steps",
+        "the team aligned on the main priorities",
+        "meeting notes",
+        "summary",
+    }
+    return normalized in generic_summaries or len(normalized.split()) < 6
+
+
+def _has_generic_action_owner(action_items: list[Any]) -> bool:
+    generic_owners = {"team", "someone", "unassigned", "unknown", "tbd", "owner"}
+    for item in action_items:
+        if not isinstance(item, dict):
+            continue
+        owner = _dedupe_key(_text(item.get("owner")))
+        if owner in generic_owners:
+            return True
+    return False
+
+
+def _has_action_without_deadline(action_items: list[Any]) -> bool:
+    for item in action_items:
+        if isinstance(item, dict) and not _text(item.get("deadline") or item.get("due_date")):
+            return True
+    return False
+
+
+def _has_open_question_key_point(key_points: list[Any]) -> bool:
+    for item in key_points:
+        text = _text(item)
+        if re.search(r"\bopen question\b", text, flags=re.IGNORECASE) or (
+            "?" in text and re.search(r"\bquestion\b", text, flags=re.IGNORECASE)
+        ):
+            return True
+    return False
+
+
+def _has_transcript_like_notes(notes: dict[str, Any]) -> bool:
+    blob = _note_text_blob(notes)
+    return bool(
+        re.search(
+            r"\b(?:speaker\s+\d+|[A-Z][A-Za-z]+\s+says?,)",
+            blob,
+            flags=re.IGNORECASE,
+        )
+    )
+
+
+def _has_suspicious_email_or_domain(notes: dict[str, Any]) -> bool:
+    blob = _note_text_blob(notes)
+    patterns = (
+        r"\b[\w.+-]+\s+(?:at|\[at\])\s+[\w.-]+",
+        r"\b[\w.+-]+@[\w.-]+\.(?:con|cmo|comm|aii|ioo)\b",
+        r"\b(?:vercell|go\s+daddy|meetiq\.ai|support@acjen\.(?:com|io|co))\b",
+    )
+    return any(re.search(pattern, blob, flags=re.IGNORECASE) for pattern in patterns)
+
+
+def critic_quality_engine_v2_notes(
+    notes: dict[str, Any],
+    transcript_text: str | None = None,
+) -> dict[str, Any]:
+    """Return conservative internal quality warnings for v2 notes."""
+
+    summary_slots = notes.get("summary_slots")
+    if not isinstance(summary_slots, dict):
+        summary_slots = {}
+
+    action_items = _list_field(notes.get("action_item_objects"))
+    decision_objects = _list_field(notes.get("decision_objects"))
+    key_points = _list_field(notes.get("key_points"))
+
+    checks = {
+        "purpose_present": bool(_text(summary_slots.get("purpose"))),
+        "summary_specific": not _summary_too_generic(_text(notes.get("summary"))),
+        "actions_present": len(action_items) > 0,
+        "decisions_present_when_language_exists": not (
+            _has_decision_language(transcript_text) and len(decision_objects) == 0
+        ),
+        "owners_not_generic": not _has_generic_action_owner(action_items),
+        "deadlines_present_when_language_exists": not (
+            _has_deadline_language(transcript_text) and _has_action_without_deadline(action_items)
+        ),
+        "open_questions_not_in_key_points": not _has_open_question_key_point(key_points),
+        "emails_and_domains_not_suspicious": not _has_suspicious_email_or_domain(notes),
+        "notes_not_transcript_like": not _has_transcript_like_notes(notes),
+    }
+
+    warning_messages = {
+        "purpose_present": "Purpose is missing.",
+        "summary_specific": "Summary appears too generic.",
+        "actions_present": "Action items are missing or too few.",
+        "decisions_present_when_language_exists": "Decision language exists but no decisions were extracted.",
+        "owners_not_generic": "Action item owner appears generic or guessed.",
+        "deadlines_present_when_language_exists": "Deadline language exists but an action item is missing a deadline.",
+        "open_questions_not_in_key_points": "Open questions appear mixed into key points.",
+        "emails_and_domains_not_suspicious": "Possible suspicious email or domain text detected.",
+        "notes_not_transcript_like": "Notes appear transcript-like.",
+    }
+    warnings = [message for key, message in warning_messages.items() if not checks[key]]
+
+    return {
+        "passed": not warnings,
+        "warnings": warnings,
+        "checks": checks,
+    }
+
+
+def _run_quality_engine_v2_critic_safely(
+    notes: dict[str, Any],
+    transcript_text: str | None,
+) -> dict[str, Any]:
+    try:
+        return critic_quality_engine_v2_notes(notes, transcript_text)
+    except Exception as exc:  # pragma: no cover - defensive metadata fallback
+        return {
+            "passed": False,
+            "warnings": [f"Quality Engine v2 critic failed: {exc.__class__.__name__}"],
+            "checks": {},
+        }
+
+
 def run_quality_engine_v2(
     notes: dict[str, Any],
     transcript_text: str | None,
@@ -1248,9 +1399,17 @@ def run_quality_engine_v2(
     if normalized_mode == "shadow":
         metadata["shadow_ran"] = True
         metadata["shadow_summary"] = _compare_v1_v2_notes(notes, improved)
+        metadata["critic"] = _run_quality_engine_v2_critic_safely(
+            improved,
+            transcript_text,
+        )
         return {"notes": notes, "metadata": metadata}
 
     metadata["applied"] = True
+    metadata["critic"] = _run_quality_engine_v2_critic_safely(
+        improved,
+        transcript_text,
+    )
     return {"notes": improved, "metadata": metadata}
 
 
@@ -1266,6 +1425,7 @@ def build_quality_engine_v2_admin_comparison(
 
     try:
         improved = apply_quality_engine_v2(notes, transcript_text)
+        critic = _run_quality_engine_v2_critic_safely(improved, transcript_text)
         return {
             "user_notes": notes,
             "admin_only": True,
@@ -1276,6 +1436,7 @@ def build_quality_engine_v2_admin_comparison(
                 "mode": "admin_comparison",
                 "applied_to_user_notes": False,
                 "fallback_used": False,
+                "critic": critic,
             },
         }
     except Exception as exc:  # pragma: no cover - defensive admin fallback

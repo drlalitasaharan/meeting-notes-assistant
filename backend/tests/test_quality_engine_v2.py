@@ -1353,11 +1353,10 @@ def test_quality_engine_v2_admin_comparison_path_is_explicit() -> None:
 
     assert result["admin_only"] is True
     assert result["user_notes"] == notes
-    assert result["metadata"] == {
-        "mode": "admin_comparison",
-        "applied_to_user_notes": False,
-        "fallback_used": False,
-    }
+    assert result["metadata"]["mode"] == "admin_comparison"
+    assert result["metadata"]["applied_to_user_notes"] is False
+    assert result["metadata"]["fallback_used"] is False
+    assert "critic" in result["metadata"]
     assert result["v2_notes"] != notes
     assert "Launch Starter first." in result["v2_markdown"]
     assert result["comparison"]["improved_action_count"] == 1
@@ -1432,3 +1431,190 @@ def test_quality_engine_v2_support_page_key_point_remains_action_or_next_step() 
         for item in improved["action_item_objects"]
     )
     assert any("support page" in step for step in improved["summary_slots"]["next_steps"])
+
+
+def test_quality_engine_v2_critic_warns_on_missing_purpose() -> None:
+    from app.services.quality_engine_v2 import critic_quality_engine_v2_notes
+
+    result = critic_quality_engine_v2_notes(
+        {
+            "summary": "The team reviewed launch readiness.",
+            "summary_slots": {},
+            "action_item_objects": [{"owner": "Sam", "task": "Run smoke test"}],
+            "decision_objects": [],
+        }
+    )
+
+    assert result["checks"]["purpose_present"] is False
+    assert "Purpose is missing." in result["warnings"]
+    assert result["passed"] is False
+
+
+def test_quality_engine_v2_critic_warns_on_generic_summary() -> None:
+    from app.services.quality_engine_v2 import critic_quality_engine_v2_notes
+
+    result = critic_quality_engine_v2_notes(
+        {
+            "summary": "The meeting aligned on the main priorities and next steps",
+            "summary_slots": {"purpose": "Review launch."},
+            "action_item_objects": [{"owner": "Sam", "task": "Run smoke test"}],
+            "decision_objects": [],
+        }
+    )
+
+    assert result["checks"]["summary_specific"] is False
+    assert "Summary appears too generic." in result["warnings"]
+
+
+def test_quality_engine_v2_critic_warns_on_too_few_actions() -> None:
+    from app.services.quality_engine_v2 import critic_quality_engine_v2_notes
+
+    result = critic_quality_engine_v2_notes(
+        {
+            "summary": "The team reviewed launch readiness.",
+            "summary_slots": {"purpose": "Review launch."},
+            "action_item_objects": [],
+            "decision_objects": [],
+        }
+    )
+
+    assert result["checks"]["actions_present"] is False
+    assert "Action items are missing or too few." in result["warnings"]
+
+
+def test_quality_engine_v2_critic_warns_on_open_question_inside_key_points() -> None:
+    from app.services.quality_engine_v2 import critic_quality_engine_v2_notes
+
+    result = critic_quality_engine_v2_notes(
+        {
+            "summary": "The team reviewed support operations.",
+            "summary_slots": {"purpose": "Review support."},
+            "key_points": ["Sophia says, open question, should support show processing time?"],
+            "action_item_objects": [{"owner": "Sofia", "task": "Update support page"}],
+            "decision_objects": [],
+        }
+    )
+
+    assert result["checks"]["open_questions_not_in_key_points"] is False
+    assert "Open questions appear mixed into key points." in result["warnings"]
+
+
+def test_quality_engine_v2_critic_warns_on_transcript_like_notes() -> None:
+    from app.services.quality_engine_v2 import critic_quality_engine_v2_notes
+
+    result = critic_quality_engine_v2_notes(
+        {
+            "summary": "The team reviewed support operations.",
+            "summary_slots": {"purpose": "Review support."},
+            "key_points": ["Maya says, the goal today is to review support operations."],
+            "action_item_objects": [{"owner": "Sofia", "task": "Update support page"}],
+            "decision_objects": [],
+        }
+    )
+
+    assert result["checks"]["notes_not_transcript_like"] is False
+    assert "Notes appear transcript-like." in result["warnings"]
+
+
+def test_quality_engine_v2_critic_warns_on_suspicious_domain_or_email() -> None:
+    from app.services.quality_engine_v2 import critic_quality_engine_v2_notes
+
+    result = critic_quality_engine_v2_notes(
+        {
+            "summary": "Use support at acjen dot ai and the raw vercell URL.",
+            "summary_slots": {"purpose": "Review support."},
+            "action_item_objects": [{"owner": "Sofia", "task": "Update support page"}],
+            "decision_objects": [],
+        }
+    )
+
+    assert result["checks"]["emails_and_domains_not_suspicious"] is False
+    assert "Possible suspicious email or domain text detected." in result["warnings"]
+
+
+def test_quality_engine_v2_critic_failure_does_not_fail_job(monkeypatch) -> None:
+    import app.services.quality_engine_v2 as quality_engine_v2
+
+    def raise_critic(*args, **kwargs):
+        raise RuntimeError("critic failed")
+
+    monkeypatch.setattr(
+        quality_engine_v2,
+        "critic_quality_engine_v2_notes",
+        raise_critic,
+    )
+
+    notes = {
+        "summary": "The team reviewed launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = quality_engine_v2.run_quality_engine_v2(
+        notes,
+        "Decision: we will launch Starter first.",
+        mode="shadow",
+    )
+
+    assert result["notes"] == notes
+    assert result["metadata"]["critic"]["passed"] is False
+    assert result["metadata"]["critic"]["warnings"] == [
+        "Quality Engine v2 critic failed: RuntimeError"
+    ]
+
+
+def test_quality_engine_v2_critic_keeps_v1_default_unchanged() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team reviewed launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v2(
+        notes,
+        "Decision: we will launch Starter first.",
+        mode=None,
+    )
+
+    assert result == {
+        "notes": notes,
+        "metadata": {
+            "applied": False,
+            "mode": "v1",
+            "fallback_used": False,
+            "warnings": [],
+        },
+    }
+
+
+def test_quality_engine_v2_shadow_mode_includes_critic_without_changing_user_notes() -> None:
+    from app.services.quality_engine_v2 import run_quality_engine_v2
+
+    notes = {
+        "summary": "The team reviewed launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    original = {
+        "summary": "The team reviewed launch.",
+        "summary_slots": {"purpose": "", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v2(
+        notes,
+        "Decision: we will launch Starter first.",
+        mode="shadow",
+    )
+
+    assert result["notes"] == original
+    assert notes == original
+    assert result["metadata"]["shadow_ran"] is True
+    assert "critic" in result["metadata"]
+    assert "v2_notes" not in result
