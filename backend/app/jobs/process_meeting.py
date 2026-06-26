@@ -38,7 +38,10 @@ from app.services.processing_observability import (
     mark_completed,
     mark_failed,
 )
-from app.services.quality_engine_v2 import run_quality_engine_v2
+from app.services.quality_engine_v2 import (
+    resolve_notes_engine_mode_for_user,
+    run_quality_engine_v2,
+)
 from app.services.transcription import get_transcriber
 
 log = logging.getLogger(__name__)
@@ -144,6 +147,21 @@ def _restore_publishable_actions_from_objects(notes: dict[str, Any]) -> dict[str
     notes["summary_slots"] = summary_slots
 
     return notes
+
+
+def _meeting_owner_email(meeting: Meeting) -> str:
+    try:
+        user = getattr(meeting, "user", None)
+        return str(getattr(user, "email", "") or "").strip()
+    except Exception:
+        return ""
+
+
+def _resolve_notes_engine_mode_for_meeting(meeting: Meeting) -> str:
+    return resolve_notes_engine_mode_for_user(
+        os.getenv("NOTES_ENGINE", "v1"),
+        _meeting_owner_email(meeting),
+    )
 
 
 def process_meeting(meeting_id: str) -> None:
@@ -386,7 +404,7 @@ def process_meeting(meeting_id: str) -> None:
         normalized_notes = _restore_publishable_actions_from_objects(normalized_notes)
         normalized_notes = apply_risk_action_owner_consistency(normalized_notes)
 
-        notes_engine_mode = os.getenv("NOTES_ENGINE", "v1")
+        notes_engine_mode = _resolve_notes_engine_mode_for_meeting(meeting)
         commit_stage(
             db,
             meeting,

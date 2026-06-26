@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import os
 import re
 from typing import Any
 
@@ -1271,6 +1272,49 @@ def should_run_quality_engine_v2_shadow(mode: object) -> bool:
     """Return True when v2 should run for comparison only."""
 
     return normalize_notes_engine_mode(mode) == "shadow"
+
+
+def parse_quality_engine_v2_allowlist(value: object) -> set[str]:
+    """Parse comma-separated QEv2 rollout email allowlist values."""
+
+    return {email.strip().lower() for email in str(value or "").split(",") if email.strip()}
+
+
+def is_quality_engine_v2_email_allowlisted(
+    email: object,
+    allowlist_value: object | None = None,
+) -> bool:
+    """Return True when an email is explicitly allowlisted for QEv2."""
+
+    normalized_email = str(email or "").strip().lower()
+    if not normalized_email:
+        return False
+
+    raw_allowlist = (
+        os.getenv("MEETIQ_QEV2_ALLOWLIST_EMAILS", "")
+        if allowlist_value is None
+        else allowlist_value
+    )
+    return normalized_email in parse_quality_engine_v2_allowlist(raw_allowlist)
+
+
+def resolve_notes_engine_mode_for_user(
+    global_mode: object,
+    user_email: object,
+    allowlist_value: object | None = None,
+) -> str:
+    """Resolve the effective notes engine mode for a specific account.
+
+    v1 remains the production default. Shadow and explicit global v2 preserve
+    existing global behavior; otherwise only allowlisted account emails get v2.
+    """
+
+    normalized_mode = normalize_notes_engine_mode(global_mode)
+    if normalized_mode in {"shadow", "v2"}:
+        return normalized_mode
+    if is_quality_engine_v2_email_allowlisted(user_email, allowlist_value):
+        return "v2"
+    return "v1"
 
 
 def _as_text_list(value: Any) -> list[str]:
