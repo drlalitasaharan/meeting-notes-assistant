@@ -118,3 +118,46 @@ def test_quality_engine_v2_regression_gate_aggregates_cases() -> None:
     assert report["total_cases"] == 1
     assert report["passed_cases"] == 1
     assert report["failed_cases"] == 0
+
+
+def test_quality_engine_v2_regression_gate_scores_structured_v2_fields_with_existing_v1_fields(
+    monkeypatch,
+) -> None:
+    import app.services.quality_engine_v2_regression_gate as gate
+
+    def structured_v2_result(notes, transcript_text, *, mode):
+        return {
+            "notes": {
+                **notes,
+                "decisions": ["Unrelated existing v1 decision text."],
+                "decision_objects": [{"text": "Launch Starter first."}],
+                "action_item_objects": [
+                    {
+                        "owner": "Priya",
+                        "task": "Prepare launch copy.",
+                        "deadline": "Friday",
+                    }
+                ],
+                "summary_slots": {
+                    "purpose": "Review launch readiness for Starter checkout.",
+                    "risks": ["Pricing approval may delay launch."],
+                    "next_steps": [],
+                },
+            },
+            "metadata": {"critic": {"passed": True, "warnings": [], "checks": {}}},
+        }
+
+    monkeypatch.setattr(gate, "run_quality_engine_v2", structured_v2_result)
+
+    result = evaluate_quality_engine_v2_regression_case(
+        case_id="QEV2_GATE",
+        expected=_expected_case(),
+        v1_notes={
+            **_thin_v1_notes(),
+            "decisions": ["Unrelated existing v1 decision text."],
+        },
+        transcript_text=_transcript(),
+    )
+
+    assert result["checks"]["v2_score_meets_threshold"] is True
+    assert result["v2_evaluation"]["metrics"]["decisions"]["matched"] == 1

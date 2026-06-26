@@ -625,6 +625,53 @@ def test_quality_engine_v2_extracts_clear_action_owner_and_deadline() -> None:
     ]
 
 
+def test_quality_engine_v2_extracts_speaker_accepted_actions_with_spoken_dates() -> None:
+    notes = {
+        "summary": "The team reviewed pilot actions.",
+        "summary_slots": {"purpose": "Review pilot actions.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = """
+    Priya: I accept the first action. I will obtain written pricing approval and circulate the approved pricing table to the team. by five PM on June eighteenth, twenty twenty-six.
+    Alex: I accept the second action. I will send the completed security review summary covering storage access, administrator permissions, and deletion controls. by noon on June twenty-second, twenty twenty-six.
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert {
+        "owner": "Priya",
+        "task": "Obtain written pricing approval and circulate the approved pricing table to the team",
+        "deadline": "2026-06-18 17:00",
+        "status": "open",
+        "priority": "medium",
+    } in improved["action_item_objects"]
+    assert {
+        "owner": "Alex",
+        "task": "Send the completed security review summary covering storage access, administrator permissions, and deletion controls",
+        "deadline": "2026-06-22 12:00",
+        "status": "open",
+        "priority": "medium",
+    } in improved["action_item_objects"]
+
+
+def test_quality_engine_v2_does_not_treat_policy_subjects_as_action_owners() -> None:
+    notes = {
+        "summary": "The team reviewed pilot policies.",
+        "summary_slots": {"purpose": "Review pilot policies.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = """
+    Decision confirmed: Email will be the standard support channel for the pilot.
+    Decision confirmed: Pilot recordings will be limited to thirty minutes.
+    """
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert improved["action_item_objects"] == []
+
+
 def test_quality_engine_v2_does_not_extract_generic_discussion_points_as_actions() -> None:
     notes = {
         "summary": "The team reviewed risks and action items.",
@@ -730,6 +777,49 @@ def test_quality_engine_v2_extracts_explicit_decisions_from_transcript() -> None
     assert {"text": "Keep PayPal and Square both enabled.", "confidence": 0.8} in decisions
     assert {"text": "Delay Pro Pilot testing.", "confidence": 0.8} in decisions
     assert {"text": "Use Acjen.ai as the public URL.", "confidence": 0.8} in decisions
+
+
+def test_quality_engine_v2_extracts_numbered_decisions_separately() -> None:
+    notes = {
+        "summary": "The team reviewed demo decisions.",
+        "summary_slots": {"purpose": "Review demo decisions.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = (
+        "Decision one: meeting seventeen will be the current best backup demo example. "
+        "Decision two: the ten-minute realistic file remains the main proof of quality. "
+        "Decision three: the thirty-minute file will be used as a stress test rather than a live default."
+    )
+
+    improved = apply_quality_engine_v2(notes, transcript)
+    decision_text = [item["text"] for item in improved["decision_objects"]]
+
+    assert decision_text == [
+        "Meeting seventeen will be the current best backup demo example.",
+        "The ten-minute realistic file remains the main proof of quality.",
+        "The thirty-minute file will be used as a stress test rather than a live default.",
+    ]
+
+
+def test_quality_engine_v2_extracts_decision_confirmed_followed_by_sentence() -> None:
+    notes = {
+        "summary": "The team reviewed pilot launch constraints.",
+        "summary_slots": {"purpose": "Review pilot launch constraints.", "next_steps": []},
+        "action_item_objects": [],
+        "decision_objects": [],
+    }
+    transcript = (
+        "Priya: Decision confirmed. "
+        "Single sign-on will remain outside the pilot scope unless the client explicitly requests it."
+    )
+
+    improved = apply_quality_engine_v2(notes, transcript)
+
+    assert {
+        "text": "Single sign-on will remain outside the pilot scope unless the client explicitly requests it.",
+        "confidence": 0.8,
+    } in improved["decision_objects"]
 
 
 def test_quality_engine_v2_preserves_existing_decision_objects() -> None:
@@ -1174,8 +1264,7 @@ def test_quality_engine_v2_markdown_renderer_renders_all_sections() -> None:
     ) in markdown
     assert "## Open Questions\n\n- Who monitors first weekend signups?" in markdown
     assert (
-        "## Risks / Blockers\n\n"
-        "- Webhook activation failure may block paid upload limits."
+        "## Risks / Blockers\n\n- Webhook activation failure may block paid upload limits."
     ) in markdown
     assert "## Next Steps\n\n- Run production smoke test." in markdown
 
@@ -1230,9 +1319,7 @@ def test_quality_engine_v2_markdown_renderer_formats_decision_objects() -> None:
     markdown = render_quality_engine_v2_markdown(notes)
 
     assert markdown == (
-        "## Decisions\n\n"
-        "- Use Acjen.ai as the public URL.\n"
-        "- Keep Starter checkout primary.\n"
+        "## Decisions\n\n- Use Acjen.ai as the public URL.\n- Keep Starter checkout primary.\n"
     )
 
 
@@ -1480,6 +1567,41 @@ def test_quality_engine_v2_critic_warns_on_too_few_actions() -> None:
 
     assert result["checks"]["actions_present"] is False
     assert "Action items are missing or too few." in result["warnings"]
+
+
+def test_quality_engine_v2_critic_allows_decisions_only_transcript_without_actions() -> None:
+    from app.services.quality_engine_v2 import critic_quality_engine_v2_notes
+
+    result = critic_quality_engine_v2_notes(
+        {
+            "summary": "The team confirmed pilot policy decisions.",
+            "summary_slots": {"purpose": "Confirm pilot policy."},
+            "action_item_objects": [],
+            "decision_objects": [{"text": "The pilot will support ten users."}],
+        },
+        "This is a decisions-only meeting. No action items or next steps were assigned.",
+    )
+
+    assert result["checks"]["actions_present"] is True
+    assert result["passed"] is True
+
+
+def test_quality_engine_v2_critic_keeps_generic_summary_warning_non_blocking() -> None:
+    from app.services.quality_engine_v2 import critic_quality_engine_v2_notes
+
+    result = critic_quality_engine_v2_notes(
+        {
+            "summary": "The meeting aligned on the main priorities and next steps",
+            "summary_slots": {"purpose": "Review launch."},
+            "action_item_objects": [{"owner": "Sam", "task": "Run smoke test"}],
+            "decision_objects": [],
+        }
+    )
+
+    assert result["checks"]["summary_specific"] is False
+    assert "Summary appears too generic." in result["warnings"]
+    assert result["blocking_warnings"] == []
+    assert result["passed"] is True
 
 
 def test_quality_engine_v2_critic_warns_on_open_question_inside_key_points() -> None:
