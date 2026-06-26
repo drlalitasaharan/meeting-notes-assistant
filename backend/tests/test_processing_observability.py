@@ -20,6 +20,7 @@ from app.services.processing_observability import (
     mark_completed,
     mark_failed,
     mark_stage,
+    serialize_admin_processing,
 )
 
 
@@ -198,3 +199,39 @@ def test_admin_meeting_list_includes_diagnostics_and_timing_metadata(
     assert item["processing_error_code"] == "processing_failed"
     assert "processing_failed_at" in item["processing_timings"]
     assert "[path]" in item["processing_diagnostics"]
+
+
+
+def test_admin_processing_serializes_stage_durations_when_boundaries_exist(
+    db_session: Session,
+) -> None:
+    user = _create_user(db_session)
+    meeting = _create_meeting(db_session, user_id=user.id)
+
+    meeting.processing_timings = {
+        "media_validation_started_at": "2026-06-26T10:00:00+00:00",
+        "media_validation_completed_at": "2026-06-26T10:00:02+00:00",
+        "audio_conversion_started_at": "2026-06-26T10:00:02+00:00",
+        "audio_conversion_completed_at": "2026-06-26T10:00:07+00:00",
+        "transcription_started_at": "2026-06-26T10:00:07+00:00",
+        "transcription_completed_at": "2026-06-26T10:04:07+00:00",
+        "notes_generation_started_at": "2026-06-26T10:04:07+00:00",
+        "notes_generation_completed_at": "2026-06-26T10:04:37+00:00",
+        "quality_engine_started_at": "2026-06-26T10:04:37+00:00",
+        "quality_engine_completed_at": "2026-06-26T10:04:47+00:00",
+        "finalization_started_at": "2026-06-26T10:04:37+00:00",
+        "finalization_completed_at": "2026-06-26T10:04:52+00:00",
+        "processing_completed_at": "2026-06-26T10:04:52+00:00",
+    }
+
+    payload = serialize_admin_processing(meeting)
+
+    assert payload["processing_total_seconds"] == 292.0
+    assert payload["processing_stage_durations_seconds"] == {
+        "media_validation_seconds": 2.0,
+        "audio_conversion_seconds": 5.0,
+        "transcription_seconds": 240.0,
+        "notes_generation_seconds": 30.0,
+        "quality_engine_seconds": 10.0,
+        "finalization_seconds": 15.0,
+    }
