@@ -17,6 +17,11 @@ RUN pip wheel --no-cache-dir -w /wheels -r /tmp/requirements.txt
 
 # ---------- Runtime image ----------
 FROM base AS runtime
+# Install ffmpeg/ffprobe for production media duration detection.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install wheels (includes rq, redis, etc. from requirements.txt)
 COPY --from=builder /wheels /wheels
 RUN pip install --no-cache-dir /wheels/* && rm -rf /wheels
