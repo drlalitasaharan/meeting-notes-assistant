@@ -13,7 +13,11 @@ from app.models.user import User
 from app.schemas.meetings import MeetingCreate, MeetingRead, MeetingUpdate
 from app.schemas.notes import NoteCreate, NoteRead
 from app.services.data_controls import delete_raw_media_best_effort
-from app.services.processing_observability import mark_stage, serialize_progress
+from app.services.processing_observability import (
+    mark_stage,
+    mark_stale_processing_failed,
+    serialize_progress,
+)
 from app.services.usage_limits import enforce_can_create_meeting
 
 router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
@@ -86,6 +90,12 @@ def get_meeting(
     m = db.get(Meeting, meeting_id)
     if not m or m.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Meeting not found")
+
+    if mark_stale_processing_failed(m):
+        db.add(m)
+        db.commit()
+        db.refresh(m)
+
     return m
 
 

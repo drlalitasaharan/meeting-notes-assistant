@@ -235,3 +235,84 @@ def test_admin_processing_serializes_stage_durations_when_boundaries_exist(
         "quality_engine_seconds": 10.0,
         "finalization_seconds": 15.0,
     }
+
+def test_stale_processing_helper_marks_meeting_retryable_failed(
+    db_session: Session,
+) -> None:
+    from datetime import timedelta
+
+    from app.services.processing_observability import mark_stale_processing_failed, utc_now
+
+    user = _create_user(db_session)
+    meeting = _create_meeting(db_session, user_id=user.id)
+    mark_stage(meeting, "transcribing", status="PROCESSING")
+    meeting.updated_at = utc_now() - timedelta(hours=2)
+    db_session.add(meeting)
+    db_session.commit()
+    db_session.refresh(meeting)
+
+    changed = mark_stale_processing_failed(meeting, stale_after_seconds=60 * 60)
+
+    assert changed is True
+    assert meeting.status == "ERROR"
+    assert meeting.processing_stage == "failed"
+    assert meeting.processing_error_code == "processing_stale"
+    assert "retry processing" in (meeting.processing_error_message or "").lower()
+    assert "processing_failed_at" in meeting.processing_timings
+
+
+def test_stale_processing_helper_keeps_recent_processing_meeting_running(
+    db_session: Session,
+) -> None:
+    from datetime import timedelta
+
+    from app.services.processing_observability import mark_stale_processing_failed, utc_now
+
+    user = _create_user(db_session)
+    meeting = _create_meeting(db_session, user_id=user.id)
+    mark_stage(meeting, "transcribing", status="PROCESSING")
+    meeting.updated_at = utc_now() - timedelta(minutes=10)
+    db_session.add(meeting)
+    db_session.commit()
+    db_session.refresh(meeting)
+
+    changed = mark_stale_processing_failed(meeting, stale_after_seconds=60 * 60)
+
+    assert changed is False
+    assert meeting.status == "PROCESSING"
+    assert meeting.processing_stage == "transcribing"
+    assert meeting.processing_error_code is None
+
+
+def test_meeting_get_marks_stale_processing_as_retryable_failed(
+    db_session: Session,
+) -> None:
+    from datetime import timedelta
+
+    from app.services.processing_observability import utc_now
+
+    user = _create_user(db_session)
+    meeting = _create_meeting(db_session, user_id=user.id)
+    mark_stage(meeting, "transcribing", status="PROCESSING")
+    meeting.updated_at = utc_now() - timedelta(hours=2)
+    db_session.add(meeting)
+    db_session.commit()
+    db_session.refresh(meeting)
+
+    app = FastAPI()
+    app.include_router(meetings.router)
+
+    def override_get_db() -> Iterator[Session]:
+        yield db_session
+
+    app.dependency_overrides[meetings.get_db] = override_get_db
+    app.dependency_overrides[get_current_user] = lambda: user
+
+    response = TestClient(app).get(f"/v1/meetings/{meeting.id}")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ERROR"
+    assert payload["processing_stage"] == "failed"
+    assert payload["processing_progress_label"] == "Processing failed"
+    assert "retry processing" in payload["processing_error_message"].lower()

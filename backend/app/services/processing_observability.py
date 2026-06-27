@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -42,6 +42,10 @@ GENERIC_PROCESSING_ERROR = (
 )
 TIMEOUT_PROCESSING_ERROR = (
     "Processing took longer than expected. Please try again or contact support."
+)
+STALE_PROCESSING_ERROR = (
+    "Processing took longer than expected. Please retry processing. "
+    "If it fails again, contact support and include this Meeting ID."
 )
 TRANSCRIPTION_PROCESSING_ERROR = "Transcription failed. Please try a shorter or clearer recording."
 
@@ -173,6 +177,51 @@ def mark_failed(
     meeting.processing_error_message = safe_message
     meeting.processing_diagnostics = sanitize_diagnostic(exc)
     return meeting
+
+
+def mark_stale_processing_failed(
+    meeting: Meeting,
+    *,
+    stale_after_seconds: int = 60 * 60,
+    now: datetime | None = None,
+) -> bool:
+    """Mark stale PROCESSING meetings as retryable failed state.
+
+    This protects users from meetings staying stuck forever when an RQ worker
+    is redeployed, killed, or abandons a job while the DB row remains PROCESSING.
+    Returns True when the meeting was changed.
+    """
+
+    if str(getattr(meeting, "status", "") or "").upper() != "PROCESSING":
+        return False
+
+    if getattr(meeting, "processing_stage", None) == "completed":
+        return False
+
+    updated_at = getattr(meeting, "updated_at", None)
+    if updated_at is None:
+        return False
+
+    current_time = now or utc_now()
+    if updated_at.tzinfo is None:
+        updated_at = updated_at.replace(tzinfo=timezone.utc)
+
+    if current_time - updated_at < timedelta(seconds=stale_after_seconds):
+        return False
+
+    mark_stage(
+        meeting,
+        "failed",
+        status="ERROR",
+        completed_key="processing_failed_at",
+    )
+    meeting.last_error = STALE_PROCESSING_ERROR[:250]
+    meeting.processing_error_code = "processing_stale"
+    meeting.processing_error_message = STALE_PROCESSING_ERROR
+    meeting.processing_diagnostics = (
+        "Processing was marked stale after exceeding the retry threshold."
+    )
+    return True
 
 
 def serialize_progress(meeting: Meeting) -> dict[str, Any]:
