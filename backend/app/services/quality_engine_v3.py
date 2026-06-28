@@ -1137,6 +1137,36 @@ def apply_quality_engine_v3(notes: dict[str, Any], transcript_text: str | None) 
     return improved
 
 
+def finalize_quality_engine_v3_persisted_notes(notes: dict[str, Any]) -> dict[str, Any]:
+    """Force final persisted v3 fields to use the same filtered action source.
+
+    The frontend renders action_items, while Markdown prefers action_item_objects.
+    This helper keeps both sources synchronized after any pipeline cleanup.
+    """
+
+    output = copy.deepcopy(notes)
+
+    candidate_actions: list[dict[str, Any]] = []
+    for item in _as_list(output.get("action_item_objects")) + _as_list(output.get("action_items")):
+        normalized_action = _normalize_action_item(item)
+        if normalized_action is not None:
+            candidate_actions.append(normalized_action)
+
+    actions = _filter_high_precision_actions(_dedupe_actions(candidate_actions))
+
+    slots = _summary_slots(output)
+    slots["next_steps"] = _build_next_steps(
+        actions,
+        _filter_high_precision_next_steps(slots.get("next_steps")),
+    )
+
+    output["summary_slots"] = slots
+    output["action_item_objects"] = actions
+    output["action_items"] = actions
+
+    return output
+
+
 def run_quality_engine_v3(
     notes: dict[str, Any],
     transcript_text: str | None,
