@@ -102,6 +102,7 @@ def test_llm_polish_applies_safe_polished_fields_and_preserves_actions(monkeypat
     assert result["key_points"][0] == (
         "The realistic 10-minute test now produces stronger structured notes."
     )
+    assert result["_llm_polish_applied"] is True
 
     assert result["action_item_objects"] == original_actions
     assert result["action_items"] == notes["action_items"]
