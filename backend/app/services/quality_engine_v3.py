@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import os
 import re
 from typing import Any
 
@@ -1027,6 +1028,157 @@ def _build_next_steps(actions: list[dict[str, Any]], existing: Any = None) -> li
     return next_steps
 
 
+def _qev3d_section_separation_enabled() -> bool:
+    return str(os.getenv("MEETIQ_QEV3D_SECTION_SEPARATION", "")).strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+def _qev3d_text_key(text: str) -> str:
+    return re.sub(r"\W+", " ", _clean_sentence(text).lower()).strip()
+
+
+def _qev3d_item_text(item: Any) -> str:
+    if isinstance(item, dict):
+        return _clean_sentence(
+            item.get("task")
+            or item.get("action")
+            or item.get("text")
+            or item.get("description")
+            or ""
+        )
+    return _clean_sentence(item)
+
+
+def _qev3d_overlaps_text(text: str, other: str) -> bool:
+    text_key = _qev3d_text_key(text)
+    other_key = _qev3d_text_key(other)
+
+    if not text_key or not other_key:
+        return False
+
+    if text_key == other_key:
+        return True
+
+    if len(text_key) >= 24 and len(other_key) >= 24:
+        return text_key in other_key or other_key in text_key
+
+    return False
+
+
+def _qev3d_overlaps_items(text: str, items: Any) -> bool:
+    return any(_qev3d_overlaps_text(text, _qev3d_item_text(item)) for item in _as_list(items))
+
+
+def _normalize_qev3d_key_point(text: str) -> str:
+    cleaned = _clean_sentence(text)
+    lowered = cleaned.lower()
+
+    if "preserve that processed meeting as the backup demo asset" in lowered:
+        return "Preserve one processed meeting as a backup demo asset before the live demo."
+
+    return cleaned
+
+
+def _is_qev3d_section_overlap_key_point(
+    text: str,
+    *,
+    slots: dict[str, Any],
+    decisions: list[dict[str, Any]],
+    actions: list[dict[str, Any]],
+) -> bool:
+    cleaned = _clean_sentence(text)
+    lowered = cleaned.lower()
+
+    if not cleaned:
+        return True
+
+    if lowered.startswith(
+        (
+            "i'd like us to",
+            "i’d like us to",
+            "i would like us to",
+            "we'd like to",
+            "we would like to",
+            "the main purpose",
+            "the purpose",
+            "today's purpose",
+            "the team aligned",
+            "team aligned",
+            "if we say",
+            "if we position",
+            "the first pilot audience",
+            "the live demo will use",
+            "the demo will use",
+            "this week's priority is",
+            "this weeks priority is",
+            "the priority is",
+        )
+    ):
+        return True
+
+    if re.search(
+        r"\b(clear decision on the target audience|main purpose of today|"
+        r"designed for consultants|team aligned on|finalized plan for the demo flow|"
+        r"concrete owners for the follow-up|this week'?s priority is|"
+        r"will use a short and clean file)\b",
+        lowered,
+    ):
+        return True
+
+    if _qev3d_overlaps_text(cleaned, slots.get("purpose") or ""):
+        return True
+
+    if _qev3d_overlaps_text(cleaned, slots.get("outcome") or ""):
+        return True
+
+    if _qev3d_overlaps_items(cleaned, decisions):
+        return True
+
+    if _qev3d_overlaps_items(cleaned, actions):
+        return True
+
+    return False
+
+
+def _apply_qev3d_key_point_section_separation(
+    key_points: Any,
+    *,
+    slots: dict[str, Any],
+    decisions: list[dict[str, Any]],
+    actions: list[dict[str, Any]],
+    limit: int = 6,
+) -> list[str]:
+    output: list[str] = []
+    seen: set[str] = set()
+
+    for item in _as_list(key_points):
+        candidate = _normalize_qev3d_key_point(_qev3d_item_text(item))
+        if not candidate:
+            continue
+
+        if _is_qev3d_section_overlap_key_point(
+            candidate,
+            slots=slots,
+            decisions=decisions,
+            actions=actions,
+        ):
+            continue
+
+        key = _dedupe_key(candidate)
+        if key and key not in seen:
+            seen.add(key)
+            output.append(candidate)
+
+        if len(output) >= limit:
+            break
+
+    return output
+
+
 def _summary_slots(notes: dict[str, Any]) -> dict[str, Any]:
     slots = notes.get("summary_slots")
     if isinstance(slots, dict):
@@ -1119,6 +1271,14 @@ def apply_quality_engine_v3(notes: dict[str, Any], transcript_text: str | None) 
         actions,
         _filter_high_precision_next_steps(slots.get("next_steps")),
     )
+
+    if _qev3d_section_separation_enabled():
+        improved["key_points"] = _apply_qev3d_key_point_section_separation(
+            improved.get("key_points"),
+            slots=slots,
+            decisions=decisions,
+            actions=actions,
+        )
 
     improved["summary_slots"] = slots
     improved["action_item_objects"] = actions
