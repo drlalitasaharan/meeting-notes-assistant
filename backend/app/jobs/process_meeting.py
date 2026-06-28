@@ -43,7 +43,10 @@ from app.services.quality_engine_v2 import (
     resolve_notes_engine_mode_for_user,
     run_quality_engine_v2,
 )
-from app.services.quality_engine_v3 import run_quality_engine_v3
+from app.services.quality_engine_v3 import (
+    finalize_quality_engine_v3_persisted_notes,
+    run_quality_engine_v3,
+)
 from app.services.transcription import get_transcriber
 
 log = logging.getLogger(__name__)
@@ -816,8 +819,15 @@ def process_meeting(meeting_id: str) -> None:
                 action_obj["task"] = task
                 action_obj["text"] = f"{action_obj.get('owner') or 'Team'}: {task}"
 
+        is_qev3_output = quality_engine_metadata.get("mode") == "v3" and not bool(
+            quality_engine_metadata.get("fallback_used")
+        )
+        if is_qev3_output:
+            normalized_notes = finalize_quality_engine_v3_persisted_notes(normalized_notes)
+
+        action_items_source = [] if is_qev3_output else normalized_notes.get("action_items") or []
         normalized_notes["action_items"] = align_action_items_with_objects(
-            normalized_notes.get("action_items") or [],
+            action_items_source,
             normalized_notes.get("action_item_objects") or [],
         )
 
