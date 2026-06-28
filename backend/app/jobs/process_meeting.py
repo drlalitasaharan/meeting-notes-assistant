@@ -888,7 +888,7 @@ def process_meeting(meeting_id: str) -> None:
                 model_version_for_persistence = (
                     f"{model_version_for_persistence or 'local-summary-v3'}+llm-polish"
                 )
-            log.info(
+            log.warning(
                 "process_meeting: llm polish applied to persisted notes",
                 extra={
                     **log_extra,
