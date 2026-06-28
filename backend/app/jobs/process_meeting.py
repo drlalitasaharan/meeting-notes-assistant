@@ -43,6 +43,7 @@ from app.services.quality_engine_v2 import (
     resolve_notes_engine_mode_for_user,
     run_quality_engine_v2,
 )
+from app.services.quality_engine_v3 import run_quality_engine_v3
 from app.services.transcription import get_transcriber
 
 log = logging.getLogger(__name__)
@@ -491,6 +492,20 @@ def _apply_qev2_action_precision_cleanup(notes: dict[str, Any]) -> dict[str, Any
     return output
 
 
+def _run_selected_quality_engine(
+    notes: dict[str, Any],
+    transcript_text: str | None,
+    *,
+    mode: str,
+) -> dict[str, Any]:
+    """Run the selected notes engine without changing production routing defaults."""
+
+    if mode == "v3":
+        return run_quality_engine_v3(notes, transcript_text, mode="v3")
+
+    return run_quality_engine_v2(notes, transcript_text, mode=mode)
+
+
 def process_meeting(meeting_id: str) -> None:
     """
     Golden-path meeting processing job.
@@ -751,7 +766,7 @@ def process_meeting(meeting_id: str) -> None:
             status="PROCESSING",
             started_key="quality_engine_started_at",
         )
-        quality_engine_result = run_quality_engine_v2(
+        quality_engine_result = _run_selected_quality_engine(
             normalized_notes,
             transcript_text,
             mode=notes_engine_mode,
@@ -773,7 +788,7 @@ def process_meeting(meeting_id: str) -> None:
             status="PROCESSING",
             completed_key="quality_engine_completed_at",
         )
-        if quality_engine_metadata.get("mode") == "v2":
+        if quality_engine_metadata.get("mode") in {"v2", "v3"}:
             normalized_notes = quality_engine_result["notes"]
             normalized_notes = _apply_qev2_action_precision_cleanup(normalized_notes)
 
