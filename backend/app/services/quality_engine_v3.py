@@ -374,6 +374,201 @@ def _is_invalid_action_text(text: str) -> bool:
     return False
 
 
+HIGH_PRECISION_ACTION_VERBS = (
+    "add",
+    "assign",
+    "call",
+    "check",
+    "circulate",
+    "complete",
+    "confirm",
+    "contact",
+    "create",
+    "deliver",
+    "deploy",
+    "document",
+    "draft",
+    "email",
+    "finish",
+    "finalize",
+    "fix",
+    "follow up",
+    "keep",
+    "package",
+    "prepare",
+    "publish",
+    "redeploy",
+    "review",
+    "run",
+    "save",
+    "schedule",
+    "send",
+    "share",
+    "test",
+    "update",
+    "upload",
+    "validate",
+    "verify",
+    "write",
+)
+
+HIGH_PRECISION_ACTION_VERB_PATTERN = "|".join(
+    re.escape(verb) for verb in HIGH_PRECISION_ACTION_VERBS
+)
+
+
+def _looks_like_context_or_decision_action(text: str) -> bool:
+    cleaned = _clean_sentence(text)
+    lowered = cleaned.lower()
+
+    if lowered.startswith(
+        (
+            "i'd like us to",
+            "i would like us to",
+            "we'd like to",
+            "we would like to",
+            "the main purpose",
+            "the purpose",
+            "today's purpose",
+            "the team aligned",
+            "team aligned",
+            "if we say",
+            "if we position",
+            "that's ",
+            "that is ",
+            "this week's priority is",
+            "this weeks priority is",
+            "the priority is",
+            "the first pilot audience",
+            "the live demo will use",
+            "the demo will use",
+            "a short demo video",
+            "a simple landing page",
+            "even if you already know",
+        )
+    ):
+        return True
+
+    if re.search(
+        r"\b(clear decision on the target audience|main purpose of today|"
+        r"designed for consultants|team aligned on|finalized plan for the demo flow|"
+        r"concrete owners for the follow-up|this week'?s priority is|"
+        r"would be enough to start|makes the demo feel)\b",
+        lowered,
+    ):
+        return True
+
+    if lowered.startswith(("we can ", "we need to ", "we should ", "we will ")):
+        return True
+
+    if re.match(r"^(?:the|this|that|it|there)\b", lowered) and re.search(
+        r"\b(will be|will use|will remain|will include|is to|is|are|aligned|designed)\b",
+        lowered,
+    ):
+        return True
+
+    # Strong action-shaped items can mention demo/backups/keep while still
+    # being real tasks. Do not reject those as decision text.
+    if _has_high_precision_action_shape(cleaned):
+        return False
+
+    if _is_decision_sentence(cleaned):
+        return True
+
+    return False
+
+
+def _has_high_precision_action_shape(text: str) -> bool:
+    cleaned = _clean_sentence(text)
+    if not cleaned:
+        return False
+
+    lowered = re.sub(
+        r"^(?:recap action|explicit action|action)\s*:\s*",
+        "",
+        cleaned.lower(),
+        flags=re.I,
+    ).strip()
+
+    if re.match(rf"^(?:please\s+)?(?:{HIGH_PRECISION_ACTION_VERB_PATTERN})\b", lowered):
+        return True
+
+    if re.match(
+        rf"^(?:i\s+will|i'll)\s+(?:{HIGH_PRECISION_ACTION_VERB_PATTERN})\b",
+        lowered,
+    ):
+        return True
+
+    owner_match = re.match(
+        rf"^(?P<owner>[a-z][a-z .'-]{{1,50}}?)\s+"
+        rf"(?:will|should|needs to|need to|must|has to)\s+"
+        rf"(?:{HIGH_PRECISION_ACTION_VERB_PATTERN})\b",
+        lowered,
+    )
+    if owner_match:
+        owner_first_word = owner_match.group("owner").split()[0]
+        if owner_first_word not in {"the", "this", "that", "we", "it", "there", "if", "a", "an"}:
+            return True
+
+    # Some normalized actions keep useful task text but may not start exactly
+    # with the verb after owner/deadline cleanup. Keep them when a strong
+    # action verb appears and the sentence is not context/decision text.
+    if re.search(rf"\b(?:{HIGH_PRECISION_ACTION_VERB_PATTERN})\b", lowered):
+        return True
+
+    return False
+
+
+def _is_high_precision_action_item(item: dict[str, Any]) -> bool:
+    task = _clean_sentence(
+        item.get("task") or item.get("action") or item.get("text") or item.get("description") or ""
+    )
+    if not task:
+        return False
+
+    # Reject obvious context, purpose, summary, and decision text first.
+    if _looks_like_context_or_decision_action(task):
+        return False
+
+    # Keep real actions with strong action verbs, even if older invalid-action
+    # heuristics would otherwise treat the wording as too broad.
+    if _has_high_precision_action_shape(task):
+        return True
+
+    if _is_invalid_action_text(task):
+        return False
+
+    evidence = _clean_sentence(item.get("evidence"))
+    if evidence and re.search(
+        r"\b(?:recap action|explicit action|action)\s*:",
+        evidence,
+        flags=re.I,
+    ):
+        return _has_action_verb(task) and not _looks_like_context_or_decision_action(task)
+
+    return False
+
+
+def _filter_high_precision_actions(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [item for item in items if _is_high_precision_action_item(item)]
+
+
+def _filter_high_precision_next_steps(value: Any) -> list[str]:
+    output: list[str] = []
+    seen: set[str] = set()
+
+    for step in _as_list(value):
+        step_text = _clean_sentence(_text(step))
+        if not _is_high_precision_action_item({"task": step_text}):
+            continue
+        key = _dedupe_key(step_text)
+        if step_text and key not in seen:
+            seen.add(key)
+            output.append(step_text)
+
+    return output
+
+
 def _strip_speaker_prefix(text: str) -> tuple[str, str]:
     cleaned = _clean_sentence(text)
     speaker_match = re.match(
@@ -895,7 +1090,7 @@ def apply_quality_engine_v3(notes: dict[str, Any], transcript_text: str | None) 
             existing_actions.append(normalized_action)
 
     extracted_actions = _extract_action_items(sentences)
-    actions = _dedupe_actions(existing_actions + extracted_actions)
+    actions = _filter_high_precision_actions(_dedupe_actions(existing_actions + extracted_actions))
 
     existing_decisions: list[dict[str, Any]] = []
     for item in _as_list(improved.get("decision_objects")) + _as_list(improved.get("decisions")):
@@ -920,7 +1115,10 @@ def apply_quality_engine_v3(notes: dict[str, Any], transcript_text: str | None) 
     slots["outcome"] = _infer_outcome(sentences, slots.get("outcome") or improved.get("outcome"))
     slots["risks"] = risks
     slots["open_questions"] = open_questions
-    slots["next_steps"] = _build_next_steps(actions, slots.get("next_steps"))
+    slots["next_steps"] = _build_next_steps(
+        actions,
+        _filter_high_precision_next_steps(slots.get("next_steps")),
+    )
 
     improved["summary_slots"] = slots
     improved["action_item_objects"] = actions
