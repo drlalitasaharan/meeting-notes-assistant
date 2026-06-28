@@ -575,6 +575,180 @@ def _publishable_action_payload(
     }
 
 
+def _qev3d_key_points_publishable_enabled() -> bool:
+    return str(os.getenv("MEETIQ_QEV3D_SECTION_SEPARATION", "")).strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+def _publishable_key_point_text_key(text: str) -> str:
+    return re.sub(r"\W+", " ", _clean_client_facing_json_text(text).lower()).strip()
+
+
+def _publishable_key_point_item_text(item: Any) -> str:
+    if isinstance(item, dict):
+        return _clean_client_facing_json_text(
+            item.get("text")
+            or item.get("summary")
+            or item.get("point")
+            or item.get("description")
+            or ""
+        )
+    return _clean_client_facing_json_text(item)
+
+
+def _publishable_key_point_overlaps_text(text: str, other: Any) -> bool:
+    text_key = _publishable_key_point_text_key(text)
+    other_key = _publishable_key_point_text_key(str(other or ""))
+
+    if not text_key or not other_key:
+        return False
+
+    if text_key == other_key:
+        return True
+
+    if len(text_key) >= 24 and len(other_key) >= 24:
+        return text_key in other_key or other_key in text_key
+
+    return False
+
+
+def _publishable_key_point_overlaps_items(text: str, items: Any) -> bool:
+    if not isinstance(items, list):
+        return False
+
+    return any(
+        _publishable_key_point_overlaps_text(text, _publishable_key_point_item_text(item))
+        for item in items
+    )
+
+
+def _normalize_publishable_key_point(text: str) -> str:
+    cleaned = _clean_client_facing_json_text(text)
+    lowered = cleaned.lower()
+
+    if "preserve that processed meeting as the backup demo asset" in lowered:
+        return "Preserve one processed meeting as a backup demo asset before the live demo."
+
+    return cleaned
+
+
+def _looks_like_key_point_section_overlap(
+    text: str,
+    *,
+    summary_slots: dict[str, Any],
+    decisions: Any,
+    actions: dict[str, Any],
+) -> bool:
+    cleaned = _clean_client_facing_json_text(text)
+    lowered = cleaned.lower()
+
+    if not cleaned:
+        return True
+
+    if lowered.startswith(
+        (
+            "i'd like us to",
+            "i’d like us to",
+            "i would like us to",
+            "we'd like to",
+            "we would like to",
+            "the main purpose",
+            "the purpose",
+            "today's purpose",
+            "the team aligned",
+            "team aligned",
+            "if we say",
+            "if we position",
+            "the first pilot audience",
+            "the live demo will use",
+            "the demo will use",
+            "this week's priority is",
+            "this weeks priority is",
+            "the priority is",
+        )
+    ):
+        return True
+
+    if re.search(
+        r"\b(clear decision on the target audience|main purpose of today|"
+        r"designed for consultants|team aligned on|finalized plan for the demo flow|"
+        r"concrete owners for the follow-up|this week'?s priority is|"
+        r"will use a short and clean file)\b",
+        lowered,
+    ):
+        return True
+
+    if _publishable_key_point_overlaps_text(cleaned, summary_slots.get("purpose") or ""):
+        return True
+
+    if _publishable_key_point_overlaps_text(cleaned, summary_slots.get("outcome") or ""):
+        return True
+
+    if _publishable_key_point_overlaps_items(cleaned, decisions):
+        return True
+
+    if _publishable_key_point_overlaps_items(cleaned, actions.get("action_item_objects")):
+        return True
+
+    if _publishable_key_point_overlaps_items(cleaned, actions.get("action_items")):
+        return True
+
+    return False
+
+
+def _publishable_key_points_payload(
+    notes: MeetingNotes,
+    summary_slots: dict[str, Any],
+    publishable_actions: dict[str, Any],
+    *,
+    limit: int = 6,
+) -> list[str]:
+    """Final user-visible Key Points guardrail for frontend and Markdown output."""
+
+    raw_key_points = _clean_client_facing_json_list(notes.key_points)
+
+    if not _is_v3_generated_notes(notes) or not _qev3d_key_points_publishable_enabled():
+        return raw_key_points
+
+    output: list[str] = []
+    seen: set[str] = set()
+
+    decisions = []
+    if isinstance(notes.decision_objects, list) and notes.decision_objects:
+        decisions = notes.decision_objects
+    elif isinstance(notes.decisions, list):
+        decisions = notes.decisions
+
+    for item in raw_key_points:
+        candidate = _normalize_publishable_key_point(item)
+        if not candidate:
+            continue
+
+        if _looks_like_key_point_section_overlap(
+            candidate,
+            summary_slots=summary_slots or {},
+            decisions=decisions,
+            actions=publishable_actions,
+        ):
+            continue
+
+        key = _publishable_key_point_text_key(candidate)
+        if not key or key in seen:
+            continue
+
+        seen.add(key)
+        output.append(candidate)
+
+        if len(output) >= limit:
+            break
+
+    return output
+
+
 @router.get("/{meeting_id}/notes/ai")
 def get_meeting_notes(
     meeting_id: int,
@@ -598,6 +772,11 @@ def get_meeting_notes(
     summary_slots = _clean_client_facing_json_slots(notes.summary_slots)
     publishable_actions = _publishable_action_payload(notes, summary_slots)
     summary_slots = publishable_actions["summary_slots"]
+    publishable_key_points = _publishable_key_points_payload(
+        notes,
+        summary_slots,
+        publishable_actions,
+    )
 
     return {
         "meeting_id": meeting_id,
@@ -605,7 +784,7 @@ def get_meeting_notes(
         **serialize_progress(meeting),
         "summary": _client_facing_summary_from_slots(notes.summary, summary_slots),
         "summary_slots": summary_slots,
-        "key_points": _clean_client_facing_json_list(notes.key_points),
+        "key_points": publishable_key_points,
         "decisions": notes.decisions or [],
         "decision_objects": notes.decision_objects or [],
         "action_items": publishable_actions["action_items"],
@@ -738,6 +917,11 @@ def download_meeting_notes_markdown(
     title = getattr(meeting, "title", f"Meeting {meeting_id}")
     publishable_actions = _publishable_action_payload(notes, notes.summary_slots or {})
     summary_slots = publishable_actions["summary_slots"]
+    publishable_key_points = _publishable_key_points_payload(
+        notes,
+        summary_slots,
+        publishable_actions,
+    )
 
     lines: List[str] = []
     lines.append(f"# {title}")
@@ -784,7 +968,7 @@ def download_meeting_notes_markdown(
         lines.append("")
 
     lines.append("## Key Points")
-    key_points = notes.key_points or []
+    key_points = publishable_key_points
     if key_points:
         for kp in key_points:
             lines.append(f"- {kp}")
