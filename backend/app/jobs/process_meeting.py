@@ -217,6 +217,25 @@ def _quality_engine_result_log_fields(metadata: dict[str, Any]) -> dict[str, Any
     }
 
 
+def _is_successful_selected_qev3_output(
+    selected_mode: str,
+    metadata: dict[str, Any],
+) -> bool:
+    """Treat selected NOTES_ENGINE=v3 as the source of truth for v3 application."""
+
+    return selected_mode == "v3" and not bool(metadata.get("fallback_used"))
+
+
+def _should_apply_quality_engine_result(
+    selected_mode: str,
+    metadata: dict[str, Any],
+) -> bool:
+    if _is_successful_selected_qev3_output(selected_mode, metadata):
+        return True
+
+    return str(metadata.get("mode") or "") in {"v2", "v3"}
+
+
 def _model_version_with_quality_engine_suffix(
     model_version: object,
     metadata: dict[str, Any],
@@ -791,9 +810,16 @@ def process_meeting(meeting_id: str) -> None:
             status="PROCESSING",
             completed_key="quality_engine_completed_at",
         )
-        if quality_engine_metadata.get("mode") in {"v2", "v3"}:
+        is_qev3_output = _is_successful_selected_qev3_output(
+            notes_engine_mode,
+            quality_engine_metadata,
+        )
+        if _should_apply_quality_engine_result(notes_engine_mode, quality_engine_metadata):
             normalized_notes = quality_engine_result["notes"]
-            normalized_notes = _apply_qev2_action_precision_cleanup(normalized_notes)
+            if is_qev3_output:
+                normalized_notes = finalize_quality_engine_v3_persisted_notes(normalized_notes)
+            else:
+                normalized_notes = _apply_qev2_action_precision_cleanup(normalized_notes)
 
         for action_obj in normalized_notes.get("action_item_objects", []) or []:
             if not isinstance(action_obj, dict):
@@ -819,11 +845,20 @@ def process_meeting(meeting_id: str) -> None:
                 action_obj["task"] = task
                 action_obj["text"] = f"{action_obj.get('owner') or 'Team'}: {task}"
 
-        is_qev3_output = quality_engine_metadata.get("mode") == "v3" and not bool(
-            quality_engine_metadata.get("fallback_used")
-        )
         if is_qev3_output:
             normalized_notes = finalize_quality_engine_v3_persisted_notes(normalized_notes)
+            log.info(
+                "process_meeting: qev3 final persisted output applied",
+                extra={
+                    **log_extra,
+                    "qev3_final_action_count": len(
+                        normalized_notes.get("action_item_objects") or []
+                    ),
+                    "qev3_final_next_step_count": len(
+                        (normalized_notes.get("summary_slots") or {}).get("next_steps") or []
+                    ),
+                },
+            )
 
         action_items_source = [] if is_qev3_output else normalized_notes.get("action_items") or []
         normalized_notes["action_items"] = align_action_items_with_objects(
