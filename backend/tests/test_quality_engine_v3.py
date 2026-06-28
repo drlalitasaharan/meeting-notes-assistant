@@ -141,3 +141,65 @@ def test_qev3_markdown_renders_commercial_sections() -> None:
     assert "## Risks / Concerns" in markdown
     assert "## Open Questions" in markdown
     assert "| Owner | Action | Deadline |" in markdown
+
+
+def test_qev3_extracts_m01_numbered_decision_recap() -> None:
+    from app.services.quality_engine_v3 import run_quality_engine_v3
+
+    transcript = (
+        "Lalitaa: Let's capture decisions explicitly. "
+        "Decision one: meeting seventeen will be the current best backup demo example. "
+        "Decision two: the ten-minute realistic file remains the main proof of quality. "
+        "Decision three: the thirty-minute file will be used as a stress test rather than a live default. "
+        "Decision four: we will improve logging visibility for stage durations in a later pass.\n"
+        "Kevin: Decision five: we will lead with a practical positioning message instead of a broad platform pitch.\n"
+        "John: Decision six: the first pilot audience will be consultants, agencies, and small startup teams."
+    )
+
+    result = run_quality_engine_v3({"summary_slots": {}}, transcript, mode="v3")
+    decisions = [item["text"].lower() for item in result["notes"].get("decision_objects", [])]
+
+    assert any(
+        "meeting seventeen will be the current best backup demo example" in item
+        for item in decisions
+    )
+    assert any(
+        "ten-minute realistic file remains the main proof of quality" in item for item in decisions
+    )
+    assert any("thirty-minute file will be used as a stress test" in item for item in decisions)
+    assert any("improve logging visibility for stage durations" in item for item in decisions)
+    assert any(
+        "practical positioning message instead of a broad platform pitch" in item
+        for item in decisions
+    )
+    assert any(
+        "first pilot audience will be consultants, agencies, and small startup teams" in item
+        for item in decisions
+    )
+
+
+def test_qev3_extracts_m01_final_action_recap_items() -> None:
+    from app.services.quality_engine_v3 import run_quality_engine_v3
+
+    transcript = (
+        "Lalitaa: Let's close with concrete actions. "
+        "Team will review and finalize the landing page and outreach message by Friday. "
+        "Team will add stage timing logs to the worker output. "
+        "Lalita will create the clean ten-minute audio test and run it through the product today."
+    )
+
+    result = run_quality_engine_v3({"summary_slots": {}}, transcript, mode="v3")
+    actions = result["notes"].get("action_item_objects", [])
+
+    action_texts = [item["text"].lower() for item in actions]
+    owners = {item["owner"] for item in actions}
+
+    assert "Team" in owners
+    assert "Lalita" in owners
+    assert any(
+        "review and finalize the landing page and outreach message" in item for item in action_texts
+    )
+    assert any("add stage timing logs to the worker output" in item for item in action_texts)
+    assert any("create the clean ten-minute audio test" in item for item in action_texts)
+    assert any(item["deadline"] == "today" for item in actions)
+    assert any(item["deadline"] == "by Friday" for item in actions)
