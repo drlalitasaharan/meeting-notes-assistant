@@ -18,6 +18,7 @@ from app.models.meeting import Meeting
 from app.models.meeting_notes import MeetingNotes
 from app.services.action_cleanup_pass import apply_deterministic_action_cleanup
 from app.services.action_item_postprocess import clean_action_items
+from app.services.llm_polish import apply_llm_polish_to_notes
 from app.services.media import load_audio_for_meeting
 from app.services.note_strategies.factory import get_notes_strategy
 from app.services.notes import generate_meeting_notes
@@ -874,6 +875,9 @@ def process_meeting(meeting_id: str) -> None:
                 if isinstance(item, dict) and str(item.get("task") or "").strip()
             ]
             normalized_notes["summary_slots"] = summary_slots_for_publish
+
+        if is_qev3_output:
+            normalized_notes = apply_llm_polish_to_notes(normalized_notes)
 
         notes_row = MeetingNotes(
             meeting_id=meeting.id,
