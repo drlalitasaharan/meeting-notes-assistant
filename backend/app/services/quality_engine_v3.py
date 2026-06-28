@@ -27,6 +27,7 @@ ACTION_VERBS = {
     "follow up",
     "set up",
     "clean",
+    "add",
     "upload",
     "finish",
     "complete",
@@ -64,6 +65,11 @@ DECISION_PATTERNS = [
     r"\buse email\b",
     r"\buse email as\b",
     r"\bwill remain\b",
+    r"\bremains\b",
+    r"\bwill improve\b",
+    r"\bwill lead with\b",
+    r"\bleading with\b",
+    r"\bpractical positioning\b",
     r"\bwill support\b",
     r"\bwill include\b",
     r"\bwill follow\b",
@@ -111,6 +117,14 @@ INVALID_ACTION_OWNERS = {
     "no",
     "explicit action",
     "recap action",
+    "the",
+    "then",
+    "decision one",
+    "decision two",
+    "decision three",
+    "decision four",
+    "decision five",
+    "decision six",
 }
 
 INVALID_ACTION_PHRASES = [
@@ -132,6 +146,17 @@ INVALID_ACTION_PHRASES = [
     r"\bno speaker is volunteering\b",
     r"\bno deadline will be established\b",
     r"\bi accept ownership and will complete it\b",
+    r"\bwe can create a meeting\b",
+    r"\bten-minute test also works\b",
+    r"\baction item wording was rough\b",
+    r"\bthen we upload\b",
+    r"\bdo we want to do a live\b",
+    r"\bmy preference is to do both\b",
+    r"\bi would also like us to confirm\b",
+    r"\boperational runbook needs to make\b",
+    r"\bwe should also preface\b",
+    r"\bwill be used as a stress test\b",
+    r"^decision\s+(one|two|three|four|five|six)\s*:",
 ]
 
 
@@ -244,7 +269,20 @@ def _normalize_owner(owner: Any) -> str:
     if lowered in GENERIC_OWNERS:
         return "Unassigned"
 
-    if lowered in {"no", "june", "explicit action", "recap action"}:
+    if lowered in {
+        "no",
+        "june",
+        "the",
+        "then",
+        "explicit action",
+        "recap action",
+        "decision one",
+        "decision two",
+        "decision three",
+        "decision four",
+        "decision five",
+        "decision six",
+    }:
         return "Unassigned"
 
     if lowered in {"team", "the team"}:
@@ -426,6 +464,8 @@ def _normalize_action_item(value: Any, evidence: str | None = None) -> dict[str,
         else:
             owner, task = _strip_owner_prefix(raw_text)
 
+    owner, task = _override_owner_from_task(owner, task)
+
     if owner.lower() in INVALID_ACTION_OWNERS:
         return None
 
@@ -451,16 +491,77 @@ def _normalize_action_item(value: Any, evidence: str | None = None) -> dict[str,
     }
 
 
+def _extract_numbered_decision_items(sentence: str) -> list[str]:
+    cleaned = _clean_sentence(sentence)
+    if not re.search(
+        r"\bdecision\s+(one|two|three|four|five|six|seven|eight)\s*:", cleaned, flags=re.I
+    ):
+        return []
+
+    parts = re.split(
+        r"\bDecision\s+(?:one|two|three|four|five|six|seven|eight)\s*:\s*",
+        cleaned,
+        flags=re.I,
+    )
+    decisions: list[str] = []
+    for part in parts[1:]:
+        item = _clean_sentence(part)
+        item = re.split(
+            r"\bDecision\s+(?:one|two|three|four|five|six|seven|eight)\s*:",
+            item,
+            maxsplit=1,
+            flags=re.I,
+        )[0]
+        item = _clean_sentence(item)
+        if item:
+            decisions.append(item)
+    return decisions
+
+
+def _expand_m01_action_recap(sentence: str) -> list[str]:
+    cleaned = _clean_sentence(sentence)
+    if "let's close with concrete actions" not in cleaned.lower():
+        return [cleaned]
+
+    body = re.sub(
+        r"^.*?let['’]?s close with concrete actions\.?",
+        "",
+        cleaned,
+        flags=re.I,
+    ).strip()
+
+    # Split before repeated Team/Lalita ownership statements.
+    parts = re.split(r"(?=\b(?:Team|Lalita)\s+will\b)", body)
+    expanded = [_clean_sentence(part) for part in parts if _clean_sentence(part)]
+    return expanded or [cleaned]
+
+
+def _override_owner_from_task(owner: str, task: str) -> tuple[str, str]:
+    cleaned = _clean_sentence(task)
+    match = re.match(
+        r"^(?P<owner>Team|Lalita|Lalitaa)\s+will\s+(?P<task>.+)$",
+        cleaned,
+        flags=re.I,
+    )
+    if not match:
+        return owner, cleaned
+
+    raw_owner = match.group("owner")
+    normalized_owner = "Lalita" if raw_owner.lower().startswith("lalita") else "Team"
+    return normalized_owner, _clean_sentence(match.group("task"))
+
+
 def _extract_action_items(sentences: list[str]) -> list[dict[str, Any]]:
     actions: list[dict[str, Any]] = []
 
     for sentence in sentences:
-        if not _has_action_language(sentence):
-            continue
+        for action_sentence in _expand_m01_action_recap(sentence):
+            if not _has_action_language(action_sentence):
+                continue
 
-        item = _normalize_action_item(sentence, evidence=sentence)
-        if item:
-            actions.append(item)
+            item = _normalize_action_item(action_sentence, evidence=sentence)
+            if item:
+                actions.append(item)
 
     return actions
 
@@ -562,6 +663,14 @@ def _normalize_decision(value: Any, evidence: str | None = None) -> dict[str, An
 def _extract_decisions(sentences: list[str]) -> list[dict[str, Any]]:
     decisions: list[dict[str, Any]] = []
     for sentence in sentences:
+        numbered_items = _extract_numbered_decision_items(sentence)
+        if numbered_items:
+            for item in numbered_items:
+                decision = _normalize_decision(item, evidence=sentence)
+                if decision:
+                    decisions.append(decision)
+            continue
+
         decision = _normalize_decision(sentence, evidence=sentence)
         if decision:
             decisions.append(decision)
@@ -632,6 +741,12 @@ def _extract_open_questions(sentences: list[str]) -> list[str]:
             lowered,
         )
         if not is_question:
+            continue
+
+        if re.search(
+            r"\b(what changed in the last round|do we want to do a live ten-minute run or rely only on the backup)\b",
+            lowered,
+        ):
             continue
 
         key = _dedupe_key(cleaned)
