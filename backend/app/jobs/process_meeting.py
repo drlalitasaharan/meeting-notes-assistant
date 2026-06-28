@@ -879,6 +879,23 @@ def process_meeting(meeting_id: str) -> None:
         if is_qev3_output:
             normalized_notes = apply_llm_polish_to_notes(normalized_notes)
 
+        model_version_for_persistence = _model_version_with_quality_engine_suffix(
+            notes_dict.get("model_version"),
+            quality_engine_metadata,
+        )
+        if normalized_notes.pop("_llm_polish_applied", False):
+            if "+llm-polish" not in str(model_version_for_persistence or "").lower():
+                model_version_for_persistence = (
+                    f"{model_version_for_persistence or 'local-summary-v3'}+llm-polish"
+                )
+            log.info(
+                "process_meeting: llm polish applied to persisted notes",
+                extra={
+                    **log_extra,
+                    "llm_polish_model_version": model_version_for_persistence,
+                },
+            )
+
         notes_row = MeetingNotes(
             meeting_id=meeting.id,
             raw_transcript=raw_transcript_payload,
@@ -889,10 +906,7 @@ def process_meeting(meeting_id: str) -> None:
             action_item_objects=normalized_notes["action_item_objects"],
             decisions=normalized_notes["decisions"],
             decision_objects=normalized_notes["decision_objects"],
-            model_version=_model_version_with_quality_engine_suffix(
-                notes_dict.get("model_version"),
-                quality_engine_metadata,
-            ),
+            model_version=model_version_for_persistence,
         )
         db.query(MeetingNotes).filter(MeetingNotes.meeting_id == meeting.id).delete(
             synchronize_session=False

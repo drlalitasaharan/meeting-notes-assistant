@@ -132,21 +132,43 @@ def _prompt_messages(payload: dict[str, Any]) -> list[dict[str, str]]:
 def _call_groq_polish(payload: dict[str, Any]) -> dict[str, Any] | None:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
+        log.info("llm_polish: skipped missing GROQ_API_KEY")
         return None
 
     provider = str(os.getenv("MEETIQ_LLM_PROVIDER") or "groq").strip().lower()
     if provider != "groq":
+        log.info(
+            "llm_polish: skipped unsupported provider",
+            extra={"llm_polish_provider": provider},
+        )
         return None
 
     max_input_tokens = _int_env("MEETIQ_LLM_POLISH_MAX_INPUT_TOKENS", 8000)
     payload_text = json.dumps(payload, ensure_ascii=False)
-    if len(payload_text) > max_input_tokens * 4:
-        log.info("llm_polish: payload skipped because it exceeds configured input budget")
+    payload_chars = len(payload_text)
+    if payload_chars > max_input_tokens * 4:
+        log.info(
+            "llm_polish: skipped payload too large",
+            extra={
+                "llm_polish_payload_chars": payload_chars,
+                "llm_polish_max_input_tokens": max_input_tokens,
+            },
+        )
         return None
 
     timeout_seconds = _int_env("MEETIQ_LLM_POLISH_TIMEOUT_SECONDS", 20)
     model = (
         os.getenv("MEETIQ_LLM_POLISH_MODEL") or os.getenv("MEETIQ_LLM_MODEL") or DEFAULT_GROQ_MODEL
+    )
+
+    log.info(
+        "llm_polish: groq request starting",
+        extra={
+            "llm_polish_provider": provider,
+            "llm_polish_model": model,
+            "llm_polish_timeout_seconds": timeout_seconds,
+            "llm_polish_payload_chars": payload_chars,
+        },
     )
 
     from openai import OpenAI
@@ -169,9 +191,26 @@ def _call_groq_polish(payload: dict[str, Any]) -> dict[str, Any] | None:
     try:
         content = str(response.choices[0].message.content or "")
     except (AttributeError, IndexError, TypeError):
+        log.info("llm_polish: skipped empty or malformed Groq response")
         return None
 
-    return _extract_json_object(content)
+    if not content.strip():
+        log.info("llm_polish: skipped empty Groq response content")
+        return None
+
+    parsed = _extract_json_object(content)
+    if parsed is None:
+        log.info(
+            "llm_polish: skipped invalid JSON response",
+            extra={"llm_polish_response_chars": len(content)},
+        )
+        return None
+
+    log.info(
+        "llm_polish: groq response parsed",
+        extra={"llm_polish_response_chars": len(content)},
+    )
+    return parsed
 
 
 def _same_length_polished_list(
@@ -188,6 +227,30 @@ def _same_length_polished_list(
         return None
 
     return candidate
+
+
+def _visible_polish_changed(
+    original_notes: dict[str, Any],
+    polished_notes: dict[str, Any],
+) -> bool:
+    original_slots = original_notes.get("summary_slots")
+    polished_slots = polished_notes.get("summary_slots")
+
+    if not isinstance(original_slots, dict):
+        original_slots = {}
+    if not isinstance(polished_slots, dict):
+        polished_slots = {}
+
+    fields_to_compare = (
+        ("summary", original_notes.get("summary"), polished_notes.get("summary")),
+        ("key_points", original_notes.get("key_points"), polished_notes.get("key_points")),
+        ("decisions", original_notes.get("decisions"), polished_notes.get("decisions")),
+        ("purpose", original_slots.get("purpose"), polished_slots.get("purpose")),
+        ("outcome", original_slots.get("outcome"), polished_slots.get("outcome")),
+        ("risks", original_slots.get("risks"), polished_slots.get("risks")),
+    )
+
+    return any(original != polished for _, original, polished in fields_to_compare)
 
 
 def _merge_polished_notes(
@@ -271,7 +334,20 @@ def apply_llm_polish_to_notes(
     original = copy.deepcopy(notes)
 
     if not llm_polish_enabled():
+        log.info("llm_polish: skipped disabled")
         return original
+
+    provider = str(os.getenv("MEETIQ_LLM_PROVIDER") or "groq").strip().lower()
+    model = (
+        os.getenv("MEETIQ_LLM_POLISH_MODEL") or os.getenv("MEETIQ_LLM_MODEL") or DEFAULT_GROQ_MODEL
+    )
+    log.info(
+        "llm_polish: enabled",
+        extra={
+            "llm_polish_provider": provider,
+            "llm_polish_model": model,
+        },
+    )
 
     try:
         payload = _build_polish_payload(original)
@@ -279,10 +355,22 @@ def apply_llm_polish_to_notes(
             polish_client(payload) if polish_client is not None else _call_groq_polish(payload)
         )
         if not isinstance(polished, dict):
+            log.info("llm_polish: skipped no valid polish payload")
             return original
 
         merged = _merge_polished_notes(original, polished)
-        log.info("llm_polish: applied successfully")
+        if not _visible_polish_changed(original, merged):
+            log.info("llm_polish: skipped no visible changes after merge")
+            return original
+
+        merged["_llm_polish_applied"] = True
+        log.info(
+            "llm_polish: applied successfully",
+            extra={
+                "llm_polish_provider": provider,
+                "llm_polish_model": model,
+            },
+        )
         return merged
     except Exception:
         log.exception("llm_polish: failed; falling back to deterministic notes")
