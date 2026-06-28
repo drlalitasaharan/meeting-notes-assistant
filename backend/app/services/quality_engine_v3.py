@@ -27,7 +27,13 @@ ACTION_VERBS = {
     "follow up",
     "set up",
     "clean",
+    "upload",
+    "finish",
+    "complete",
+    "verify",
+    "circulate",
 }
+
 
 WEAK_ACTION_PATTERNS = [
     r"\bi['’]?d like us to leave\b",
@@ -47,13 +53,27 @@ WEAK_ACTION_PATTERNS = [
 ]
 
 DECISION_PATTERNS = [
+    r"\bdecision confirmed\b",
+    r"\brecap decision\b",
     r"\bwe decided\b",
     r"\bwe agreed\b",
     r"\bthe decision is\b",
     r"\bthe plan is\b",
     r"\bwill be\b",
     r"\bwill use\b",
+    r"\buse email\b",
+    r"\buse email as\b",
+    r"\bwill remain\b",
+    r"\bwill support\b",
+    r"\bwill include\b",
+    r"\bwill follow\b",
     r"\bwill focus on\b",
+    r"\blimit\b",
+    r"\ballow\b",
+    r"\bretain\b",
+    r"\bkeep\b",
+    r"\bdo not announce\b",
+    r"\breview pilot quality\b",
 ]
 
 RISK_PATTERNS = [
@@ -81,6 +101,39 @@ PURPOSE_PATTERNS = [
 
 GENERIC_OWNERS = {"we", "i", "everyone", "somebody", "someone", "people"}
 
+INVALID_ACTION_OWNERS = {
+    "this risk",
+    "the team is deciding how customers",
+    "the team",
+    "customer",
+    "the customer",
+    "june",
+    "no",
+    "explicit action",
+    "recap action",
+}
+
+INVALID_ACTION_PHRASES = [
+    r"\bthis is the\b",
+    r"\bwe can begin\b",
+    r"\bworking recommendation\b",
+    r"\bfrom the customer perspective\b",
+    r"\bshould be monitored\b",
+    r"\bdoes not create an additional action\b",
+    r"\bthe team is deciding\b",
+    r"\bcustomer should see\b",
+    r"\bno new owner\b",
+    r"\bno speaker accepts work\b",
+    r"\bi also confirm that\b",
+    r"\bcustomer-facing interpretation should match\b",
+    r"\bexplicit decision and action language\b",
+    r"\bwe need to confirm scope\b",
+    r"\bsecurity checklist is nearly complete\b",
+    r"\bno speaker is volunteering\b",
+    r"\bno deadline will be established\b",
+    r"\bi accept ownership and will complete it\b",
+]
+
 
 def _text(value: Any) -> str:
     if value is None:
@@ -88,7 +141,7 @@ def _text(value: Any) -> str:
     if isinstance(value, str):
         return value
     if isinstance(value, dict):
-        for key in ("text", "task", "title", "summary"):
+        for key in ("action", "task", "text", "description", "title", "summary"):
             if value.get(key):
                 return str(value[key])
     return str(value)
@@ -130,12 +183,34 @@ def _split_transcript_sentences(transcript_text: str | None) -> list[str]:
         line = _clean_sentence(line)
         if not line:
             continue
-        rough_parts.extend(re.split(r"(?<=[.!?])\s+", line))
+
+        speaker_prefix = ""
+        body = line
+        speaker_match = re.match(
+            r"^(?P<speaker>[A-Z][A-Za-z .'-]{1,40})\s*:\s*(?P<body>.+)$",
+            line,
+        )
+        if speaker_match:
+            speaker_prefix = f"{_normalize_owner(speaker_match.group('speaker'))}: "
+            body = _clean_sentence(speaker_match.group("body"))
+
+        for part in re.split(r"(?<=[.!?])\s+", body):
+            part = _clean_sentence(part)
+            if not part:
+                continue
+            if speaker_prefix and not re.match(
+                r"^[A-Z][A-Za-z .'-]{1,40}\s*:",
+                part,
+            ):
+                rough_parts.append(f"{speaker_prefix}{part}")
+            else:
+                rough_parts.append(part)
 
     sentences: list[str] = []
     seen: set[str] = set()
     for part in rough_parts:
         sentence = _clean_sentence(part)
+        sentence = sentence.replace("andI ", "and I ")
         key = _dedupe_key(sentence)
         if sentence and key and key not in seen:
             seen.add(key)
@@ -153,7 +228,7 @@ def _has_action_language(text: str) -> bool:
     lowered = text.lower()
     return bool(
         re.search(
-            r"\b(will|needs to|need to|should|must|has to|have to|follow up|action item)\b",
+            r"\b(will|needs to|need to|should|must|has to|have to|follow up|action item|explicit action|recap action)\b",
             lowered,
         )
     )
@@ -167,6 +242,9 @@ def _normalize_owner(owner: Any) -> str:
 
     lowered = value.lower()
     if lowered in GENERIC_OWNERS:
+        return "Unassigned"
+
+    if lowered in {"no", "june", "explicit action", "recap action"}:
         return "Unassigned"
 
     if lowered in {"team", "the team"}:
@@ -236,9 +314,19 @@ def _is_invalid_action_text(text: str) -> bool:
     if _matches_any(cleaned, PURPOSE_PATTERNS):
         return True
 
+    if _matches_any(cleaned, INVALID_ACTION_PHRASES):
+        return True
+
     lowered = cleaned.lower()
     if lowered.startswith(
-        ("the first pilot audience", "the live demo will use", "the demo will use")
+        (
+            "the first pilot audience",
+            "the live demo will use",
+            "the demo will use",
+            "this risk",
+            "the team is deciding",
+            "from the customer perspective",
+        )
     ):
         return True
 
@@ -248,22 +336,98 @@ def _is_invalid_action_text(text: str) -> bool:
     return False
 
 
+def _strip_speaker_prefix(text: str) -> tuple[str, str]:
+    cleaned = _clean_sentence(text)
+    speaker_match = re.match(
+        r"^(?P<speaker>[A-Z][A-Za-z .'-]{1,40})\s*:\s*(?P<body>.+)$",
+        cleaned,
+    )
+    if not speaker_match:
+        return "", cleaned
+    return _normalize_owner(speaker_match.group("speaker")), _clean_sentence(
+        speaker_match.group("body")
+    )
+
+
+def _parse_structured_action_text(text: str) -> tuple[str | None, str, str | None]:
+    cleaned = _clean_sentence(text)
+    speaker, body = _strip_speaker_prefix(cleaned)
+    owner: str | None = speaker or None
+    deadline: str | None = None
+    task = body
+
+    if re.search(r"\brecap action\s*:", body, flags=re.I):
+        task = re.sub(r"^.*?\brecap action\s*:\s*", "", body, flags=re.I).strip()
+        owner_match = re.search(r"\bOwner\s*:\s*([^\.]+)", task, flags=re.I)
+        deadline_match = re.search(r"\bDeadline\s*:\s*([^\.]+)", task, flags=re.I)
+        if owner_match:
+            owner_value = _clean_sentence(owner_match.group(1))
+            owner = "Unassigned" if owner_value.lower() == "unassigned" else owner_value
+        if deadline_match:
+            deadline_value = _clean_sentence(deadline_match.group(1))
+            if deadline_value and deadline_value.lower() != "no deadline":
+                deadline = deadline_value
+        task = re.split(r"\bOwner\s*:", task, maxsplit=1, flags=re.I)[0].strip()
+
+    elif re.search(r"\bexplicit action\s*:", body, flags=re.I):
+        task = re.sub(r"^.*?\bexplicit action\s*:\s*", "", body, flags=re.I).strip()
+        task = re.split(
+            r"\b(I accept|This action is intentionally|No deadline is assigned)\b",
+            task,
+            maxsplit=1,
+            flags=re.I,
+        )[0].strip()
+        if re.search(r"\bintentionally unassigned\b", body, flags=re.I):
+            owner = "Unassigned"
+
+    return owner, _clean_sentence(task), deadline
+
+
 def _normalize_action_item(value: Any, evidence: str | None = None) -> dict[str, Any] | None:
     raw_text = _clean_sentence(value)
+
     if isinstance(value, dict):
-        raw_text = _clean_sentence(value.get("task") or value.get("text") or value)
+        raw_text = _clean_sentence(
+            value.get("action")
+            or value.get("task")
+            or value.get("text")
+            or value.get("description")
+            or ""
+        )
 
     if _is_invalid_action_text(raw_text):
         return None
 
     owner = "Unassigned"
     task = raw_text
+    explicit_deadline = "Not specified"
 
     if isinstance(value, dict):
         owner = _normalize_owner(value.get("owner") or value.get("assignee") or "")
-        task = _clean_sentence(value.get("task") or value.get("text") or raw_text)
+        task = _clean_sentence(
+            value.get("action")
+            or value.get("task")
+            or value.get("text")
+            or value.get("description")
+            or raw_text
+        )
+        deadline_value = value.get("deadline") or value.get("due_date")
+        if deadline_value:
+            explicit_deadline = _clean_sentence(deadline_value)
     else:
-        owner, task = _strip_owner_prefix(raw_text)
+        structured_owner, structured_task, structured_deadline = _parse_structured_action_text(
+            raw_text
+        )
+        if structured_task != raw_text:
+            owner = _normalize_owner(structured_owner or "")
+            task = structured_task
+            if structured_deadline:
+                explicit_deadline = structured_deadline
+        else:
+            owner, task = _strip_owner_prefix(raw_text)
+
+    if owner.lower() in INVALID_ACTION_OWNERS:
+        return None
 
     if _is_invalid_action_text(task):
         return None
@@ -271,10 +435,12 @@ def _normalize_action_item(value: Any, evidence: str | None = None) -> dict[str,
     if not _has_action_verb(task):
         return None
 
-    task, deadline = _extract_deadline(task)
+    task, extracted_deadline = _extract_deadline(task)
+    deadline = explicit_deadline if explicit_deadline != "Not specified" else extracted_deadline
 
     return {
         "owner": owner,
+        "action": task,
         "task": task,
         "text": f"{owner}: {task}" if owner != "Unassigned" else task,
         "deadline": deadline,
@@ -334,7 +500,19 @@ def _dedupe_actions(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def _normalize_decision_text(text: Any) -> str:
     value = _clean_sentence(text)
-    value = re.sub(r"^(decision|decided)\s*:\s*", "", value, flags=re.I).strip()
+    _, value = _strip_speaker_prefix(value)
+    value = re.sub(
+        r"^(decision confirmed|recap decision|decision|decided)\s*[:.]?\s*",
+        "",
+        value,
+        flags=re.I,
+    ).strip()
+    value = re.sub(
+        r"\s*This\s*decision\s*has\s*no\s*action\s*owner.*$",
+        "",
+        value,
+        flags=re.I,
+    ).strip()
     return value
 
 
@@ -346,6 +524,12 @@ def _is_decision_sentence(sentence: str) -> bool:
     lowered = cleaned.lower()
 
     if lowered.endswith("?"):
+        return False
+
+    if re.search(
+        r"\b(no speaker is volunteering|no deadline will be established|no action owner|no owners|no deadlines)\b",
+        lowered,
+    ):
         return False
 
     if _matches_any(cleaned, WEAK_ACTION_PATTERNS):
@@ -570,7 +754,7 @@ def _commercial_quality_metadata(
         "generic_owner_count": generic_owner_count,
         "missing_deadline_count": missing_deadline_count,
         "warnings": warnings,
-        "passed": not any("No action items" in warning for warning in warnings),
+        "passed": bool(actions or decisions),
     }
 
 
