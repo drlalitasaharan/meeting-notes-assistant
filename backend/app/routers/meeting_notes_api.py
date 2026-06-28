@@ -337,6 +337,244 @@ def _client_facing_summary_from_slots(
     return cleaned_summary or None
 
 
+PUBLISHABLE_ACTION_VERBS = (
+    "add",
+    "assign",
+    "call",
+    "check",
+    "circulate",
+    "complete",
+    "confirm",
+    "contact",
+    "create",
+    "deliver",
+    "deploy",
+    "document",
+    "draft",
+    "email",
+    "finish",
+    "finalize",
+    "fix",
+    "follow up",
+    "keep",
+    "package",
+    "prepare",
+    "publish",
+    "redeploy",
+    "review",
+    "run",
+    "save",
+    "schedule",
+    "send",
+    "share",
+    "test",
+    "update",
+    "upload",
+    "validate",
+    "verify",
+    "write",
+)
+
+PUBLISHABLE_ACTION_VERB_PATTERN = "|".join(re.escape(verb) for verb in PUBLISHABLE_ACTION_VERBS)
+
+
+def _is_v3_generated_notes(notes: MeetingNotes) -> bool:
+    return "v3" in str(getattr(notes, "model_version", "") or "").lower()
+
+
+def _clean_publishable_action_task(value: Any) -> str:
+    text = str(value or "").strip()
+    text = re.sub(r"^\s*[-*]?\s*\[[ xX]\]\s*", "", text)
+    text = re.sub(r"\s+_?\(status:.*$", "", text, flags=re.I).strip()
+    text = text.strip(" -–—")
+    return _clean_publishable_markdown_text(text)
+
+
+def _split_publishable_action_item(value: Any) -> tuple[str, str]:
+    text = _clean_publishable_action_task(value)
+
+    owner_match = re.match(
+        r"^(?P<owner>[A-Z][A-Za-z .'-]{1,60})\s*(?:—|-|:)\s*(?P<task>.+)$",
+        text,
+    )
+    if owner_match:
+        return owner_match.group("owner").strip(), _clean_publishable_action_task(
+            owner_match.group("task")
+        )
+
+    return "Team", text
+
+
+def _looks_like_publishable_context_not_action(task: str) -> bool:
+    cleaned = _clean_publishable_action_task(task)
+    lowered = cleaned.lower()
+
+    if not lowered:
+        return True
+
+    if lowered.startswith(
+        (
+            "i'd like us to",
+            "i’d like us to",
+            "i'd us to",
+            "i’d us to",
+            "i would like us to",
+            "we'd like to",
+            "we would like to",
+            "the main purpose",
+            "the purpose",
+            "today's purpose",
+            "the team aligned",
+            "team aligned",
+            "if we say",
+            "if we position",
+            "that's ",
+            "that is ",
+            "this week's priority is",
+            "this weeks priority is",
+            "the priority is",
+            "the first pilot audience",
+            "the live demo will use",
+            "the demo will use",
+            "a short demo video",
+            "a simple landing page",
+            "even if you already know",
+            "sixth,",
+        )
+    ):
+        return True
+
+    if re.search(
+        r"\b(clear decision on the target audience|main purpose of today|"
+        r"designed for consultants|team aligned on|finalized plan for the demo flow|"
+        r"concrete owners for the follow-up|this week'?s priority is|"
+        r"would be enough to start|makes the demo feel|will use a short and clean file)\b",
+        lowered,
+    ):
+        return True
+
+    if lowered.startswith(("we can ", "we need to ", "we should ", "we will ")):
+        return True
+
+    if re.match(r"^(?:the|this|that|it|there)\b", lowered) and re.search(
+        r"\b(will be|will use|will remain|will include|is to|is|are|aligned|designed)\b",
+        lowered,
+    ):
+        return True
+
+    return False
+
+
+def _is_publishable_action_task(task: str) -> bool:
+    cleaned = _clean_publishable_action_task(task)
+    lowered = cleaned.lower()
+
+    if _looks_like_publishable_context_not_action(cleaned):
+        return False
+
+    if re.match(rf"^(?:also\s+)?(?:please\s+)?(?:{PUBLISHABLE_ACTION_VERB_PATTERN})\b", lowered):
+        return True
+
+    if re.match(
+        rf"^(?:i\s+will|i'll)\s+(?:{PUBLISHABLE_ACTION_VERB_PATTERN})\b",
+        lowered,
+    ):
+        return True
+
+    if re.match(
+        rf"^[a-z][a-z .'-]{{1,50}}\s+"
+        rf"(?:will|should|needs to|need to|must|has to)\s+"
+        rf"(?:{PUBLISHABLE_ACTION_VERB_PATTERN})\b",
+        lowered,
+    ):
+        return True
+
+    return False
+
+
+def _publishable_action_payload(
+    notes: MeetingNotes,
+    summary_slots: dict[str, Any],
+) -> dict[str, Any]:
+    """Final user-visible action guardrail for frontend and Markdown output."""
+
+    if not _is_v3_generated_notes(notes):
+        return {
+            "summary_slots": summary_slots,
+            "action_items": notes.action_items or [],
+            "action_item_objects": notes.action_item_objects or [],
+        }
+
+    action_objects: list[dict[str, Any]] = []
+    seen: set[str] = set()
+
+    for item in notes.action_item_objects or []:
+        if not isinstance(item, dict):
+            continue
+
+        owner = str(item.get("owner") or "Team").strip() or "Team"
+        task = _clean_publishable_action_task(
+            item.get("task") or item.get("action") or item.get("text") or ""
+        )
+        if not _is_publishable_action_task(task):
+            continue
+
+        key = re.sub(r"\W+", " ", task.lower()).strip()
+        if not key or key in seen:
+            continue
+
+        seen.add(key)
+        action_objects.append(
+            {
+                **item,
+                "owner": owner,
+                "task": task,
+                "text": f"{owner}: {task}",
+                "status": item.get("status") or "open",
+                "priority": item.get("priority") or "medium",
+            }
+        )
+
+    for item in notes.action_items or []:
+        owner, task = _split_publishable_action_item(item)
+        if not _is_publishable_action_task(task):
+            continue
+
+        key = re.sub(r"\W+", " ", task.lower()).strip()
+        if not key or key in seen:
+            continue
+
+        seen.add(key)
+        action_objects.append(
+            {
+                "owner": owner,
+                "task": task,
+                "text": f"{owner}: {task}",
+                "status": "open",
+                "priority": "medium",
+            }
+        )
+
+    action_items = [
+        f"{item.get('owner') or 'Team'} — {item.get('task')}"
+        for item in action_objects
+        if str(item.get("task") or "").strip()
+    ]
+
+    publishable_slots = dict(summary_slots or {})
+    publishable_slots["next_steps"] = [
+        str(item.get("task") or "").rstrip(".") + "."
+        for item in action_objects[:5]
+        if str(item.get("task") or "").strip()
+    ]
+
+    return {
+        "summary_slots": publishable_slots,
+        "action_items": action_items,
+        "action_item_objects": action_objects,
+    }
+
+
 @router.get("/{meeting_id}/notes/ai")
 def get_meeting_notes(
     meeting_id: int,
@@ -358,6 +596,8 @@ def get_meeting_notes(
 
     status = getattr(meeting, "status", None) or "UNKNOWN"
     summary_slots = _clean_client_facing_json_slots(notes.summary_slots)
+    publishable_actions = _publishable_action_payload(notes, summary_slots)
+    summary_slots = publishable_actions["summary_slots"]
 
     return {
         "meeting_id": meeting_id,
@@ -368,8 +608,8 @@ def get_meeting_notes(
         "key_points": _clean_client_facing_json_list(notes.key_points),
         "decisions": notes.decisions or [],
         "decision_objects": notes.decision_objects or [],
-        "action_items": notes.action_items or [],
-        "action_item_objects": notes.action_item_objects or [],
+        "action_items": publishable_actions["action_items"],
+        "action_item_objects": publishable_actions["action_item_objects"],
         "model_version": notes.model_version,
     }
 
@@ -496,7 +736,8 @@ def download_meeting_notes_markdown(
         raise HTTPException(status_code=404, detail="Notes not found")
 
     title = getattr(meeting, "title", f"Meeting {meeting_id}")
-    summary_slots = notes.summary_slots or {}
+    publishable_actions = _publishable_action_payload(notes, notes.summary_slots or {})
+    summary_slots = publishable_actions["summary_slots"]
 
     lines: List[str] = []
     lines.append(f"# {title}")
@@ -561,8 +802,8 @@ def download_meeting_notes_markdown(
     lines.append("")
 
     lines.append("## Action Items")
-    action_item_objects = notes.action_item_objects or []
-    action_items = notes.action_items or []
+    action_item_objects = publishable_actions["action_item_objects"]
+    action_items = publishable_actions["action_items"]
 
     if action_item_objects:
         for item in action_item_objects:
