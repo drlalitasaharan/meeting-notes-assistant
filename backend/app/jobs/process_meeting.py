@@ -876,6 +876,31 @@ def process_meeting(meeting_id: str) -> None:
             ]
             normalized_notes["summary_slots"] = summary_slots_for_publish
 
+        llm_polish_enabled_value = os.getenv("MEETIQ_LLM_POLISH_ENABLED", "")
+        llm_gate_fields = {
+            **log_extra,
+            "notes_engine_mode": notes_engine_mode,
+            "is_qev3_output": is_qev3_output,
+            "quality_engine_metadata_mode": quality_engine_metadata.get("mode"),
+            "quality_engine_fallback_used": quality_engine_metadata.get("fallback_used"),
+            "quality_engine_applied": quality_engine_metadata.get("applied"),
+            "llm_polish_enabled": llm_polish_enabled_value,
+            "source_model_version": notes_dict.get("model_version"),
+        }
+        log.warning("process_meeting: llm polish gate", extra=llm_gate_fields)
+        print(
+            "process_meeting: llm polish gate "
+            f"meeting_id={meeting.id} "
+            f"notes_engine_mode={notes_engine_mode} "
+            f"is_qev3_output={is_qev3_output} "
+            f"metadata_mode={quality_engine_metadata.get('mode')} "
+            f"fallback_used={quality_engine_metadata.get('fallback_used')} "
+            f"applied={quality_engine_metadata.get('applied')} "
+            f"llm_enabled={llm_polish_enabled_value} "
+            f"source_model_version={notes_dict.get('model_version')}",
+            flush=True,
+        )
+
         if is_qev3_output:
             normalized_notes = apply_llm_polish_to_notes(normalized_notes)
 
