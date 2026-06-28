@@ -1325,7 +1325,7 @@ def _sync_next_steps_from_actions(
     return output[:limit]
 
 
-VALID_NOTES_ENGINE_MODES = {"v1", "v2", "shadow"}
+VALID_NOTES_ENGINE_MODES = {"v1", "v2", "v3", "shadow"}
 
 
 def normalize_notes_engine_mode(value: object) -> str:
