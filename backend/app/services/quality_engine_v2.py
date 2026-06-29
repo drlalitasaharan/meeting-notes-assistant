@@ -1383,12 +1383,14 @@ def resolve_notes_engine_mode_for_user(
 ) -> str:
     """Resolve the effective notes engine mode for a specific account.
 
-    v1 remains the production default. Shadow and explicit global v2 preserve
-    existing global behavior; otherwise only allowlisted account emails get v2.
+    v1 remains the production default. Explicit global modes preserve existing
+    global behavior. Otherwise, only allowlisted account emails get v2.
+
+    The QEv2 allowlist must not downgrade an explicit global v3 rollout.
     """
 
     normalized_mode = normalize_notes_engine_mode(global_mode)
-    if normalized_mode in {"shadow", "v2"}:
+    if normalized_mode in {"shadow", "v2", "v3"}:
         return normalized_mode
     if is_quality_engine_v2_email_allowlisted(user_email, allowlist_value):
         return "v2"
