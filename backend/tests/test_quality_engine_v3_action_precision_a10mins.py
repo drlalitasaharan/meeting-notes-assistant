@@ -122,7 +122,7 @@ def test_qev3_filters_a10mins_summary_sentences_from_actions() -> None:
     joined_actions = " ".join(action_texts).lower()
 
     assert "Prepare basic pilot outreach assets for the first pilot audience" in action_texts
-    assert "Prepare basic pilot outreach assets" in action_texts
+    assert "Prepare basic pilot outreach assets" not in action_texts
 
     assert "i'd like us to leave this meeting" not in joined_actions
     assert "if we say it's designed for consultants" not in joined_actions
