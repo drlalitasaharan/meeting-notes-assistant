@@ -781,18 +781,83 @@ def _action_richness(item: dict[str, Any]) -> int:
     return score
 
 
+def _action_task_tokens(item: dict[str, Any]) -> set[str]:
+    task = _dedupe_key(item.get("task") or item.get("text"))
+    return {token for token in task.split() if token}
+
+
+def _actions_semantically_overlap(
+    first: dict[str, Any],
+    second: dict[str, Any],
+) -> bool:
+    first_owner = _lower(first.get("owner"))
+    second_owner = _lower(second.get("owner"))
+    if first_owner and second_owner and first_owner != second_owner:
+        return False
+
+    first_task = _dedupe_key(first.get("task") or first.get("text"))
+    second_task = _dedupe_key(second.get("task") or second.get("text"))
+    if not first_task or not second_task:
+        return False
+
+    if first_task == second_task:
+        return True
+
+    first_tokens = _action_task_tokens(first)
+    second_tokens = _action_task_tokens(second)
+    if len(first_tokens) < 3 or len(second_tokens) < 3:
+        return False
+
+    shorter, longer = (
+        (first_tokens, second_tokens)
+        if len(first_tokens) <= len(second_tokens)
+        else (second_tokens, first_tokens)
+    )
+    return shorter.issubset(longer)
+
+
+def _preferred_action_item(
+    first: dict[str, Any],
+    second: dict[str, Any],
+) -> dict[str, Any]:
+    first_task_words = len(_text(first.get("task") or first.get("text")).split())
+    second_task_words = len(_text(second.get("task") or second.get("text")).split())
+
+    first_score = _action_richness(first) + first_task_words
+    second_score = _action_richness(second) + second_task_words
+
+    if second_score > first_score:
+        return second
+    return first
+
+
 def _dedupe_actions(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    best: dict[str, dict[str, Any]] = {}
+    deduped: list[dict[str, Any]] = []
 
     for item in items:
         key = _action_key(item)
         if not key:
             continue
-        existing = best.get(key)
-        if existing is None or _action_richness(item) > _action_richness(existing):
-            best[key] = item
 
-    return list(best.values())
+        replacement_index: int | None = None
+        should_add = True
+
+        for index, existing in enumerate(deduped):
+            if not _actions_semantically_overlap(existing, item):
+                continue
+
+            preferred = _preferred_action_item(existing, item)
+            if preferred is item:
+                replacement_index = index
+            should_add = False
+            break
+
+        if replacement_index is not None:
+            deduped[replacement_index] = item
+        elif should_add:
+            deduped.append(item)
+
+    return deduped
 
 
 def _normalize_decision_text(text: Any) -> str:

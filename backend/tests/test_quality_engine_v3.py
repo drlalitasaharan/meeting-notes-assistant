@@ -203,3 +203,44 @@ def test_qev3_extracts_m01_final_action_recap_items() -> None:
     assert any("create the clean ten-minute audio test" in item for item in action_texts)
     assert any(item["deadline"] == "today" for item in actions)
     assert any(item["deadline"] == "by Friday" for item in actions)
+
+
+def test_quality_engine_v3_dedupes_semantic_action_subsets() -> None:
+    from app.services.quality_engine_v3 import run_quality_engine_v3
+
+    notes = {
+        "summary": "",
+        "key_points": [],
+        "action_items": [],
+        "action_item_objects": [
+            {
+                "owner": "Team",
+                "task": "Prepare basic pilot outreach assets for the first pilot audience",
+                "text": "Team: Prepare basic pilot outreach assets for the first pilot audience",
+                "deadline": "Not specified",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Team",
+                "task": "Prepare basic pilot outreach assets",
+                "text": "Team: Prepare basic pilot outreach assets",
+                "deadline": "Not specified",
+                "status": "open",
+                "priority": "medium",
+            },
+        ],
+        "summary_slots": {"purpose": "", "outcome": "", "risks": [], "next_steps": []},
+        "decisions": [],
+        "decision_objects": [],
+    }
+
+    result = run_quality_engine_v3(notes, "", mode="v3")
+    tasks = [
+        item["task"]
+        for item in result["notes"].get("action_item_objects", [])
+        if isinstance(item, dict)
+    ]
+
+    assert "Prepare basic pilot outreach assets for the first pilot audience" in tasks
+    assert "Prepare basic pilot outreach assets" not in tasks
