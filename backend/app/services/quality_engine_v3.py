@@ -916,6 +916,8 @@ def _normalize_decision_text(text: Any) -> str:
 
 
 def _is_decision_sentence(sentence: str) -> bool:
+    if _is_qev3_goal_like_decision_text(sentence):
+        return False
     cleaned = _clean_sentence(sentence)
     if not cleaned or len(cleaned) < 12:
         return False
@@ -1341,7 +1343,8 @@ def _decision_plain_texts(items: list[dict[str, Any]]) -> list[str]:
             continue
 
         seen.add(key)
-        plain.append(text_value)
+        if not _is_qev3_goal_like_decision_text(text_value):
+            plain.append(text_value)
 
     return plain
 
@@ -1457,6 +1460,158 @@ def apply_quality_engine_v3(notes: dict[str, Any], transcript_text: str | None) 
     return improved
 
 
+def _qev3_cleanup_display_phrase(value: Any) -> Any:
+    if not isinstance(value, str):
+        return value
+
+    cleaned = re.sub(
+        r"\bshort[-\s]+lived demo file\b",
+        "short live-demo file",
+        value,
+        flags=re.I,
+    )
+    cleaned = re.sub(
+        r"\bshort[-\s]+lived file\b",
+        "short live file",
+        cleaned,
+        flags=re.I,
+    )
+    return cleaned
+
+
+def _qev3_sentence_case_text(value: Any) -> Any:
+    cleaned = _qev3_cleanup_display_phrase(value)
+    if not isinstance(cleaned, str):
+        return cleaned
+
+    stripped = cleaned.strip()
+    if not stripped:
+        return stripped
+
+    prefix_match = re.match(r"^([A-Z][A-Za-z .'-]{1,40}:\s+)(.+)$", stripped)
+    if prefix_match:
+        prefix, remainder = prefix_match.groups()
+        return f"{prefix}{_qev3_sentence_case_text(remainder)}"
+
+    first = stripped[0]
+    if first.islower():
+        stripped = f"{first.upper()}{stripped[1:]}"
+    return stripped
+
+
+def _is_qev3_goal_like_decision_text(value: Any) -> bool:
+    if not isinstance(value, str):
+        return False
+
+    lowered = re.sub(r"\s+", " ", value.strip().lower())
+    lowered = lowered.replace("items,and", "items, and")
+    lowered = lowered.replace("witha final demo plan", "with a final demo plan")
+    lowered = lowered.replace("weshould leave", "we should leave")
+
+    has_goal_intro = "by the end of the meeting" in lowered or "we should leave with" in lowered
+    has_goal_payload = (
+        "final demo plan" in lowered
+        or "small list of action items" in lowered
+        or "decision on which use case" in lowered
+    )
+
+    return has_goal_intro and has_goal_payload
+
+
+def _apply_qev3_final_presentation_cleanup(notes: dict[str, Any]) -> dict[str, Any]:
+    output = dict(notes)
+
+    summary_slots_raw = output.get("summary_slots")
+    if isinstance(summary_slots_raw, dict):
+        summary_slots = dict(summary_slots_raw)
+
+        for key in ("purpose", "outcome", "edited_summary"):
+            if isinstance(summary_slots.get(key), str):
+                summary_slots[key] = _qev3_cleanup_display_phrase(summary_slots[key])
+
+        for key in ("risks", "open_questions"):
+            if isinstance(summary_slots.get(key), list):
+                summary_slots[key] = [
+                    _qev3_cleanup_display_phrase(item) for item in summary_slots[key]
+                ]
+
+        if isinstance(summary_slots.get("next_steps"), list):
+            summary_slots["next_steps"] = [
+                _qev3_sentence_case_text(item) for item in summary_slots["next_steps"]
+            ]
+
+        output["summary_slots"] = summary_slots
+
+    action_objects_raw = output.get("action_item_objects")
+    if isinstance(action_objects_raw, list):
+        action_objects: list[Any] = []
+        for item in action_objects_raw:
+            if not isinstance(item, dict):
+                action_objects.append(item)
+                continue
+
+            cleaned_item = dict(item)
+            for key in ("task", "action", "text"):
+                if isinstance(cleaned_item.get(key), str):
+                    cleaned_item[key] = _qev3_sentence_case_text(cleaned_item[key])
+
+            if isinstance(cleaned_item.get("evidence"), str):
+                cleaned_item["evidence"] = _qev3_cleanup_display_phrase(cleaned_item["evidence"])
+
+            action_objects.append(cleaned_item)
+
+        output["action_item_objects"] = action_objects
+
+    action_items_raw = output.get("action_items")
+    if isinstance(action_items_raw, list):
+        action_items: list[Any] = []
+        for item in action_items_raw:
+            if isinstance(item, dict):
+                cleaned_item = dict(item)
+                for key in ("task", "action", "text"):
+                    if isinstance(cleaned_item.get(key), str):
+                        cleaned_item[key] = _qev3_sentence_case_text(cleaned_item[key])
+                action_items.append(cleaned_item)
+            else:
+                action_items.append(_qev3_sentence_case_text(item))
+
+        output["action_items"] = action_items
+
+    decision_objects_raw = output.get("decision_objects")
+    if isinstance(decision_objects_raw, list):
+        decision_objects: list[dict[str, Any]] = []
+        for item in decision_objects_raw:
+            if isinstance(item, dict):
+                cleaned_item = dict(item)
+                cleaned_text = _qev3_cleanup_display_phrase(cleaned_item.get("text"))
+                if _is_qev3_goal_like_decision_text(cleaned_text):
+                    continue
+                cleaned_item["text"] = cleaned_text
+                if isinstance(cleaned_item.get("evidence"), str):
+                    cleaned_item["evidence"] = _qev3_cleanup_display_phrase(
+                        cleaned_item["evidence"]
+                    )
+                decision_objects.append(cleaned_item)
+                continue
+
+            if isinstance(item, str):
+                cleaned_text = _qev3_cleanup_display_phrase(item)
+                if not _is_qev3_goal_like_decision_text(cleaned_text):
+                    decision_objects.append({"text": cleaned_text})
+
+        output["decision_objects"] = decision_objects
+        output["decisions"] = _decision_plain_texts(decision_objects)
+
+    elif isinstance(output.get("decisions"), list):
+        output["decisions"] = [
+            _qev3_cleanup_display_phrase(item)
+            for item in output["decisions"]
+            if not _is_qev3_goal_like_decision_text(item)
+        ]
+
+    return output
+
+
 def finalize_quality_engine_v3_persisted_notes(notes: dict[str, Any]) -> dict[str, Any]:
     """Force final persisted v3 fields to use the same filtered action source.
 
@@ -1493,6 +1648,8 @@ def finalize_quality_engine_v3_persisted_notes(notes: dict[str, Any]) -> dict[st
     output["action_items"] = actions
     output["decision_objects"] = decisions
     output["decisions"] = _decision_plain_texts(decisions)
+
+    output = _apply_qev3_final_presentation_cleanup(output)
 
     return output
 

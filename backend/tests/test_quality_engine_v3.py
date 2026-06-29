@@ -368,3 +368,90 @@ def test_qev3_medium_meeting_cleans_action_like_decisions_and_dedupes_actions() 
     stage_timing_actions = [task for task in action_tasks if "stage timing logs" in task.lower()]
 
     assert len(stage_timing_actions) == 1
+
+
+def test_qev3_final_presentation_cleanup_removes_goal_decision_and_normalizes_actions() -> None:
+    from app.services.quality_engine_v3 import finalize_quality_engine_v3_persisted_notes
+
+    notes = {
+        "summary": "The meeting discussed demo readiness.",
+        "summary_slots": {
+            "purpose": "Review demo readiness.",
+            "outcome": "The team aligned on a practical demo plan.",
+            "risks": [],
+            "next_steps": [
+                "review and finalize the landing page and outreach message by Friday.",
+                "add stage timing logs so that each major processing step has an elapsed duration in the worker logs.",
+                "Prepare the short-lived demo file and keep one backup processed meeting ready.",
+            ],
+        },
+        "decision_objects": [
+            {
+                "text": "By the end of the meeting, we should leave with a final demo plan, a small list of action items, and a decision on which use case we will lead within conversations.",
+                "evidence": "By the end of the meeting, we should leave with a final demo plan.",
+                "confidence": 0.82,
+            },
+            {
+                "text": "the 30-minute file will be used as a stress test rather than a live default",
+                "evidence": "Decision three: the 30-minute file will be used as a stress test rather than a live default.",
+                "confidence": 0.82,
+            },
+        ],
+        "decisions": [],
+        "action_item_objects": [
+            {
+                "owner": "Team",
+                "task": "review and finalize the landing page and outreach message by Friday.",
+                "text": "Team: review and finalize the landing page and outreach message by Friday.",
+                "deadline": "by Friday",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Lalita",
+                "task": "Prepare the short-lived demo file and keep one backup processed meeting ready",
+                "text": "Lalita: Prepare the short-lived demo file and keep one backup processed meeting ready",
+                "deadline": "Not specified",
+                "status": "open",
+                "priority": "medium",
+            },
+        ],
+        "action_items": [
+            "review and finalize the landing page and outreach message by Friday.",
+            "Prepare the short-lived demo file and keep one backup processed meeting ready",
+        ],
+    }
+
+    output = finalize_quality_engine_v3_persisted_notes(notes)
+
+    decisions = output.get("decisions", [])
+    joined_decisions = " ".join(decisions).lower()
+    assert "by the end of the meeting" not in joined_decisions
+    assert "final demo plan" not in joined_decisions
+    assert "the 30-minute file will be used as a stress test" in joined_decisions
+
+    action_objects = output.get("action_item_objects", [])
+    assert action_objects[0]["task"].startswith("Review and finalize")
+    assert action_objects[0]["text"].startswith("Team: Review and finalize")
+    assert "short live-demo file" in action_objects[1]["task"]
+    assert "short-lived" not in action_objects[1]["task"]
+
+    next_steps = output.get("summary_slots", {}).get("next_steps", [])
+    assert next_steps[0].startswith("Review and finalize")
+    assert next_steps[1].startswith("Add stage timing logs")
+    assert "short live-demo file" in next_steps[2]
+
+    action_items = output.get("action_items", [])
+    first_action = (
+        action_items[0].get("task") or action_items[0].get("text")
+        if isinstance(action_items[0], dict)
+        else action_items[0]
+    )
+    second_action = (
+        action_items[1].get("task") or action_items[1].get("text")
+        if isinstance(action_items[1], dict)
+        else action_items[1]
+    )
+
+    assert first_action.startswith("Review and finalize")
+    assert "short live-demo file" in second_action
