@@ -863,19 +863,22 @@ def _dedupe_actions(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def _normalize_decision_text(text: Any) -> str:
     value = _clean_sentence(text)
     _, value = _strip_speaker_prefix(value)
+
     value = re.sub(
-        r"^(decision confirmed|recap decision|decision|decided)\s*[:.]?\s*",
+        r"^(decision confirmed|recap decision|decision|decided)\s*\d*\s*[:.,-]?\s*",
         "",
         value,
         flags=re.I,
     ).strip()
+    value = re.sub(r"^\d+\s*[,.)-]\s*", "", value).strip()
     value = re.sub(
         r"\s*This\s*decision\s*has\s*no\s*action\s*owner.*$",
         "",
         value,
         flags=re.I,
     ).strip()
-    return value
+
+    return _clean_sentence(value).rstrip(".")
 
 
 def _is_decision_sentence(sentence: str) -> bool:
@@ -883,7 +886,7 @@ def _is_decision_sentence(sentence: str) -> bool:
     if not cleaned or len(cleaned) < 12:
         return False
 
-    lowered = cleaned.lower()
+    lowered = cleaned.lower().strip()
 
     if lowered.endswith("?"):
         return False
@@ -894,6 +897,24 @@ def _is_decision_sentence(sentence: str) -> bool:
     ):
         return False
 
+    if re.search(
+        r"^(so\s+)?for the pilot,\s*i suggest\b|^my thought is\b|^speaker\s+\d+\b|^that will allow us\b",
+        lowered,
+    ):
+        return False
+
+    if re.search(r"^for the demo,\s*though,\s*we should\b", lowered):
+        return False
+
+    if re.search(r"^the second is\b", lowered):
+        return False
+
+    if re.search(r"^(lalita|lalitaa|team)\s+will\b", lowered):
+        return False
+
+    if re.search(r"\bwill be (reviewed|finalized|updated|prepared|created)\b", lowered):
+        return False
+
     if _matches_any(cleaned, WEAK_ACTION_PATTERNS):
         return False
 
@@ -901,6 +922,9 @@ def _is_decision_sentence(sentence: str) -> bool:
         return True
 
     if re.search(r"\b(demo|live demo)\b.*\b(will use|uses|use)\b", lowered):
+        return True
+
+    if re.search(r"\bbackup meeting\b.*\b(will keep|keep|processed)\b", lowered):
         return True
 
     if _matches_any(cleaned, DECISION_PATTERNS):
@@ -1251,6 +1275,25 @@ def _summary_slots(notes: dict[str, Any]) -> dict[str, Any]:
     return {}
 
 
+def _decision_plain_texts(items: list[dict[str, Any]]) -> list[str]:
+    plain: list[str] = []
+    seen: set[str] = set()
+
+    for item in items:
+        text_value = _normalize_decision_text(item.get("text") if isinstance(item, dict) else item)
+        if not text_value:
+            continue
+
+        key = _dedupe_key(text_value)
+        if not key or key in seen:
+            continue
+
+        seen.add(key)
+        plain.append(text_value)
+
+    return plain
+
+
 def _commercial_quality_metadata(
     *,
     actions: list[dict[str, Any]],
@@ -1349,7 +1392,7 @@ def apply_quality_engine_v3(notes: dict[str, Any], transcript_text: str | None) 
     improved["action_item_objects"] = actions
     improved["action_items"] = actions
     improved["decision_objects"] = decisions
-    improved["decisions"] = decisions
+    improved["decisions"] = _decision_plain_texts(decisions)
 
     metadata = _commercial_quality_metadata(
         actions=actions,
@@ -1385,9 +1428,19 @@ def finalize_quality_engine_v3_persisted_notes(notes: dict[str, Any]) -> dict[st
         _filter_high_precision_next_steps(slots.get("next_steps")),
     )
 
+    candidate_decisions: list[dict[str, Any]] = []
+    for item in _as_list(output.get("decision_objects")) + _as_list(output.get("decisions")):
+        normalized_decision = _normalize_decision(item)
+        if normalized_decision is not None:
+            candidate_decisions.append(normalized_decision)
+
+    decisions = _dedupe_decisions(candidate_decisions)
+
     output["summary_slots"] = slots
     output["action_item_objects"] = actions
     output["action_items"] = actions
+    output["decision_objects"] = decisions
+    output["decisions"] = _decision_plain_texts(decisions)
 
     return output
 
