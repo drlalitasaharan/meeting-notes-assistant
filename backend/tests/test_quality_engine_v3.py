@@ -294,3 +294,77 @@ def test_qev3_persists_plain_text_decisions_and_filters_false_positives() -> Non
     assert "if the live run feels slow" not in joined
     assert "keep a written runbook" not in joined
     assert "{" not in " ".join(str(item) for item in decisions)
+
+
+def test_qev3_medium_meeting_cleans_action_like_decisions_and_dedupes_actions() -> None:
+    from app.services.quality_engine_v3 import run_quality_engine_v3
+
+    notes = {
+        "summary": "",
+        "key_points": [],
+        "action_items": [],
+        "action_item_objects": [
+            {
+                "owner": "Team",
+                "task": "Add stage timing logs to the worker output",
+                "text": "Team: Add stage timing logs to the worker output",
+                "deadline": "Not specified",
+                "status": "open",
+                "priority": "medium",
+            },
+            {
+                "owner": "Team",
+                "task": "add stage timing logs so that each major processing step has an elapsed duration in the worker logs",
+                "text": "Team: add stage timing logs so that each major processing step has an elapsed duration in the worker logs",
+                "deadline": "Not specified",
+                "status": "open",
+                "priority": "medium",
+            },
+        ],
+        "summary_slots": {"purpose": "", "outcome": "", "risks": [], "next_steps": []},
+        "decisions": [],
+        "decision_objects": [],
+    }
+
+    transcript = """
+    Decision one, meeting 17 will be the current best backup demo example.
+    Decision two, the 10-minute realistic file remains the main proof of quality.
+    Decision three, the 30-minute file will be used as a stress test rather than a live default.
+    Decision four, we will improve logging visibility for stage durations in a later pass.
+    Kevin, decision five, we will lead with a practical positioning message instead of a broad platform pitch.
+    John, decision six, the first pilot audience will be consultants, agencies, and small startup teams.
+    Keep one processed meeting ready.
+    Keep one short live file ready.
+    Keep the commands in a single note.
+    Kevin, Lalita will prepare the short-lived demo file and keep one backup processed meeting ready.
+    John, team will keep a short command checklist for create, upload, logs, notes JSON, and notes markdown.
+    """
+
+    result = run_quality_engine_v3(notes, transcript, mode="v3")
+    output = result["notes"]
+
+    decisions = output.get("decisions", [])
+    joined_decisions = " ".join(decisions).lower()
+
+    assert all(isinstance(item, str) for item in decisions)
+    assert "meeting 17 will be the current best backup demo example" in joined_decisions
+    assert "the 10-minute realistic file remains the main proof of quality" in joined_decisions
+    assert "the 30-minute file will be used as a stress test" in joined_decisions
+    assert "we will improve logging visibility" in joined_decisions
+    assert "we will lead with a practical positioning message" in joined_decisions
+    assert "the first pilot audience will be consultants" in joined_decisions
+
+    assert "keep one processed meeting ready" not in joined_decisions
+    assert "keep one short live file ready" not in joined_decisions
+    assert "keep the commands in a single note" not in joined_decisions
+    assert "lalita will prepare" not in joined_decisions
+    assert "team will keep a short command checklist" not in joined_decisions
+
+    action_tasks = [
+        item.get("task", "")
+        for item in output.get("action_item_objects", [])
+        if isinstance(item, dict)
+    ]
+    stage_timing_actions = [task for task in action_tasks if "stage timing logs" in task.lower()]
+
+    assert len(stage_timing_actions) == 1

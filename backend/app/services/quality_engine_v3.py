@@ -783,7 +783,24 @@ def _action_richness(item: dict[str, Any]) -> int:
 
 def _action_task_tokens(item: dict[str, Any]) -> set[str]:
     task = _dedupe_key(item.get("task") or item.get("text"))
-    return {token for token in task.split() if token}
+    stopwords = {
+        "a",
+        "an",
+        "and",
+        "as",
+        "at",
+        "by",
+        "for",
+        "has",
+        "in",
+        "of",
+        "so",
+        "that",
+        "the",
+        "to",
+        "with",
+    }
+    return {token for token in task.split() if token and token not in stopwords}
 
 
 def _actions_semantically_overlap(
@@ -813,7 +830,11 @@ def _actions_semantically_overlap(
         if len(first_tokens) <= len(second_tokens)
         else (second_tokens, first_tokens)
     )
-    return shorter.issubset(longer)
+    if shorter.issubset(longer):
+        return True
+
+    shared = shorter & longer
+    return len(shared) >= 4 and len(shared) / len(shorter) >= 0.75
 
 
 def _preferred_action_item(
@@ -865,6 +886,19 @@ def _normalize_decision_text(text: Any) -> str:
     _, value = _strip_speaker_prefix(value)
 
     value = re.sub(
+        r"^[A-Z][A-Za-z .'-]{1,40},\s*(?:decision\s*)?(?:one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s*[,.)-]\s*",
+        "",
+        value,
+        flags=re.I,
+    ).strip()
+    value = re.sub(
+        r"^(?:one|two|three|four|five|six|seven|eight|nine|ten)\s*[,.)-]\s*",
+        "",
+        value,
+        flags=re.I,
+    ).strip()
+
+    value = re.sub(
         r"^(decision confirmed|recap decision|decision|decided)\s*\d*\s*[:.,-]?\s*",
         "",
         value,
@@ -913,6 +947,18 @@ def _is_decision_sentence(sentence: str) -> bool:
         return False
 
     if re.search(r"^keep a written runbook\b", lowered):
+        return False
+
+    if re.search(
+        r"^keep (?:one processed meeting|one short(?:\s+live|-lived)? file|the commands|a short command checklist)\b",
+        lowered,
+    ):
+        return False
+
+    if re.search(
+        r"^[a-z][a-z .'-]{1,40},\s*(?:team|lalita|lalitaa)\s+will\b",
+        lowered,
+    ):
         return False
 
     if re.search(r"^(lalita|lalitaa|team)\s+will\b", lowered):
