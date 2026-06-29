@@ -202,6 +202,27 @@ def test_resolve_notes_engine_mode_preserves_shadow_and_explicit_global_v2() -> 
     )
 
 
+def test_resolve_notes_engine_mode_preserves_explicit_global_v3() -> None:
+    from app.services.quality_engine_v2 import resolve_notes_engine_mode_for_user
+
+    assert (
+        resolve_notes_engine_mode_for_user(
+            "v3",
+            "admin@example.com",
+            "qa@example.com, admin@example.com",
+        )
+        == "v3"
+    )
+    assert (
+        resolve_notes_engine_mode_for_user(
+            "v3",
+            "customer@example.com",
+            "admin@example.com",
+        )
+        == "v3"
+    )
+
+
 def test_run_quality_engine_v2_preserves_v1_output_in_v1_mode() -> None:
     from app.services.quality_engine_v2 import run_quality_engine_v2
 
