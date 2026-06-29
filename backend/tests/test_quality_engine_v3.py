@@ -267,6 +267,8 @@ def test_qev3_persists_plain_text_decisions_and_filters_false_positives() -> Non
     My thought is to keep it very practical.
     Lalita will also prepare the short live demo file and keep one backup processed meeting ready.
     The demo command runbook will be updated after the successful test.
+    If the live run feels slow, we should also have a backup meeting already processed.
+    Keep a written runbook of the demo commands.
     """
 
     result = run_quality_engine_v3(notes, transcript, mode="v3")
@@ -289,4 +291,6 @@ def test_qev3_persists_plain_text_decisions_and_filters_false_positives() -> Non
     assert "my thought is" not in joined
     assert "lalita will also prepare" not in joined
     assert "runbook will be updated" not in joined
+    assert "if the live run feels slow" not in joined
+    assert "keep a written runbook" not in joined
     assert "{" not in " ".join(str(item) for item in decisions)

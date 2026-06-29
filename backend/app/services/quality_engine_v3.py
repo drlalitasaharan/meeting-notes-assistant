@@ -909,6 +909,12 @@ def _is_decision_sentence(sentence: str) -> bool:
     if re.search(r"^the second is\b", lowered):
         return False
 
+    if re.search(r"^if the live run feels slow\b", lowered):
+        return False
+
+    if re.search(r"^keep a written runbook\b", lowered):
+        return False
+
     if re.search(r"^(lalita|lalitaa|team)\s+will\b", lowered):
         return False
 
