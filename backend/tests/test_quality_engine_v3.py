@@ -244,3 +244,49 @@ def test_quality_engine_v3_dedupes_semantic_action_subsets() -> None:
 
     assert "Prepare basic pilot outreach assets for the first pilot audience" in tasks
     assert "Prepare basic pilot outreach assets" not in tasks
+
+
+def test_qev3_persists_plain_text_decisions_and_filters_false_positives() -> None:
+    from app.services.quality_engine_v3 import run_quality_engine_v3
+
+    notes = {
+        "summary": "",
+        "key_points": [],
+        "action_items": [],
+        "action_item_objects": [],
+        "summary_slots": {"purpose": "", "outcome": "", "risks": [], "next_steps": []},
+        "decisions": [],
+        "decision_objects": [],
+    }
+
+    transcript = """
+    Decision 1, the first pilot audience will be consultants, agencies, founders, and small teams.
+    Decision 2, the live demo will use a short and clean file, while capability testing will use a separate 10-minute audio sample.
+    Decision 3, we will keep one backup meeting already processed before any live demo.
+    So for the pilot, I suggest we keep the message very focused.
+    My thought is to keep it very practical.
+    Lalita will also prepare the short live demo file and keep one backup processed meeting ready.
+    The demo command runbook will be updated after the successful test.
+    """
+
+    result = run_quality_engine_v3(notes, transcript, mode="v3")
+    output = result["notes"]
+
+    decisions = output.get("decisions", [])
+    decision_objects = output.get("decision_objects", [])
+
+    assert decisions
+    assert all(isinstance(item, str) for item in decisions)
+    assert all(isinstance(item, dict) for item in decision_objects)
+
+    joined = " ".join(decisions).lower()
+
+    assert "the first pilot audience will be consultants" in joined
+    assert "the live demo will use a short and clean file" in joined
+    assert "we will keep one backup meeting already processed" in joined
+
+    assert "i suggest" not in joined
+    assert "my thought is" not in joined
+    assert "lalita will also prepare" not in joined
+    assert "runbook will be updated" not in joined
+    assert "{" not in " ".join(str(item) for item in decisions)
