@@ -1550,6 +1550,44 @@ def _is_qev3_goal_like_decision_text(value: Any) -> bool:
     return has_goal_intro and has_goal_payload
 
 
+def _is_qev3_obvious_key_point_filler(value: Any) -> bool:
+    cleaned = _clean_sentence(value)
+    if not cleaned:
+        return True
+
+    lowered = cleaned.lower()
+
+    if re.search(r"\bdiolch yn fawr am wylio(?:'r)? fideo\b", lowered):
+        return True
+
+    if re.search(r"\b(?:thank you|thanks) for (?:watching|viewing)\b", lowered):
+        return True
+
+    tokens = re.findall(r"[A-Za-z0-9']+", cleaned)
+    if len(tokens) < 8:
+        return False
+
+    q_tokens = [token for token in tokens if re.fullmatch(r"q\d+", token.lower())]
+    zero_tokens = [token for token in tokens if token == "0"]
+    q_zero_count = len(q_tokens) + len(zero_tokens)
+
+    if len(q_tokens) >= 8 and len(q_tokens) / len(tokens) >= 0.35:
+        return True
+
+    if len(zero_tokens) >= 10 and len(zero_tokens) / len(tokens) >= 0.35:
+        return True
+
+    if q_zero_count >= 12 and q_zero_count / len(tokens) >= 0.5:
+        return True
+
+    if len(tokens) >= 80:
+        unique_ratio = len({token.lower() for token in tokens}) / len(tokens)
+        if unique_ratio <= 0.2:
+            return True
+
+    return False
+
+
 def _apply_qev3_final_presentation_cleanup(notes: dict[str, Any]) -> dict[str, Any]:
     output = dict(notes)
 
@@ -1640,6 +1678,25 @@ def _apply_qev3_final_presentation_cleanup(notes: dict[str, Any]) -> dict[str, A
             for item in output["decisions"]
             if not _is_qev3_goal_like_decision_text(item)
         ]
+
+    key_points_raw = output.get("key_points")
+    if isinstance(key_points_raw, list):
+        key_points: list[str] = []
+        seen_key_points: set[str] = set()
+
+        for item in key_points_raw:
+            cleaned_point = _clean_sentence(item)
+            if _is_qev3_obvious_key_point_filler(cleaned_point):
+                continue
+
+            key = _dedupe_key(cleaned_point)
+            if not key or key in seen_key_points:
+                continue
+
+            seen_key_points.add(key)
+            key_points.append(cleaned_point)
+
+        output["key_points"] = key_points
 
     return output
 
