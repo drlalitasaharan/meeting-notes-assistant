@@ -37,3 +37,15 @@ def test_split_transcript_sections_falls_back_to_full_transcript_without_heading
     assert len(sections) == 1
     assert sections[0].title == "Full transcript"
     assert sections[0].word_count > 0
+
+
+def test_long_transcript_section_metadata_is_payload_safe():
+    transcript = (FIXTURES / "L01_long_business.txt").read_text()
+
+    metadata = build_long_transcript_section_metadata(transcript)
+
+    payload = {"long_transcript_sections": metadata}
+
+    assert payload["long_transcript_sections"]["section_count"] >= 10
+    assert isinstance(payload["long_transcript_sections"]["section_titles"], list)
+    assert isinstance(payload["long_transcript_sections"]["section_word_counts"], list)
