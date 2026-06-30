@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, List, Literal
 
 import boto3
-from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -165,6 +165,7 @@ def _render_action_item_md(item: Any) -> str:
 async def upload_meeting_media(
     meeting_id: int,
     file: UploadFile = File(...),
+    confidential_mode: bool = Form(False),
     db: Session = Depends(_get_db),
     current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
@@ -233,6 +234,13 @@ async def upload_meeting_media(
     meeting.media_size_bytes = len(raw_bytes)
     meeting.media_content_type = file.content_type
     meeting.media_filename = file.filename
+    meeting.confidential_mode = bool(confidential_mode)
+    meeting.recording_retention_policy = (
+        "delete_after_notes" if meeting.confidential_mode else "standard"
+    )
+    meeting.recording_delete_status = "pending" if meeting.confidential_mode else "not_required"
+    meeting.recording_delete_error = None
+    meeting.recording_deleted_at = None
     mark_uploaded(meeting)
 
     db.add(meeting)
@@ -248,6 +256,10 @@ async def upload_meeting_media(
         "raw_media_path": meeting.raw_media_path,
         "media_duration_seconds": meeting.media_duration_seconds,
         "media_size_bytes": meeting.media_size_bytes,
+        "confidential_mode": meeting.confidential_mode,
+        "recording_retention_policy": meeting.recording_retention_policy,
+        "recording_delete_status": meeting.recording_delete_status,
+        "recording_deleted_at": meeting.recording_deleted_at,
         **serialize_progress(meeting),
     }
 

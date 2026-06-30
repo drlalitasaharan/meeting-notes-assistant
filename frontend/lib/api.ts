@@ -266,9 +266,11 @@ export async function createMeeting(title: string): Promise<CreateMeetingRespons
 export async function uploadMeetingFile(
   meetingId: number,
   file: File,
+  confidentialMode = false,
 ): Promise<UploadMeetingResponse> {
   const formData = new FormData();
   formData.append("file", file);
+  formData.append("confidential_mode", confidentialMode ? "true" : "false");
 
   const response = await fetch(`${API_BASE_URL}/v1/meetings/${meetingId}/upload`, {
     method: "POST",

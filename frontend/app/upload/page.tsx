@@ -150,6 +150,7 @@ export default function UploadPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [confidentialMode, setConfidentialMode] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -257,7 +258,7 @@ export default function UploadPage() {
 
     try {
       const meeting = await createMeeting(title.trim());
-      const upload = await uploadMeetingFile(meeting.id, file);
+      const upload = await uploadMeetingFile(meeting.id, file, confidentialMode);
       const jobQuery = upload.job_id ? `?jobId=${encodeURIComponent(upload.job_id)}` : "";
 
       router.push(`/meetings/${meeting.id}${jobQuery}`);
@@ -492,6 +493,44 @@ export default function UploadPage() {
               </p>
             ) : null}
           </div>
+
+          <label
+            htmlFor="confidential-mode"
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 12,
+              background: "#f0fdf4",
+              border: "1px solid #bbf7d0",
+              borderRadius: 16,
+              padding: 16,
+              color: "#123326",
+              cursor:
+                isUploading || authStatus !== "authenticated"
+                  ? "not-allowed"
+                  : "pointer",
+              opacity: authStatus !== "authenticated" ? 0.7 : 1,
+            }}
+          >
+            <input
+              id="confidential-mode"
+              type="checkbox"
+              checked={confidentialMode}
+              disabled={isUploading || authStatus !== "authenticated"}
+              onChange={(event) => setConfidentialMode(event.target.checked)}
+              style={{ marginTop: 4 }}
+            />
+            <span>
+              <strong style={{ display: "block", marginBottom: 4 }}>
+                Enable Confidential Mode
+              </strong>
+              <span style={{ color: "#365342", fontSize: 14, lineHeight: 1.55 }}>
+                MeetIQ still uses hosted cloud processing. When enabled, the
+                original recording is automatically deleted after notes are
+                generated. Generated notes remain available in your account.
+              </span>
+            </span>
+          </label>
 
           <button
             type="submit"

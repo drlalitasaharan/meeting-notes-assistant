@@ -4,6 +4,7 @@ import logging
 import os
 import re
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -18,6 +19,7 @@ from app.models.meeting import Meeting
 from app.models.meeting_notes import MeetingNotes
 from app.services.action_cleanup_pass import apply_deterministic_action_cleanup
 from app.services.action_item_postprocess import clean_action_items
+from app.services.data_controls import delete_raw_media_best_effort
 from app.services.llm_polish import apply_llm_polish_to_notes
 from app.services.media import load_audio_for_meeting
 from app.services.note_strategies.factory import get_notes_strategy
@@ -103,6 +105,60 @@ def _read_raw_media_bytes(raw_media_path: str) -> bytes:
 
     with open(raw_media_path, "rb") as f:
         return f.read()
+
+
+def _finalize_confidential_recording_delete(
+    db: Session,
+    meeting: Meeting,
+    raw_media_path: str | None,
+    log_extra: dict[str, Any],
+) -> None:
+    """Best-effort delete of original recording after notes are safely persisted.
+
+    Confidential Mode still uses hosted cloud processing. This helper only runs
+    after notes have been generated, persisted, and the meeting has been marked
+    completed. Deletion failure must not fail the completed notes job.
+    """
+
+    if not getattr(meeting, "confidential_mode", False):
+        return
+
+    if not raw_media_path:
+        meeting.recording_delete_status = "failed"
+        meeting.recording_delete_error = "No recording path was available for deletion."
+        db.add(meeting)
+        db.commit()
+        return
+
+    delete_error: str | None = None
+    try:
+        deleted = delete_raw_media_best_effort(raw_media_path)
+    except Exception as exc:  # noqa: BLE001
+        deleted = False
+        delete_error = str(exc)[:500]
+
+    if deleted:
+        meeting.recording_deleted_at = datetime.now(timezone.utc)
+        meeting.recording_delete_status = "deleted"
+        meeting.recording_delete_error = None
+        log.info(
+            "process_meeting: confidential recording deleted",
+            extra={**log_extra, "raw_media_path": raw_media_path},
+        )
+    else:
+        meeting.recording_delete_status = "failed"
+        meeting.recording_delete_error = delete_error or "Recording deletion did not complete."
+        log.warning(
+            "process_meeting: confidential recording deletion failed",
+            extra={
+                **log_extra,
+                "raw_media_path": raw_media_path,
+                "recording_delete_error": meeting.recording_delete_error,
+            },
+        )
+
+    db.add(meeting)
+    db.commit()
 
 
 def _restore_publishable_actions_from_objects(notes: dict[str, Any]) -> dict[str, Any]:
@@ -950,6 +1006,13 @@ def process_meeting(meeting_id: str) -> None:
         mark_completed(meeting)
 
         db.commit()
+
+        _finalize_confidential_recording_delete(
+            db=db,
+            meeting=meeting,
+            raw_media_path=raw_media_path,
+            log_extra=log_extra,
+        )
 
         log.info(
             "process_meeting: finished",

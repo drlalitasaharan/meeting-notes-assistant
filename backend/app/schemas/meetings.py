@@ -24,6 +24,10 @@ class MeetingRead(BaseModel):
     processing_progress_label: Optional[str] = None
     processing_error_message: Optional[str] = None
     processing_timings: Optional[dict[str, Any]] = None
+    confidential_mode: bool = False
+    recording_retention_policy: Optional[str] = None
+    recording_deleted_at: Optional[datetime] = None
+    recording_delete_status: str = "not_required"
     created_at: datetime
     updated_at: datetime
 
