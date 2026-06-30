@@ -236,7 +236,7 @@ async def upload_meeting_media(
             "user_id": current_user.id,
             "user_email": current_user.email,
             "effective_plan": effective_plan,
-            "filename": file.filename,
+            "upload_filename": file.filename,
             "extension": extension,
             "file_size_bytes": len(raw_bytes),
             "media_duration_seconds": media_duration_seconds,
