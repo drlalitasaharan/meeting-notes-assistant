@@ -218,11 +218,11 @@ export default function UploadPage() {
       return "MeetIQ could not start processing right now. Please try again in a few minutes.";
     }
 
-    if (message.trim()) {
+    if (message.trim() && !/load failed|failed to fetch|networkerror/i.test(message)) {
       return message;
     }
 
-    return "Upload failed. Please check your connection and try again. If it keeps happening, contact support with the file type and recording length.";
+    return "Upload failed. Please check the file type, size, and recording length. Your current plan may not support this recording length.";
   }
 
 
