@@ -14,6 +14,7 @@ from app.services.billing import get_effective_plan
 from app.services.usage_limits import (
     count_monthly_uploaded_meeting_slots,
     count_uploaded_meeting_slots,
+    max_duration_seconds_for_plan,
     max_duration_seconds_for_user,
     monthly_upload_limit_for_plan,
     upload_limit_for_user,
@@ -71,7 +72,12 @@ def get_my_usage(
         plan = "pilot" if is_pilot else "free_trial"
 
     remaining_uploads = max(0, upload_limit - meetings_used)
-    max_duration_seconds = max_duration_seconds_for_user(current_user)
+    plan_max_duration_seconds = max_duration_seconds_for_plan(effective_plan)
+    max_duration_seconds = (
+        plan_max_duration_seconds
+        if plan_max_duration_seconds is not None
+        else max_duration_seconds_for_user(current_user)
+    )
 
     return UsageRead(
         plan=plan,

@@ -24,8 +24,18 @@ DEFAULT_PILOT_UPLOAD_LIMIT = 3
 DEFAULT_PILOT_MAX_DURATION_SECONDS = 60 * 60
 DEFAULT_STARTER_MONTHLY_UPLOAD_LIMIT = 20
 DEFAULT_PRO_PILOT_MONTHLY_UPLOAD_LIMIT = 100
+DEFAULT_BUSINESS_MONTHLY_UPLOAD_LIMIT = 300
 DEFAULT_STARTER_MAX_DURATION_SECONDS = 60 * 60
 DEFAULT_PRO_PILOT_MAX_DURATION_SECONDS = 120 * 60
+DEFAULT_BUSINESS_MAX_DURATION_SECONDS = 180 * 60
+
+BUSINESS_PLAN_CODES = {
+    "business",
+    "team",
+    "premium",
+    "custom",
+    "enterprise",
+}
 
 FREE_TRIAL_LIMIT_MESSAGE = "You have used your free-trial upload. Contact support to request pilot access or a higher limit."
 PAID_MONTHLY_LIMIT_MESSAGE = "You have used your monthly upload allowance. Contact support to request a higher limit or Business / Team access."
@@ -71,6 +81,12 @@ def monthly_upload_limit_for_plan(plan_code: str) -> int | None:
             DEFAULT_PRO_PILOT_MONTHLY_UPLOAD_LIMIT,
         )
 
+    if str(plan_code or "").strip().lower() in BUSINESS_PLAN_CODES:
+        return _int_env(
+            "MEETIQ_BUSINESS_MONTHLY_UPLOAD_LIMIT",
+            DEFAULT_BUSINESS_MONTHLY_UPLOAD_LIMIT,
+        )
+
     return None
 
 
@@ -85,6 +101,12 @@ def max_duration_seconds_for_plan(plan_code: str) -> int | None:
         return _int_env(
             "MEETIQ_PRO_PILOT_MAX_DURATION_SECONDS",
             DEFAULT_PRO_PILOT_MAX_DURATION_SECONDS,
+        )
+
+    if str(plan_code or "").strip().lower() in BUSINESS_PLAN_CODES:
+        return _int_env(
+            "MEETIQ_BUSINESS_MAX_DURATION_SECONDS",
+            DEFAULT_BUSINESS_MAX_DURATION_SECONDS,
         )
 
     return None
