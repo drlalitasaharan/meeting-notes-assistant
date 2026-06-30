@@ -218,6 +218,10 @@ export default function UploadPage() {
       return "MeetIQ could not start processing right now. Please try again in a few minutes.";
     }
 
+    if (message.trim()) {
+      return message;
+    }
+
     return "Upload failed. Please check your connection and try again. If it keeps happening, contact support with the file type and recording length.";
   }
 
