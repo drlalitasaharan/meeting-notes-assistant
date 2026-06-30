@@ -25,7 +25,7 @@ import {
   getMeetingNotes,
   updateMeetingNotesSection,
 } from "../../../lib/api";
-import type { EditableNotesSection } from "../../../lib/types";
+import type { EditableNotesSection, Meeting } from "../../../lib/types";
 
 type MeetingNotes = {
   meeting_id: number;
@@ -90,6 +90,48 @@ function formatLastUpdated(value: number | null) {
 }
 
 
+function ConfidentialModeCard({ meeting }: { meeting: Meeting | null }) {
+  if (!meeting?.confidential_mode) {
+    return null;
+  }
+
+  const status = meeting.recording_delete_status ?? "pending";
+  const deletedAt = meeting.recording_deleted_at
+    ? new Date(meeting.recording_deleted_at).toLocaleString()
+    : null;
+
+  let message = "Original recording deletion pending.";
+  if (status === "deleted") {
+    message = deletedAt
+      ? `Original recording deleted after notes generation on ${deletedAt}.`
+      : "Original recording deleted after notes generation.";
+  } else if (status === "failed") {
+    message = "Recording deletion needs retry. Notes are still available.";
+  }
+
+  return (
+    <aside
+      style={{
+        background: "#f0fdf4",
+        border: "1px solid #bbf7d0",
+        borderRadius: 16,
+        color: "#365342",
+        fontSize: 14,
+        lineHeight: 1.6,
+        padding: "14px 16px",
+      }}
+    >
+      <strong style={{ color: "#123326" }}>Confidential Mode enabled</strong>
+      <p style={{ margin: "6px 0 0" }}>{message}</p>
+      <p style={{ margin: "6px 0 0" }}>
+        MeetIQ still uses hosted cloud processing. Generated notes remain
+        available for review and export.
+      </p>
+    </aside>
+  );
+}
+
+
 function ResultsGuidanceCard({ hasNotes }: { hasNotes: boolean }) {
   return (
     <aside
@@ -127,6 +169,7 @@ export default function MeetingResultsPage() {
   const jobId = searchParams.get("jobId");
 
   const [status, setStatus] = useState("queued");
+  const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [notes, setNotes] = useState<MeetingNotes | null>(null);
   const [markdown, setMarkdown] = useState("");
   const [error, setError] = useState("");
@@ -140,11 +183,13 @@ export default function MeetingResultsPage() {
   const loadNotes = useCallback(
     async (strict: boolean): Promise<boolean> => {
       try {
-        const [notesResponse, markdownResponse] = await Promise.all([
+        const [notesResponse, markdownResponse, meetingResponse] = await Promise.all([
           getMeetingNotes(Number(meetingId)),
           getMeetingMarkdown(Number(meetingId)),
+          getMeeting(Number(meetingId)),
         ]);
 
+        setMeeting(meetingResponse);
         setNotes(notesResponse);
         setMarkdown(markdownResponse);
         setStatus(normalizeStatus(notesResponse.status ?? "succeeded"));
@@ -274,11 +319,12 @@ export default function MeetingResultsPage() {
       }
 
       try {
-        const meeting = await getMeeting(Number(meetingId));
+        const meetingResponse = await getMeeting(Number(meetingId));
         if (!cancelled) {
-          setProgressLabel(meeting.processing_progress_label ?? null);
-          setProcessingErrorMessage(meeting.processing_error_message ?? null);
-          setStatus(normalizeStatus(meeting.status ?? status));
+          setMeeting(meetingResponse);
+          setProgressLabel(meetingResponse.processing_progress_label ?? null);
+          setProcessingErrorMessage(meetingResponse.processing_error_message ?? null);
+          setStatus(normalizeStatus(meetingResponse.status ?? status));
           setLastUpdated(Date.now());
         }
 
@@ -322,10 +368,11 @@ export default function MeetingResultsPage() {
         const notesLoaded = await loadNotes(false);
         if (notesLoaded) return;
 
-        const meeting = await getMeeting(Number(meetingId));
-        setProgressLabel(meeting.processing_progress_label ?? null);
-        setProcessingErrorMessage(meeting.processing_error_message ?? null);
-        setStatus(normalizeStatus(meeting.status ?? status));
+        const meetingResponse = await getMeeting(Number(meetingId));
+        setMeeting(meetingResponse);
+        setProgressLabel(meetingResponse.processing_progress_label ?? null);
+        setProcessingErrorMessage(meetingResponse.processing_error_message ?? null);
+        setStatus(normalizeStatus(meetingResponse.status ?? status));
         setLastUpdated(Date.now());
 
         const job = await checkJob();
@@ -525,7 +572,12 @@ export default function MeetingResultsPage() {
         errorMessage={processingErrorMessage}
       />
 
-      {!error ? <ResultsGuidanceCard hasNotes={Boolean(notes)} /> : null}
+      {!error ? (
+        <>
+          <ConfidentialModeCard meeting={meeting} />
+          <ResultsGuidanceCard hasNotes={Boolean(notes)} />
+        </>
+      ) : null}
 
       {error ? <ErrorBanner message={error} /> : null}
 

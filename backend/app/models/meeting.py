@@ -3,7 +3,18 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import JSON, BigInteger, DateTime, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import (
+    JSON,
+    BigInteger,
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import Base
@@ -30,6 +41,23 @@ class Meeting(Base):
     media_size_bytes: Mapped[Optional[int]] = mapped_column(BigInteger, nullable=True)
     media_content_type: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     media_filename: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+
+    confidential_mode: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false", index=True
+    )
+    recording_retention_policy: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
+    recording_deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    recording_delete_status: Mapped[str] = mapped_column(
+        String(40),
+        nullable=False,
+        default="not_required",
+        server_default="not_required",
+        index=True,
+    )
+    recording_delete_error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
     last_error: Mapped[Optional[str]] = mapped_column(String(250), nullable=True)
     processing_stage: Mapped[Optional[str]] = mapped_column(String(40), nullable=True)
     processing_error_code: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)

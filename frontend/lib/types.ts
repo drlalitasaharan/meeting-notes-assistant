@@ -13,6 +13,10 @@ export interface Meeting {
   processing_stage?: string | null;
   processing_progress_label?: string | null;
   processing_error_message?: string | null;
+  confidential_mode?: boolean;
+  recording_retention_policy?: string | null;
+  recording_deleted_at?: string | null;
+  recording_delete_status?: string;
 }
 
 export interface MeetingListResponse {
@@ -32,6 +36,10 @@ export interface UploadMeetingResponse {
   job_id?: string;
   status?: string;
   artifact_url?: string | null;
+  confidential_mode?: boolean;
+  recording_retention_policy?: string | null;
+  recording_deleted_at?: string | null;
+  recording_delete_status?: string;
 }
 
 export interface JobStatus {

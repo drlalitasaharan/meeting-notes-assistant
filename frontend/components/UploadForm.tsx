@@ -10,6 +10,7 @@ export default function UploadForm() {
 
   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [confidentialMode, setConfidentialMode] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,7 +29,7 @@ export default function UploadForm() {
       const finalTitle = title.trim() || file.name;
 
       const meeting = await createMeeting(finalTitle);
-      const uploadResponse = await uploadMeetingFile(meeting.id, file);
+      const uploadResponse = await uploadMeetingFile(meeting.id, file, confidentialMode);
 
       const jobId = uploadResponse.job_id ?? uploadResponse.id;
 
@@ -118,6 +119,39 @@ export default function UploadForm() {
             </p>
           ) : null}
         </div>
+
+        <label
+          htmlFor="confidential-mode-reusable"
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 12,
+            background: "#f0fdf4",
+            border: "1px solid #bbf7d0",
+            borderRadius: 12,
+            padding: 14,
+            cursor: isSubmitting ? "not-allowed" : "pointer",
+          }}
+        >
+          <input
+            id="confidential-mode-reusable"
+            type="checkbox"
+            checked={confidentialMode}
+            disabled={isSubmitting}
+            onChange={(event) => setConfidentialMode(event.target.checked)}
+            style={{ marginTop: 4 }}
+          />
+          <span>
+            <strong style={{ display: "block", marginBottom: 4 }}>
+              Enable Confidential Mode
+            </strong>
+            <span style={{ color: "#4b5563", fontSize: 14, lineHeight: 1.5 }}>
+              MeetIQ still uses hosted cloud processing. When enabled, the
+              original recording is automatically deleted after notes are
+              generated.
+            </span>
+          </span>
+        </label>
 
         <button
           type="submit"
