@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ast
+import logging
 import os
 import re
 from pathlib import Path
@@ -18,16 +19,20 @@ from app.jobs.meetings import enqueue_process_meeting
 from app.models.meeting import Meeting
 from app.models.meeting_notes import MeetingNotes
 from app.models.user import User
+from app.services.billing import get_effective_plan
 from app.services.media_metadata import probe_media_duration_seconds
 from app.services.processing_observability import mark_stage, mark_uploaded, serialize_progress
 from app.services.usage_limits import (
     can_use_confidential_mode,
     enforce_free_trial_duration_limit,
     enforce_free_trial_upload_limit,
+    max_duration_seconds_for_plan,
+    max_duration_seconds_for_user,
     record_upload_ledger_entry,
 )
 
 router = APIRouter(prefix="/v1/meetings", tags=["meetings"])
+logger = logging.getLogger(__name__)
 
 
 class MeetingNotesSectionUpdate(BaseModel):
@@ -215,6 +220,30 @@ async def upload_meeting_media(
         raw_bytes,
         suffix=extension or ".bin",
     )
+
+    effective_plan = get_effective_plan(db=db, user=current_user)
+    plan_max_duration_seconds = max_duration_seconds_for_plan(effective_plan)
+    max_duration_seconds = (
+        plan_max_duration_seconds
+        if plan_max_duration_seconds is not None
+        else max_duration_seconds_for_user(current_user)
+    )
+
+    logger.info(
+        "upload duration gate",
+        extra={
+            "meeting_id": meeting_id,
+            "user_id": current_user.id,
+            "user_email": current_user.email,
+            "effective_plan": effective_plan,
+            "filename": file.filename,
+            "extension": extension,
+            "file_size_bytes": len(raw_bytes),
+            "media_duration_seconds": media_duration_seconds,
+            "max_duration_seconds": max_duration_seconds,
+        },
+    )
+
     enforce_free_trial_duration_limit(
         db=db,
         current_user=current_user,
