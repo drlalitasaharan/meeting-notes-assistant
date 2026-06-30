@@ -5,6 +5,8 @@ import os
 import re
 from typing import Any
 
+from app.services.long_transcript_sections import select_beginning_middle_end_sections
+
 ACTION_VERBS = {
     "create",
     "prepare",
@@ -243,6 +245,36 @@ def _split_transcript_sentences(transcript_text: str | None) -> list[str]:
             sentences.append(sentence)
 
     return sentences
+
+
+def _dedupe_sentence_order(sentences: list[str]) -> list[str]:
+    output: list[str] = []
+    seen: set[str] = set()
+
+    for sentence in sentences:
+        cleaned = _clean_sentence(sentence)
+        key = _dedupe_key(cleaned)
+        if not cleaned or not key or key in seen:
+            continue
+        seen.add(key)
+        output.append(cleaned)
+
+    return output
+
+
+def _split_transcript_sentences_with_long_coverage(
+    transcript_text: str | None,
+) -> list[str]:
+    full_sentences = _split_transcript_sentences(transcript_text)
+    selected_sections = select_beginning_middle_end_sections(transcript_text)
+
+    if len(selected_sections) < 3:
+        return full_sentences
+
+    coverage_text = "\n".join(section.text for section in selected_sections)
+    coverage_sentences = _split_transcript_sentences(coverage_text)
+
+    return _dedupe_sentence_order([*coverage_sentences, *full_sentences])
 
 
 def _has_action_verb(text: str) -> bool:
@@ -1392,7 +1424,7 @@ def apply_quality_engine_v3(notes: dict[str, Any], transcript_text: str | None) 
     """
 
     improved = copy.deepcopy(notes)
-    sentences = _split_transcript_sentences(transcript_text)
+    sentences = _split_transcript_sentences_with_long_coverage(transcript_text)
 
     slots = _summary_slots(improved)
 

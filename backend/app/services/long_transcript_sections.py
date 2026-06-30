@@ -80,7 +80,7 @@ def select_beginning_middle_end_sections(
     if len(sections) <= 3:
         return sections
 
-    selected_positions = [0, len(sections) // 2, len(sections) - 1]
+    selected_positions = [0, (len(sections) - 1) // 2, len(sections) - 1]
     selected: list[TranscriptSection] = []
     seen: set[int] = set()
 
