@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -48,6 +49,21 @@ STALE_PROCESSING_ERROR = (
     "If it fails again, contact support and include this Meeting ID."
 )
 TRANSCRIPTION_PROCESSING_ERROR = "Transcription failed. Please try a shorter or clearer recording."
+
+DEFAULT_STALE_PROCESSING_SECONDS = 4 * 60 * 60
+
+
+def processing_stale_after_seconds() -> int:
+    raw_value = os.getenv("MEETIQ_PROCESSING_STALE_AFTER_SECONDS")
+    if raw_value is None or not raw_value.strip():
+        return DEFAULT_STALE_PROCESSING_SECONDS
+
+    try:
+        value = int(raw_value.strip())
+    except ValueError:
+        return DEFAULT_STALE_PROCESSING_SECONDS
+
+    return max(1, value)
 
 
 def utc_now() -> datetime:
@@ -182,7 +198,7 @@ def mark_failed(
 def mark_stale_processing_failed(
     meeting: Meeting,
     *,
-    stale_after_seconds: int = 60 * 60,
+    stale_after_seconds: int | None = None,
     now: datetime | None = None,
 ) -> bool:
     """Mark stale PROCESSING meetings as retryable failed state.
@@ -206,7 +222,10 @@ def mark_stale_processing_failed(
     if updated_at.tzinfo is None:
         updated_at = updated_at.replace(tzinfo=timezone.utc)
 
-    if current_time - updated_at < timedelta(seconds=stale_after_seconds):
+    threshold_seconds = (
+        stale_after_seconds if stale_after_seconds is not None else processing_stale_after_seconds()
+    )
+    if current_time - updated_at < timedelta(seconds=threshold_seconds):
         return False
 
     mark_stage(

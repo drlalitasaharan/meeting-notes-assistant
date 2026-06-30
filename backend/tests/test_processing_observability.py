@@ -294,7 +294,7 @@ def test_meeting_get_marks_stale_processing_as_retryable_failed(
     user = _create_user(db_session)
     meeting = _create_meeting(db_session, user_id=user.id)
     mark_stage(meeting, "transcribing", status="PROCESSING")
-    meeting.updated_at = utc_now() - timedelta(hours=2)
+    meeting.updated_at = utc_now() - timedelta(hours=5)
     db_session.add(meeting)
     db_session.commit()
     db_session.refresh(meeting)
@@ -316,3 +316,79 @@ def test_meeting_get_marks_stale_processing_as_retryable_failed(
     assert payload["processing_stage"] == "failed"
     assert payload["processing_progress_label"] == "Processing failed"
     assert "retry processing" in payload["processing_error_message"].lower()
+
+def test_stale_processing_default_keeps_two_hour_long_job_running(
+    db_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from datetime import timedelta
+
+    from app.services.processing_observability import mark_stale_processing_failed, utc_now
+
+    monkeypatch.delenv("MEETIQ_PROCESSING_STALE_AFTER_SECONDS", raising=False)
+
+    user = _create_user(db_session)
+    meeting = _create_meeting(db_session, user_id=user.id)
+    mark_stage(meeting, "transcribing", status="PROCESSING")
+    meeting.updated_at = utc_now() - timedelta(hours=2)
+    db_session.add(meeting)
+    db_session.commit()
+    db_session.refresh(meeting)
+
+    changed = mark_stale_processing_failed(meeting)
+
+    assert changed is False
+    assert meeting.status == "PROCESSING"
+    assert meeting.processing_stage == "transcribing"
+
+
+def test_stale_processing_default_marks_five_hour_job_failed(
+    db_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from datetime import timedelta
+
+    from app.services.processing_observability import mark_stale_processing_failed, utc_now
+
+    monkeypatch.delenv("MEETIQ_PROCESSING_STALE_AFTER_SECONDS", raising=False)
+
+    user = _create_user(db_session)
+    meeting = _create_meeting(db_session, user_id=user.id)
+    mark_stage(meeting, "transcribing", status="PROCESSING")
+    meeting.updated_at = utc_now() - timedelta(hours=5)
+    db_session.add(meeting)
+    db_session.commit()
+    db_session.refresh(meeting)
+
+    changed = mark_stale_processing_failed(meeting)
+
+    assert changed is True
+    assert meeting.status == "ERROR"
+    assert meeting.processing_stage == "failed"
+    assert meeting.processing_error_code == "processing_stale"
+
+
+def test_stale_processing_threshold_can_be_overridden(
+    db_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from datetime import timedelta
+
+    from app.services.processing_observability import mark_stale_processing_failed, utc_now
+
+    monkeypatch.setenv("MEETIQ_PROCESSING_STALE_AFTER_SECONDS", str(2 * 60 * 60))
+
+    user = _create_user(db_session)
+    meeting = _create_meeting(db_session, user_id=user.id)
+    mark_stage(meeting, "transcribing", status="PROCESSING")
+    meeting.updated_at = utc_now() - timedelta(hours=3)
+    db_session.add(meeting)
+    db_session.commit()
+    db_session.refresh(meeting)
+
+    changed = mark_stale_processing_failed(meeting)
+
+    assert changed is True
+    assert meeting.status == "ERROR"
+    assert meeting.processing_stage == "failed"
+    assert meeting.processing_error_code == "processing_stale"
