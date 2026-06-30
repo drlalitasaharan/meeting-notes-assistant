@@ -21,6 +21,7 @@ from app.models.user import User
 from app.services.media_metadata import probe_media_duration_seconds
 from app.services.processing_observability import mark_stage, mark_uploaded, serialize_progress
 from app.services.usage_limits import (
+    can_use_confidential_mode,
     enforce_free_trial_duration_limit,
     enforce_free_trial_upload_limit,
     record_upload_ledger_entry,
@@ -172,6 +173,15 @@ async def upload_meeting_media(
     meeting = db.get(Meeting, meeting_id)
     if meeting is None or meeting.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Meeting not found")
+
+    if confidential_mode and not can_use_confidential_mode(
+        db=db,
+        current_user=current_user,
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Confidential Mode is available on Pro Pilot and Business plans.",
+        )
 
     enforce_free_trial_upload_limit(
         db=db,
