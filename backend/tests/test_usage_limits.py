@@ -321,6 +321,25 @@ def test_pro_pilot_subscription_blocks_over_120_minutes(db_session, monkeypatch)
     assert "current limit is 120 minutes" in exc.value.detail
 
 
+
+
+def test_unknown_duration_does_not_bypass_duration_gate(db_session, monkeypatch):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+
+    user = _create_user(db_session, email="unknown-duration@example.com")
+    _create_active_subscription(db_session, user_id=user.id, plan_code="pro_pilot")
+
+    with pytest.raises(HTTPException) as exc:
+        enforce_free_trial_duration_limit(
+            db=db_session,
+            current_user=user,
+            duration_seconds=None,
+        )
+
+    assert exc.value.status_code == 400
+    assert "couldn't detect the recording duration" in exc.value.detail
+
+
 def test_pilot_override_allows_longer_duration(db_session, monkeypatch):
     monkeypatch.setenv("MEETIQ_PILOT_OVERRIDE_EMAILS", "pilot@example.com")
     monkeypatch.setenv("MEETIQ_PILOT_MAX_DURATION_SECONDS", "3600")

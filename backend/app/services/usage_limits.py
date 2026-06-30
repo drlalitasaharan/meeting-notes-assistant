@@ -282,7 +282,14 @@ def enforce_free_trial_duration_limit(
     duration_seconds: float | None,
 ) -> None:
     if duration_seconds is None:
-        return
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "We couldn't detect the recording duration. "
+                "Please upload a supported MP3, MP4, M4A, WAV, WEBM, OGG, or FLAC file, "
+                "or try exporting the recording again."
+            ),
+        )
 
     max_seconds = None
     if db is not None:
