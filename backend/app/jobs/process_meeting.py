@@ -21,6 +21,7 @@ from app.services.action_cleanup_pass import apply_deterministic_action_cleanup
 from app.services.action_item_postprocess import clean_action_items
 from app.services.data_controls import delete_raw_media_best_effort
 from app.services.llm_polish import apply_llm_polish_to_notes
+from app.services.long_transcript_sections import build_long_transcript_section_metadata
 from app.services.media import load_audio_for_meeting
 from app.services.note_strategies.factory import get_notes_strategy
 from app.services.notes import generate_meeting_notes
@@ -716,10 +717,12 @@ def process_meeting(meeting_id: str) -> None:
             transcript_text,
             media_duration_seconds=getattr(meeting, "media_duration_seconds", None),
         )
+        section_metadata = build_long_transcript_section_metadata(transcript_text)
         raw_transcript_payload["transcript_observability"] = transcript_metadata
+        raw_transcript_payload["long_transcript_sections"] = section_metadata
         log.info(
             "process_meeting: transcript observability",
-            extra={**log_extra, **transcript_metadata},
+            extra={**log_extra, **transcript_metadata, **section_metadata},
         )
         if slide_text:
             raw_transcript_payload["slide_text"] = slide_text
