@@ -50,6 +50,7 @@ from app.services.quality_engine_v3 import (
     finalize_quality_engine_v3_persisted_notes,
     run_quality_engine_v3,
 )
+from app.services.transcript_observability import build_transcript_observability_metadata
 from app.services.transcription import get_transcriber
 
 log = logging.getLogger(__name__)
@@ -710,6 +711,15 @@ def process_meeting(meeting_id: str) -> None:
         raw_transcript_payload = transcription.to_dict()
         transcript_text = str(
             getattr(transcription, "text", "") or raw_transcript_payload.get("text") or ""
+        )
+        transcript_metadata = build_transcript_observability_metadata(
+            transcript_text,
+            media_duration_seconds=getattr(meeting, "media_duration_seconds", None),
+        )
+        raw_transcript_payload["transcript_observability"] = transcript_metadata
+        log.info(
+            "process_meeting: transcript observability",
+            extra={**log_extra, **transcript_metadata},
         )
         if slide_text:
             raw_transcript_payload["slide_text"] = slide_text
