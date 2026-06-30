@@ -202,7 +202,11 @@ export default function UploadPage() {
       return message;
     }
 
-    if (status === 400 || status === 413 || /unsupported file|file type|too large|30 minutes|duration/i.test(message)) {
+    if (
+      status === 400 ||
+      status === 413 ||
+      /unsupported file|file type|too large|minutes|duration|recording length|current limit|shorter recording|couldn't detect the recording duration/i.test(message)
+    ) {
       return message || "This recording could not be uploaded. Please check the file type, size, and duration.";
     }
 
