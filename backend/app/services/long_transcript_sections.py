@@ -71,3 +71,36 @@ def build_long_transcript_section_metadata(transcript_text: str | None) -> dict[
         "section_word_counts": [section.word_count for section in sections],
         "has_beginning_middle_end_coverage": len(sections) >= 3,
     }
+
+
+def select_beginning_middle_end_sections(
+    transcript_text: str | None,
+) -> list[TranscriptSection]:
+    sections = split_transcript_sections(transcript_text)
+    if len(sections) <= 3:
+        return sections
+
+    selected_positions = [0, len(sections) // 2, len(sections) - 1]
+    selected: list[TranscriptSection] = []
+    seen: set[int] = set()
+
+    for position in selected_positions:
+        section = sections[position]
+        if section.index in seen:
+            continue
+        seen.add(section.index)
+        selected.append(section)
+
+    return selected
+
+
+def build_long_transcript_coverage_metadata(transcript_text: str | None) -> dict[str, object]:
+    selected_sections = select_beginning_middle_end_sections(transcript_text)
+
+    return {
+        "coverage_section_count": len(selected_sections),
+        "coverage_section_indices": [section.index for section in selected_sections],
+        "coverage_section_titles": [section.title for section in selected_sections],
+        "coverage_section_word_counts": [section.word_count for section in selected_sections],
+        "has_beginning_middle_end_coverage": len(selected_sections) >= 3,
+    }
