@@ -284,3 +284,24 @@ def enforce_free_trial_duration_limit(
             "Please upload a shorter recording, upgrade, or contact support."
         ),
     )
+
+
+CONFIDENTIAL_MODE_PLAN_CODES = {
+    "pro_pilot",
+    "business",
+    "team",
+    "premium",
+    "custom",
+    "enterprise",
+}
+
+
+def can_use_confidential_mode(*, db: Session, current_user: User) -> bool:
+    """Return whether the current user can enable Confidential Mode.
+
+    Confidential Mode is a premium feature. Normal uploads remain available
+    to all users; this helper only gates confidential_mode=true.
+    """
+
+    plan_code = get_effective_plan(db=db, user=current_user)
+    return str(plan_code or "").strip().lower() in CONFIDENTIAL_MODE_PLAN_CODES

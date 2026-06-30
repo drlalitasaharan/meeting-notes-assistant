@@ -1,11 +1,13 @@
 "use client";
 
+import type { BillingStatus } from "../../lib/types";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 import {
   clearAuthToken,
   createMeeting,
+  getBillingStatus,
   getCurrentUser,
   uploadMeetingFile,
 } from "../../lib/api";
@@ -143,11 +145,35 @@ function UploadGuidanceCard() {
   );
 }
 
+const CONFIDENTIAL_MODE_PLAN_CODES = new Set([
+  "pro_pilot",
+  "business",
+  "team",
+  "premium",
+  "custom",
+  "enterprise",
+]);
+
+const ACTIVE_BILLING_STATUSES = new Set(["active", "trialing", "paid"]);
+
+function canUseConfidentialMode(billingStatus: BillingStatus | null) {
+  if (!billingStatus) {
+    return false;
+  }
+
+  return (
+    CONFIDENTIAL_MODE_PLAN_CODES.has((billingStatus.plan_code || "").toLowerCase()) &&
+    ACTIVE_BILLING_STATUSES.has((billingStatus.billing_status || "").toLowerCase())
+  );
+}
+
+
 export default function UploadPage() {
   const router = useRouter();
 
   const [authStatus, setAuthStatus] = useState<"checking" | "authenticated" | "unauthenticated" | "error">("checking");
   const [authError, setAuthError] = useState<string | null>(null);
+  const [billingStatus, setBillingStatus] = useState<BillingStatus | null>(null);
   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [confidentialMode, setConfidentialMode] = useState(false);
@@ -198,11 +224,13 @@ export default function UploadPage() {
     async function verifyAuth() {
       try {
         await getCurrentUser();
+        const billing = await getBillingStatus();
 
         if (!active) {
           return;
         }
 
+        setBillingStatus(billing);
         setAuthError(null);
         setAuthStatus("authenticated");
       } catch (err) {
@@ -258,7 +286,7 @@ export default function UploadPage() {
 
     try {
       const meeting = await createMeeting(title.trim());
-      const upload = await uploadMeetingFile(meeting.id, file, confidentialMode);
+      const upload = await uploadMeetingFile(meeting.id, file, confidentialMode && canUseConfidentialMode(billingStatus));
       const jobQuery = upload.job_id ? `?jobId=${encodeURIComponent(upload.job_id)}` : "";
 
       router.push(`/meetings/${meeting.id}${jobQuery}`);
@@ -515,19 +543,29 @@ export default function UploadPage() {
             <input
               id="confidential-mode"
               type="checkbox"
-              checked={confidentialMode}
-              disabled={isUploading || authStatus !== "authenticated"}
-              onChange={(event) => setConfidentialMode(event.target.checked)}
+              checked={confidentialMode && canUseConfidentialMode(billingStatus)}
+              disabled={isUploading || authStatus !== "authenticated" || !canUseConfidentialMode(billingStatus)}
+              onChange={(event) => setConfidentialMode(event.target.checked && canUseConfidentialMode(billingStatus))}
               style={{ marginTop: 4 }}
             />
             <span>
               <strong style={{ display: "block", marginBottom: 4 }}>
-                Enable Confidential Mode
+                {canUseConfidentialMode(billingStatus)
+                  ? "Enable Confidential Mode"
+                  : "Confidential Mode"}
               </strong>
               <span style={{ color: "#365342", fontSize: 14, lineHeight: 1.55 }}>
-                MeetIQ still uses hosted cloud processing. When enabled, the
-                original recording is automatically deleted after notes are
-                generated. Generated notes remain available in your account.
+                {canUseConfidentialMode(billingStatus)
+                  ? "MeetIQ still uses hosted cloud processing. When enabled, the original recording is automatically deleted after notes are generated. Generated notes remain available in your account."
+                  : "Available on Pro Pilot and Business plans. MeetIQ still uses hosted cloud processing. When enabled, the original recording is automatically deleted after notes are generated."}
+                {!canUseConfidentialMode(billingStatus) ? (
+                  <>
+                    {" "}
+                    <a href="/pricing" style={{ color: "#166534", fontWeight: 800 }}>
+                      Upgrade to enable
+                    </a>
+                  </>
+                ) : null}
               </span>
             </span>
           </label>

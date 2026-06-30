@@ -137,3 +137,20 @@ Recommended future privacy improvements:
 
 7. Local/offline processing
    - Longer-term option for clients requiring stronger confidentiality guarantees.
+
+## Premium gating
+
+Confidential Mode is a premium feature.
+
+Current access rule:
+
+- Allowed: Pro Pilot, Business, Team, Premium, Custom, Enterprise
+- Not allowed: Free trial, Starter, legacy paid_pro
+
+The frontend shows a locked upgrade prompt for non-eligible users.
+
+The backend also enforces access. If a non-eligible user attempts to send `confidential_mode=true` directly to the upload API, the API returns HTTP 403:
+
+> Confidential Mode is available on Pro Pilot and Business plans.
+
+Normal uploads remain available to all eligible upload users.

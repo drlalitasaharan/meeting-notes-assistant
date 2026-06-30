@@ -1,8 +1,32 @@
+const CONFIDENTIAL_MODE_PLAN_CODES = new Set([
+  "pro_pilot",
+  "business",
+  "team",
+  "premium",
+  "custom",
+  "enterprise",
+]);
+
+const ACTIVE_BILLING_STATUSES = new Set(["active", "trialing", "paid"]);
+
+function canUseConfidentialMode(billingStatus: BillingStatus | null) {
+  if (!billingStatus) {
+    return false;
+  }
+
+  return (
+    CONFIDENTIAL_MODE_PLAN_CODES.has((billingStatus.plan_code || "").toLowerCase()) &&
+    ACTIVE_BILLING_STATUSES.has((billingStatus.billing_status || "").toLowerCase())
+  );
+}
+
+
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createMeeting, uploadMeetingFile } from "../lib/api";
+import { createMeeting, getBillingStatus, uploadMeetingFile } from "../lib/api";
+import type { BillingStatus } from "../lib/types";
 import ErrorBanner from "./ErrorBanner";
 
 export default function UploadForm() {
@@ -11,6 +35,7 @@ export default function UploadForm() {
   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [confidentialMode, setConfidentialMode] = useState(false);
+  const [billingStatus, setBillingStatus] = useState<BillingStatus | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -29,7 +54,7 @@ export default function UploadForm() {
       const finalTitle = title.trim() || file.name;
 
       const meeting = await createMeeting(finalTitle);
-      const uploadResponse = await uploadMeetingFile(meeting.id, file, confidentialMode);
+      const uploadResponse = await uploadMeetingFile(meeting.id, file, confidentialMode && canUseConfidentialMode(billingStatus));
 
       const jobId = uploadResponse.job_id ?? uploadResponse.id;
 
@@ -136,19 +161,21 @@ export default function UploadForm() {
           <input
             id="confidential-mode-reusable"
             type="checkbox"
-            checked={confidentialMode}
-            disabled={isSubmitting}
-            onChange={(event) => setConfidentialMode(event.target.checked)}
+            checked={confidentialMode && canUseConfidentialMode(billingStatus)}
+            disabled={isSubmitting || !canUseConfidentialMode(billingStatus)}
+            onChange={(event) => setConfidentialMode(event.target.checked && canUseConfidentialMode(billingStatus))}
             style={{ marginTop: 4 }}
           />
           <span>
             <strong style={{ display: "block", marginBottom: 4 }}>
-              Enable Confidential Mode
+              {canUseConfidentialMode(billingStatus)
+                ? "Enable Confidential Mode"
+                : "Confidential Mode"}
             </strong>
             <span style={{ color: "#4b5563", fontSize: 14, lineHeight: 1.5 }}>
-              MeetIQ still uses hosted cloud processing. When enabled, the
-              original recording is automatically deleted after notes are
-              generated.
+              {canUseConfidentialMode(billingStatus)
+                ? "MeetIQ still uses hosted cloud processing. When enabled, the original recording is automatically deleted after notes are generated."
+                : "Available on Pro Pilot and Business plans."}
             </span>
           </span>
         </label>
