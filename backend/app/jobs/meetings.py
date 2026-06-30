@@ -2,7 +2,24 @@
 
 from __future__ import annotations
 
+import os
+
 from app.jobs.queue import queue
+
+DEFAULT_PROCESSING_JOB_TIMEOUT_SECONDS = 4 * 60 * 60
+
+
+def processing_job_timeout_seconds() -> int:
+    raw_value = os.getenv("MEETIQ_PROCESSING_JOB_TIMEOUT_SECONDS")
+    if raw_value is None or not raw_value.strip():
+        return DEFAULT_PROCESSING_JOB_TIMEOUT_SECONDS
+
+    try:
+        value = int(raw_value.strip())
+    except ValueError:
+        return DEFAULT_PROCESSING_JOB_TIMEOUT_SECONDS
+
+    return max(1, value)
 
 
 def process_meeting(meeting_id: int) -> None:
@@ -24,6 +41,6 @@ def enqueue_process_meeting(meeting_id: int):
         process_meeting,
         meeting_id=meeting_id,
         description=f"process_meeting[{meeting_id}]",
-        job_timeout="90m",
+        job_timeout=processing_job_timeout_seconds(),
     )
     return job
