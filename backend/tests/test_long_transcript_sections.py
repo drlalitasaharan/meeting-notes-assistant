@@ -79,3 +79,27 @@ def test_build_long_transcript_coverage_metadata_for_l01_long_transcript():
     assert metadata["coverage_section_indices"][-1] > metadata["coverage_section_indices"][0]
     assert len(metadata["coverage_section_titles"]) == 3
     assert len(metadata["coverage_section_word_counts"]) == 3
+
+
+def test_long_transcript_coverage_metadata_is_payload_safe():
+    from app.services.long_transcript_sections import build_long_transcript_coverage_metadata
+
+    transcript = (FIXTURES / "L01_long_business.txt").read_text()
+
+    metadata = build_long_transcript_coverage_metadata(transcript)
+
+    payload = {"long_transcript_section_coverage": metadata}
+
+    assert payload["long_transcript_section_coverage"]["coverage_section_count"] == 3
+    assert isinstance(
+        payload["long_transcript_section_coverage"]["coverage_section_indices"],
+        list,
+    )
+    assert isinstance(
+        payload["long_transcript_section_coverage"]["coverage_section_titles"],
+        list,
+    )
+    assert isinstance(
+        payload["long_transcript_section_coverage"]["coverage_section_word_counts"],
+        list,
+    )
