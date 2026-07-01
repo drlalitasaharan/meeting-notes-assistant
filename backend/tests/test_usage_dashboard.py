@@ -12,6 +12,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.deps import get_current_user
 from app.models import Base
+from app.models.billing import BillingSubscription
 from app.models.meeting import Meeting
 from app.models.upload_ledger import UploadLedger
 from app.models.user import User
@@ -88,6 +89,26 @@ def _create_counted_ledger(
     db.commit()
     db.refresh(ledger)
     return ledger
+
+
+def _create_active_subscription(
+    db: Session,
+    *,
+    user_id: int,
+    plan_code: str,
+) -> BillingSubscription:
+    subscription = BillingSubscription(
+        user_id=user_id,
+        provider="local_test",
+        provider_customer_id=f"customer-{user_id}",
+        provider_subscription_id=f"subscription-{user_id}-{plan_code}",
+        plan_code=plan_code,
+        status="active",
+    )
+    db.add(subscription)
+    db.commit()
+    db.refresh(subscription)
+    return subscription
 
 
 def _client_for(db: Session, user: User) -> TestClient:
@@ -184,3 +205,42 @@ def test_usage_dashboard_returns_pilot_usage_from_lifetime_ledger(
     assert payload["remaining_uploads"] == 1
     assert payload["max_duration_seconds"] == 3600
     assert payload["max_duration_minutes"] == 60
+
+def test_usage_dashboard_shows_internal_long_recording_test_duration_for_allowlisted_paid_user(
+    db_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+    monkeypatch.setenv("MEETIQ_PRO_PILOT_MAX_DURATION_SECONDS", "7200")
+
+    user = _create_user(db_session, email="qa-longtest@example.com")
+    _create_active_subscription(db_session, user_id=user.id, plan_code="pro_pilot")
+
+    response = _client_for(db_session, user).get("/v1/usage/me")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["plan"] == "pro_pilot"
+    assert payload["is_pilot_override"] is False
+    assert payload["max_duration_seconds"] == 305 * 60
+    assert payload["max_duration_minutes"] == 305
+
+
+def test_usage_dashboard_keeps_normal_pro_pilot_duration_for_non_internal_user(
+    db_session: Session,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+    monkeypatch.setenv("MEETIQ_PRO_PILOT_MAX_DURATION_SECONDS", "7200")
+
+    user = _create_user(db_session, email="normal-pro-pilot@example.com")
+    _create_active_subscription(db_session, user_id=user.id, plan_code="pro_pilot")
+
+    response = _client_for(db_session, user).get("/v1/usage/me")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["plan"] == "pro_pilot"
+    assert payload["is_pilot_override"] is False
+    assert payload["max_duration_seconds"] == 7200
+    assert payload["max_duration_minutes"] == 120

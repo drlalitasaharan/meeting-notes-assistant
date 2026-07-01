@@ -17,6 +17,7 @@ from app.services.usage_limits import (
     enforce_free_trial_duration_limit,
     enforce_free_trial_upload_limit,
     max_duration_seconds_for_plan,
+    max_duration_seconds_for_upload,
     max_duration_seconds_for_user,
     record_upload_ledger_entry,
     upload_limit_for_user,
@@ -319,6 +320,69 @@ def test_pro_pilot_subscription_blocks_over_120_minutes(db_session, monkeypatch)
 
     assert exc.value.status_code == 400
     assert "current limit is 120 minutes" in exc.value.detail
+
+
+def test_internal_long_recording_test_email_can_exceed_pro_pilot_limit(
+    db_session,
+    monkeypatch,
+):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+    monkeypatch.setenv("MEETIQ_PRO_PILOT_MAX_DURATION_SECONDS", "7200")
+
+    user = _create_user(db_session, email="qa-longtest@example.com")
+    _create_active_subscription(db_session, user_id=user.id, plan_code="pro_pilot")
+
+    enforce_free_trial_duration_limit(
+        db=db_session,
+        current_user=user,
+        duration_seconds=300.3 * 60,
+    )
+
+    assert max_duration_seconds_for_plan("pro_pilot") == 7200
+    assert max_duration_seconds_for_upload(db=db_session, current_user=user) == 305 * 60
+
+
+def test_internal_long_recording_test_email_blocks_over_305_minutes(
+    db_session,
+    monkeypatch,
+):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+    monkeypatch.setenv("MEETIQ_PRO_PILOT_MAX_DURATION_SECONDS", "7200")
+
+    user = _create_user(db_session, email="qa-longtest@example.com")
+    _create_active_subscription(db_session, user_id=user.id, plan_code="pro_pilot")
+
+    with pytest.raises(HTTPException) as exc:
+        enforce_free_trial_duration_limit(
+            db=db_session,
+            current_user=user,
+            duration_seconds=305.1 * 60,
+        )
+
+    assert exc.value.status_code == 400
+    assert "current limit is 305 minutes" in exc.value.detail
+
+
+def test_non_internal_pro_pilot_user_still_uses_plan_duration_limit(
+    db_session,
+    monkeypatch,
+):
+    monkeypatch.delenv("MEETIQ_PILOT_OVERRIDE_EMAILS", raising=False)
+    monkeypatch.setenv("MEETIQ_PRO_PILOT_MAX_DURATION_SECONDS", "7200")
+
+    user = _create_user(db_session, email="normal-pro-pilot@example.com")
+    _create_active_subscription(db_session, user_id=user.id, plan_code="pro_pilot")
+
+    with pytest.raises(HTTPException) as exc:
+        enforce_free_trial_duration_limit(
+            db=db_session,
+            current_user=user,
+            duration_seconds=300.3 * 60,
+        )
+
+    assert exc.value.status_code == 400
+    assert "current limit is 120 minutes" in exc.value.detail
+    assert max_duration_seconds_for_upload(db=db_session, current_user=user) == 7200
 
 
 
