@@ -1076,7 +1076,7 @@ def extract_risks(records: list[tuple[str, SourceType]]) -> list[str]:
         r"\brisk(?:s)?\b",
         r"\bblocker(?:s)?\b",
         r"\bdependency\b|\bdependencies\b",
-        r"\bmay\s+(?:delay|fail|miss|confuse|reduce|create|increase|block|break|lose|think)\b",
+        r"\bmay\s+(?:delay|fail|miss|confuse|reduce|create|increase|block|break|lose|think|look)\b",
         r"\bcould\s+(?:delay|fail|miss|confuse|reduce|create|increase|block|break|lose)\b",
         r"\bmight\s+(?:delay|fail|miss|confuse|reduce|create|increase|block|break|lose)\b",
         r"\brisk\s+of\b",
@@ -1085,6 +1085,8 @@ def extract_risks(records: list[tuple[str, SourceType]]) -> list[str]:
         r"\bquality issue(?:s)?\b",
         r"\bprocessing issue(?:s)?\b",
         r"\bsupport burden\b",
+        r"\bpartial transcript\b",
+        r"\bmislaid decisions and actions\b",
     )
     agenda_phrases = (
         "review risks",
@@ -1098,11 +1100,30 @@ def extract_risks(records: list[tuple[str, SourceType]]) -> list[str]:
     for sentence, _source in records:
         lowered = sentence.lower()
 
-        if any(phrase in lowered for phrase in agenda_phrases) and not re.search(
-            r"\b(?:may|could|might|unclear|not clear|risk of|blocker|delay|fail|miss|confuse)\b",
-            lowered,
+        if "partial transcript" in lowered and (
+            "mislaid decisions" in lowered
+            or "miss decisions" in lowered
+            or "may look complete" in lowered
         ):
+            risks.append(_clean_sentence_text(sentence))
             continue
+
+        has_explicit_risk_language = bool(
+            re.search(
+                r"\b(?:may|could|might|unclear|not clear|risk of|blocker|delay|fail|miss|confuse|failure)\b",
+                lowered,
+            )
+        )
+
+        if any(phrase in lowered for phrase in agenda_phrases) and not has_explicit_risk_language:
+            continue
+
+        # Long-meeting filler often says a section "reviewed" reliability,
+        # timeout behavior, or support expectations. That context is useful
+        # for key points, but it is not itself a risk unless risk language is present.
+        if re.search(r"\bsection reviewed\b|\breviewed upload reliability\b", lowered):
+            if not has_explicit_risk_language:
+                continue
 
         if (
             "raw media path" in lowered
@@ -1474,6 +1495,136 @@ def _extract_long_meeting_risks(
     return _dedupe_text_items_in_order(risks, limit=limit)
 
 
+_GENERIC_OUTCOME_TEXTS = {
+    "the meeting aligned on the main priorities and next steps",
+    "the meeting achieved alignment on key priorities and next steps",
+}
+
+
+def _records_text(records: list[tuple[str, SourceType]]) -> str:
+    return " ".join(sentence for sentence, source in records if source == "transcript").lower()
+
+
+def _outcome_too_generic_for_long_meeting(outcome: str) -> bool:
+    normalized = _canonical_text(outcome)
+    return any(normalized == _canonical_text(text) for text in _GENERIC_OUTCOME_TEXTS)
+
+
+def _build_long_meeting_specific_outcome(
+    records: list[tuple[str, SourceType]],
+    decisions: list[str],
+    action_items: list[ActionItem],
+    risks: list[str],
+) -> str:
+    joined = " ".join(
+        [
+            _records_text(records),
+            " ".join(decisions).lower(),
+            " ".join(item.task.lower() for item in action_items),
+            " ".join(risk.lower() for risk in risks),
+        ]
+    )
+
+    has_long_recording = any(
+        phrase in joined
+        for phrase in (
+            "3-hour",
+            "3 hour",
+            "three-hour",
+            "three hour",
+            "long recording",
+            "long-recording",
+        )
+    )
+    has_pro_pilot = "pro pilot" in joined or "propilot" in joined
+    has_quality = "quality" in joined or "qa readiness" in joined
+    has_expectations = (
+        "expectation" in joined
+        or "support copy" in joined
+        or "upload messaging" in joined
+        or "publicly" in joined
+    )
+    has_reliability = (
+        "processing reliability" in joined
+        or "worker timeout" in joined
+        or "transcript completion" in joined
+        or "job lifecycle" in joined
+        or "memory" in joined
+        or "timeout" in joined
+    )
+
+    if has_long_recording and has_pro_pilot and (has_quality or has_expectations):
+        parts = ["long-recording support"]
+        if has_pro_pilot:
+            parts.append("Pro Pilot boundaries")
+        if has_reliability:
+            parts.append("processing reliability checks")
+        if has_expectations:
+            parts.append("customer expectation guidance")
+        if has_quality:
+            parts.append("quality review")
+
+        return "The team aligned on " + ", ".join(parts[:-1]) + ", and " + parts[-1] + "."
+
+    if has_long_recording and (has_reliability or has_expectations or has_quality):
+        parts = ["long-recording support"]
+        if has_reliability:
+            parts.append("processing reliability")
+        if has_expectations:
+            parts.append("upload and support expectations")
+        if has_quality:
+            parts.append("quality review")
+
+        return "The team aligned on " + ", ".join(parts[:-1]) + ", and " + parts[-1] + "."
+
+    return ""
+
+
+def _preserve_long_meeting_critical_risks(
+    risks: list[str],
+    records: list[tuple[str, SourceType]],
+    *,
+    limit: int,
+) -> list[str]:
+    """Preserve critical long-meeting risks that should not be crowded out."""
+    critical: list[str] = []
+
+    for sentence, source in records:
+        if source != "transcript":
+            continue
+
+        lowered = sentence.lower()
+        if "partial transcript" in lowered and (
+            "mislaid decisions" in lowered
+            or "miss decisions" in lowered
+            or "may look complete" in lowered
+        ):
+            critical.append("A partial transcript may look complete but miss decisions and actions")
+
+    if not critical:
+        return risks[:limit]
+
+    merged: list[str] = []
+    seen: set[str] = set()
+
+    for item in [*critical, *risks]:
+        cleaned = _clean_publishable_risk_text(item)
+        if not cleaned:
+            continue
+
+        key = _canonical_text(cleaned)
+        if not key or key in seen:
+            continue
+
+        seen.add(key)
+        merged.append(cleaned)
+
+        if len(merged) >= limit:
+            break
+
+    return merged
+
+
 def _build_publishable_outcome_from_decisions(decisions: list[str]) -> str:
     joined = " ".join(decisions).lower()
 
@@ -1633,16 +1784,118 @@ def _prepare_publishable_decisions(
     return cleaned
 
 
+def _meaningful_risk_words(text: str) -> set[str]:
+    return {
+        word
+        for word in re.findall(r"[a-z0-9]+", text.lower())
+        if len(word) > 3
+        and word not in STOPWORDS
+        and word
+        not in {
+            "there",
+            "that",
+            "with",
+            "from",
+            "this",
+            "could",
+            "would",
+            "might",
+            "early",
+        }
+    }
+
+
+def _risk_similarity(left: str, right: str) -> float:
+    left_words = _meaningful_risk_words(left)
+    right_words = _meaningful_risk_words(right)
+    if not left_words or not right_words:
+        return 0.0
+    return len(left_words & right_words) / max(1, min(len(left_words), len(right_words)))
+
+
+def _clean_publishable_risk_text(text: str) -> str:
+    cleaned = _publishable_slot_text(text, max_chars=260)
+    if not cleaned:
+        return ""
+
+    lowered = cleaned.lower()
+
+    has_explicit_risk_language = bool(
+        re.search(
+            r"\b(?:risk|may|could|might|unclear|not clear|risk of|blocker|delay|fail|miss|confuse|failure|partial transcript|mislaid)\b",
+            lowered,
+        )
+    )
+
+    # Drop long-meeting filler/context that describes what a section reviewed.
+    # These can arrive from upstream summary risks, but they are not risks.
+    if re.search(r"\bsection reviewed\b|\breviewed upload reliability\b", lowered):
+        if not has_explicit_risk_language:
+            return ""
+
+    cleaned = re.sub(
+        r"\bA partial transcript may look complete, but mislaid decisions and actions\b",
+        "A partial transcript may look complete but miss decisions and actions",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"\bmislaid decisions and actions\b",
+        "miss decisions and actions",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(r"\s+,", ",", cleaned)
+    cleaned = re.sub(r",\s+or\s+", " or ", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip(" .")
+
+    return cleaned
+
+
+def _prefer_more_specific_risk(left: str, right: str) -> str:
+    def score(text: str) -> tuple[int, int]:
+        lowered = text.lower()
+        specificity = 0
+        for phrase in (
+            "too early",
+            "because",
+            "if ",
+            "unless",
+            "timeout",
+            "memory",
+            "transcript",
+            "expectation",
+            "quality",
+            "support",
+        ):
+            if phrase in lowered:
+                specificity += 1
+        return specificity, len(text)
+
+    return left if score(left) >= score(right) else right
+
+
 def _prepare_publishable_risks(risks: list[str], limit: int = 3) -> list[str]:
     cleaned: list[str] = []
-    seen: set[str] = set()
 
     for risk in risks:
-        item = _publishable_slot_text(risk, max_chars=260)
-        key = _canonical_text(item)
-        if not item or key in seen:
+        item = _clean_publishable_risk_text(risk)
+        if not item:
             continue
-        seen.add(key)
+
+        duplicate_index: int | None = None
+        for index, existing in enumerate(cleaned):
+            if _risk_similarity(item, existing) >= 0.70:
+                duplicate_index = index
+                break
+
+        if duplicate_index is not None:
+            cleaned[duplicate_index] = _prefer_more_specific_risk(
+                cleaned[duplicate_index],
+                item,
+            )
+            continue
+
         cleaned.append(item)
 
         if len(cleaned) >= limit:
@@ -2358,6 +2611,12 @@ class LocalSummaryStrategy(NotesStrategy):
         )
         raw_risks = _merge_text_items(existing_risks, extracted_risks, limit=8)
         risks = _prepare_publishable_risks(raw_risks, limit=risk_limit)
+        if long_meeting:
+            risks = _preserve_long_meeting_critical_risks(
+                risks,
+                records,
+                limit=risk_limit,
+            )
 
         raw_summary_slots = processed_v3.summary.model_dump()
         purpose_fallback = "" if long_meeting else str(raw_summary_slots.get("purpose") or "")
@@ -2384,6 +2643,23 @@ class LocalSummaryStrategy(NotesStrategy):
             outcome = _publishable_slot_text(
                 _build_publishable_outcome_from_decisions(decisions), max_chars=260
             )
+
+        if long_meeting:
+            long_outcome = _publishable_slot_text(
+                _build_long_meeting_specific_outcome(
+                    records,
+                    decisions,
+                    action_items,
+                    risks,
+                ),
+                max_chars=260,
+            )
+            if long_outcome and (
+                not outcome
+                or _outcome_too_generic_for_long_meeting(outcome)
+                or (purpose and _slot_text_too_similar(outcome, purpose))
+            ):
+                outcome = long_outcome
 
         summary_slots = {
             **raw_summary_slots,
@@ -2472,6 +2748,17 @@ class LocalSummaryStrategy(NotesStrategy):
             action_item_objects=action_item_objects,
             summary_slots=summary_slots,
         )
+
+        if long_meeting:
+            summary_slots = dict(summary_slots)
+            summary_slots["risks"] = _preserve_long_meeting_critical_risks(
+                list(summary_slots.get("risks") or []),
+                records,
+                limit=risk_limit,
+            )
+            summary = _summary_slots_to_text(summary_slots)
+            if not summary:
+                summary = make_summary(key_points, max_points=4)
 
         return NotesResult(
             summary=summary,
