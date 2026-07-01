@@ -26,8 +26,7 @@ from app.services.usage_limits import (
     can_use_confidential_mode,
     enforce_free_trial_duration_limit,
     enforce_free_trial_upload_limit,
-    max_duration_seconds_for_plan,
-    max_duration_seconds_for_user,
+    max_duration_seconds_for_upload,
     record_upload_ledger_entry,
 )
 
@@ -222,11 +221,9 @@ async def upload_meeting_media(
     )
 
     effective_plan = get_effective_plan(db=db, user=current_user)
-    plan_max_duration_seconds = max_duration_seconds_for_plan(effective_plan)
-    max_duration_seconds = (
-        plan_max_duration_seconds
-        if plan_max_duration_seconds is not None
-        else max_duration_seconds_for_user(current_user)
+    max_duration_seconds = max_duration_seconds_for_upload(
+        db=db,
+        current_user=current_user,
     )
 
     logger.info(

@@ -28,6 +28,15 @@ DEFAULT_BUSINESS_MONTHLY_UPLOAD_LIMIT = 300
 DEFAULT_STARTER_MAX_DURATION_SECONDS = 60 * 60
 DEFAULT_PRO_PILOT_MAX_DURATION_SECONDS = 120 * 60
 DEFAULT_BUSINESS_MAX_DURATION_SECONDS = 180 * 60
+DEFAULT_INTERNAL_LONG_RECORDING_TEST_MAX_DURATION_SECONDS = 305 * 60
+
+INTERNAL_LONG_RECORDING_TEST_EMAILS = {
+    "meetiq-test+20260606@example.com",
+    "meetiq-local-test+20260609@example.com",
+    "meetiq-browser-test+1780931355@example.com",
+    "longtest1@example.com",
+    "qa-longtest@example.com",
+}
 
 BUSINESS_PLAN_CODES = {
     "business",
@@ -61,6 +70,17 @@ def _csv_env(name: str) -> set[str]:
 def _has_pilot_override(user: User) -> bool:
     pilot_override_emails = _csv_env("MEETIQ_PILOT_OVERRIDE_EMAILS")
     return user.email.strip().lower() in pilot_override_emails
+
+
+def _has_internal_long_recording_test_override(user: User) -> bool:
+    return user.email.strip().lower() in INTERNAL_LONG_RECORDING_TEST_EMAILS
+
+
+def _internal_long_recording_test_max_duration_seconds(user: User) -> int | None:
+    if not _has_internal_long_recording_test_override(user):
+        return None
+
+    return DEFAULT_INTERNAL_LONG_RECORDING_TEST_MAX_DURATION_SECONDS
 
 
 def current_month_start_utc() -> datetime:
@@ -127,6 +147,29 @@ def max_duration_seconds_for_user(user: User) -> int:
         "MEETIQ_FREE_TRIAL_MAX_DURATION_SECONDS",
         DEFAULT_FREE_TRIAL_MAX_DURATION_SECONDS,
     )
+
+
+def max_duration_seconds_for_upload(
+    *,
+    db: Session | None,
+    current_user: User,
+) -> int:
+    plan_max_seconds = None
+    if db is not None:
+        plan_code = get_effective_plan(db=db, user=current_user)
+        plan_max_seconds = max_duration_seconds_for_plan(plan_code)
+
+    base_max_seconds = (
+        plan_max_seconds
+        if plan_max_seconds is not None
+        else max_duration_seconds_for_user(current_user)
+    )
+
+    internal_test_max_seconds = _internal_long_recording_test_max_duration_seconds(current_user)
+    if internal_test_max_seconds is not None:
+        return max(base_max_seconds, internal_test_max_seconds)
+
+    return base_max_seconds
 
 
 def count_uploaded_meeting_slots(
@@ -291,13 +334,7 @@ def enforce_free_trial_duration_limit(
             ),
         )
 
-    max_seconds = None
-    if db is not None:
-        plan_code = get_effective_plan(db=db, user=current_user)
-        max_seconds = max_duration_seconds_for_plan(plan_code)
-
-    if max_seconds is None:
-        max_seconds = max_duration_seconds_for_user(current_user)
+    max_seconds = max_duration_seconds_for_upload(db=db, current_user=current_user)
 
     if duration_seconds <= max_seconds:
         return
