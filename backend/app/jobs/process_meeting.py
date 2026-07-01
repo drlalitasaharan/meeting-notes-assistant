@@ -482,6 +482,12 @@ def _clean_final_long_meeting_risk(risk: object) -> str:
         cleaned,
         flags=re.IGNORECASE,
     )
+    cleaned = re.sub(
+        r"\bmislead decisions and actions\b",
+        "miss decisions and actions",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
     cleaned = re.sub(r"\s+,", ",", cleaned)
     cleaned = re.sub(r",\s+or\s+", " or ", cleaned)
     return cleaned.strip(" .")

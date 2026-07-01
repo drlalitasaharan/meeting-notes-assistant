@@ -31,6 +31,7 @@ def _llm_polished_bad_notes() -> dict[str, object]:
             "risks": [
                 "Exposing 3-hour support publicly too early creates failure, cost, and expectation risk",
                 "Exposing 3-hour support publicly creates failure, cost, and expectation risk.",
+                "A partial transcript may look complete, but mislead decisions and actions",
                 "Large video files may upload, but fail later, because of memory, or timeout limits.",
             ],
             "next_steps": [
@@ -87,6 +88,7 @@ def test_final_long_meeting_polish_runs_after_llm_output():
 
     assert joined_risks.count("exposing 3-hour support publicly") <= 1
     assert "mislaid decisions" not in joined_risks
+    assert "mislead decisions" not in joined_risks
     assert "miss decisions and actions" in joined_risks
 
     assert len(result["key_points"]) >= 6
