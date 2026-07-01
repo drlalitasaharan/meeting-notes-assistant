@@ -1072,8 +1072,38 @@ def _build_outcome(
 
 def extract_risks(records: list[tuple[str, SourceType]]) -> list[str]:
     risks: list[str] = []
+    risk_patterns = (
+        r"\brisk(?:s)?\b",
+        r"\bblocker(?:s)?\b",
+        r"\bdependency\b|\bdependencies\b",
+        r"\bmay\s+(?:delay|fail|miss|confuse|reduce|create|increase|block|break|lose|think)\b",
+        r"\bcould\s+(?:delay|fail|miss|confuse|reduce|create|increase|block|break|lose)\b",
+        r"\bmight\s+(?:delay|fail|miss|confuse|reduce|create|increase|block|break|lose)\b",
+        r"\brisk\s+of\b",
+        r"\bnot clear\b",
+        r"\bunclear\b",
+        r"\bquality issue(?:s)?\b",
+        r"\bprocessing issue(?:s)?\b",
+        r"\bsupport burden\b",
+    )
+    agenda_phrases = (
+        "review risks",
+        "risks and action items",
+        "risks questions and owners",
+        "capture risks separately",
+        "decisions risks questions",
+        "confirm proposal scope",
+    )
+
     for sentence, _source in records:
         lowered = sentence.lower()
+
+        if any(phrase in lowered for phrase in agenda_phrases) and not re.search(
+            r"\b(?:may|could|might|unclear|not clear|risk of|blocker|delay|fail|miss|confuse)\b",
+            lowered,
+        ):
+            continue
+
         if (
             "raw media path" in lowered
             or "runtime" in lowered
@@ -1081,9 +1111,11 @@ def extract_risks(records: list[tuple[str, SourceType]]) -> list[str]:
             or "sequencing" in lowered
             or "stress test" in lowered
             or "timing logs" in lowered
+            or any(re.search(pattern, lowered) for pattern in risk_patterns)
         ):
             risks.append(_clean_sentence_text(sentence))
-    return dedupe_points(risks)[:3]
+
+    return dedupe_points(risks)[:5]
 
 
 _ACTION_ITEM_BAD_PHRASES = (
@@ -1248,6 +1280,198 @@ def _slot_text_too_similar(left: str, right: str) -> bool:
 
     overlap = len(left_words & right_words) / max(1, min(len(left_words), len(right_words)))
     return overlap >= 0.65
+
+
+_LONG_MEETING_MIN_CHUNKS = 40
+_LONG_MEETING_MIN_TRANSCRIPT_CHARS = 75_000
+
+
+def _record_text_char_count(records: list[tuple[str, SourceType]]) -> int:
+    return sum(len(sentence) for sentence, source in records if source == "transcript")
+
+
+def _is_long_meeting_records(
+    records: list[tuple[str, SourceType]],
+    chunks: list[list[tuple[str, SourceType]]],
+) -> bool:
+    """Use long-meeting aggregation only for clearly long transcripts."""
+    return (
+        len(chunks) >= _LONG_MEETING_MIN_CHUNKS
+        or _record_text_char_count(records) >= _LONG_MEETING_MIN_TRANSCRIPT_CHARS
+    )
+
+
+def _representative_chunk_indexes(
+    chunks: list[list[tuple[str, SourceType]]],
+) -> list[int]:
+    if not chunks:
+        return []
+
+    last = len(chunks) - 1
+    middle = len(chunks) // 2
+    candidates = {
+        0,
+        1,
+        2,
+        max(0, middle - 1),
+        middle,
+        min(last, middle + 1),
+        max(0, last - 2),
+        max(0, last - 1),
+        last,
+    }
+    return sorted(index for index in candidates if 0 <= index <= last)
+
+
+def _long_meeting_chunk_priority_indexes(
+    chunks: list[list[tuple[str, SourceType]]],
+) -> list[int]:
+    highlighted = _representative_chunk_indexes(chunks)
+    highlighted_set = set(highlighted)
+    remaining = [index for index in range(len(chunks)) if index not in highlighted_set]
+    return [*highlighted, *remaining]
+
+
+def _rank_chunk_points(
+    chunk: list[tuple[str, SourceType]],
+    *,
+    limit: int = 2,
+) -> list[str]:
+    sentences = [sentence for sentence, _source in chunk]
+    if not sentences:
+        return []
+
+    freq = word_freq(sentences)
+    ranked = sorted(
+        chunk,
+        key=lambda item: sentence_score(item[0], freq, item[1]),
+        reverse=True,
+    )
+
+    points: list[str] = []
+    for sentence, _source in ranked:
+        cleaned = _clean_sentence_text(sentence)
+        if not _looks_like_publishable_key_point(cleaned):
+            continue
+        points.append(cleaned)
+        if len(points) >= limit:
+            break
+
+    return points
+
+
+def _select_long_meeting_points(
+    chunks: list[list[tuple[str, SourceType]]],
+    candidate_points: list[str],
+    *,
+    limit: int = 12,
+) -> list[str]:
+    """Prevent long notes from over-focusing on only the first part of the meeting."""
+    coverage_points: list[str] = []
+    for index in _representative_chunk_indexes(chunks):
+        coverage_points.extend(_rank_chunk_points(chunks[index], limit=2))
+
+    if not coverage_points:
+        return select_diverse_points(candidate_points, limit=limit)
+
+    return select_diverse_points([*coverage_points, *candidate_points], limit=limit)
+
+
+def _dedupe_text_items_in_order(items: list[str], *, limit: int) -> list[str]:
+    results: list[str] = []
+    seen: set[str] = set()
+
+    for item in items:
+        cleaned = _clean_sentence_text(str(item or ""))
+        key = _canonical_text(cleaned)
+        if not cleaned or not key or key in seen:
+            continue
+        seen.add(key)
+        results.append(cleaned)
+        if len(results) >= limit:
+            break
+
+    return results
+
+
+def _dedupe_action_items_in_order(
+    items: list[ActionItem],
+    *,
+    limit: int,
+) -> list[ActionItem]:
+    results: list[ActionItem] = []
+    seen: set[str] = set()
+
+    for item in items:
+        task = _normalize_publishable_action_task(item.task)
+        if not _looks_like_publishable_action_task(task):
+            continue
+
+        key = _canonical_action_task(task)
+        if not key or key in seen:
+            continue
+
+        seen.add(key)
+        results.append(replace(item, task=task))
+
+        if len(results) >= limit:
+            break
+
+    return results
+
+
+def _extract_long_meeting_action_items(
+    records: list[tuple[str, SourceType]],
+    chunks: list[list[tuple[str, SourceType]]],
+    *,
+    limit: int,
+) -> list[ActionItem]:
+    """Extract actions per chunk so middle/end actions are not lost in long meetings."""
+    items: list[ActionItem] = []
+
+    items.extend(extract_final_section_action_items(records))
+    items.extend(extract_action_items(extract_final_action_records(records)))
+
+    for index in _long_meeting_chunk_priority_indexes(chunks):
+        items.extend(extract_action_items(chunks[index]))
+
+    items.extend(extract_action_items(records))
+
+    return _dedupe_action_items_in_order(items, limit=limit)
+
+
+def _extract_long_meeting_decisions(
+    records: list[tuple[str, SourceType]],
+    chunks: list[list[tuple[str, SourceType]]],
+    *,
+    limit: int,
+) -> list[str]:
+    """Extract decisions per chunk so later recap decisions are preserved."""
+    decisions: list[str] = []
+
+    for index in _long_meeting_chunk_priority_indexes(chunks):
+        decisions.extend(extract_decisions(chunks[index]))
+
+    decisions.extend(extract_decisions(records))
+
+    return _dedupe_text_items_in_order(decisions, limit=limit)
+
+
+def _extract_long_meeting_risks(
+    records: list[tuple[str, SourceType]],
+    chunks: list[list[tuple[str, SourceType]]],
+    *,
+    limit: int,
+) -> list[str]:
+    """Extract risks per chunk so long meetings do not drop late operational risks."""
+    risks: list[str] = []
+
+    for index in _long_meeting_chunk_priority_indexes(chunks):
+        risks.extend(extract_risks(chunks[index]))
+
+    risks.extend(extract_risks(records))
+
+    return _dedupe_text_items_in_order(risks, limit=limit)
 
 
 def _build_publishable_outcome_from_decisions(decisions: list[str]) -> str:
@@ -2052,6 +2276,7 @@ class LocalSummaryStrategy(NotesStrategy):
         records = build_sentence_records(transcript_text, slide_text)
         action_limit, next_step_limit = _action_limits_for_transcript(transcript_text)
         chunks = chunk_records(records, max_chars=1800)
+        long_meeting = _is_long_meeting_records(records, chunks)
 
         candidate_points: list[str] = []
         for chunk in chunks:
@@ -2064,7 +2289,11 @@ class LocalSummaryStrategy(NotesStrategy):
             )
             candidate_points.extend([sentence for sentence, _source in ranked[:5]])
 
-        selected_points = select_diverse_points(candidate_points, limit=12)
+        selected_points = (
+            _select_long_meeting_points(chunks, candidate_points, limit=12)
+            if long_meeting
+            else select_diverse_points(candidate_points, limit=12)
+        )
         processed_v3 = postprocess_notes_v3(selected_points)
 
         v3_key_points = list(processed_v3.key_points)
@@ -2082,7 +2311,11 @@ class LocalSummaryStrategy(NotesStrategy):
         filtered_v3_actions = [
             item for item in v3_actions if _looks_like_publishable_action_task(item.task)
         ]
-        heuristic_actions = extract_action_items(records)
+        heuristic_actions = (
+            _extract_long_meeting_action_items(records, chunks, limit=action_limit)
+            if long_meeting
+            else extract_action_items(records)
+        )
         final_actions = extract_action_items(extract_final_action_records(records))
         final_section_actions = extract_final_section_action_items(records)
         prioritized_final_actions = merge_action_items(
@@ -2102,8 +2335,14 @@ class LocalSummaryStrategy(NotesStrategy):
         action_items = _normalize_action_items_for_publish(action_items, limit=action_limit)
 
         processed_decisions = [item.text for item in processed_v3.decisions]
-        raw_decisions = _merge_text_items(processed_decisions, extract_decisions(records), limit=8)
-        decisions = _prepare_publishable_decisions(raw_decisions, records, limit=5)
+        decision_limit = 6 if long_meeting else 5
+        extracted_decisions = (
+            _extract_long_meeting_decisions(records, chunks, limit=10)
+            if long_meeting
+            else extract_decisions(records)
+        )
+        raw_decisions = _merge_text_items(processed_decisions, extracted_decisions, limit=10)
+        decisions = _prepare_publishable_decisions(raw_decisions, records, limit=decision_limit)
         action_items = _ensure_decision_backed_action_items(
             action_items, decisions, limit=action_limit
         )
@@ -2111,13 +2350,18 @@ class LocalSummaryStrategy(NotesStrategy):
         existing_risks = [
             str(item).strip() for item in list(processed_v3.summary.risks) if str(item).strip()
         ]
-        raw_risks = _merge_text_items(existing_risks, extract_risks(records), limit=5)
-        risks = _prepare_publishable_risks(raw_risks, limit=3)
+        risk_limit = 5 if long_meeting else 3
+        extracted_risks = (
+            _extract_long_meeting_risks(records, chunks, limit=8)
+            if long_meeting
+            else extract_risks(records)
+        )
+        raw_risks = _merge_text_items(existing_risks, extracted_risks, limit=8)
+        risks = _prepare_publishable_risks(raw_risks, limit=risk_limit)
 
         raw_summary_slots = processed_v3.summary.model_dump()
-        purpose = _build_purpose(
-            records, selected_points, decisions, str(raw_summary_slots.get("purpose") or "")
-        )
+        purpose_fallback = "" if long_meeting else str(raw_summary_slots.get("purpose") or "")
+        purpose = _build_purpose(records, selected_points, decisions, purpose_fallback)
         purpose = _publishable_slot_text(purpose, max_chars=220)
         if not purpose:
             purpose = _publishable_slot_text(
@@ -2154,7 +2398,7 @@ class LocalSummaryStrategy(NotesStrategy):
             summary = make_summary(key_points, max_points=4)
 
         decision_objects: list[dict[str, object]] = [
-            {"text": text, "confidence": 0.7} for text in decisions[:5]
+            {"text": text, "confidence": 0.7} for text in decisions[:decision_limit]
         ]
 
         action_items = _local_explicit_action_marker_items(
@@ -2236,6 +2480,6 @@ class LocalSummaryStrategy(NotesStrategy):
             action_items=action_items,
             action_item_objects=action_item_objects,
             decisions=decisions,
-            decision_objects=decision_objects[:5],
+            decision_objects=decision_objects[:decision_limit],
             model_version="local-summary-v3",
         )
