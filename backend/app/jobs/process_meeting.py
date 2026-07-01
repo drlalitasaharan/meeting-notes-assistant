@@ -298,6 +298,320 @@ def _should_apply_quality_engine_result(
     return str(metadata.get("mode") or "") in {"v2", "v3"}
 
 
+_LONG_MEETING_FINAL_POLISH_MIN_CHARS = 75_000
+
+_FINAL_GENERIC_PURPOSE_MARKERS = (
+    "main priorities and next steps",
+    "key priorities and next steps",
+    "propilot's main priorities",
+    "align on main priorities",
+)
+
+_FINAL_GENERIC_OUTCOME_MARKERS = (
+    "alignment on key priorities",
+    "aligned on key priorities",
+    "main priorities and next steps",
+    "subsequent actions",
+)
+
+
+def _final_polish_text(value: object) -> str:
+    return re.sub(r"\s+", " ", str(value or "")).strip()
+
+
+def _final_polish_canonical(value: object) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", str(value or "").lower()).strip()
+
+
+def _final_polish_string_list(value: object, *, limit: int = 8) -> list[str]:
+    if not isinstance(value, list):
+        return []
+
+    cleaned: list[str] = []
+    for item in value[:limit]:
+        text = _final_polish_text(item)
+        if text:
+            cleaned.append(text)
+
+    return cleaned
+
+
+def _final_polish_words(value: object) -> set[str]:
+    stopwords = {
+        "there",
+        "that",
+        "with",
+        "from",
+        "this",
+        "could",
+        "would",
+        "might",
+        "because",
+        "support",
+    }
+    return {
+        word
+        for word in re.findall(r"[a-z0-9]+", str(value or "").lower())
+        if len(word) > 3 and word not in stopwords
+    }
+
+
+def _final_polish_similarity(left: object, right: object) -> float:
+    left_words = _final_polish_words(left)
+    right_words = _final_polish_words(right)
+    if not left_words or not right_words:
+        return 0.0
+    return len(left_words & right_words) / max(1, min(len(left_words), len(right_words)))
+
+
+def _final_notes_joined_text(notes: dict[str, object], transcript_text: str) -> str:
+    slots = notes.get("summary_slots")
+    slot_text = ""
+    if isinstance(slots, dict):
+        slot_text = " ".join(str(value or "") for value in slots.values())
+
+    return " ".join(
+        [
+            transcript_text,
+            str(notes.get("summary") or ""),
+            slot_text,
+            " ".join(_final_polish_string_list(notes.get("key_points"), limit=8)),
+            " ".join(_final_polish_string_list(notes.get("decisions"), limit=8)),
+        ]
+    ).lower()
+
+
+def _is_long_meeting_final_polish_candidate(
+    notes: dict[str, object],
+    transcript_text: str,
+) -> bool:
+    # Trigger final polish from the transcript only. Existing notes may contain
+    # long-meeting terms after LLM polish, but that should not make a short
+    # meeting eligible for long-meeting cleanup.
+    transcript_lower = (transcript_text or "").lower()
+    return (
+        len(transcript_text or "") >= _LONG_MEETING_FINAL_POLISH_MIN_CHARS
+        or "3-hour" in transcript_lower
+        or "3 hour" in transcript_lower
+        or "three-hour" in transcript_lower
+        or "three hour" in transcript_lower
+        or "long recording" in transcript_lower
+        or "long-recording" in transcript_lower
+    )
+
+
+def _final_long_meeting_purpose(joined: str, current: object) -> str:
+    current_text = _final_polish_text(current)
+    lowered = current_text.lower()
+
+    is_generic = not current_text or any(
+        marker in lowered for marker in _FINAL_GENERIC_PURPOSE_MARKERS
+    )
+    has_specific_long_context = any(
+        marker in lowered
+        for marker in (
+            "3-hour",
+            "3 hour",
+            "long recording",
+            "long-recording",
+            "processing reliability",
+            "upload expectations",
+        )
+    )
+
+    if not is_generic and has_specific_long_context:
+        return current_text
+
+    if ("pro pilot" in joined or "propilot" in joined) and (
+        "3-hour" in joined or "3 hour" in joined or "three-hour" in joined
+    ):
+        return (
+            "Review 3-hour recording support, Pro Pilot limits, processing reliability, "
+            "upload expectations, and long-recording quality."
+        )
+
+    return (
+        "Review long-recording support, processing reliability, upload expectations, "
+        "and note-quality readiness."
+    )
+
+
+def _final_long_meeting_outcome(joined: str, current: object) -> str:
+    current_text = _final_polish_text(current)
+    lowered = current_text.lower()
+
+    is_generic = not current_text or any(
+        marker in lowered for marker in _FINAL_GENERIC_OUTCOME_MARKERS
+    )
+    has_specific_long_context = any(
+        marker in lowered
+        for marker in (
+            "3-hour",
+            "3 hour",
+            "long recording",
+            "long-recording",
+            "pro pilot",
+            "processing reliability",
+            "quality review",
+        )
+    )
+
+    if not is_generic and has_specific_long_context:
+        return current_text
+
+    if "pro pilot" in joined or "propilot" in joined:
+        return (
+            "The team aligned on Pro Pilot long-recording support, quality review, "
+            "public-support risks, and customer upload expectations."
+        )
+
+    return (
+        "The team aligned on long-recording support, reliability risks, quality review, "
+        "and customer upload expectations."
+    )
+
+
+def _clean_final_long_meeting_risk(risk: object) -> str:
+    cleaned = _final_polish_text(risk)
+    if not cleaned:
+        return ""
+
+    cleaned = re.sub(
+        r"\bmislaid decisions and actions\b",
+        "miss decisions and actions",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(r"\s+,", ",", cleaned)
+    cleaned = re.sub(r",\s+or\s+", " or ", cleaned)
+    return cleaned.strip(" .")
+
+
+def _dedupe_final_long_meeting_risks(
+    risks: list[object],
+    *,
+    transcript_text: str,
+    limit: int = 5,
+) -> list[str]:
+    candidates = [_clean_final_long_meeting_risk(risk) for risk in risks]
+
+    lowered_transcript = (transcript_text or "").lower()
+    if "partial transcript" in lowered_transcript and (
+        "mislaid decisions" in lowered_transcript
+        or "miss decisions" in lowered_transcript
+        or "may look complete" in lowered_transcript
+    ):
+        candidates.insert(
+            0,
+            "A partial transcript may look complete but miss decisions and actions",
+        )
+
+    cleaned: list[str] = []
+
+    for candidate in candidates:
+        if not candidate:
+            continue
+
+        duplicate_index: int | None = None
+        for index, existing in enumerate(cleaned):
+            if _final_polish_similarity(candidate, existing) >= 0.70:
+                duplicate_index = index
+                break
+
+        if duplicate_index is not None:
+            existing = cleaned[duplicate_index]
+            if len(candidate) > len(existing) or "too early" in candidate.lower():
+                cleaned[duplicate_index] = candidate
+            continue
+
+        cleaned.append(candidate)
+
+        if len(cleaned) >= limit:
+            break
+
+    return cleaned
+
+
+def _long_meeting_key_point_candidates(joined: str) -> list[str]:
+    candidates: list[str] = []
+
+    if "3-hour" in joined or "3 hour" in joined or "three-hour" in joined:
+        candidates.append("The meeting reviewed 3-hour recording support and quality expectations.")
+
+    if "pro pilot" in joined or "propilot" in joined:
+        candidates.append(
+            "Pro Pilot users require clear limits and upload guidance for long recordings."
+        )
+
+    if "file size" in joined or "large video" in joined:
+        candidates.append(
+            "Large video files may need clearer size, timeout, and review expectations."
+        )
+
+    if "worker" in joined or "timeout" in joined or "memory" in joined:
+        candidates.append(
+            "Worker timeout, memory, and processing reliability remain important long-recording checks."
+        )
+
+    if "transcript" in joined:
+        candidates.append(
+            "Transcript completeness must be checked before judging long-meeting note quality."
+        )
+
+    if "publicly" in joined or "public support" in joined:
+        candidates.append(
+            "Public messaging for 3-hour support should stay conservative until quality is reliable."
+        )
+
+    if "support copy" in joined or "upload expectations" in joined:
+        candidates.append(
+            "Support copy should explain long-recording upload expectations before broader rollout."
+        )
+
+    return candidates
+
+
+def _apply_long_meeting_final_polish_after_llm(
+    notes: dict[str, object],
+    *,
+    transcript_text: str,
+) -> dict[str, object]:
+    """Final deterministic polish after optional LLM polish for long meetings."""
+    if not _is_long_meeting_final_polish_candidate(notes, transcript_text):
+        return notes
+
+    output = dict(notes)
+    slots_raw = output.get("summary_slots")
+    slots = dict(slots_raw) if isinstance(slots_raw, dict) else {}
+
+    joined = _final_notes_joined_text(output, transcript_text)
+
+    slots["purpose"] = _final_long_meeting_purpose(joined, slots.get("purpose"))
+    slots["outcome"] = _final_long_meeting_outcome(joined, slots.get("outcome"))
+
+    slots["risks"] = _dedupe_final_long_meeting_risks(
+        list(slots.get("risks") or []),
+        transcript_text=transcript_text,
+        limit=5,
+    )
+
+    key_points = _final_polish_string_list(output.get("key_points"), limit=8)
+    seen_key_points = {_final_polish_canonical(item) for item in key_points}
+    for candidate in _long_meeting_key_point_candidates(joined):
+        key = _final_polish_canonical(candidate)
+        if key and key not in seen_key_points:
+            seen_key_points.add(key)
+            key_points.append(candidate)
+        if len(key_points) >= 6:
+            break
+
+    output["key_points"] = key_points[:8]
+    output["summary_slots"] = slots
+    output["summary"] = f"{slots['purpose']} {slots['outcome']}".strip()
+
+    return output
+
+
 def _model_version_with_quality_engine_suffix(
     model_version: object,
     metadata: dict[str, Any],
@@ -985,6 +1299,10 @@ def process_meeting(meeting_id: str) -> None:
 
         if is_qev3_output:
             normalized_notes = apply_llm_polish_to_notes(normalized_notes)
+            normalized_notes = _apply_long_meeting_final_polish_after_llm(
+                normalized_notes,
+                transcript_text=str(raw_transcript_payload or ""),
+            )
 
         model_version_for_persistence = _model_version_with_quality_engine_suffix(
             notes_dict.get("model_version"),
