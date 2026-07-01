@@ -477,6 +477,8 @@ def looks_like_decision(sentence: str) -> bool:
         return False
 
     phrases = [
+        "decision confirmed",
+        "confirmed decision",
         "we decided",
         "agreed to",
         "it was decided",
@@ -564,14 +566,84 @@ _COMPOUND_ACTION_SPLIT_RE = re.compile(
 )
 
 
+def _split_embedded_speaker_turns(text: str) -> list[str]:
+    cleaned = re.sub(r"\s+", " ", str(text or "")).strip()
+    if not cleaned:
+        return []
+
+    # Split before embedded turns such as:
+    # "Priya: I will update... Marco: I will review..."
+    parts = re.split(
+        r"\s+(?=[A-Z][A-Za-z]+:\s+(?:I|We|Team)\s+(?:will|should|need|needs)\b)",
+        cleaned,
+    )
+    return [part.strip() for part in parts if part.strip()]
+
+
 def _split_compound_action_task(task: str) -> list[str]:
     cleaned = re.sub(r"\s+", " ", str(task or "")).strip(" .")
     if not cleaned:
         return []
 
-    return [
-        part.strip(" .") for part in _COMPOUND_ACTION_SPLIT_RE.split(cleaned) if part.strip(" .")
-    ]
+    # Keep simple single-task owner commitments intact, but split obvious
+    # multi-task fragments when one speaker lists several commitments.
+    parts = re.split(
+        r"\s+(?:and|;|,)\s+(?=(?:update|review|document|write|create|verify|confirm|prepare|send|schedule|draft|finalize|test|check|add|fix)\b)",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    return [part.strip(" .") for part in parts if part.strip(" .")]
+
+
+def _extract_explicit_owner_commitment_actions(
+    records: list[tuple[str, SourceType]],
+    *,
+    limit: int,
+) -> list[ActionItem]:
+    items: list[ActionItem] = []
+
+    commitment_re = re.compile(
+        r"^(?P<owner>[A-Z][A-Za-z]+):\s+"
+        r"(?P<prefix>I|We|Team)\s+"
+        r"(?P<modal>will|should|need to|needs to)\s+"
+        r"(?P<task>.+?)\s*$",
+        re.IGNORECASE,
+    )
+
+    for sentence, source in records:
+        if source != "transcript":
+            continue
+
+        for turn in _split_embedded_speaker_turns(sentence):
+            match = commitment_re.match(turn.strip())
+            if not match:
+                continue
+
+            owner = NAME_CORRECTIONS.get(
+                match.group("owner"),
+                match.group("owner"),
+            )
+            task = _local_clean_action_task_from_text(
+                f"{match.group('modal')} {match.group('task')}"
+            )
+
+            for part in _split_compound_action_task(task):
+                item = _make_action_item(
+                    owner=owner,
+                    task=part,
+                    source_sentence=turn,
+                    confidence=0.88,
+                )
+                if item is not None:
+                    items.append(item)
+
+            if len(items) >= limit * 2:
+                break
+
+        if len(items) >= limit * 2:
+            break
+
+    return _dedupe_action_items_in_order(items, limit=limit)
 
 
 def _make_action_item(
@@ -741,6 +813,7 @@ def _strip_speaker_prefix(text: str) -> str:
 
 def _clean_sentence_text(text: str) -> str:
     cleaned = _strip_speaker_prefix(text)
+    cleaned = re.sub(r"\bProPilot\b", "Pro Pilot", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(
         r"\bkeep\s+meeting\s+17\s+is\b", "keep meeting 17 as", cleaned, flags=re.IGNORECASE
     )
@@ -1171,6 +1244,8 @@ _ACTION_ITEM_GOOD_PREFIXES = (
     "validate ",
     "update ",
     "complete ",
+    "document ",
+    "write ",
 )
 
 
@@ -1450,6 +1525,7 @@ def _extract_long_meeting_action_items(
     """Extract actions per chunk so middle/end actions are not lost in long meetings."""
     items: list[ActionItem] = []
 
+    items.extend(_extract_explicit_owner_commitment_actions(records, limit=limit))
     items.extend(extract_final_section_action_items(records))
     items.extend(extract_action_items(extract_final_action_records(records)))
 
@@ -2029,6 +2105,66 @@ def _action_item_from_consistency_dict(item: dict[str, object]) -> ActionItem:
     )
 
 
+def _split_merged_owner_commitment_action_items(
+    action_items: list[ActionItem],
+    *,
+    limit: int,
+) -> list[ActionItem]:
+    split_items: list[ActionItem] = []
+
+    embedded_turn_re = re.compile(
+        r"(?P<owner>[A-Z][A-Za-z]+):\s+"
+        r"(?P<prefix>I|We|Team)\s+"
+        r"(?P<modal>will|should|need to|needs to)\s+"
+        r"(?P<task>.*?)(?=\s+[A-Z][A-Za-z]+:\s+(?:I|We|Team)\s+(?:will|should|need to|needs to)\b|$)",
+        re.IGNORECASE,
+    )
+
+    for item in action_items:
+        owner = _clean_consistency_owner(getattr(item, "owner", "Team"))
+        task = str(getattr(item, "task", "") or "").strip()
+
+        matches = list(embedded_turn_re.finditer(task))
+        if not matches:
+            split_items.append(item)
+            continue
+
+        leading_task = task[: matches[0].start()].strip(" .")
+        if leading_task:
+            split_items.append(
+                ActionItem(
+                    owner=owner,
+                    task=leading_task,
+                    due=extract_due(leading_task),
+                    confidence=float(getattr(item, "confidence", 0.8) or 0.8),
+                )
+            )
+
+        for match in matches:
+            embedded_owner = NAME_CORRECTIONS.get(
+                match.group("owner"),
+                match.group("owner"),
+            )
+            embedded_task = _local_clean_action_task_from_text(
+                f"{match.group('modal')} {match.group('task')}"
+            )
+
+            for part in _split_compound_action_task(embedded_task):
+                made = _make_action_item(
+                    owner=embedded_owner,
+                    task=part,
+                    source_sentence=match.group(0),
+                    confidence=float(getattr(item, "confidence", 0.82) or 0.82),
+                )
+                if made is not None:
+                    split_items.append(made)
+
+    return _normalize_action_items_for_publish(
+        _dedupe_action_items_in_order(split_items, limit=limit),
+        limit=limit,
+    )
+
+
 def _action_objects_from_items(action_items: list[ActionItem]) -> list[dict[str, object]]:
     objects: list[dict[str, object]] = []
 
@@ -2092,6 +2228,10 @@ def _local_clean_action_task_from_text(text: object) -> str:
     task = re.sub(r"^i will\s+", "", task, flags=re.I)
     task = re.sub(r"^we will\s+", "", task, flags=re.I)
     task = re.sub(r"^we should\s+", "", task, flags=re.I)
+    task = re.sub(r"^will\s+", "", task, flags=re.I)
+    task = re.sub(r"^should\s+", "", task, flags=re.I)
+    task = re.sub(r"^need to\s+", "", task, flags=re.I)
+    task = re.sub(r"^needs to\s+", "", task, flags=re.I)
     task = re.sub(r"^please\s+", "", task, flags=re.I)
 
     task = re.sub(
@@ -2142,6 +2282,8 @@ def _local_text_looks_actionable(text: object) -> bool:
         r"\bflag\b",
         r"\breview\b",
         r"\bfollow[- ]?up\b",
+        r"\bdocument\b",
+        r"\bwrite\b",
     )
 
     return any(re.search(pattern, value) for pattern in action_patterns)
@@ -2748,6 +2890,36 @@ class LocalSummaryStrategy(NotesStrategy):
             action_item_objects=action_item_objects,
             summary_slots=summary_slots,
         )
+        if long_meeting:
+            explicit_owner_commitment_actions = _extract_explicit_owner_commitment_actions(
+                records,
+                limit=action_limit,
+            )
+            action_items = merge_action_items(
+                explicit_owner_commitment_actions,
+                action_items,
+                limit=action_limit,
+            )
+            action_items = _split_merged_owner_commitment_action_items(
+                action_items,
+                limit=action_limit,
+            )
+            action_item_objects = [
+                {
+                    "text": f"{item.owner}: {item.task}" if item.owner else item.task,
+                    "owner": item.owner,
+                    "task": item.task,
+                    "due_date": item.due,
+                    "confidence": item.confidence,
+                    "status": "open",
+                    "priority": "medium",
+                }
+                for item in action_items
+            ]
+            summary_slots["next_steps"] = _build_next_steps_from_action_items(
+                action_items,
+                limit=next_step_limit,
+            )
 
         if long_meeting:
             summary_slots = dict(summary_slots)
