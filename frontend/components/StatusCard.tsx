@@ -43,11 +43,11 @@ function statusDescription(status: string, isPolling: boolean): string {
 
   if (normalized === "running") {
     return isPolling
-      ? "MeetIQ is processing your recording and will refresh this page automatically."
-      : "MeetIQ is processing your recording.";
+      ? "MeetIQ is processing your recording in the background. Longer recordings may take significantly more time, and this page will refresh automatically."
+      : "MeetIQ is processing your recording in the background. Longer recordings may take significantly more time.";
   }
 
-  return "Your recording is queued and will begin processing shortly.";
+  return "Your recording is queued and will begin processing shortly. Longer recordings may take significantly more time once processing starts.";
 }
 
 export default function StatusCard({

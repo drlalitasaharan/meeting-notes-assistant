@@ -466,7 +466,7 @@ export default function MeetingResultsPage() {
 
                 ? "Review, edit, copy, and export your notes."
 
-                : "MeetIQ is processing your recording. You can return from Meetings when your notes are ready."}
+                : "MeetIQ is processing your recording in the background. Longer recordings may take significantly more time. You can leave this page and return from Meetings when your notes are ready."}
 
               </p>
           </div>
