@@ -538,6 +538,28 @@ def _dedupe_final_long_meeting_risks(
     return cleaned
 
 
+def _clean_final_long_meeting_key_point(point: object) -> str:
+    cleaned = _final_polish_text(point)
+    if not cleaned:
+        return ""
+
+    cleaned = re.sub(
+        r"\bmislaid decisions and actions\b",
+        "missed decisions and actions",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"\bmislead decisions and actions\b",
+        "missed decisions and actions",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(r"\s+", " ", cleaned).strip(" .")
+
+    return cleaned
+
+
 def _long_meeting_key_point_candidates(joined: str) -> list[str]:
     candidates: list[str] = []
 
@@ -601,7 +623,14 @@ def _apply_long_meeting_final_polish_after_llm(
         limit=5,
     )
 
-    key_points = _final_polish_string_list(output.get("key_points"), limit=8)
+    key_points = [
+        item
+        for item in (
+            _clean_final_long_meeting_key_point(point)
+            for point in _final_polish_string_list(output.get("key_points"), limit=8)
+        )
+        if item
+    ]
     seen_key_points = {_final_polish_canonical(item) for item in key_points}
     for candidate in _long_meeting_key_point_candidates(joined):
         key = _final_polish_canonical(candidate)

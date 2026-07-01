@@ -40,7 +40,8 @@ def _llm_polished_bad_notes() -> dict[str, object]:
             ],
         },
         "key_points": [
-            "Determining the maximum file size for ProPilot users",
+            "Transcription quality and completeness are crucial for fair judgment",
+            "Incomplete transcripts can lead to mislaid decisions and actions",
             "Testing Meet IQ with a synthetic three-hour meeting recording",
         ],
         "decisions": [],
@@ -92,6 +93,11 @@ def test_final_long_meeting_polish_runs_after_llm_output():
     assert "miss decisions and actions" in joined_risks
 
     assert len(result["key_points"]) >= 6
+
+    joined_key_points = " ".join(str(item).lower() for item in result["key_points"])
+    assert "mislaid decisions" not in joined_key_points
+    assert "mislead decisions" not in joined_key_points
+    assert "missed decisions and actions" in joined_key_points
 
     assert result["action_item_objects"] == _llm_polished_bad_notes()["action_item_objects"]
     assert slots["next_steps"] == _llm_polished_bad_notes()["summary_slots"]["next_steps"]
